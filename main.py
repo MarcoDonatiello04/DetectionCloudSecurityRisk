@@ -35,12 +35,12 @@ def main():
                 
                 print(f"  🔹 Risorsa: {resource_type}")
                 print(f"     Nome:    {name}")
-                
                 # Analisi specifica di sicurezza per S3 Bucket
                 if resource_type == "aws_s3_bucket":
                     bucket_entity = scanner._parse_bucket_entity(resource_type, name, config)
-                    risks = bucket_entity.evaluate_risks()
                     
+
+                    risks = bucket_entity.evaluate_risks()
                     if risks:
                         print("     ⚠️  Rischi rilevati:")
                         for risk in risks:
@@ -49,6 +49,7 @@ def main():
                         print("     ✅ Nessun rischio rilevato (policy e object_ownership conformi).")
                 
                 print("-" * 20)
+
 
     print("\n✅ Scansione completata!")
 

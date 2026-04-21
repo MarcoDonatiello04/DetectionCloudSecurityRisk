@@ -29,6 +29,7 @@ class BucketEntity:
         self.raw_config = raw_config or {}
         self.object_ownership = object_ownership
 
+
     def evaluate_risks(self) -> List[str]:
         """
         Valuta i rischi di sicurezza seguendo le direttive:
@@ -43,6 +44,14 @@ class BucketEntity:
             if self.object_ownership == "BucketOwnerEnforced":
                 # Se è Enforced, le ACL sono esplicitamente disabilitate (ignoriamo le ACL dal punto di vista dell'accesso)
                 risks.append(f"Avviso: E' stata specificata un'ACL ({self.acl}) ma l'ownership è BucketOwnerEnforced. L'ACL verrà ignorata da AWS.")
+                """Gestione della configuazione delle policy in presenza di ACL:"""""
+                def handle_acl_with_policies():
+                    if self.policies:
+                        # Se ci sono policy, verificare se regolano correttamente gli accessi
+                        # (questa parte è complessa e dipende dalla struttura delle policy, quindi qui facciamo solo un controllo di base)
+                        risks.append("Nota: Anche se l'ACL è ignorata, assicurarsi che le policy associate regolino correttamente gli accessi.")
+                    else:
+                        risks.append("Avviso: Nonostante l'ACL sia ignorata, non sono state trovate policy associate. Verificare che gli accessi siano regolati tramite policy.")
             else:
                 # Altrimenti segnalare l'uso delle ACL come rischio
                 risks.append("RISCHIO: L'uso delle ACL è configurato. Si raccomanda di disabilitare le ACL (es. usando BucketOwnerEnforced) e usare policy.")
