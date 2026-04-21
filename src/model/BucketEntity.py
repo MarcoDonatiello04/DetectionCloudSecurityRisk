@@ -1,4 +1,6 @@
 from typing import Dict, Any, Optional, Literal, List
+from src.core.policy_engine import PolicyEngine
+from src.rules.bucket_policies.no_public_access_rule import NoPublicAccessRule
 
 class BucketEntity:
     def __init__(
@@ -59,6 +61,12 @@ class BucketEntity:
         # 2. Verificare che tutto passi da policy (Bucket Policy / IAM Policy associazioni)
         if not self.policies:
             risks.append("RISCHIO: Nessuna resource policy trovata (es. Bucket Policy). Verificare che gli accessi siano regolati tramite policy e non ACL.")
+        else:
+            # 3. Valutazione approfondita della policy tramite PolicyEngine
+            engine = PolicyEngine()
+            engine.register_rule(NoPublicAccessRule())
+            policy_risks = engine.evaluate_entity(self)
+            risks.extend(policy_risks)
             
         return risks
 
