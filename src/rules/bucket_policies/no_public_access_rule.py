@@ -24,6 +24,7 @@ class NoPublicAccessRule(BasePolicyRule):
                     is_public = True
                 elif isinstance(principal, dict):
                     if principal.get("AWS") == "*":
+                        
                         is_public = True
                         
                 if is_public:
