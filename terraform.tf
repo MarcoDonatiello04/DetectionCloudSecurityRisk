@@ -106,3 +106,33 @@ variable "instance_name" {
 output "instance_id" {
   value = aws_instance.web.id
 }
+
+# ---------------------------
+# S3 Bucket (Test for Scanner)
+# ---------------------------
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "test-cloud-security-bucket"
+  acl    = "public-read"
+  
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::test-cloud-security-bucket/*"
+    }
+  ]
+}
+POLICY
+
+  versioning {
+    enabled = false
+  }
+
+  tags = {
+    Environment = "Test"
+  }
+}
