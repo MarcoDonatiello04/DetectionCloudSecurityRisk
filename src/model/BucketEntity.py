@@ -1,6 +1,4 @@
 from typing import Dict, Any, Optional, Literal, List
-from src.core.policy_engine import PolicyEngine
-from src.rules.bucket_policies.no_public_access_rule import NoPublicAccessRule
 
 class BucketEntity:
     def __init__(
@@ -31,7 +29,6 @@ class BucketEntity:
         self.raw_config = raw_config or {}
         self.object_ownership = object_ownership
 
-
     def evaluate_risks(self) -> List[str]:
         """
         Valuta i rischi di sicurezza seguendo le direttive:
@@ -47,13 +44,7 @@ class BucketEntity:
                 # Se è Enforced, le ACL sono esplicitamente disabilitate (ignoriamo le ACL dal punto di vista dell'accesso)
                 risks.append(f"Avviso: E' stata specificata un'ACL ({self.acl}) ma l'ownership è BucketOwnerEnforced. L'ACL verrà ignorata da AWS.")
                 """Gestione della configuazione delle policy in presenza di ACL:"""""
-                def handle_acl_with_policies():
-                    if self.policies:
-                        # Se ci sono policy, verificare se regolano correttamente gli accessi
-                        # (questa parte è complessa e dipende dalla struttura delle policy, quindi qui facciamo solo un controllo di base)
-                        risks.append("Nota: Anche se l'ACL è ignorata, assicurarsi che le policy associate regolino correttamente gli accessi.")
-                    else:
-                        risks.append("Avviso: Nonostante l'ACL sia ignorata, non sono state trovate policy associate. Verificare che gli accessi siano regolati tramite policy.")
+                
             else:
                 # Altrimenti segnalare l'uso delle ACL come rischio
                 risks.append("RISCHIO: L'uso delle ACL è configurato. Si raccomanda di disabilitare le ACL (es. usando BucketOwnerEnforced) e usare policy.")
@@ -61,14 +52,18 @@ class BucketEntity:
         # 2. Verificare che tutto passi da policy (Bucket Policy / IAM Policy associazioni)
         if not self.policies:
             risks.append("RISCHIO: Nessuna resource policy trovata (es. Bucket Policy). Verificare che gli accessi siano regolati tramite policy e non ACL.")
-        else:
-            # 3. Valutazione approfondita della policy tramite PolicyEngine
-            engine = PolicyEngine()
-            engine.register_rule(NoPublicAccessRule())
-            policy_risks = engine.evaluate_entity(self)
-            risks.extend(policy_risks)
             
         return risks
 
     def __repr__(self):
         return f"BucketEntity(name={self.name}, provider={self.provider_type})"
+    
+
+
+
+    """Funzione per le policies di bucket, da implementare in futuro se necessario"""
+    def evaluate_policy_risks(self) -> List[str]:
+        risks = []
+        # Placeholder per future valutazioni specifiche sulle policy
+        # Ad esempio, potremmo analizzare le policy per verificare se concedono accessi troppo permissivi (es. Principal: "*")
+        return risks
