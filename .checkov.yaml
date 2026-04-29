@@ -4,14 +4,6 @@ skip-path:
   - .venv
   - .terraform
   - .git
-check:
-  - CKV_AWS_20
-  - CKV_AWS_18
-  - CKV_AWS_19
-  - CKV_AWS_21
-  - CKV_AWS_145
-skip-check:
-  - CKV_AWS_144
 soft-fail: false
 output:
   - cli

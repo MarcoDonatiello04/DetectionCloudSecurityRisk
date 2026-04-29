@@ -15,7 +15,8 @@ def main():
     
     try:
         # Costruiamo il comando: usiamo checkov con il file di configurazione se presente
-        cmd = [checkov_bin]
+        # Aggiungiamo flag per evitare errori SSL su macOS e saltare download esterni non necessari
+        cmd = [checkov_bin, "--skip-download", "--no-cert-verify"]
         if os.path.exists(".checkov.yaml"):
             cmd.extend(["--config-file", ".checkov.yaml"])
         else:
