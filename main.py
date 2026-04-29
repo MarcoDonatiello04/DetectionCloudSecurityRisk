@@ -1,57 +1,45 @@
 import os
-from src.core.terraform_scanner import TerraformScanner
+import subprocess
+import sys
 
 def main():
-    print("🚀 Inizializzazione Cloud Security Scanner...")
+    print("🚀 Inizializzazione Cloud Security Scanner (Checkov)...")
     
-    # Istanziamo il nostro scanner
-    scanner = TerraformScanner()
-    
-    # Configuriamo la cartella da scansionare
-    cartella_target = "."
-    
-    print(f"🔍 Avvio analisi dei file Terraform (.tf) nella cartella: {os.path.abspath(cartella_target)}")
-    
-    # Esegui scansione
-    risultati = scanner.scan_folder(cartella_target)
-    
-    if not risultati:
-        print("❌ Nessun file .tf valido trovato.")
-        return
+    # Cerchiamo l'eseguibile checkov
+    checkov_bin = "checkov"
+    if os.path.exists("./.venv/bin/checkov"):
+        checkov_bin = "./.venv/bin/checkov"
         
-    for file_path, data in risultati.items():
-        print("\n==================================================")
-        print(f"📄 FILE: {file_path}")
-        print("==================================================")
-        
-        resources = scanner.extract_resources(data)
-        if not resources:
-            print("  (Nessuna risorsa trovata in questo file)")
+    print(f"🔍 Avvio analisi di sicurezza sulla directory corrente: {os.path.abspath('.')}")
+    print("-" * 50)
+    
+    try:
+        # Costruiamo il comando: usiamo checkov con il file di configurazione se presente
+        cmd = [checkov_bin]
+        if os.path.exists(".checkov.yaml"):
+            cmd.extend(["--config-file", ".checkov.yaml"])
         else:
-            for r in resources:
-                resource_type = r['type']
-                name = r['name']
-                config = r['config']
-                
-                print(f"  🔹 Risorsa: {resource_type}")
-                print(f"     Nome:    {name}")
-                # Analisi specifica di sicurezza per S3 Bucket
-                if resource_type == "aws_s3_bucket":
-                    bucket_entity = scanner._parse_bucket_entity(resource_type, name, config)
-                    
-
-                    risks = bucket_entity.evaluate_risks()
-                    if risks:
-                        print("     ⚠️  Rischi rilevati:")
-                        for risk in risks:
-                            print(f"        - {risk}")
-                    else:
-                        print("     ✅ Nessun rischio rilevato (policy e object_ownership conformi).")
-                
-                print("-" * 20)
-
-
-    print("\n✅ Scansione completata!")
+            cmd.extend(["-d", "."])
+            
+        # Eseguiamo checkov lasciando che stampi l'output direttamente su stdout
+        result = subprocess.run(cmd)
+        
+        print("-" * 50)
+        if result.returncode == 0:
+            print("✅ Scansione completata: Nessuna vulnerabilità rilevata.")
+        else:
+            print(f"⚠️ Scansione completata con codice di uscita {result.returncode}.")
+            print("❌ Sono state rilevate possibili vulnerabilità di sicurezza nel codice (vedi output sopra).")
+            
+        sys.exit(result.returncode)
+            
+    except FileNotFoundError:
+        print(f"❌ Errore: l'eseguibile '{checkov_bin}' non è stato trovato.")
+        print("Assicurati di aver installato le dipendenze con 'pip install -r requirements.txt'")
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ Errore imprevisto durante l'esecuzione di checkov: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
