@@ -2,3 +2,5 @@ pytest==8.1.1
 boto3
 s3scanner
 checkov
+semgrep
+pyyaml

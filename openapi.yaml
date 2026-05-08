@@ -10,6 +10,12 @@ servers:
   - url: "http://api.vulnerable.com/v1"
     description: Insecure HTTP server
 
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
 paths:
   /users:
     get:
@@ -37,8 +43,24 @@ paths:
   /users/add:
     post:
       summary: Add a user
-      description: Unsecured POST endpoint
-      # CKV_OPENAPI_1: Missing security requirement
+      description: POST endpoint that REQUIRES AUTH in OpenAPI but is unsecured in code!
+      security:
+        - BearerAuth: []
       responses:
         "201":
           description: User created
+
+  /users/{id}:
+    get:
+      summary: Get user by ID
+      description: Unsecured GET endpoint with path variable
+      # CKV_OPENAPI_1: Missing security requirement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User found
