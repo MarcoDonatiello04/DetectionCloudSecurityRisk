@@ -2,10 +2,12 @@ import os
 import json
 import subprocess
 import yaml
+from typing import List
 from src.parsers.normalizer import normalize_path
 from src.scanners.spectral_runner import is_openapi_file
+from Finding import Finding, FindingSource, FindingCategory, Severity, APIContext
 
-def run_shadow_api_hunter(target_dir="."):
+def run_shadow_api_hunter(target_dir=".") -> List[Finding]:
     print("🚀 Esecuzione Shadow API Hunter (con Auth Discrepancy Control)...")
     semgrep_bin = "semgrep"
     if os.path.exists("./.venv/bin/semgrep"):
@@ -69,31 +71,62 @@ def run_shadow_api_hunter(target_dir="."):
     normalized_openapi = {normalize_path(r): (r, data["is_secured"]) for r, data in openapi_routes.items()}
 
     api_issues = []
+    idx = 0
     
     # Fase C: Diff Analysis (Shadow API & Auth Discrepancy)
     for norm_route, (orig_route, code_secured) in normalized_semgrep.items():
         if norm_route not in normalized_openapi:
-            api_issues.append({
-                "Type": "Shadow API",
-                "Severity": "High",
-                "Category": "OWASP API8:2023 - Improper Inventory Management",
-                "Message": f"Shadow API rilevata: {orig_route} (non documentata in OpenAPI)"
-            })
+            idx += 1
+            api_ctx = APIContext(endpoint=orig_route, requires_authentication=code_secured)
+            finding = Finding(
+                finding_id=f"shadow-api-{idx}",
+                source=FindingSource.SHADOW_API,
+                category=FindingCategory.API_EXPOSURE,
+                title="Shadow API Rilevata",
+                description=f"Shadow API rilevata: {orig_route} (non documentata in OpenAPI)",
+                severity=Severity.HIGH,
+                confidence=1.0,
+                rule_id="shadow-api",
+                rule_name="Improper Inventory Management",
+                api=api_ctx,
+                owasp_api_category="OWASP API8:2023"
+            )
+            api_issues.append(finding)
         else:
             _, oas_secured = normalized_openapi[norm_route]
             if oas_secured and not code_secured:
-                api_issues.append({
-                    "Type": "Auth Discrepancy",
-                    "Severity": "Critical",
-                    "Category": "OWASP API2:2023 - Broken Authentication",
-                    "Message": f"Auth Discrepancy su {orig_route}: L'OpenAPI richiede Auth, ma il codice NON implementa difese!"
-                })
+                idx += 1
+                api_ctx = APIContext(endpoint=orig_route, requires_authentication=code_secured)
+                finding = Finding(
+                    finding_id=f"auth-discrepancy-{idx}",
+                    source=FindingSource.SHADOW_API,
+                    category=FindingCategory.AUTHENTICATION,
+                    title="Auth Discrepancy (Mancante in Codice)",
+                    description=f"Auth Discrepancy su {orig_route}: L'OpenAPI richiede Auth, ma il codice NON implementa difese!",
+                    severity=Severity.CRITICAL,
+                    confidence=1.0,
+                    rule_id="auth-discrepancy",
+                    rule_name="Broken Authentication",
+                    api=api_ctx,
+                    owasp_api_category="OWASP API2:2023"
+                )
+                api_issues.append(finding)
             elif code_secured and not oas_secured:
-                api_issues.append({
-                    "Type": "Auth Discrepancy",
-                    "Severity": "Medium",
-                    "Category": "OWASP API2:2023 - Broken Authentication",
-                    "Message": f"Auth Discrepancy su {orig_route}: Il codice implementa Auth, ma non è dichiarata nell'OpenAPI (Contratto Obsoleto)."
-                })
+                idx += 1
+                api_ctx = APIContext(endpoint=orig_route, requires_authentication=code_secured)
+                finding = Finding(
+                    finding_id=f"auth-discrepancy-{idx}",
+                    source=FindingSource.SHADOW_API,
+                    category=FindingCategory.AUTHENTICATION,
+                    title="Auth Discrepancy (Contratto Obsoleto)",
+                    description=f"Auth Discrepancy su {orig_route}: Il codice implementa Auth, ma non è dichiarata nell'OpenAPI (Contratto Obsoleto).",
+                    severity=Severity.MEDIUM,
+                    confidence=1.0,
+                    rule_id="auth-discrepancy-oas",
+                    rule_name="Broken Authentication",
+                    api=api_ctx,
+                    owasp_api_category="OWASP API2:2023"
+                )
+                api_issues.append(finding)
 
     return api_issues

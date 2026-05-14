@@ -1,6 +1,8 @@
 import os
 import json
 import subprocess
+from typing import List
+from Finding import Finding, FindingSource, FindingCategory, Severity, CodeLocation
 
 def is_openapi_file(filepath):
     try:
@@ -12,7 +14,7 @@ def is_openapi_file(filepath):
         pass
     return False
 
-def run_spectral(target_dir="."):
+def run_spectral(target_dir=".") -> List[Finding]:
     print("🚀 Esecuzione Spectral API Scanner (OWASP)...")
     openapi_file = None
     for root, dirs, files in os.walk(target_dir):
@@ -46,10 +48,37 @@ def run_spectral(target_dir="."):
         print(f"⚠️ Errore durante l'esecuzione di Spectral: {e}")
         return []
     
+    findings = []
     if os.path.exists("spectral_report.json"):
         with open("spectral_report.json", "r") as f:
             try:
-                return json.load(f)
-            except:
-                return []
-    return []
+                issues = json.load(f)
+                idx = 0
+                for issue in issues:
+                    idx += 1
+                    rule_code = str(issue.get("code", "unknown"))
+                    severity_val = Severity.HIGH if issue.get("severity") == 0 else Severity.MEDIUM
+                    
+                    start_line = issue.get("range", {}).get("start", {}).get("line")
+                    loc = CodeLocation(
+                        file_path=issue.get("source", openapi_file),
+                        start_line=start_line
+                    )
+                    
+                    finding = Finding(
+                        finding_id=f"spectral-{rule_code}-{idx}",
+                        source=FindingSource.SPECTRAL,
+                        category=FindingCategory.DATA_EXPOSURE,
+                        title=rule_code,
+                        description=issue.get("message", "Violazione contratto API"),
+                        severity=severity_val,
+                        confidence=1.0,
+                        rule_id=rule_code,
+                        rule_name=rule_code,
+                        location=loc,
+                        raw_data=issue
+                    )
+                    findings.append(finding)
+            except Exception as e:
+                print(f"⚠️ Errore parsing Spectral JSON: {e}")
+    return findings
