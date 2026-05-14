@@ -75,11 +75,12 @@ def run_shadow_api_hunter(target_dir=".") -> List[Finding]:
     
     # Fase C: Diff Analysis (Shadow API & Auth Discrepancy)
     for norm_route, (orig_route, code_secured) in normalized_semgrep.items():
+        corr_key = norm_route
         if norm_route not in normalized_openapi:
-            idx += 1
             api_ctx = APIContext(endpoint=orig_route, requires_authentication=code_secured)
+            finding_id = Finding.generate_deterministic_id(FindingSource.SHADOW_API, "shadow-api", orig_route)
             finding = Finding(
-                finding_id=f"shadow-api-{idx}",
+                finding_id=finding_id,
                 source=FindingSource.SHADOW_API,
                 category=FindingCategory.API_EXPOSURE,
                 title="Shadow API Rilevata",
@@ -89,16 +90,17 @@ def run_shadow_api_hunter(target_dir=".") -> List[Finding]:
                 rule_id="shadow-api",
                 rule_name="Improper Inventory Management",
                 api=api_ctx,
+                correlation_key=corr_key,
                 owasp_api_category="OWASP API8:2023"
             )
             api_issues.append(finding)
         else:
             _, oas_secured = normalized_openapi[norm_route]
             if oas_secured and not code_secured:
-                idx += 1
                 api_ctx = APIContext(endpoint=orig_route, requires_authentication=code_secured)
+                finding_id = Finding.generate_deterministic_id(FindingSource.SHADOW_API, "auth-discrepancy", orig_route)
                 finding = Finding(
-                    finding_id=f"auth-discrepancy-{idx}",
+                    finding_id=finding_id,
                     source=FindingSource.SHADOW_API,
                     category=FindingCategory.AUTHENTICATION,
                     title="Auth Discrepancy (Mancante in Codice)",
@@ -108,14 +110,15 @@ def run_shadow_api_hunter(target_dir=".") -> List[Finding]:
                     rule_id="auth-discrepancy",
                     rule_name="Broken Authentication",
                     api=api_ctx,
+                    correlation_key=corr_key,
                     owasp_api_category="OWASP API2:2023"
                 )
                 api_issues.append(finding)
             elif code_secured and not oas_secured:
-                idx += 1
                 api_ctx = APIContext(endpoint=orig_route, requires_authentication=code_secured)
+                finding_id = Finding.generate_deterministic_id(FindingSource.SHADOW_API, "auth-discrepancy-oas", orig_route)
                 finding = Finding(
-                    finding_id=f"auth-discrepancy-{idx}",
+                    finding_id=finding_id,
                     source=FindingSource.SHADOW_API,
                     category=FindingCategory.AUTHENTICATION,
                     title="Auth Discrepancy (Contratto Obsoleto)",
@@ -125,6 +128,7 @@ def run_shadow_api_hunter(target_dir=".") -> List[Finding]:
                     rule_id="auth-discrepancy-oas",
                     rule_name="Broken Authentication",
                     api=api_ctx,
+                    correlation_key=corr_key,
                     owasp_api_category="OWASP API2:2023"
                 )
                 api_issues.append(finding)

@@ -21,40 +21,48 @@ def run_semgrep(target_dir=".") -> List[Finding]:
                 results = data.get("results", [])
                 idx = 0
                 for issue in results:
-                    idx += 1
                     check_id = issue.get("check_id", "unknown")
                     extra = issue.get("extra", {})
+                    msg = extra.get("message", "Vulnerabilità SAST rilevata")
+                    short_desc = msg.splitlines()[0] if msg else "Vulnerabilità SAST"
                     
-                    # Mapping Severity
+                    check_lower = check_id.lower()
+                    
+                    # Mapping Category esteso
+                    if "inject" in check_lower or "sql" in check_lower or "cmd" in check_lower:
+                        cat = FindingCategory.INJECTION
+                    elif "secret" in check_lower or "jwt" in check_lower or "key" in check_lower or "token" in check_lower:
+                        cat = FindingCategory.SECRETS
+                    elif "auth" in check_lower or "login" in check_lower:
+                        cat = FindingCategory.AUTHENTICATION
+                    elif "perm" in check_lower or "access" in check_lower or "authz" in check_lower:
+                        cat = FindingCategory.AUTHORIZATION
+                    else:
+                        cat = FindingCategory.MISCONFIGURATION
+
+                    # Mapping Severity intelligente
                     semgrep_sev = extra.get("severity", "").upper()
                     if semgrep_sev == "ERROR":
-                        sev = Severity.HIGH
+                        sev = Severity.CRITICAL if cat in (FindingCategory.INJECTION, FindingCategory.AUTHENTICATION) else Severity.HIGH
                     elif semgrep_sev == "WARNING":
                         sev = Severity.MEDIUM
                     elif semgrep_sev == "INFO":
                         sev = Severity.LOW
                     else:
                         sev = Severity.MEDIUM
-                        
-                    # Mapping Category
-                    check_lower = check_id.lower()
-                    if "inject" in check_lower:
-                        cat = FindingCategory.INJECTION
-                    elif "secret" in check_lower or "jwt" in check_lower or "key" in check_lower:
-                        cat = FindingCategory.SECRETS
-                    else:
-                        cat = FindingCategory.MISCONFIGURATION
-
-                    msg = extra.get("message", "Vulnerabilità SAST rilevata")
-                    short_desc = msg.splitlines()[0] if msg else "Vulnerabilità SAST"
 
                     loc = CodeLocation(
                         file_path=issue.get("path", ""),
                         start_line=issue.get("start", {}).get("line")
                     )
 
+                    target_ident = f"{loc.file_path}"
+                    finding_id = Finding.generate_deterministic_id(FindingSource.SEMGREP, check_id, target_ident)
+                    
+                    corr_key = loc.file_path.split("/")[-1] if "/" in loc.file_path else loc.file_path
+
                     finding = Finding(
-                        finding_id=f"semgrep-{check_id}-{idx}",
+                        finding_id=finding_id,
                         source=FindingSource.SEMGREP,
                         category=cat,
                         title=check_id,
@@ -64,6 +72,7 @@ def run_semgrep(target_dir=".") -> List[Finding]:
                         rule_id=check_id,
                         rule_name=check_id,
                         location=loc,
+                        correlation_key=corr_key,
                         raw_data=issue
                     )
                     findings.append(finding)

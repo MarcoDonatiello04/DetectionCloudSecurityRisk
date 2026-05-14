@@ -40,27 +40,55 @@ def run_checkov(target_dir=".") -> List[Finding]:
             idx = 0
             for report in reports:
                 for check in report.get("results", {}).get("failed_checks", []):
-                    idx += 1
                     check_id = check.get("check_id", "unknown")
-                    is_storage = "s3" in check_id.lower() or "acl" in check_id.lower()
+                    check_id_lower = check_id.lower()
+                    resource_id = check.get("resource", "unknown")
                     
+                    # Determinazione Categoria più accurata
+                    if "iam" in check_id_lower or "iam" in resource_id.lower():
+                        cat = FindingCategory.IAM
+                    elif "s3" in check_id_lower or "acl" in check_id_lower or "storage" in resource_id.lower():
+                        cat = FindingCategory.STORAGE
+                    elif "sg" in check_id_lower or "security_group" in resource_id.lower() or "vpc" in resource_id.lower() or "port" in check_id_lower:
+                        cat = FindingCategory.NETWORK
+                    elif "encrypt" in check_id_lower or "kms" in resource_id.lower():
+                        cat = FindingCategory.ENCRYPTION
+                    elif "log" in check_id_lower or "trail" in resource_id.lower():
+                        cat = FindingCategory.LOGGING
+                    else:
+                        cat = FindingCategory.MISCONFIGURATION
+
+                    # Derivazione Severity basata su impatto
+                    if cat in (FindingCategory.IAM, FindingCategory.STORAGE) and ("public" in check_id_lower or "star" in check_id_lower or "admin" in check_id_lower):
+                        sev = Severity.CRITICAL
+                    elif cat in (FindingCategory.NETWORK, FindingCategory.ENCRYPTION) or "public" in check_id_lower:
+                        sev = Severity.HIGH
+                    else:
+                        sev = Severity.MEDIUM
+
                     loc = CodeLocation(
                         file_path=check.get("file_path", ""),
                         start_line=check.get("file_line_range", [None])[0]
                     )
                     
+                    target_ident = f"{resource_id}:{loc.file_path}"
+                    finding_id = Finding.generate_deterministic_id(FindingSource.CHECKOV, check_id, target_ident)
+                    
+                    corr_key = resource_id.split(".")[-1] if "." in resource_id else resource_id
+                    
                     finding = Finding(
-                        finding_id=f"checkov-{check_id}-{idx}",
+                        finding_id=finding_id,
                         source=FindingSource.CHECKOV,
-                        category=FindingCategory.STORAGE if is_storage else FindingCategory.MISCONFIGURATION,
+                        category=cat,
                         title=check.get("check_name", "IaC Misconfiguration"),
-                        description=f"{check.get('check_name')} per la risorsa {check.get('resource', 'N/A')}",
-                        severity=Severity.CRITICAL if is_storage else Severity.MEDIUM,
+                        description=f"{check.get('check_name')} per la risorsa {resource_id}",
+                        severity=sev,
                         confidence=1.0,
                         rule_id=check_id,
                         rule_name=check.get("check_name"),
-                        resource_id=check.get("resource"),
+                        resource_id=resource_id,
                         location=loc,
+                        correlation_key=corr_key,
                         raw_data=check
                     )
                     findings.append(finding)

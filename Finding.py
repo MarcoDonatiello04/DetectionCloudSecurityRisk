@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
+import hashlib
 
 
 # =============================================================================
@@ -170,6 +171,7 @@ class Finding:
     # Correlation
     # -------------------------------------------------------------------------
 
+    correlation_key: Optional[str] = None
     related_findings: List[str] = field(default_factory=list)
 
     # -------------------------------------------------------------------------
@@ -199,3 +201,12 @@ class Finding:
     # -------------------------------------------------------------------------
 
     detected_at: datetime = field(default_factory=datetime.utcnow)
+
+    @staticmethod
+    def generate_deterministic_id(source: 'FindingSource', rule_id: str, target_identifier: str) -> str:
+        """
+        Genera un ID deterministico e idempotente per il finding per evitare duplicati 
+        nel Correlation Engine e garantire la tracciabilità tra le scansioni CI/CD.
+        """
+        raw_key = f"{source.value}|{rule_id}|{target_identifier}".encode('utf-8')
+        return f"{source.value.lower()}-{hashlib.md5(raw_key).hexdigest()[:12]}"

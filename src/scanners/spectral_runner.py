@@ -55,27 +55,47 @@ def run_spectral(target_dir=".") -> List[Finding]:
                 issues = json.load(f)
                 idx = 0
                 for issue in issues:
-                    idx += 1
                     rule_code = str(issue.get("code", "unknown"))
+                    msg = issue.get("message", "Violazione contratto API")
                     severity_val = Severity.HIGH if issue.get("severity") == 0 else Severity.MEDIUM
                     
+                    # Categoria derivata da rule_code o message
+                    rule_code_lower = rule_code.lower()
+                    msg_lower = msg.lower()
+                    if "auth" in rule_code_lower or "security" in rule_code_lower or "auth" in msg_lower:
+                        cat = FindingCategory.AUTHENTICATION
+                    elif "rate" in rule_code_lower or "limit" in rule_code_lower:
+                        cat = FindingCategory.RATE_LIMITING
+                    elif "validate" in rule_code_lower or "schema" in rule_code_lower or "type" in rule_code_lower:
+                        cat = FindingCategory.INPUT_VALIDATION
+                    elif "header" in rule_code_lower or "cors" in rule_code_lower:
+                        cat = FindingCategory.SECURITY_HEADERS
+                    else:
+                        cat = FindingCategory.DATA_EXPOSURE
+
                     start_line = issue.get("range", {}).get("start", {}).get("line")
+                    source_file = issue.get("source", openapi_file)
                     loc = CodeLocation(
-                        file_path=issue.get("source", openapi_file),
+                        file_path=source_file,
                         start_line=start_line
                     )
                     
+                    target_ident = f"{source_file}"
+                    finding_id = Finding.generate_deterministic_id(FindingSource.SPECTRAL, rule_code, target_ident)
+                    corr_key = source_file.split("/")[-1] if "/" in source_file else source_file
+
                     finding = Finding(
-                        finding_id=f"spectral-{rule_code}-{idx}",
+                        finding_id=finding_id,
                         source=FindingSource.SPECTRAL,
-                        category=FindingCategory.DATA_EXPOSURE,
+                        category=cat,
                         title=rule_code,
-                        description=issue.get("message", "Violazione contratto API"),
+                        description=msg,
                         severity=severity_val,
                         confidence=1.0,
                         rule_id=rule_code,
                         rule_name=rule_code,
                         location=loc,
+                        correlation_key=corr_key,
                         raw_data=issue
                     )
                     findings.append(finding)
