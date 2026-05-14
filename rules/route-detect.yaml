@@ -1,0 +1,68 @@
+rules:
+  - id: extract-python-secured-route
+    patterns:
+      - pattern-either:
+          - pattern: |
+              @$APP.route($ROUTE, ...)
+              @$AUTH
+              def $FUNC(...):
+                ...
+          - pattern: |
+              @$APP.get($ROUTE, ...)
+              @$AUTH
+              def $FUNC(...):
+                ...
+          - pattern: |
+              @$APP.post($ROUTE, ...)
+              @$AUTH
+              def $FUNC(...):
+                ...
+          - pattern: |
+              @$APP.put($ROUTE, ...)
+              @$AUTH
+              def $FUNC(...):
+                ...
+          - pattern: |
+              @$APP.delete($ROUTE, ...)
+              @$AUTH
+              def $FUNC(...):
+                ...
+          - pattern: |
+              @$APP.patch($ROUTE, ...)
+              @$AUTH
+              def $FUNC(...):
+                ...
+    message: "Secured Route Detected: $ROUTE"
+    languages: [python]
+    severity: INFO
+
+  - id: extract-python-route
+    patterns:
+      - pattern-either:
+          - pattern: |
+              @$APP.route($ROUTE, ...)
+              def $FUNC(...):
+                ...
+          - pattern: |
+              @$APP.get($ROUTE, ...)
+              def $FUNC(...):
+                ...
+          - pattern: |
+              @$APP.post($ROUTE, ...)
+              def $FUNC(...):
+                ...
+          - pattern: |
+              @$APP.put($ROUTE, ...)
+              def $FUNC(...):
+                ...
+          - pattern: |
+              @$APP.delete($ROUTE, ...)
+              def $FUNC(...):
+                ...
+          - pattern: |
+              @$APP.patch($ROUTE, ...)
+              def $FUNC(...):
+                ...
+    message: "Route Detected: $ROUTE"
+    languages: [python]
+    severity: INFO

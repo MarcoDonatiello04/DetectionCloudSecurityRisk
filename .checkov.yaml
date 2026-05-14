@@ -1,0 +1,11 @@
+directory:
+  - .
+skip-path:
+  - .venv
+  - .terraform
+  - .git
+soft-fail: false
+output:
+  - cli
+quiet: false
+compact: true

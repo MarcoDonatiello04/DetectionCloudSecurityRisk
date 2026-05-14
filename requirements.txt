@@ -1,2 +1,6 @@
-python-hcl2==4.3.0
 pytest==8.1.1
+boto3
+s3scanner
+checkov
+semgrep
+pyyaml

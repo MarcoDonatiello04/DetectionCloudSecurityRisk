@@ -1,0 +1,72 @@
+import os
+import json
+import subprocess
+from typing import List
+from Finding import Finding, FindingSource, FindingCategory, Severity, CodeLocation
+
+def run_semgrep(target_dir=".") -> List[Finding]:
+    print("🚀 Esecuzione Static Analysis (Semgrep)...")
+    semgrep_bin = "semgrep"
+    if os.path.exists("./.venv/bin/semgrep"):
+        semgrep_bin = "./.venv/bin/semgrep"
+
+    cmd = [semgrep_bin, "scan", "--config=p/owasp-top-10", "--config=p/api-security", "--json", "-o", "semgrep_report.json", target_dir]
+    subprocess.run(cmd, capture_output=True, text=True)
+    
+    findings = []
+    if os.path.exists("semgrep_report.json"):
+        with open("semgrep_report.json", "r") as f:
+            try:
+                data = json.load(f)
+                results = data.get("results", [])
+                idx = 0
+                for issue in results:
+                    idx += 1
+                    check_id = issue.get("check_id", "unknown")
+                    extra = issue.get("extra", {})
+                    
+                    # Mapping Severity
+                    semgrep_sev = extra.get("severity", "").upper()
+                    if semgrep_sev == "ERROR":
+                        sev = Severity.HIGH
+                    elif semgrep_sev == "WARNING":
+                        sev = Severity.MEDIUM
+                    elif semgrep_sev == "INFO":
+                        sev = Severity.LOW
+                    else:
+                        sev = Severity.MEDIUM
+                        
+                    # Mapping Category
+                    check_lower = check_id.lower()
+                    if "inject" in check_lower:
+                        cat = FindingCategory.INJECTION
+                    elif "secret" in check_lower or "jwt" in check_lower or "key" in check_lower:
+                        cat = FindingCategory.SECRETS
+                    else:
+                        cat = FindingCategory.MISCONFIGURATION
+
+                    msg = extra.get("message", "Vulnerabilità SAST rilevata")
+                    short_desc = msg.splitlines()[0] if msg else "Vulnerabilità SAST"
+
+                    loc = CodeLocation(
+                        file_path=issue.get("path", ""),
+                        start_line=issue.get("start", {}).get("line")
+                    )
+
+                    finding = Finding(
+                        finding_id=f"semgrep-{check_id}-{idx}",
+                        source=FindingSource.SEMGREP,
+                        category=cat,
+                        title=check_id,
+                        description=short_desc,
+                        severity=sev,
+                        confidence=1.0,
+                        rule_id=check_id,
+                        rule_name=check_id,
+                        location=loc,
+                        raw_data=issue
+                    )
+                    findings.append(finding)
+            except Exception as e:
+                print(f"⚠️ Errore parsing Semgrep JSON: {e}")
+    return findings
