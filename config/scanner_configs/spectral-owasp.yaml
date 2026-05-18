@@ -1,2 +1,30 @@
-# spectral-owasp.yaml
+# config/scanner_configs/spectral-owasp.yaml
 extends: ["https://unpkg.com/@stoplight/spectral-owasp-ruleset/dist/ruleset.mjs"]
+
+rules:
+  # 1. Verifica SecuritySchemes: l'OpenAPI deve avere un SecurityScheme definito
+  owasp-api2-security-schemes:
+    description: "L'API deve avere almeno uno schema di sicurezza definito (components.securitySchemes)."
+    given: "$.components"
+    severity: error
+    then:
+      field: "securitySchemes"
+      function: truthy
+
+  # 2. Verifica Auth: Ogni singola rotta o l'API globale deve richiedere l'autenticazione
+  owasp-api2-operation-security:
+    description: "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth)."
+    given: "$.paths.*[get,post,put,patch,delete]"
+    severity: error
+    then:
+      field: "security"
+      function: truthy
+
+  # 3. Documentazione Endpoint: Ogni endpoint deve avere descrizione per l'inventario API
+  owasp-api9-documented-endpoint:
+    description: "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API)."
+    given: "$.paths.*[get,post,put,patch,delete]"
+    severity: warn
+    then:
+      field: "description"
+      function: truthy

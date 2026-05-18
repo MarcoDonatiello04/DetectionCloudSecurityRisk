@@ -26,8 +26,12 @@ echo -e "${GREEN}[+] LocalStack è online.${NC}"
 # Esecuzione Terraform
 cd "$TF_DIR"
 
-echo -e "${YELLOW}[*] Inizializzando Terraform...${NC}"
-terraform init -backend=false
+echo -e "${YELLOW}[*] Inizializzando Terraform (se necessario)...${NC}"
+if [ ! -d ".terraform" ]; then
+    terraform init -backend=false
+else
+    echo -e "${GREEN}[+] Terraform provider già installati. Skipping init.${NC}"
+fi
 
 echo -e "${YELLOW}[*] Validando il codice...${NC}"
 terraform validate
