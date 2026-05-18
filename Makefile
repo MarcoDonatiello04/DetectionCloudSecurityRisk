@@ -1,9 +1,25 @@
-.PHONY: zap-scan check-target
+.PHONY: setup start-localstack terraform scan-dast clean
 
-zap-scan:
-	@echo "=> Starting OWASP ZAP Dynamic Scan..."
-	@bash scripts/run_zap_scan.sh
+setup:
+	@echo "=> Setting up the entire Cloud Security Testing Environment..."
+	@bash scripts/setup/start_system.sh
 
-check-target:
-	@echo "=> Checking target reachability..."
-	@bash scripts/check_target.sh
+start-localstack:
+	@echo "=> Starting LocalStack..."
+	@bash scripts/localstack/start_localstack.sh
+
+terraform:
+	@echo "=> Provisioning Vulnerable Infrastructure..."
+	@bash scripts/terraform/run_terraform.sh
+
+scan-dast:
+	@echo "=> Starting OWASP ZAP DAST Scan..."
+	@bash scripts/scanning/run_zap_scan.sh
+
+clean:
+	@echo "=> Cleaning up environment..."
+	@docker compose down
+	@rm -rf infrastructure/terraform/.terraform
+	@rm -f infrastructure/terraform/*.tfstate*
+	@rm -f config/environments/.target_env
+	@echo "=> Cleanup complete."

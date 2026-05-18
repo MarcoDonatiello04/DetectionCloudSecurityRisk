@@ -7,10 +7,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from src.scanners.checkov_runner import run_checkov
 from src.scanners.semgrep_runner import run_semgrep
 from src.scanners.spectral_runner import run_spectral
-from src.core.shadow_api_hunter import run_shadow_api_hunter
+from src.detectors.shadow_api_hunter import run_shadow_api_hunter
 from src.scanners.zap_runner import ZAPRunner
-from src.core.runtime_enricher import RuntimeEnricher
-from src.core.report_builder import consolidate_reports
+from src.enrichers.runtime_enricher import RuntimeEnricher
+from src.utils.report_builder import consolidate_reports
 
 def main():
     target_dir = "."

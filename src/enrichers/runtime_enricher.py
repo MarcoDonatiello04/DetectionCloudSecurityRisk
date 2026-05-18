@@ -1,5 +1,5 @@
 from typing import List, Dict, Any
-from Finding import Finding, RuntimeEvidence, ValidationStatus
+from src.models.finding from src.models.finding import Finding, RuntimeEvidence, ValidationStatus
 
 class RuntimeEnricher:
     """

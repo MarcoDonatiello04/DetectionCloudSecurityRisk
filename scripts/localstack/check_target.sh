@@ -1,11 +1,12 @@
 #!/bin/bash
 
 echo "[*] Checking LocalStack health..."
-if ! curl -s http://localhost:4566/_localstack/health | grep -q "running"; then
-    echo "[-] Error: LocalStack is not running or not ready."
+HEALTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4566/_localstack/health)
+if [ "$HEALTH_STATUS" != "200" ] && [ "$HEALTH_STATUS" != "201" ]; then
+    echo "[-] Error: LocalStack is not reachable (HTTP $HEALTH_STATUS)."
     exit 1
 fi
-echo "[+] LocalStack is healthy."
+echo "[+] LocalStack is healthy (HTTP $HEALTH_STATUS)."
 
 echo "[*] Retrieving API Gateway ID..."
 API_GW_ID=$(docker exec localstack-main awslocal apigateway get-rest-apis --query 'items[?name==`VulnerableLambdaAPI`].id' --output text 2>/dev/null)
@@ -30,8 +31,8 @@ else
 fi
 
 # Pass API URL to the caller if needed
-echo "TARGET_URL=$API_URL" > .target_env
+echo "TARGET_URL=$API_URL" > config/environments/.target_env
 # Replace localhost with host.docker.internal for ZAP
 ZAP_TARGET_URL=$(echo $API_URL | sed 's/localhost/host.docker.internal/g')
-echo "ZAP_TARGET_URL=$ZAP_TARGET_URL" >> .target_env
+echo "ZAP_TARGET_URL=$ZAP_TARGET_URL" >> config/environments/.target_env
 exit 0

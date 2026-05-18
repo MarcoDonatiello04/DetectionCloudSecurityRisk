@@ -1,6 +1,6 @@
 from typing import List, Dict, Optional
 from dataclasses import dataclass, field
-from Finding import Finding, FindingSource, Severity, ValidationStatus
+from src.models.finding from src.models.finding import Finding, FindingSource, Severity, ValidationStatus
 
 @dataclass
 class CorrelatedRisk:

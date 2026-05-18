@@ -2,7 +2,7 @@ import os
 import json
 import subprocess
 from typing import List
-from Finding import Finding, FindingSource, FindingCategory, Severity, CodeLocation
+from src.models.finding from src.models.finding import Finding, FindingSource, FindingCategory, Severity, CodeLocation
 
 def is_openapi_file(filepath):
     try:

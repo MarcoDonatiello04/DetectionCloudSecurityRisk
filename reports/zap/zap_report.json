@@ -1,8 +1,8 @@
 {
 	"@programName": "ZAP",
 	"@version": "2.17.0",
-	"@generated": "Fri, 15 May 2026 15:43:18",
-	"created": "2026-05-15T15:43:18.661232424Z",
+	"@generated": "Mon, 18 May 2026 12:50:05",
+	"created": "2026-05-18T12:50:05.625868801Z",
 	"insights":[
 		{
 			"level": "Low",
@@ -10,7 +10,23 @@
 			"site": "",
 			"key": "insight.log.warn",
 			"description": "ZAP warnings logged - see the zap.log file for details",
-			"statistic": "1"
+			"statistic": "3"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "",
+			"key": "insight.network.failure",
+			"description": "Percentage of network failures",
+			"statistic": "11"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:4566",
+			"key": "insight.code.2xx",
+			"description": "Percentage of responses with status code 2xx",
+			"statistic": "52"
 		},
 		{
 			"level": "Info",
@@ -18,7 +34,15 @@
 			"site": "http://host.docker.internal:4566",
 			"key": "insight.code.4xx",
 			"description": "Percentage of responses with status code 4xx",
-			"statistic": "99"
+			"statistic": "41"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:4566",
+			"key": "insight.code.5xx",
+			"description": "Percentage of responses with status code 5xx",
+			"statistic": "5"
 		},
 		{
 			"level": "Info",
@@ -26,7 +50,7 @@
 			"site": "http://host.docker.internal:4566",
 			"key": "insight.endpoint.ctype.application/json",
 			"description": "Percentage of endpoints with content type application/json",
-			"statistic": "33"
+			"statistic": "77"
 		},
 		{
 			"level": "Info",
@@ -34,7 +58,7 @@
 			"site": "http://host.docker.internal:4566",
 			"key": "insight.endpoint.ctype.application/xml",
 			"description": "Percentage of endpoints with content type application/xml",
-			"statistic": "66"
+			"statistic": "22"
 		},
 		{
 			"level": "Info",
@@ -42,7 +66,15 @@
 			"site": "http://host.docker.internal:4566",
 			"key": "insight.endpoint.method.GET",
 			"description": "Percentage of endpoints with method GET",
-			"statistic": "100"
+			"statistic": "88"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:4566",
+			"key": "insight.endpoint.method.POST",
+			"description": "Percentage of endpoints with method POST",
+			"statistic": "11"
 		},
 		{
 			"level": "Info",
@@ -50,15 +82,15 @@
 			"site": "http://host.docker.internal:4566",
 			"key": "insight.endpoint.total",
 			"description": "Count of total endpoints",
-			"statistic": "3"
+			"statistic": "9"
 		},
 		{
 			"level": "Info",
 			"reason": "Informational",
-			"site": "https://host.docker.internal:4566",
-			"key": "insight.code.4xx",
-			"description": "Percentage of responses with status code 4xx",
-			"statistic": "100"
+			"site": "http://host.docker.internal:4566",
+			"key": "insight.response.slow",
+			"description": "Percentage of slow responses",
+			"statistic": "35"
 		}
 	],
 	"site":[ 
@@ -79,24 +111,94 @@
 					"desc": "<p>Web browser data loading may be possible, due to a Cross Origin Resource Sharing (CORS) misconfiguration on the web server.</p>",
 					"instances":[ 
 						{
-							"id": "0",
-							"uri": "http://host.docker.internal:4566/restapis/pegkvxbh1r/dev/_user_request_",
-							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/pegkvxbh1r\/dev\/_user_request_",
+							"id": "2",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/admin",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/admin",
 							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "Access-Control-Allow-Origin: *",
+							"otherinfo": "The CORS misconfiguration on the web server permits cross-domain read requests from arbitrary third party domains, using unauthenticated APIs on this domain. Web browser implementations do not permit arbitrary third parties to read the response from authenticated APIs, however. This reduces the risk somewhat. This misconfiguration could be used by an attacker to access data that is available in an unauthenticated manner, but which uses some other form of security, such as IP address white-listing."
+						},
+						{
+							"id": "14",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/search?q=q",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/search (q)",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "Access-Control-Allow-Origin: *",
+							"otherinfo": "The CORS misconfiguration on the web server permits cross-domain read requests from arbitrary third party domains, using unauthenticated APIs on this domain. Web browser implementations do not permit arbitrary third parties to read the response from authenticated APIs, however. This reduces the risk somewhat. This misconfiguration could be used by an attacker to access data that is available in an unauthenticated manner, but which uses some other form of security, such as IP address white-listing."
+						},
+						{
+							"id": "0",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/users",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/users",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "Access-Control-Allow-Origin: *",
+							"otherinfo": "The CORS misconfiguration on the web server permits cross-domain read requests from arbitrary third party domains, using unauthenticated APIs on this domain. Web browser implementations do not permit arbitrary third parties to read the response from authenticated APIs, however. This reduces the risk somewhat. This misconfiguration could be used by an attacker to access data that is available in an unauthenticated manner, but which uses some other form of security, such as IP address white-listing."
+						},
+						{
+							"id": "1",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/users/id",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/users\/id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "Access-Control-Allow-Origin: *",
+							"otherinfo": "The CORS misconfiguration on the web server permits cross-domain read requests from arbitrary third party domains, using unauthenticated APIs on this domain. Web browser implementations do not permit arbitrary third parties to read the response from authenticated APIs, however. This reduces the risk somewhat. This misconfiguration could be used by an attacker to access data that is available in an unauthenticated manner, but which uses some other form of security, such as IP address white-listing."
+						},
+						{
+							"id": "3",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/login",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/login ()({username,password})",
+							"method": "POST",
 							"param": "",
 							"attack": "",
 							"evidence": "Access-Control-Allow-Origin: *",
 							"otherinfo": "The CORS misconfiguration on the web server permits cross-domain read requests from arbitrary third party domains, using unauthenticated APIs on this domain. Web browser implementations do not permit arbitrary third parties to read the response from authenticated APIs, however. This reduces the risk somewhat. This misconfiguration could be used by an attacker to access data that is available in an unauthenticated manner, but which uses some other form of security, such as IP address white-listing."
 						}
 					],
-					"count": "1",
-					"systemic": false,
+					"count": "5",
+					"systemic": true,
 					"solution": "<p>Ensure that sensitive data is not available in an unauthenticated manner (using IP address white-listing, for instance).</p><p>Configure the \"Access-Control-Allow-Origin\" HTTP header to a more restrictive set of domains, or remove all CORS headers entirely, to allow the web browser to enforce the Same Origin Policy (SOP) in a more restrictive manner.</p>",
 					"otherinfo": "<p>The CORS misconfiguration on the web server permits cross-domain read requests from arbitrary third party domains, using unauthenticated APIs on this domain. Web browser implementations do not permit arbitrary third parties to read the response from authenticated APIs, however. This reduces the risk somewhat. This misconfiguration could be used by an attacker to access data that is available in an unauthenticated manner, but which uses some other form of security, such as IP address white-listing.</p>",
 					"reference": "<p>https://vulncat.fortify.com/en/detail?category=HTML5&subcategory=Overly%20Permissive%20CORS%20Policy</p>",
 					"cweid": "264",
 					"wascid": "14",
-					"sourceid": "7"
+					"sourceid": "10"
+				},
+				{
+					"pluginid": "2",
+					"alertRef": "2",
+					"alert": "Private IP Disclosure",
+					"name": "Private IP Disclosure",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>A private IP (such as 10.x.x.x, 172.x.x.x, 192.168.x.x) or an Amazon EC2 private hostname (for example, ip-10-0-56-78) has been found in the HTTP response body. This information might be helpful for further attacks targeting internal systems.</p>",
+					"instances":[ 
+						{
+							"id": "18",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/debug",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/debug",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "172.17.0.2",
+							"otherinfo": "172.17.0.2\n172.17.0.2\n172.17.0.1\n172.17.0.1\n"
+						}
+					],
+					"count": "1",
+					"systemic": false,
+					"solution": "<p>Remove the private IP address from the HTTP response body. For comments, use JSP/ASP/PHP comment instead of HTML/JavaScript comment which can be seen by client browsers.</p>",
+					"otherinfo": "<p>172.17.0.2</p><p>172.17.0.2</p><p>172.17.0.1</p><p>172.17.0.1</p><p></p>",
+					"reference": "<p>https://datatracker.ietf.org/doc/html/rfc1918</p>",
+					"cweid": "497",
+					"wascid": "13",
+					"sourceid": "13"
 				},
 				{
 					"pluginid": "10036",
@@ -109,9 +211,9 @@
 					"desc": "<p>The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.</p>",
 					"instances":[ 
 						{
-							"id": "1",
-							"uri": "http://host.docker.internal:4566/restapis/pegkvxbh1r/dev/_user_request_",
-							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/pegkvxbh1r\/dev\/_user_request_",
+							"id": "6",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/admin",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/admin",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -119,9 +221,9 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "3",
-							"uri": "http://host.docker.internal:4566/robots.txt",
-							"nodeName": "http:\/\/host.docker.internal:4566\/robots.txt",
+							"id": "15",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/search?q=q",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/search (q)",
 							"method": "GET",
 							"param": "",
 							"attack": "",
@@ -129,24 +231,174 @@
 							"otherinfo": ""
 						},
 						{
-							"id": "2",
-							"uri": "http://host.docker.internal:4566/sitemap.xml",
-							"nodeName": "http:\/\/host.docker.internal:4566\/sitemap.xml",
+							"id": "5",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/users",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/users",
 							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "TwistedWeb/25.5.0",
+							"otherinfo": ""
+						},
+						{
+							"id": "4",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/users/id",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/users\/id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "TwistedWeb/25.5.0",
+							"otherinfo": ""
+						},
+						{
+							"id": "7",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/login",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/login ()({username,password})",
+							"method": "POST",
 							"param": "",
 							"attack": "",
 							"evidence": "TwistedWeb/25.5.0",
 							"otherinfo": ""
 						}
 					],
-					"count": "3",
-					"systemic": false,
+					"count": "5",
+					"systemic": true,
 					"solution": "<p>Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.</p>",
 					"otherinfo": "",
 					"reference": "<p>https://httpd.apache.org/docs/current/mod/core.html#servertokens</p><p>https://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)</p><p>https://www.troyhunt.com/shhh-dont-let-your-response-headers/</p>",
 					"cweid": "497",
 					"wascid": "13",
-					"sourceid": "7"
+					"sourceid": "10"
+				},
+				{
+					"pluginid": "10021",
+					"alertRef": "10021",
+					"alert": "X-Content-Type-Options Header Missing",
+					"name": "X-Content-Type-Options Header Missing",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>The Anti-MIME-Sniffing header X-Content-Type-Options was not set to 'nosniff'. This allows older versions of Internet Explorer and Chrome to perform MIME-sniffing on the response body, potentially causing the response body to be interpreted and displayed as a content type other than the declared content type. Current (early 2014) and legacy versions of Firefox will use the declared content type (if one is set), rather than performing MIME-sniffing.</p>",
+					"instances":[ 
+						{
+							"id": "9",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/admin",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/admin",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "17",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/search?q=q",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/search (q)",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "8",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/users",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/users",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "10",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/users/id",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/users\/id",
+							"method": "GET",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						},
+						{
+							"id": "11",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/login",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/login ()({username,password})",
+							"method": "POST",
+							"param": "x-content-type-options",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses."
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>Ensure that the application/web server sets the Content-Type header appropriately, and that it sets the X-Content-Type-Options header to 'nosniff' for all web pages.</p><p>If possible, ensure that the end user uses a standards-compliant and modern web browser that does not perform MIME-sniffing at all, or that can be directed by the web application/web server to not perform MIME-sniffing.</p>",
+					"otherinfo": "<p>This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.</p><p>At \"High\" threshold this scan rule will not alert on client or server error responses.</p>",
+					"reference": "<p>https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/gg622941(v=vs.85)</p><p>https://owasp.org/www-community/Security_Headers</p>",
+					"cweid": "693",
+					"wascid": "15",
+					"sourceid": "10"
+				},
+				{
+					"pluginid": "10111",
+					"alertRef": "10111",
+					"alert": "Authentication Request Identified",
+					"name": "Authentication Request Identified",
+					"riskcode": "0",
+					"confidence": "3",
+					"riskdesc": "Informational (High)",
+					"desc": "<p>The given request has been identified as an authentication request. The 'Other Info' field contains a set of key=value lines which identify any relevant fields. If the request is in a context which has an Authentication Method set to \"Auto-Detect\" then this rule will change the authentication to match the request identified.</p>",
+					"instances":[ 
+						{
+							"id": "12",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/login",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/login ()({username,password})",
+							"method": "POST",
+							"param": "username",
+							"attack": "",
+							"evidence": "password",
+							"otherinfo": "userParam=username\nuserValue=John Doe\npasswordParam=password"
+						}
+					],
+					"count": "1",
+					"systemic": false,
+					"solution": "<p>This is an informational alert rather than a vulnerability and so there is nothing to fix.</p>",
+					"otherinfo": "<p>userParam=username</p><p>userValue=John Doe</p><p>passwordParam=password</p>",
+					"reference": "<p>https://www.zaproxy.org/docs/desktop/addons/authentication-helper/auth-req-id/</p>",
+					"cweid": "-1",
+					"wascid": "-1",
+					"sourceid": "9"
+				},
+				{
+					"pluginid": "10112",
+					"alertRef": "10112",
+					"alert": "Session Management Response Identified",
+					"name": "Session Management Response Identified",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The given response has been identified as containing a session management token. The 'Other Info' field contains a set of header tokens that can be used in the Header Based Session Management Method. If the request is in a context which has a Session Management Method set to \"Auto-Detect\" then this rule will change the session management to use the tokens identified.</p>",
+					"instances":[ 
+						{
+							"id": "13",
+							"uri": "http://host.docker.internal:4566/restapis/ey5gpghku4/dev/_user_request_/login",
+							"nodeName": "http:\/\/host.docker.internal:4566\/restapis\/ey5gpghku4\/dev\/_user_request_\/login ()({username,password})",
+							"method": "POST",
+							"param": "token",
+							"attack": "",
+							"evidence": "token",
+							"otherinfo": "json:token"
+						}
+					],
+					"count": "1",
+					"systemic": false,
+					"solution": "<p>This is an informational alert rather than a vulnerability and so there is nothing to fix.</p>",
+					"otherinfo": "<p>json:token</p>",
+					"reference": "<p>https://www.zaproxy.org/docs/desktop/addons/authentication-helper/session-mgmt-id/</p>",
+					"cweid": "-1",
+					"wascid": "-1",
+					"sourceid": "9"
 				}
 			]
 		}

@@ -1,21 +1,5 @@
 services:
   # ===========================================================================
-  # 2. TARGET VULNERABLE APP (API POC con Injection e Shadow API)
-  # ===========================================================================
-  target-app:
-    image: python:3.11-slim
-    container_name: tesi-target-app
-    working_dir: /app
-    volumes:
-      - "./tests/target_poc:/app"
-    command: >
-      bash -c "pip install --no-cache-dir flask && flask --app app.py run --host=0.0.0.0 --port=5000"
-    ports:
-      - "5000:5000"
-    environment:
-      - FLASK_ENV=development
-
-  # ===========================================================================
   # 3. OWASP ZAP DAST ENGINE (Runtime Verification Oracle)
   # ===========================================================================
   owasp-zap:

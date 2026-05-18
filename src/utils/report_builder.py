@@ -1,7 +1,7 @@
 import sys
 from typing import List
-from Finding import Finding, FindingSource
-from src.core.correlation_engine import CorrelationEngine, CorrelatedRisk
+from src.models.finding from src.models.finding import Finding, FindingSource
+from src.correlation_engine.engine import CorrelationEngine, CorrelatedRisk
 
 def consolidate_reports(spectral_findings: List[Finding], checkov_findings: List[Finding], semgrep_findings: List[Finding], shadow_api_findings: List[Finding]):
     print("\n" + "="*80)

@@ -8,21 +8,34 @@ echo " OWASP ZAP Automated DAST Scan "
 echo "========================================================="
 
 # 1. Eseguiamo il check del target e recuperiamo l'URL
-bash scripts/check_target.sh
+bash scripts/localstack/check_target.sh
 if [ $? -ne 0 ]; then
     echo "[-] Target check failed. Aborting scan."
     exit 1
 fi
 
-source .target_env
+source config/environments/.target_env
 echo "[+] Starting scan against: $ZAP_TARGET_URL"
 
-# 2. Check ZAP Health
+# Trova il container ZAP in esecuzione dinamicamente
+ZAP_CONTAINER=$(docker ps --filter "ancestor=ghcr.io/zaproxy/zaproxy:stable" --format "{{.Names}}" | head -n 1)
+if [ -z "$ZAP_CONTAINER" ]; then
+    # Fallback su tesi-owasp-zap se non è rilevato alcun container attivo
+    ZAP_CONTAINER="tesi-owasp-zap"
+fi
+
 if ! curl -s "$ZAP_API_URL" > /dev/null; then
     echo "[-] OWASP ZAP non è raggiungibile su $ZAP_API_URL"
-    echo "Assicurati che il container tesi-owasp-zap sia in esecuzione."
+    echo "Assicurati che le porte siano esposte e il container sia attivo."
     exit 1
 fi
+
+echo "[*] Cleaning previous ZAP session (starting a fresh session)..."
+curl -s "$ZAP_API_URL/JSON/core/action/newSession/?overwrite=true" > /dev/null
+
+echo "[*] Importing OpenAPI spec for LocalStack API ($ZAP_TARGET_URL)..."
+docker cp target_poc/openapi.yaml "$ZAP_CONTAINER":/tmp/openapi.yaml
+curl -s "$ZAP_API_URL/JSON/openapi/action/importFile/?file=/tmp/openapi.yaml&target=$ZAP_TARGET_URL" > /dev/null
 
 echo "[*] ZAP is alive. Triggering Spider..."
 
@@ -51,25 +64,41 @@ echo "[+] Spidering completato."
 sleep 2
 
 # 4. Avvio Active Scan
-echo "[*] Triggering Active Scan..."
+echo "[*] Configuring ZAP scanner options for LocalStack compatibility..."
+# Limita i thread a 1 per evitare di impallare LocalStack con troppe Lambda parallele
+curl -s "$ZAP_API_URL/JSON/ascan/action/setOptionThreadPerHost/?Integer=1" > /dev/null
+# Limita la durata massima di ogni singola regola a 1 minuto per evitare blocchi
+curl -s "$ZAP_API_URL/JSON/ascan/action/setOptionMaxRuleDurationInMins/?Integer=1" > /dev/null
+# Imposta il timeout di rete di ZAP a 2 secondi (essendo tutto locale, se ci mette di più è bloccato)
+curl -s "$ZAP_API_URL/JSON/core/action/setOptionTimeoutInSecs/?Integer=2" > /dev/null
+
+# Disabilita tutte le centinaia di regole web generiche che rallentano la scansione delle API
+echo "[*] Disabling redundant ZAP scanners..."
+curl -s "$ZAP_API_URL/JSON/ascan/action/disableAllScanners/" > /dev/null
+
+# Abilita tutte le regole di scansione specifiche e rilevanti per le API (SQLi, NoSQLi, SSRF, XXE, LDAP, RCE, Path Traversal, Cloud Metadata, ecc.)
+echo "[*] Enabling all API-specific active scan rules..."
+API_SCANNER_IDS="40018,40024,40033,90039,90020,90019,6,7,40029,20019,90023,40015,90034,30003"
+curl -s "$ZAP_API_URL/JSON/ascan/action/enableScanners/?ids=$API_SCANNER_IDS" > /dev/null
+
+echo "[*] Triggering Active Scan (LocalStack)..."
 ASCAN_ID=$(curl -s "$ZAP_API_URL/JSON/ascan/action/scan/?url=$ZAP_TARGET_URL&recurse=true" | jq -r '.scan')
 
 if [ -z "$ASCAN_ID" ] || [ "$ASCAN_ID" == "null" ]; then
-    echo "[-] Fallito avvio Active Scan."
-    exit 1
+    echo "[-] Fallito avvio Active Scan su LocalStack."
+else
+    echo "[*] Polling Active Scan status (ID: $ASCAN_ID)..."
+    while true; do
+        STATUS=$(curl -s "$ZAP_API_URL/JSON/ascan/view/status/?scanId=$ASCAN_ID" | jq -r '.status')
+        printf "\r    Active Scan Progress: %s%%" "$STATUS"
+        if [ "$STATUS" == "100" ]; then
+            echo ""
+            break
+        fi
+        sleep 5
+    done
+    echo "[+] Active Scan LocalStack completato."
 fi
-
-echo "[*] Polling Active Scan status (ID: $ASCAN_ID)..."
-while true; do
-    STATUS=$(curl -s "$ZAP_API_URL/JSON/ascan/view/status/?scanId=$ASCAN_ID" | jq -r '.status')
-    printf "\r    Active Scan Progress: %s%%" "$STATUS"
-    if [ "$STATUS" == "100" ]; then
-        echo ""
-        break
-    fi
-    sleep 5
-done
-echo "[+] Active Scan completato."
 
 # 5. Estrazione Report
 echo "[*] Estrazione Report in corso..."
