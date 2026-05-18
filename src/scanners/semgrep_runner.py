@@ -2,7 +2,7 @@ import os
 import json
 import subprocess
 from typing import List
-from src.models.finding from src.models.finding import Finding, FindingSource, FindingCategory, Severity, CodeLocation
+from src.models.finding import Finding, FindingSource, FindingCategory, Severity, CodeLocation
 
 def run_semgrep(target_dir=".") -> List[Finding]:
     print("🚀 Esecuzione Static Analysis (Semgrep)...")

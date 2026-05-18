@@ -1,14 +1,17 @@
 import sys
 from typing import List
-from src.models.finding from src.models.finding import Finding, FindingSource
+from src.models.finding import Finding, FindingSource
 from src.correlation_engine.engine import CorrelationEngine, CorrelatedRisk
 
-def consolidate_reports(spectral_findings: List[Finding], checkov_findings: List[Finding], semgrep_findings: List[Finding], shadow_api_findings: List[Finding]):
+def consolidate_reports(spectral_findings: List[Finding], checkov_findings: List[Finding], semgrep_findings: List[Finding], shadow_api_findings: List[Finding], bola_findings: List[Finding] = None):
     print("\n" + "="*80)
     print("📊 REPORT GLOBALE MULTI-LAYER CORRELATO (CORRELATION ENGINE)")
     print("="*80)
     
-    all_findings = spectral_findings + checkov_findings + semgrep_findings + shadow_api_findings
+    if bola_findings is None:
+        bola_findings = []
+        
+    all_findings = spectral_findings + checkov_findings + semgrep_findings + shadow_api_findings + bola_findings
     
     # Inizializziamo ed eseguiamo la correlazione
     engine = CorrelationEngine()

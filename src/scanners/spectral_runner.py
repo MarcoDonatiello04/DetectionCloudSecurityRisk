@@ -2,7 +2,7 @@ import os
 import json
 import subprocess
 from typing import List
-from src.models.finding from src.models.finding import Finding, FindingSource, FindingCategory, Severity, CodeLocation
+from src.models.finding import Finding, FindingSource, FindingCategory, Severity, CodeLocation, APIContext
 
 def is_openapi_file(filepath):
     try:
@@ -14,18 +14,22 @@ def is_openapi_file(filepath):
         pass
     return False
 
-def run_spectral(target_dir=".") -> List[Finding]:
+def run_spectral(target_file_or_dir=".") -> List[Finding]:
     print("🚀 Esecuzione Spectral API Scanner (OWASP)...")
     openapi_file = None
-    for root, dirs, files in os.walk(target_dir):
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
-        for file in files:
-            if file.endswith(('.yaml', '.yml', '.json')):
-                filepath = os.path.join(root, file)
-                if is_openapi_file(filepath):
-                    openapi_file = filepath
-                    break
-        if openapi_file: break
+    
+    if os.path.isfile(target_file_or_dir):
+        openapi_file = target_file_or_dir
+    else:
+        for root, dirs, files in os.walk(target_file_or_dir):
+            dirs[:] = [d for d in dirs if not d.startswith('.')]
+            for file in files:
+                if file.endswith(('.yaml', '.yml', '.json')):
+                    filepath = os.path.join(root, file)
+                    if is_openapi_file(filepath):
+                        openapi_file = filepath
+                        break
+            if openapi_file: break
 
     if not openapi_file:
         print("ℹ️ Nessun file OpenAPI trovato.")
@@ -33,12 +37,11 @@ def run_spectral(target_dir=".") -> List[Finding]:
 
     print(f"📄 File OpenAPI trovato: {openapi_file}")
     
-    ruleset_path = "rules/spectral-owasp.yaml"
+    ruleset_path = "config/scanner_configs/spectral-owasp.yaml"
     if not os.path.exists(ruleset_path):
-        # Fallback se lo script è eseguito da una dir diversa
-        ruleset_path = os.path.join(os.path.dirname(__file__), "../../rules/spectral-owasp.yaml")
+        ruleset_path = os.path.join(os.path.dirname(__file__), "../../config/scanner_configs/spectral-owasp.yaml")
 
-    cmd = ["npx", "@stoplight/spectral-cli", "lint", openapi_file, "--ruleset", ruleset_path, "--format", "json", "-o", "spectral_report.json"]
+    cmd = ["npx", "-y", "@stoplight/spectral-cli", "lint", openapi_file, "--ruleset", ruleset_path, "--format", "json", "-o", "spectral_report.json"]
     try:
         subprocess.run(cmd, capture_output=True, text=True)
     except FileNotFoundError:
@@ -80,7 +83,18 @@ def run_spectral(target_dir=".") -> List[Finding]:
                         start_line=start_line
                     )
                     
+                    # Estrae l'API Context dalla gerarchia del path di Spectral
+                    path_list = issue.get("path", [])
+                    api_ctx = None
                     target_ident = f"{source_file}"
+                    if len(path_list) >= 3 and path_list[0] == "paths":
+                        api_ctx = APIContext(
+                            endpoint=path_list[1],
+                            method=str(path_list[2]).upper()
+                        )
+                        target_ident += f"|{api_ctx.endpoint}|{api_ctx.method}"
+                    
+                    # Generazione ID univoco basato anche su endpoint e metodo per evitare sovrascritture/duplicati logici
                     finding_id = Finding.generate_deterministic_id(FindingSource.SPECTRAL, rule_code, target_ident)
                     corr_key = source_file.split("/")[-1] if "/" in source_file else source_file
 
@@ -95,6 +109,7 @@ def run_spectral(target_dir=".") -> List[Finding]:
                         rule_id=rule_code,
                         rule_name=rule_code,
                         location=loc,
+                        api=api_ctx,
                         correlation_key=corr_key,
                         raw_data=issue
                     )

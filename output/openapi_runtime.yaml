@@ -1,0 +1,97 @@
+openapi: 3.0.0
+info:
+  title: Unified Runtime API Specification
+  description: Contratto OpenAPI autogenerato dinamicamente tramite la pipeline di
+    API Discovery statica/dinamica e traffic extraction.
+  version: 1.0.0
+servers:
+- url: http://localhost:4566/restapis/0uuofdetq8/dev/_user_request_
+  description: Live Environment di Rilevamento
+paths:
+  /users/{id}:
+    get:
+      summary: Endpoint GET per /users/{id}
+      description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
+        1.0).'
+      responses:
+        '200':
+          description: Risposta osservata con status 200
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Parametro di path 'id' estratto euristica
+  /users:
+    get:
+      summary: Endpoint GET per /users
+      description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
+        1.0).'
+      responses:
+        '200':
+          description: Risposta osservata con status 200
+  /login:
+    get:
+      summary: Endpoint GET per /login
+      description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
+        1.0).'
+      responses:
+        '404':
+          description: Risposta osservata con status 404
+  /admin:
+    get:
+      summary: Endpoint GET per /admin
+      description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
+        1.0).'
+      responses:
+        '200':
+          description: Risposta osservata con status 200
+  /upload:
+    get:
+      summary: Endpoint GET per /upload
+      description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
+        1.0).'
+      responses:
+        '404':
+          description: Risposta osservata con status 404
+  /search:
+    get:
+      summary: Endpoint GET per /search
+      description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
+        1.0).'
+      responses:
+        '200':
+          description: Risposta osservata con status 200
+  /debug:
+    get:
+      summary: Endpoint GET per /debug
+      description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
+        1.0).'
+      responses:
+        '200':
+          description: Risposta osservata con status 200
+  /notes:
+    get:
+      summary: Endpoint GET per /notes
+      description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
+        1.0).'
+      responses:
+        '404':
+          description: Risposta osservata con status 404
+  /robots.txt:
+    get:
+      summary: Endpoint GET per /robots.txt
+      description: 'Rilevato tramite pipeline (Classificazione: RUNTIME_ONLY, Confidence:
+        0.7).'
+      responses:
+        '404':
+          description: Risposta osservata con status 404
+  /sitemap.xml:
+    get:
+      summary: Endpoint GET per /sitemap.xml
+      description: 'Rilevato tramite pipeline (Classificazione: RUNTIME_ONLY, Confidence:
+        0.7).'
+      responses:
+        '404':
+          description: Risposta osservata con status 404

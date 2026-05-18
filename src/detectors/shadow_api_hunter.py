@@ -5,7 +5,7 @@ import yaml
 from typing import List
 from src.parsers.normalizer import normalize_path
 from src.scanners.spectral_runner import is_openapi_file
-from src.models.finding from src.models.finding import Finding, FindingSource, FindingCategory, Severity, APIContext
+from src.models.finding import Finding, FindingSource, FindingCategory, Severity, APIContext
 
 def run_shadow_api_hunter(target_dir=".") -> List[Finding]:
     print("🚀 Esecuzione Shadow API Hunter (con Auth Discrepancy Control)...")

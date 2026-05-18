@@ -32,9 +32,9 @@ else
 fi
 
 echo -e "\n${BLUE}=========================================================${NC}"
-echo -e "${GREEN} TUTTI I SISTEMI OPERATIVI!${NC}"
+echo -e "${GREEN} TUTTI I SISTEMI AVVIATI!${NC}"
 echo -e "${BLUE}=========================================================${NC}"
 echo -e "L'infrastruttura è pronta in LocalStack."
-echo -e "Per avviare la scansione DAST:"
-echo -e "  bash scripts/scanning/run_zap_scan.sh"
+echo -e "Per avviare la Pipeline di API Discovery & Inventory:"
+echo -e "  python src/main.py"
 echo -e "${BLUE}=========================================================${NC}"

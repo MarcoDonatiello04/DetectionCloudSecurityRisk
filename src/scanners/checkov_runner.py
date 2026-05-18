@@ -2,7 +2,7 @@ import os
 import json
 import subprocess
 from typing import List
-from src.models.finding from src.models.finding import Finding, FindingSource, FindingCategory, Severity, CodeLocation
+from src.models.finding import Finding, FindingSource, FindingCategory, Severity, CodeLocation
 
 def run_checkov(target_dir=".") -> List[Finding]:
     print("🚀 Esecuzione Cloud Security Scanner (Checkov)...")

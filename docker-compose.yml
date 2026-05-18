@@ -1,5 +1,20 @@
 services:
   # ===========================================================================
+  # 1. MITMPROXY CENTRAL PROXY
+  # ===========================================================================
+  mitmproxy:
+    image: mitmproxy/mitmproxy:latest
+    container_name: tesi-mitmproxy
+    volumes:
+      - ./src/runtime/mitmproxy:/home/mitmproxy/scripts
+      - ./src/output:/home/mitmproxy/output
+    command: mitmdump -s /home/mitmproxy/scripts/addon.py -p 8081 --mode regular --ssl-insecure
+    ports:
+      - "8081:8081"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ===========================================================================
   # 3. OWASP ZAP DAST ENGINE (Runtime Verification Oracle)
   # ===========================================================================
   owasp-zap:
@@ -13,5 +28,10 @@ services:
       -config api.disablekey=true 
       -config api.addrs.addr.name=.* 
       -config api.addrs.addr.regex=true
+      -config connection.proxyChain.enabled=true
+      -config connection.proxyChain.hostName=tesi-mitmproxy
+      -config connection.proxyChain.port=8081
     ports:
       - "8080:8080"
+    depends_on:
+      - mitmproxy

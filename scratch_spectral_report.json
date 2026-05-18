@@ -1,0 +1,2302 @@
+[
+	{
+		"code": "owasp:api9:2023-inventory-access",
+		"path": [
+			"servers",
+			"0"
+		],
+		"message": "Declare intended audience of every server by defining servers[0].x-internal as true/false.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 7,
+				"character": 2
+			},
+			"end": {
+				"line": 8,
+				"character": 46
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-no-server-http",
+		"path": [
+			"servers",
+			"0",
+			"url"
+		],
+		"message": "Server URLs must not use http://. Use https:// or wss:// instead.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 7,
+				"character": 7
+			},
+			"end": {
+				"line": 7,
+				"character": 67
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api9:2023-inventory-environment",
+		"path": [
+			"servers",
+			"0",
+			"description"
+		],
+		"message": "Declare intended environment in server descriptions using terms like local, staging, production.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 8,
+				"character": 15
+			},
+			"end": {
+				"line": 8,
+				"character": 46
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp-api2-operation-security",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get"
+		],
+		"message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 11,
+				"character": 8
+			},
+			"end": {
+				"line": 24,
+				"character": 62
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api2:2023-read-restricted",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get"
+		],
+		"message": "This read operation is not protected by any security scheme.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 11,
+				"character": 8
+			},
+			"end": {
+				"line": 24,
+				"character": 62
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 15,
+				"character": 16
+			},
+			"end": {
+				"line": 17,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 15,
+				"character": 16
+			},
+			"end": {
+				"line": 17,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 15,
+				"character": 16
+			},
+			"end": {
+				"line": 17,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 15,
+				"character": 16
+			},
+			"end": {
+				"line": 17,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 15,
+				"character": 16
+			},
+			"end": {
+				"line": 17,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 15,
+				"character": 16
+			},
+			"end": {
+				"line": 17,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-validation",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get",
+			"responses"
+		],
+		"message": "Missing error response of either 400, 422 or 4XX.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 15,
+				"character": 16
+			},
+			"end": {
+				"line": 17,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get",
+			"responses",
+			"200"
+		],
+		"message": "All 2XX and 4XX responses should define rate limiting headers.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 16,
+				"character": 14
+			},
+			"end": {
+				"line": 17,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-string-limit",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get",
+			"parameters",
+			"0",
+			"schema"
+		],
+		"message": "Schema of type string must specify maxLength, enum, or const.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 22,
+				"character": 15
+			},
+			"end": {
+				"line": 23,
+				"character": 22
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-string-restricted",
+		"path": [
+			"paths",
+			"/users/{id}",
+			"get",
+			"parameters",
+			"0",
+			"schema"
+		],
+		"message": "Schema of type string should specify a format, pattern, enum, or const.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 22,
+				"character": 15
+			},
+			"end": {
+				"line": 23,
+				"character": 22
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp-api2-operation-security",
+		"path": [
+			"paths",
+			"/users",
+			"get"
+		],
+		"message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 26,
+				"character": 8
+			},
+			"end": {
+				"line": 32,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api2:2023-read-restricted",
+		"path": [
+			"paths",
+			"/users",
+			"get"
+		],
+		"message": "This read operation is not protected by any security scheme.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 26,
+				"character": 8
+			},
+			"end": {
+				"line": 32,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/users",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 30,
+				"character": 16
+			},
+			"end": {
+				"line": 32,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/users",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 30,
+				"character": 16
+			},
+			"end": {
+				"line": 32,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/users",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 30,
+				"character": 16
+			},
+			"end": {
+				"line": 32,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/users",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 30,
+				"character": 16
+			},
+			"end": {
+				"line": 32,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/users",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 30,
+				"character": 16
+			},
+			"end": {
+				"line": 32,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/users",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 30,
+				"character": 16
+			},
+			"end": {
+				"line": 32,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-validation",
+		"path": [
+			"paths",
+			"/users",
+			"get",
+			"responses"
+		],
+		"message": "Missing error response of either 400, 422 or 4XX.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 30,
+				"character": 16
+			},
+			"end": {
+				"line": 32,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit",
+		"path": [
+			"paths",
+			"/users",
+			"get",
+			"responses",
+			"200"
+		],
+		"message": "All 2XX and 4XX responses should define rate limiting headers.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 31,
+				"character": 14
+			},
+			"end": {
+				"line": 32,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp-api2-operation-security",
+		"path": [
+			"paths",
+			"/login",
+			"get"
+		],
+		"message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 34,
+				"character": 8
+			},
+			"end": {
+				"line": 40,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api2:2023-read-restricted",
+		"path": [
+			"paths",
+			"/login",
+			"get"
+		],
+		"message": "This read operation is not protected by any security scheme.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 34,
+				"character": 8
+			},
+			"end": {
+				"line": 40,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/login",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 38,
+				"character": 16
+			},
+			"end": {
+				"line": 40,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/login",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 38,
+				"character": 16
+			},
+			"end": {
+				"line": 40,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/login",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 38,
+				"character": 16
+			},
+			"end": {
+				"line": 40,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/login",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 38,
+				"character": 16
+			},
+			"end": {
+				"line": 40,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/login",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 38,
+				"character": 16
+			},
+			"end": {
+				"line": 40,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/login",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 38,
+				"character": 16
+			},
+			"end": {
+				"line": 40,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-validation",
+		"path": [
+			"paths",
+			"/login",
+			"get",
+			"responses"
+		],
+		"message": "Missing error response of either 400, 422 or 4XX.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 38,
+				"character": 16
+			},
+			"end": {
+				"line": 40,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit",
+		"path": [
+			"paths",
+			"/login",
+			"get",
+			"responses",
+			"404"
+		],
+		"message": "All 2XX and 4XX responses should define rate limiting headers.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 39,
+				"character": 14
+			},
+			"end": {
+				"line": 40,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp-api2-operation-security",
+		"path": [
+			"paths",
+			"/admin",
+			"get"
+		],
+		"message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 42,
+				"character": 8
+			},
+			"end": {
+				"line": 48,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api2:2023-read-restricted",
+		"path": [
+			"paths",
+			"/admin",
+			"get"
+		],
+		"message": "This read operation is not protected by any security scheme.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 42,
+				"character": 8
+			},
+			"end": {
+				"line": 48,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/admin",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 46,
+				"character": 16
+			},
+			"end": {
+				"line": 48,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/admin",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 46,
+				"character": 16
+			},
+			"end": {
+				"line": 48,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/admin",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 46,
+				"character": 16
+			},
+			"end": {
+				"line": 48,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/admin",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 46,
+				"character": 16
+			},
+			"end": {
+				"line": 48,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/admin",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 46,
+				"character": 16
+			},
+			"end": {
+				"line": 48,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/admin",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 46,
+				"character": 16
+			},
+			"end": {
+				"line": 48,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-validation",
+		"path": [
+			"paths",
+			"/admin",
+			"get",
+			"responses"
+		],
+		"message": "Missing error response of either 400, 422 or 4XX.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 46,
+				"character": 16
+			},
+			"end": {
+				"line": 48,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit",
+		"path": [
+			"paths",
+			"/admin",
+			"get",
+			"responses",
+			"200"
+		],
+		"message": "All 2XX and 4XX responses should define rate limiting headers.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 47,
+				"character": 14
+			},
+			"end": {
+				"line": 48,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp-api2-operation-security",
+		"path": [
+			"paths",
+			"/upload",
+			"get"
+		],
+		"message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 50,
+				"character": 8
+			},
+			"end": {
+				"line": 56,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api2:2023-read-restricted",
+		"path": [
+			"paths",
+			"/upload",
+			"get"
+		],
+		"message": "This read operation is not protected by any security scheme.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 50,
+				"character": 8
+			},
+			"end": {
+				"line": 56,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/upload",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 54,
+				"character": 16
+			},
+			"end": {
+				"line": 56,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/upload",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 54,
+				"character": 16
+			},
+			"end": {
+				"line": 56,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/upload",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 54,
+				"character": 16
+			},
+			"end": {
+				"line": 56,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/upload",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 54,
+				"character": 16
+			},
+			"end": {
+				"line": 56,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/upload",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 54,
+				"character": 16
+			},
+			"end": {
+				"line": 56,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/upload",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 54,
+				"character": 16
+			},
+			"end": {
+				"line": 56,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-validation",
+		"path": [
+			"paths",
+			"/upload",
+			"get",
+			"responses"
+		],
+		"message": "Missing error response of either 400, 422 or 4XX.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 54,
+				"character": 16
+			},
+			"end": {
+				"line": 56,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit",
+		"path": [
+			"paths",
+			"/upload",
+			"get",
+			"responses",
+			"404"
+		],
+		"message": "All 2XX and 4XX responses should define rate limiting headers.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 55,
+				"character": 14
+			},
+			"end": {
+				"line": 56,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp-api2-operation-security",
+		"path": [
+			"paths",
+			"/search",
+			"get"
+		],
+		"message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 58,
+				"character": 8
+			},
+			"end": {
+				"line": 64,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api2:2023-read-restricted",
+		"path": [
+			"paths",
+			"/search",
+			"get"
+		],
+		"message": "This read operation is not protected by any security scheme.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 58,
+				"character": 8
+			},
+			"end": {
+				"line": 64,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/search",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 62,
+				"character": 16
+			},
+			"end": {
+				"line": 64,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/search",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 62,
+				"character": 16
+			},
+			"end": {
+				"line": 64,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/search",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 62,
+				"character": 16
+			},
+			"end": {
+				"line": 64,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/search",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 62,
+				"character": 16
+			},
+			"end": {
+				"line": 64,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/search",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 62,
+				"character": 16
+			},
+			"end": {
+				"line": 64,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/search",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 62,
+				"character": 16
+			},
+			"end": {
+				"line": 64,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-validation",
+		"path": [
+			"paths",
+			"/search",
+			"get",
+			"responses"
+		],
+		"message": "Missing error response of either 400, 422 or 4XX.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 62,
+				"character": 16
+			},
+			"end": {
+				"line": 64,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit",
+		"path": [
+			"paths",
+			"/search",
+			"get",
+			"responses",
+			"200"
+		],
+		"message": "All 2XX and 4XX responses should define rate limiting headers.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 63,
+				"character": 14
+			},
+			"end": {
+				"line": 64,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp-api2-operation-security",
+		"path": [
+			"paths",
+			"/debug",
+			"get"
+		],
+		"message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 66,
+				"character": 8
+			},
+			"end": {
+				"line": 72,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api2:2023-read-restricted",
+		"path": [
+			"paths",
+			"/debug",
+			"get"
+		],
+		"message": "This read operation is not protected by any security scheme.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 66,
+				"character": 8
+			},
+			"end": {
+				"line": 72,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/debug",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 70,
+				"character": 16
+			},
+			"end": {
+				"line": 72,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/debug",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 70,
+				"character": 16
+			},
+			"end": {
+				"line": 72,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/debug",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 70,
+				"character": 16
+			},
+			"end": {
+				"line": 72,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/debug",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 70,
+				"character": 16
+			},
+			"end": {
+				"line": 72,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/debug",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 70,
+				"character": 16
+			},
+			"end": {
+				"line": 72,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/debug",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 70,
+				"character": 16
+			},
+			"end": {
+				"line": 72,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-validation",
+		"path": [
+			"paths",
+			"/debug",
+			"get",
+			"responses"
+		],
+		"message": "Missing error response of either 400, 422 or 4XX.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 70,
+				"character": 16
+			},
+			"end": {
+				"line": 72,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit",
+		"path": [
+			"paths",
+			"/debug",
+			"get",
+			"responses",
+			"200"
+		],
+		"message": "All 2XX and 4XX responses should define rate limiting headers.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 71,
+				"character": 14
+			},
+			"end": {
+				"line": 72,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp-api2-operation-security",
+		"path": [
+			"paths",
+			"/notes",
+			"get"
+		],
+		"message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 74,
+				"character": 8
+			},
+			"end": {
+				"line": 80,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api2:2023-read-restricted",
+		"path": [
+			"paths",
+			"/notes",
+			"get"
+		],
+		"message": "This read operation is not protected by any security scheme.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 74,
+				"character": 8
+			},
+			"end": {
+				"line": 80,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/notes",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 78,
+				"character": 16
+			},
+			"end": {
+				"line": 80,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/notes",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 78,
+				"character": 16
+			},
+			"end": {
+				"line": 80,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/notes",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 78,
+				"character": 16
+			},
+			"end": {
+				"line": 80,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/notes",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 78,
+				"character": 16
+			},
+			"end": {
+				"line": 80,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/notes",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 78,
+				"character": 16
+			},
+			"end": {
+				"line": 80,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/notes",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 78,
+				"character": 16
+			},
+			"end": {
+				"line": 80,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-validation",
+		"path": [
+			"paths",
+			"/notes",
+			"get",
+			"responses"
+		],
+		"message": "Missing error response of either 400, 422 or 4XX.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 78,
+				"character": 16
+			},
+			"end": {
+				"line": 80,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit",
+		"path": [
+			"paths",
+			"/notes",
+			"get",
+			"responses",
+			"404"
+		],
+		"message": "All 2XX and 4XX responses should define rate limiting headers.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 79,
+				"character": 14
+			},
+			"end": {
+				"line": 80,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp-api2-operation-security",
+		"path": [
+			"paths",
+			"/robots.txt",
+			"get"
+		],
+		"message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 82,
+				"character": 8
+			},
+			"end": {
+				"line": 88,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api2:2023-read-restricted",
+		"path": [
+			"paths",
+			"/robots.txt",
+			"get"
+		],
+		"message": "This read operation is not protected by any security scheme.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 82,
+				"character": 8
+			},
+			"end": {
+				"line": 88,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/robots.txt",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 86,
+				"character": 16
+			},
+			"end": {
+				"line": 88,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/robots.txt",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 86,
+				"character": 16
+			},
+			"end": {
+				"line": 88,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/robots.txt",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 86,
+				"character": 16
+			},
+			"end": {
+				"line": 88,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/robots.txt",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 86,
+				"character": 16
+			},
+			"end": {
+				"line": 88,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/robots.txt",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 86,
+				"character": 16
+			},
+			"end": {
+				"line": 88,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/robots.txt",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 86,
+				"character": 16
+			},
+			"end": {
+				"line": 88,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-validation",
+		"path": [
+			"paths",
+			"/robots.txt",
+			"get",
+			"responses"
+		],
+		"message": "Missing error response of either 400, 422 or 4XX.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 86,
+				"character": 16
+			},
+			"end": {
+				"line": 88,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit",
+		"path": [
+			"paths",
+			"/robots.txt",
+			"get",
+			"responses",
+			"404"
+		],
+		"message": "All 2XX and 4XX responses should define rate limiting headers.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 87,
+				"character": 14
+			},
+			"end": {
+				"line": 88,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp-api2-operation-security",
+		"path": [
+			"paths",
+			"/sitemap.xml",
+			"get"
+		],
+		"message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 90,
+				"character": 8
+			},
+			"end": {
+				"line": 96,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api2:2023-read-restricted",
+		"path": [
+			"paths",
+			"/sitemap.xml",
+			"get"
+		],
+		"message": "This read operation is not protected by any security scheme.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 90,
+				"character": 8
+			},
+			"end": {
+				"line": 96,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/sitemap.xml",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 94,
+				"character": 16
+			},
+			"end": {
+				"line": 96,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit-responses-429",
+		"path": [
+			"paths",
+			"/sitemap.xml",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing rate limiting response in responses[429].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 94,
+				"character": 16
+			},
+			"end": {
+				"line": 96,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/sitemap.xml",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 94,
+				"character": 16
+			},
+			"end": {
+				"line": 96,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-401",
+		"path": [
+			"paths",
+			"/sitemap.xml",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[401].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 94,
+				"character": 16
+			},
+			"end": {
+				"line": 96,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/sitemap.xml",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 94,
+				"character": 16
+			},
+			"end": {
+				"line": 96,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-responses-500",
+		"path": [
+			"paths",
+			"/sitemap.xml",
+			"get",
+			"responses"
+		],
+		"message": "Operation is missing responses[500].content.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 94,
+				"character": 16
+			},
+			"end": {
+				"line": 96,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api8:2023-define-error-validation",
+		"path": [
+			"paths",
+			"/sitemap.xml",
+			"get",
+			"responses"
+		],
+		"message": "Missing error response of either 400, 422 or 4XX.",
+		"severity": 1,
+		"range": {
+			"start": {
+				"line": 94,
+				"character": 16
+			},
+			"end": {
+				"line": 96,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	},
+	{
+		"code": "owasp:api4:2023-rate-limit",
+		"path": [
+			"paths",
+			"/sitemap.xml",
+			"get",
+			"responses",
+			"404"
+		],
+		"message": "All 2XX and 4XX responses should define rate limiting headers.",
+		"severity": 0,
+		"range": {
+			"start": {
+				"line": 95,
+				"character": 14
+			},
+			"end": {
+				"line": 96,
+				"character": 56
+			}
+		},
+		"source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+	}
+]

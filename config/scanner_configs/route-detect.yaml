@@ -66,3 +66,12 @@ rules:
     message: "Route Detected: $ROUTE"
     languages: [python]
     severity: INFO
+
+  - id: extract-python-lambda-route
+    patterns:
+      - pattern-either:
+          - pattern: path == $ROUTE
+          - pattern: path.startswith($ROUTE)
+    message: "Route Detected: $ROUTE"
+    languages: [python]
+    severity: INFO
