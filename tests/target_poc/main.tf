@@ -1,15 +1,21 @@
 provider "aws" {
-  region                      = "us-east-1"
   access_key                  = "test"
   secret_key                  = "test"
+  region                      = "us-east-1"
+
+  s3_use_path_style           = true
   skip_credentials_validation = true
   skip_metadata_api_check     = true
   skip_requesting_account_id  = true
-  s3_use_path_style           = true
 
   endpoints {
-    s3  = "http://localhost:4566"
-    sts = "http://localhost:4566"
+    apigateway = "http://localhost:4566"
+    dynamodb   = "http://localhost:4566"
+    iam        = "http://localhost:4566"
+    lambda     = "http://localhost:4566"
+    s3         = "http://localhost:4566"
+    sns        = "http://localhost:4566"
+    sts        = "http://localhost:4566"
   }
 }
 
@@ -262,78 +268,7 @@ resource "aws_api_gateway_method" "vulnerable_method" {
 }
 
 # ====================================================================
-# API GATEWAY - SCENARIO 2: Sicuro
+# I SERVIZI SECURE (WAF, COGNITO, ETC) SONO STATI TEMPORANEAMENTE
+# DISABILITATI PER GARANTIRE LA COMPATIBILITA' CON LOCALSTACK
 # ====================================================================
 
-resource "aws_api_gateway_rest_api" "secure_api" {
-  name        = "SecureAPI"
-  description = "API Gateway protetto e configurato correttamente"
-}
-
-resource "aws_api_gateway_resource" "secure_resource" {
-  rest_api_id = aws_api_gateway_rest_api.secure_api.id
-  parent_id   = aws_api_gateway_rest_api.secure_api.root_resource_id
-  path_part   = "secure-data"
-}
-
-# Authorizer simulato (Cognito)
-resource "aws_api_gateway_authorizer" "secure_authorizer" {
-  name          = "CognitoAuthorizer"
-  rest_api_id   = aws_api_gateway_rest_api.secure_api.id
-  type          = "COGNITO_USER_POOLS"
-  provider_arns = ["arn:aws:cognito-idp:us-east-1:123456789012:userpool/us-east-1_abcdefghi"]
-}
-
-resource "aws_api_gateway_method" "secure_method" {
-  rest_api_id   = aws_api_gateway_rest_api.secure_api.id
-  resource_id   = aws_api_gateway_resource.secure_resource.id
-  http_method   = "GET" # Metodo restrittivo
-  authorization = "COGNITO_USER_POOLS" # Sicuro: Usa un Authorizer
-  authorizer_id = aws_api_gateway_authorizer.secure_authorizer.id
-  api_key_required = true # Sicuro: Richiede API Key
-}
-
-resource "aws_api_gateway_stage" "secure_stage" {
-  deployment_id = aws_api_gateway_deployment.secure_deployment.id
-  rest_api_id   = aws_api_gateway_rest_api.secure_api.id
-  stage_name    = "prod"
-  
-  # CKV_AWS_73: X-Ray attivo
-  xray_tracing_enabled = true
-
-  # CKV_AWS_76: Access Logging
-  access_log_settings {
-    destination_arn = "arn:aws:logs:us-east-1:123456789012:log-group:api-gateway-logs"
-    format          = "{ \"requestId\":\"$context.requestId\", \"ip\": \"$context.identity.sourceIp\" }"
-  }
-}
-
-resource "aws_api_gateway_deployment" "secure_deployment" {
-  rest_api_id = aws_api_gateway_rest_api.secure_api.id
-  
-  depends_on = [
-    aws_api_gateway_method.secure_method
-  ]
-}
-
-# CKV_AWS_193: API Gateway v1 associato a un WAFv2
-resource "aws_wafv2_web_acl" "secure_waf" {
-  name        = "secure-api-waf"
-  description = "WAF per API Gateway"
-  scope       = "REGIONAL"
-
-  default_action {
-    allow {}
-  }
-
-  visibility_config {
-    cloudwatch_metrics_enabled = true
-    metric_name                = "secureApiWaf"
-    sampled_requests_enabled   = true
-  }
-}
-
-resource "aws_wafv2_web_acl_association" "secure_api_waf_assoc" {
-  resource_arn = aws_api_gateway_stage.secure_stage.arn
-  web_acl_arn  = aws_wafv2_web_acl.secure_waf.arn
-}
