@@ -6,8 +6,8 @@ services:
     image: mitmproxy/mitmproxy:latest
     container_name: tesi-mitmproxy
     volumes:
-      - ./src/runtime/mitmproxy:/home/mitmproxy/scripts
-      - ./src/output:/home/mitmproxy/output
+      - ./soluzione_api/src/runtime/mitmproxy:/home/mitmproxy/scripts
+      - ./soluzione_api/src/output:/home/mitmproxy/output
     command: mitmdump -s /home/mitmproxy/scripts/addon.py -p 8081 --mode regular --ssl-insecure
     ports:
       - "8081:8081"

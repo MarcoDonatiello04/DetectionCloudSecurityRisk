@@ -12,7 +12,7 @@ echo -e "${BLUE}=========================================================${NC}"
 echo -e "${BLUE}   Terraform Provisioning (LocalStack)                   ${NC}"
 echo -e "${BLUE}=========================================================${NC}"
 
-TF_DIR="infrastructure/terraform"
+TF_DIR="problema_misconfiguration/terraform"
 
 # Verifica se LocalStack è online
 echo -e "${YELLOW}[*] Verificando lo stato di LocalStack...${NC}"

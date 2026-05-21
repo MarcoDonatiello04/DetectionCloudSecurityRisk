@@ -13,8 +13,7 @@ if ! docker ps | grep -q "localstack-main"; then
   echo "Assicurati di aver avviato LocalStack PRO prima di lanciare questo script."
   exit 1
 fi
-
-until curl -s http://localhost:4566/_localstack/health | grep -q "running"; do
+until [ "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4566/_localstack/health || echo '000')" = "200" ]; do
   printf "."
   sleep 2
 done
@@ -24,9 +23,7 @@ echo "[2/5] Avvio dei restanti servizi (ZAP, Target App) via Docker Compose..."
 docker-compose up -d
 
 echo "[3/5] Inizializzazione ed esecuzione Terraform..."
-cd tests/target_poc
-terraform init -backend=false
-terraform apply -auto-approve
+bash scripts/terraform/run_terraform.sh
 
 echo "[4/5] Verifica automatica infrastruttura..."
 echo " - Controllo tabelle DynamoDB:"

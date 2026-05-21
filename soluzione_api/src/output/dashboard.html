@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Discovery & Governance Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-input: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --color-sky: #38bdf8;
+            --color-indigo: #6366f1;
+            --color-emerald: #10b981;
+            --color-rose: #f43f5e;
+            --color-amber: #f59e0b;
+            --glow-color: rgba(56, 189, 248, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) transparent;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.1) 0px, transparent 50%);
+        }
+
+        header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.2rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .logo-badge {
+            background: linear-gradient(135deg, var(--color-sky), var(--color-indigo));
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .logo-title h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-title p {
+            font-size: 0.75rem;
+            color: var(--color-sky);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(30, 41, 59, 0.5);
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.6rem 1.4rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.2));
+            color: var(--color-sky);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.1);
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem 2.5rem;
+            max-width: 1600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px var(--glow-color);
+            border-color: rgba(56, 189, 248, 0.2);
+        }
+
+        .stat-details h3 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #ffffff, #f1f5f9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border-color);
+        }
+
+        .dashboard-content {
+            display: none;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .dashboard-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.8rem 1rem 0.8rem 2.8rem;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--color-sky);
+            box-shadow: 0 0 12px var(--glow-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .filters-group {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip:hover, .filter-chip.active {
+            color: var(--text-primary);
+            background: var(--bg-input);
+            border-color: var(--color-sky);
+        }
+
+        .filter-chip.active {
+            background: rgba(56, 189, 248, 0.15);
+        }
+
+        /* Table & Lists layout */
+        .card-container {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.4);
+            padding: 1.1rem 1.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 1.1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .method-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .method-get { background: rgba(16, 185, 129, 0.15); color: var(--color-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .method-post { background: rgba(59, 130, 246, 0.15); color: var(--color-sky); border: 1px solid rgba(59, 130, 246, 0.3); }
+        .method-delete { background: rgba(239, 68, 68, 0.15); color: var(--color-rose); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .method-put, .method-patch { background: rgba(245, 158, 11, 0.15); color: var(--color-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        .path-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            color: #fff;
+            letter-spacing: -0.2px;
+        }
+
+        .class-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .class-confirmed { background: rgba(16, 185, 129, 0.1); color: var(--color-emerald); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .class-shadow { 
+            background: rgba(244, 63, 94, 0.15); 
+            color: var(--color-rose); 
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            animation: pulse-glow 2s infinite; 
+        }
+        .class-inactive { background: rgba(245, 158, 11, 0.1); color: var(--color-amber); border: 1px solid rgba(245, 158, 11, 0.2); }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(244, 63, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+        }
+
+        .sources-list {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .source-tag {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            color: var(--text-secondary);
+        }
+
+        .auth-icon {
+            font-size: 1.1rem;
+        }
+
+        .status-badge {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            font-family: 'JetBrains Mono', monospace;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-2xx { color: var(--color-emerald); background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.2); }
+        .status-4xx { color: var(--color-rose); background: rgba(244, 63, 94, 0.08); border-color: rgba(244, 63, 94, 0.2); }
+
+        /* Spectral list specific styles */
+        .spectral-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            padding: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .spectral-card:hover {
+            background: rgba(30, 41, 59, 0.7);
+            border-color: rgba(244, 63, 94, 0.25);
+        }
+
+        .spectral-card.severity-high { border-left: 4px solid var(--color-rose); }
+        .spectral-card.severity-medium { border-left: 4px solid var(--color-amber); }
+
+        .spectral-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .rule-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #fff;
+            background: rgba(255,255,255,0.04);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.85rem;
+        }
+
+        .issue-severity {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 0.25rem 0.7rem;
+            border-radius: 30px;
+        }
+
+        .severity-high .issue-severity { background: rgba(244, 63, 94, 0.15); color: var(--color-rose); }
+        .severity-medium .issue-severity { background: rgba(245, 158, 11, 0.15); color: var(--color-amber); }
+
+        .issue-description {
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 0.8rem;
+        }
+
+        .issue-meta {
+            display: flex;
+            gap: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding-top: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .meta-item span {
+            font-family: 'JetBrains Mono', monospace;
+            color: #fff;
+        }
+
+        .empty-state {
+            padding: 4rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        footer {
+            background: rgba(11, 15, 25, 0.9);
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--color-sky);
+            text-decoration: none;
+        }
+
+        .conformance-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .conformance-badge {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .conformance-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
+        }
+
+        .conformance-val {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            main {
+                padding: 1rem;
+            }
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-section">
+            <div class="logo-badge">🔍</div>
+            <div class="logo-title">
+                <h1>API Discovery & Governance</h1>
+                <p>Asset Inventory & Compliance</p>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('inventory-tab', this)">
+                📦 API Inventory
+            </button>
+            <button class="tab-btn" onclick="switchTab('spectral-tab', this)">
+                🛡️ Spectral Audit
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- STATS HERO ROW -->
+        <div class="hero-stats">
+            <div class="stat-card">
+                <div class="stat-details">
+                    <h3>Totale API Rilevate</h3>
+                    <div class="stat-value" id="stat-total-apis">0</div>
+                </div>
+                <div class="stat-icon" style="color: var(--color-sky);">🔗</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-details">
+                    <h3>Shadow API Attive</h3>
+                    <div class="stat-value" id="stat-shadow-apis" style="color: var(--color-rose);">0</div>
+                </div>
+                <div class="stat-icon" style="color: var(--color-rose);">🔥</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-details">
+                    <h3>Violazioni Spectral</h3>
+                    <div class="stat-value" id="stat-violations" style="color: var(--color-amber);">0</div>
+                </div>
+                <div class="stat-icon" style="color: var(--color-amber);">🛡️</div>
+            </div>
+        </div>
+
+        <!-- TAB 1: API INVENTORY -->
+        <div id="inventory-tab" class="dashboard-content active">
+            <div class="controls-row">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="inventory-search" placeholder="Cerca endpoint o metodo..." oninput="filterInventory()">
+                </div>
+                
+                <div class="filters-group">
+                    <button class="filter-chip active" onclick="filterClass('ALL', this)">Tutti</button>
+                    <button class="filter-chip" onclick="filterClass('CONFIRMED', this)">Confermati</button>
+                    <button class="filter-chip" onclick="filterClass('RUNTIME_ONLY', this)">Shadow API</button>
+                    <button class="filter-chip" onclick="filterClass('STATIC_ONLY', this)">Solo Codice</button>
+                </div>
+            </div>
+            
+            <div class="card-container">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metodo</th>
+                                <th>Endpoint / Route Path</th>
+                                <th>Classificazione</th>
+                                <th>Sorgenti Analisi</th>
+                                <th style="text-align: center;">Auth Rilevata</th>
+                                <th>Status Codes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-body">
+                            <!-- Popolato dinamicamente da JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="inventory-empty-state" class="empty-state" style="display: none;">
+                    <div class="empty-icon">📂</div>
+                    <p>Nessun endpoint corrisponde ai filtri di ricerca impostati.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: SPECTRAL AUDIT -->
+        <div id="spectral-tab" class="dashboard-content">
+            <div class="conformance-overview">
+                <div class="conformance-badge" style="border-top: 3px solid var(--color-rose);">
+                    <div class="conformance-label">Errori di Sicurezza</div>
+                    <div class="conformance-val" id="spectral-errors-count" style="color: var(--color-rose);">0</div>
+                </div>
+                <div class="conformance-badge" style="border-top: 3px solid var(--color-amber);">
+                    <div class="conformance-label">Warning di Qualità</div>
+                    <div class="conformance-val" id="spectral-warnings-count" style="color: var(--color-amber);">0</div>
+                </div>
+                <div class="conformance-badge" style="border-top: 3px solid var(--color-sky);">
+                    <div class="conformance-label">Endpoint Coinvolti</div>
+                    <div class="conformance-val" id="spectral-endpoints-count" style="color: var(--color-sky);">0</div>
+                </div>
+            </div>
+
+            <div class="controls-row">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="spectral-search" placeholder="Cerca regola o endpoint..." oninput="filterSpectral()">
+                </div>
+                
+                <div class="filters-group">
+                    <button class="filter-chip active" onclick="filterSpectralSeverity('ALL', this)">Tutte le Gravità</button>
+                    <button class="filter-chip" onclick="filterSpectralSeverity('HIGH', this)">Solo Errori (HIGH)</button>
+                    <button class="filter-chip" onclick="filterSpectralSeverity('MEDIUM', this)">Solo Warning (MEDIUM)</button>
+                </div>
+            </div>
+
+            <div id="spectral-list-container">
+                <!-- Popolato dinamicamente da JS -->
+            </div>
+            
+            <div id="spectral-empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon">🟢</div>
+                <h3>Contratto Conforme!</h3>
+                <p style="margin-top: 0.5rem;">Complimenti! Nessuna violazione contrattuale rilevata da Spectral.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Tesi di Laurea | API Discovery & Compliance Framework | Creato per Marco Donatiello</p>
+    </footer>
+
+    <!-- INIEZIONE DATI DINAMICI DA PYTHON PIPELINE -->
+    <script>
+        const inventoryData = [{"path": "/users/{id}", "method": "GET", "sources": ["static", "runtime"], "static_metadata": {"file": "problema_api/lambda_api/app.py", "framework": "aws-lambda", "route_parameters": ["id"]}, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/1", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "CONFIRMED", "confidence_score": 1.0}, {"path": "/users", "method": "GET", "sources": ["static", "runtime"], "static_metadata": {"file": "problema_api/lambda_api/app.py", "framework": "aws-lambda, python-semgrep", "route_parameters": []}, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "CONFIRMED", "confidence_score": 1.0}, {"path": "/login", "method": "GET", "sources": ["static", "runtime"], "static_metadata": {"file": "problema_api/lambda_api/app.py", "framework": "aws-lambda, python-semgrep", "route_parameters": []}, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/login", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "CONFIRMED", "confidence_score": 1.0}, {"path": "/admin", "method": "GET", "sources": ["static", "runtime"], "static_metadata": {"file": "problema_api/lambda_api/app.py", "framework": "aws-lambda, python-semgrep", "route_parameters": []}, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/admin", "content_type": ""}, "auth_detected": true, "auth_sources": ["runtime"], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "CONFIRMED", "confidence_score": 1.0}, {"path": "/upload", "method": "GET", "sources": ["static", "runtime"], "static_metadata": {"file": "problema_api/lambda_api/app.py", "framework": "aws-lambda, python-semgrep", "route_parameters": []}, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/upload", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "CONFIRMED", "confidence_score": 1.0}, {"path": "/search", "method": "GET", "sources": ["static", "runtime"], "static_metadata": {"file": "problema_api/lambda_api/app.py", "framework": "aws-lambda, python-semgrep", "route_parameters": []}, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/search", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "CONFIRMED", "confidence_score": 1.0}, {"path": "/debug", "method": "GET", "sources": ["static", "runtime"], "static_metadata": {"file": "problema_api/lambda_api/app.py", "framework": "aws-lambda, python-semgrep", "route_parameters": []}, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/debug", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "CONFIRMED", "confidence_score": 1.0}, {"path": "/notes", "method": "GET", "sources": ["static", "runtime"], "static_metadata": {"file": "problema_api/lambda_api/app.py", "framework": "aws-lambda, python-semgrep", "route_parameters": []}, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/notes", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "CONFIRMED", "confidence_score": 1.0}, {"path": "/login", "method": "POST", "sources": ["runtime"], "static_metadata": null, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/login", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "RUNTIME_ONLY", "confidence_score": 0.7}, {"path": "/upload", "method": "POST", "sources": ["runtime"], "static_metadata": null, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/upload", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "RUNTIME_ONLY", "confidence_score": 0.7}, {"path": "/notes", "method": "POST", "sources": ["runtime"], "static_metadata": null, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/notes", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "RUNTIME_ONLY", "confidence_score": 0.7}, {"path": "/robots.txt", "method": "GET", "sources": ["runtime"], "static_metadata": null, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/robots.txt", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "RUNTIME_ONLY", "confidence_score": 0.7}, {"path": "/sitemap.xml", "method": "GET", "sources": ["runtime"], "static_metadata": null, "runtime_metadata": {"last_seen_url": "http://host.docker.internal:4566/sitemap.xml", "content_type": ""}, "auth_detected": false, "auth_sources": [], "query_params": [], "body_params": [], "observed_status_codes": [], "classification": "RUNTIME_ONLY", "confidence_score": 0.7}];
+        const spectralData = [{"rule_id": "owasp:api9:2023-inventory-access", "description": "Declare intended audience of every server by defining servers[0].x-internal as true/false.", "severity": "HIGH", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 8, "endpoint": null, "method": null}, {"rule_id": "owasp:api8:2023-no-server-http", "description": "Server URLs must not use http://. Use https:// or wss:// instead.", "severity": "HIGH", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 8, "endpoint": null, "method": null}, {"rule_id": "owasp:api9:2023-inventory-environment", "description": "Declare intended environment in server descriptions using terms like local, staging, production.", "severity": "HIGH", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 9, "endpoint": null, "method": null}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 12, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api2:2023-read-restricted", "description": "This read operation is not protected by any security scheme.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 12, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 16, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 16, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 16, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 16, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 16, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 16, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 16, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 17, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api4:2023-string-limit", "description": "Schema of type string must specify maxLength, enum, or const.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 23, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp:api4:2023-string-restricted", "description": "Schema of type string should specify a format, pattern, enum, or const.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 23, "endpoint": "/users/{id}", "method": "GET"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 27, "endpoint": "/users", "method": "GET"}, {"rule_id": "owasp:api2:2023-read-restricted", "description": "This read operation is not protected by any security scheme.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 27, "endpoint": "/users", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 31, "endpoint": "/users", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 31, "endpoint": "/users", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 31, "endpoint": "/users", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 31, "endpoint": "/users", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 31, "endpoint": "/users", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 31, "endpoint": "/users", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 31, "endpoint": "/users", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 32, "endpoint": "/users", "method": "GET"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 35, "endpoint": "/login", "method": "GET"}, {"rule_id": "owasp:api2:2023-read-restricted", "description": "This read operation is not protected by any security scheme.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 35, "endpoint": "/login", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 39, "endpoint": "/login", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 39, "endpoint": "/login", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 39, "endpoint": "/login", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 39, "endpoint": "/login", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 39, "endpoint": "/login", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 39, "endpoint": "/login", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 39, "endpoint": "/login", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 40, "endpoint": "/login", "method": "GET"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 42, "endpoint": "/login", "method": "POST"}, {"rule_id": "owasp:api2:2023-write-restricted", "description": "This write operation is not protected by any security scheme.", "severity": "HIGH", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 42, "endpoint": "/login", "method": "POST"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 46, "endpoint": "/login", "method": "POST"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 46, "endpoint": "/login", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 46, "endpoint": "/login", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 46, "endpoint": "/login", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 46, "endpoint": "/login", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 46, "endpoint": "/login", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 46, "endpoint": "/login", "method": "POST"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 47, "endpoint": "/login", "method": "POST"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 54, "endpoint": "/admin", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 54, "endpoint": "/admin", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 54, "endpoint": "/admin", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 54, "endpoint": "/admin", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 54, "endpoint": "/admin", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 54, "endpoint": "/admin", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 54, "endpoint": "/admin", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 55, "endpoint": "/admin", "method": "GET"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 60, "endpoint": "/upload", "method": "GET"}, {"rule_id": "owasp:api2:2023-read-restricted", "description": "This read operation is not protected by any security scheme.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 60, "endpoint": "/upload", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 64, "endpoint": "/upload", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 64, "endpoint": "/upload", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 64, "endpoint": "/upload", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 64, "endpoint": "/upload", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 64, "endpoint": "/upload", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 64, "endpoint": "/upload", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 64, "endpoint": "/upload", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 65, "endpoint": "/upload", "method": "GET"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 67, "endpoint": "/upload", "method": "POST"}, {"rule_id": "owasp:api2:2023-write-restricted", "description": "This write operation is not protected by any security scheme.", "severity": "HIGH", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 67, "endpoint": "/upload", "method": "POST"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 71, "endpoint": "/upload", "method": "POST"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 71, "endpoint": "/upload", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 71, "endpoint": "/upload", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 71, "endpoint": "/upload", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 71, "endpoint": "/upload", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 71, "endpoint": "/upload", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 71, "endpoint": "/upload", "method": "POST"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 72, "endpoint": "/upload", "method": "POST"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 75, "endpoint": "/search", "method": "GET"}, {"rule_id": "owasp:api2:2023-read-restricted", "description": "This read operation is not protected by any security scheme.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 75, "endpoint": "/search", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 79, "endpoint": "/search", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 79, "endpoint": "/search", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 79, "endpoint": "/search", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 79, "endpoint": "/search", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 79, "endpoint": "/search", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 79, "endpoint": "/search", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 79, "endpoint": "/search", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 80, "endpoint": "/search", "method": "GET"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 83, "endpoint": "/debug", "method": "GET"}, {"rule_id": "owasp:api2:2023-read-restricted", "description": "This read operation is not protected by any security scheme.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 83, "endpoint": "/debug", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 87, "endpoint": "/debug", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 87, "endpoint": "/debug", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 87, "endpoint": "/debug", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 87, "endpoint": "/debug", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 87, "endpoint": "/debug", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 87, "endpoint": "/debug", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 87, "endpoint": "/debug", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 88, "endpoint": "/debug", "method": "GET"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 91, "endpoint": "/notes", "method": "GET"}, {"rule_id": "owasp:api2:2023-read-restricted", "description": "This read operation is not protected by any security scheme.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 91, "endpoint": "/notes", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 95, "endpoint": "/notes", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 95, "endpoint": "/notes", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 95, "endpoint": "/notes", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 95, "endpoint": "/notes", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 95, "endpoint": "/notes", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 95, "endpoint": "/notes", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 95, "endpoint": "/notes", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 96, "endpoint": "/notes", "method": "GET"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 98, "endpoint": "/notes", "method": "POST"}, {"rule_id": "owasp:api2:2023-write-restricted", "description": "This write operation is not protected by any security scheme.", "severity": "HIGH", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 98, "endpoint": "/notes", "method": "POST"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 102, "endpoint": "/notes", "method": "POST"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 102, "endpoint": "/notes", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 102, "endpoint": "/notes", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 102, "endpoint": "/notes", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 102, "endpoint": "/notes", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 102, "endpoint": "/notes", "method": "POST"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 102, "endpoint": "/notes", "method": "POST"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 103, "endpoint": "/notes", "method": "POST"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 106, "endpoint": "/robots.txt", "method": "GET"}, {"rule_id": "owasp:api2:2023-read-restricted", "description": "This read operation is not protected by any security scheme.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 106, "endpoint": "/robots.txt", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 110, "endpoint": "/robots.txt", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 110, "endpoint": "/robots.txt", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 110, "endpoint": "/robots.txt", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 110, "endpoint": "/robots.txt", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 110, "endpoint": "/robots.txt", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 110, "endpoint": "/robots.txt", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 110, "endpoint": "/robots.txt", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 111, "endpoint": "/robots.txt", "method": "GET"}, {"rule_id": "owasp-api2-operation-security", "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).", "severity": "HIGH", "category": "AUTHENTICATION", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 114, "endpoint": "/sitemap.xml", "method": "GET"}, {"rule_id": "owasp:api2:2023-read-restricted", "description": "This read operation is not protected by any security scheme.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 114, "endpoint": "/sitemap.xml", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 118, "endpoint": "/sitemap.xml", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit-responses-429", "description": "Operation is missing rate limiting response in responses[429].content.", "severity": "MEDIUM", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 118, "endpoint": "/sitemap.xml", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 118, "endpoint": "/sitemap.xml", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-401", "description": "Operation is missing responses[401].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 118, "endpoint": "/sitemap.xml", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 118, "endpoint": "/sitemap.xml", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-responses-500", "description": "Operation is missing responses[500].content.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 118, "endpoint": "/sitemap.xml", "method": "GET"}, {"rule_id": "owasp:api8:2023-define-error-validation", "description": "Missing error response of either 400, 422 or 4XX.", "severity": "MEDIUM", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 118, "endpoint": "/sitemap.xml", "method": "GET"}, {"rule_id": "owasp:api4:2023-rate-limit", "description": "All 2XX and 4XX responses should define rate limiting headers.", "severity": "HIGH", "category": "RATE_LIMITING", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 119, "endpoint": "/sitemap.xml", "method": "GET"}, {"rule_id": "owasp:api2:2023-jwt-best-practices", "description": "Security schemes using JWTs must explicitly declare support for RFC8725 in the description.", "severity": "HIGH", "category": "DATA_EXPOSURE", "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/soluzione_api/output/openapi_runtime.yaml", "start_line": 123, "endpoint": null, "method": null}];
+        
+        let currentInventoryClassFilter = 'ALL';
+        let currentSpectralSeverityFilter = 'ALL';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeStats();
+            renderInventory();
+            renderSpectral();
+        });
+
+        function switchTab(tabId, btn) {
+            // Rimuovi classe active da tutte le schede e pulsanti
+            document.querySelectorAll('.dashboard-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            // Attiva la scheda e il pulsante cliccato
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function initializeStats() {
+            document.getElementById('stat-total-apis').innerText = inventoryData.length;
+            
+            const shadowCount = inventoryData.filter(item => item.classification === 'RUNTIME_ONLY').length;
+            document.getElementById('stat-shadow-apis').innerText = shadowCount;
+            
+            document.getElementById('stat-violations').innerText = spectralData.length;
+            
+            // Stats Spectral detailed
+            const errorCount = spectralData.filter(item => item.severity === 'HIGH').length;
+            const warnCount = spectralData.filter(item => item.severity === 'MEDIUM' || item.severity === 'LOW').length;
+            
+            const affectedEndpoints = new Set();
+            spectralData.forEach(item => {
+                if (item.endpoint) affectedEndpoints.add(item.endpoint);
+            });
+            
+            document.getElementById('spectral-errors-count').innerText = errorCount;
+            document.getElementById('spectral-warnings-count').innerText = warnCount;
+            document.getElementById('spectral-endpoints-count').innerText = affectedEndpoints.size;
+        }
+
+        // Render e filtri per API Inventory
+        function renderInventory(filteredData = inventoryData) {
+            const tbody = document.getElementById('inventory-table-body');
+            tbody.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                document.getElementById('inventory-empty-state').style.display = 'block';
+                return;
+            }
+            document.getElementById('inventory-empty-state').style.display = 'none';
+
+            filteredData.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                // Metodo HTTP
+                const methodLower = (item.method || 'get').toLowerCase();
+                let methodClass = 'method-get';
+                if (methodLower === 'post') methodClass = 'method-post';
+                else if (methodLower === 'delete') methodClass = 'method-delete';
+                else if (methodLower === 'put' || methodLower === 'patch') methodClass = 'method-put';
+                
+                const methodTd = `<td><span class="method-badge ${methodClass}">${item.method || 'GET'}</span></td>`;
+                
+                // Path
+                const pathTd = `<td><span class="path-text">${item.path}</span></td>`;
+                
+                // Classificazione
+                let classLabel = 'Confermato';
+                let classStyle = 'class-confirmed';
+                if (item.classification === 'RUNTIME_ONLY') {
+                    classLabel = '🔥 Shadow API';
+                    classStyle = 'class-shadow';
+                } else if (item.classification === 'STATIC_ONLY') {
+                    classLabel = 'Solo Codice';
+                    classStyle = 'class-inactive';
+                }
+                const classTd = `<td><span class="class-badge ${classStyle}">${classLabel}</span></td>`;
+                
+                // Sorgenti
+                const sources = item.sources || [];
+                const sourcesBadges = sources.map(s => `<span class="source-tag">${translateSource(s)}</span>`).join('');
+                const sourcesTd = `<td><div class="sources-list">${sourcesBadges}</div></td>`;
+                
+                // Autenticazione
+                const authIcon = item.auth_detected ? '🔒 <span style="font-size:0.75rem; color:var(--color-emerald); font-weight:600;">SI</span>' : '🔓 <span style="font-size:0.75rem; color:var(--color-rose); font-weight:600;">NO</span>';
+                const authTd = `<td style="text-align: center;"><div class="auth-icon">${authIcon}</div></td>`;
+                
+                // Status codes
+                const codes = item.observed_status_codes || [];
+                const codesBadges = codes.map(c => {
+                    const codeClass = c >= 200 && c < 300 ? 'status-2xx' : 'status-4xx';
+                    return `<span class="status-badge ${codeClass}">${c}</span>`;
+                }).join(' ');
+                const statusTd = `<td>${codesBadges || '<span style="color:var(--text-secondary)">-</span>'}</td>`;
+                
+                tr.innerHTML = methodTd + pathTd + classTd + sourcesTd + authTd + statusTd;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function translateSource(src) {
+            if (src.includes('semgrep')) return 'Semgrep Static';
+            if (src.includes('lambda')) return 'Heuristic AST';
+            if (src.includes('zap') || src.includes('mitmproxy')) return 'ZAP Spider';
+            return src;
+        }
+
+        function filterClass(cls, btn) {
+            document.querySelectorAll('#inventory-tab .filter-chip').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            
+            currentInventoryClassFilter = cls;
+            filterInventory();
+        }
+
+        function filterInventory() {
+            const searchVal = document.getElementById('inventory-search').value.toLowerCase();
+            
+            let filtered = inventoryData;
+            
+            // Filtra per classificazione
+            if (currentInventoryClassFilter !== 'ALL') {
+                filtered = filtered.filter(item => item.classification === currentInventoryClassFilter);
+            }
+            
+            // Filtra per testo
+            if (searchVal.trim() !== '') {
+                filtered = filtered.filter(item => 
+                    item.path.toLowerCase().includes(searchVal) || 
+                    (item.method || 'GET').toLowerCase().includes(searchVal)
+                );
+            }
+            
+            renderInventory(filtered);
+        }
+
+        // Render e filtri per Spectral Audit
+        function renderSpectral(filteredData = spectralData) {
+            const container = document.getElementById('spectral-list-container');
+            container.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                document.getElementById('spectral-empty-state').style.display = 'block';
+                return;
+            }
+            document.getElementById('spectral-empty-state').style.display = 'none';
+
+            filteredData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `spectral-card severity-${item.severity.toLowerCase()}`;
+                
+                // Header
+                const severityLabel = item.severity === 'HIGH' ? 'Errore Sicurezza' : 'Best Practice';
+                const header = `
+                    <div class="spectral-header">
+                        <span class="rule-code">${item.rule_id}</span>
+                        <span class="issue-severity">${severityLabel}</span>
+                    </div>
+                `;
+                
+                // Description
+                const desc = `<div class="issue-description">${item.description}</div>`;
+                
+                // Meta
+                const endpointText = item.endpoint ? `<div class="meta-item">📍 Endpoint: <span>${item.method} ${item.endpoint}</span></div>` : '';
+                const lineText = item.start_line ? `<div class="meta-item">📝 Linea: <span>${item.start_line}</span></div>` : '';
+                const fileText = `<div class="meta-item">📁 File: <span>${getBasename(item.file_path)}</span></div>`;
+                
+                const meta = `
+                    <div class="issue-meta">
+                        ${endpointText}
+                        ${lineText}
+                        ${fileText}
+                    </div>
+                `;
+                
+                card.innerHTML = header + desc + meta;
+                container.appendChild(card);
+            });
+        }
+
+        function getBasename(path) {
+            if (!path) return 'unknown';
+            return path.substring(path.lastIndexOf('/') + 1);
+        }
+
+        function filterSpectralSeverity(sev, btn) {
+            document.querySelectorAll('#spectral-tab .filter-chip').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            
+            currentSpectralSeverityFilter = sev;
+            filterSpectral();
+        }
+
+        function filterSpectral() {
+            const searchVal = document.getElementById('spectral-search').value.toLowerCase();
+            
+            let filtered = spectralData;
+            
+            // Filtra per gravità
+            if (currentSpectralSeverityFilter !== 'ALL') {
+                filtered = filtered.filter(item => item.severity === currentSpectralSeverityFilter);
+            }
+            
+            // Filtra per testo
+            if (searchVal.trim() !== '') {
+                filtered = filtered.filter(item => 
+                    item.rule_id.toLowerCase().includes(searchVal) || 
+                    item.description.toLowerCase().includes(searchVal) || 
+                    (item.endpoint && item.endpoint.toLowerCase().includes(searchVal))
+                );
+            }
+            
+            renderSpectral(filtered);
+        }
+    </script>
+</body>
+</html>

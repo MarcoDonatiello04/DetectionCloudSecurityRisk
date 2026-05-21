@@ -34,7 +34,7 @@ echo "[*] Cleaning previous ZAP session (starting a fresh session)..."
 curl -s "$ZAP_API_URL/JSON/core/action/newSession/?overwrite=true" > /dev/null
 
 echo "[*] Importing OpenAPI spec for LocalStack API ($ZAP_TARGET_URL)..."
-docker cp target_poc/openapi.yaml "$ZAP_CONTAINER":/tmp/openapi.yaml
+docker cp problema_api/openapi.yaml "$ZAP_CONTAINER":/tmp/openapi.yaml
 curl -s "$ZAP_API_URL/JSON/openapi/action/importFile/?file=/tmp/openapi.yaml&target=$ZAP_TARGET_URL" > /dev/null
 
 echo "[*] ZAP is alive. Triggering Spider..."

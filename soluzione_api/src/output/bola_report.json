@@ -1,0 +1,57 @@
+[
+  {
+    "technique": "ID Tampering (BOLA)",
+    "severity": "High",
+    "original_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/1",
+    "tampered_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/2",
+    "method": "GET",
+    "description": "Possibile BOLA: Accesso riuscito con Numeric ID Tampering restituendo 200 OK con corpo non vuoto."
+  },
+  {
+    "technique": "ID Tampering (BOLA)",
+    "severity": "High",
+    "original_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/1",
+    "tampered_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/0",
+    "method": "GET",
+    "description": "Possibile BOLA: Accesso riuscito con Numeric ID Tampering restituendo 200 OK con corpo non vuoto."
+  },
+  {
+    "technique": "ID Tampering (BOLA)",
+    "severity": "High",
+    "original_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/1",
+    "tampered_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/101",
+    "method": "GET",
+    "description": "Possibile BOLA: Accesso riuscito con Numeric ID Tampering restituendo 200 OK con corpo non vuoto."
+  },
+  {
+    "technique": "ID Tampering (BOLA)",
+    "severity": "High",
+    "original_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/10",
+    "tampered_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/11",
+    "method": "GET",
+    "description": "Possibile BOLA: Accesso riuscito con Numeric ID Tampering restituendo 200 OK con corpo non vuoto."
+  },
+  {
+    "technique": "ID Tampering (BOLA)",
+    "severity": "High",
+    "original_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/10",
+    "tampered_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/9",
+    "method": "GET",
+    "description": "Possibile BOLA: Accesso riuscito con Numeric ID Tampering restituendo 200 OK con corpo non vuoto."
+  },
+  {
+    "technique": "ID Tampering (BOLA)",
+    "severity": "High",
+    "original_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/10",
+    "tampered_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/110",
+    "method": "GET",
+    "description": "Possibile BOLA: Accesso riuscito con Numeric ID Tampering restituendo 200 OK con corpo non vuoto."
+  },
+  {
+    "technique": "Token Removal",
+    "severity": "High",
+    "url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/admin",
+    "method": "GET",
+    "description": "Endpoint non protetto: Risponde 200 OK anche rimuovendo completamente l'header Authorization."
+  }
+]

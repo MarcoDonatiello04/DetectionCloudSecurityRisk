@@ -7,7 +7,7 @@
       "runtime"
     ],
     "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
+      "file": "problema_api/lambda_api/app.py",
       "framework": "aws-lambda",
       "route_parameters": [
         "id"
@@ -33,7 +33,7 @@
       "runtime"
     ],
     "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
+      "file": "problema_api/lambda_api/app.py",
       "framework": "aws-lambda, python-semgrep",
       "route_parameters": []
     },
@@ -57,7 +57,7 @@
       "runtime"
     ],
     "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
+      "file": "problema_api/lambda_api/app.py",
       "framework": "aws-lambda, python-semgrep",
       "route_parameters": []
     },
@@ -81,7 +81,7 @@
       "runtime"
     ],
     "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
+      "file": "problema_api/lambda_api/app.py",
       "framework": "aws-lambda, python-semgrep",
       "route_parameters": []
     },
@@ -107,7 +107,7 @@
       "runtime"
     ],
     "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
+      "file": "problema_api/lambda_api/app.py",
       "framework": "aws-lambda, python-semgrep",
       "route_parameters": []
     },
@@ -131,7 +131,7 @@
       "runtime"
     ],
     "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
+      "file": "problema_api/lambda_api/app.py",
       "framework": "aws-lambda, python-semgrep",
       "route_parameters": []
     },
@@ -155,7 +155,7 @@
       "runtime"
     ],
     "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
+      "file": "problema_api/lambda_api/app.py",
       "framework": "aws-lambda, python-semgrep",
       "route_parameters": []
     },
@@ -179,7 +179,7 @@
       "runtime"
     ],
     "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
+      "file": "problema_api/lambda_api/app.py",
       "framework": "aws-lambda, python-semgrep",
       "route_parameters": []
     },

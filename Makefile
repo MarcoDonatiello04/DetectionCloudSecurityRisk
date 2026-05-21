@@ -19,7 +19,7 @@ scan-dast:
 clean:
 	@echo "=> Cleaning up environment..."
 	@docker compose down
-	@rm -rf infrastructure/terraform/.terraform
-	@rm -f infrastructure/terraform/*.tfstate*
+	@rm -rf problema_misconfiguration/terraform/.terraform
+	@rm -f problema_misconfiguration/terraform/*.tfstate*
 	@rm -f config/environments/.target_env
 	@echo "=> Cleanup complete."
