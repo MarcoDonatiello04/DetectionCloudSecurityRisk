@@ -23,6 +23,14 @@ paths:
         schema:
           type: string
         description: Parametro di path 'id' estratto euristica
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Parametro query osservato a runtime
+      security:
+      - bearerAuth: []
   /users:
     get:
       summary: Endpoint GET per /users
@@ -31,14 +39,32 @@ paths:
       responses:
         '200':
           description: Risposta osservata con status 200
+      parameters:
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Parametro query osservato a runtime
+      security:
+      - bearerAuth: []
   /login:
     get:
       summary: Endpoint GET per /login
       description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
         1.0).'
       responses:
-        '404':
-          description: Risposta osservata con status 404
+        '200':
+          description: Risposta osservata con status 200
+      parameters:
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Parametro query osservato a runtime
+      security:
+      - bearerAuth: []
   /admin:
     get:
       summary: Endpoint GET per /admin
@@ -47,14 +73,32 @@ paths:
       responses:
         '200':
           description: Risposta osservata con status 200
+      parameters:
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Parametro query osservato a runtime
+      security:
+      - bearerAuth: []
   /upload:
     get:
       summary: Endpoint GET per /upload
       description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
         1.0).'
       responses:
-        '404':
-          description: Risposta osservata con status 404
+        '200':
+          description: Risposta osservata con status 200
+      parameters:
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Parametro query osservato a runtime
+      security:
+      - bearerAuth: []
   /search:
     get:
       summary: Endpoint GET per /search
@@ -63,6 +107,15 @@ paths:
       responses:
         '200':
           description: Risposta osservata con status 200
+      parameters:
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Parametro query osservato a runtime
+      security:
+      - bearerAuth: []
   /debug:
     get:
       summary: Endpoint GET per /debug
@@ -71,27 +124,50 @@ paths:
       responses:
         '200':
           description: Risposta osservata con status 200
+      parameters:
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Parametro query osservato a runtime
+      security:
+      - bearerAuth: []
   /notes:
     get:
       summary: Endpoint GET per /notes
       description: 'Rilevato tramite pipeline (Classificazione: CONFIRMED, Confidence:
         1.0).'
       responses:
-        '404':
-          description: Risposta osservata con status 404
-  /robots.txt:
-    get:
-      summary: Endpoint GET per /robots.txt
+        '200':
+          description: Risposta osservata con status 200
+      parameters:
+      - name: v
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Parametro query osservato a runtime
+      security:
+      - bearerAuth: []
+  /api/v1/debug/dump-database:
+    post:
+      summary: Endpoint POST per /api/v1/debug/dump-database
       description: 'Rilevato tramite pipeline (Classificazione: RUNTIME_ONLY, Confidence:
         0.7).'
       responses:
-        '404':
-          description: Risposta osservata con status 404
-  /sitemap.xml:
-    get:
-      summary: Endpoint GET per /sitemap.xml
-      description: 'Rilevato tramite pipeline (Classificazione: RUNTIME_ONLY, Confidence:
-        0.7).'
-      responses:
-        '404':
-          description: Risposta osservata con status 404
+        '200':
+          description: Risposta osservata con status 200
+      parameters:
+      - name: token
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Parametro query osservato a runtime
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

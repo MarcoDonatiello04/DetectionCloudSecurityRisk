@@ -194,6 +194,23 @@ def run_pipeline(target_dir: str = ".", target_host: str = None):
         print(f"✅ Traffico simulato registrato in {traffic_file}: {len(raw_traffic)} richieste simulate.")
 
     # --------------------------------------------------------------------------
+    # FASE 3.5: BOLA Detection & Authentication Bypass
+    # --------------------------------------------------------------------------
+    print("\n🕵️‍♂️ [FASE 3.5] Analisi di Sicurezza BOLA (Broken Object Level Authorization)...")
+    try:
+        from src.detectors.bola_analyzer import BOLAAnalyzer
+        bola_analyzer = BOLAAnalyzer(traffic_file)
+        bola_findings = bola_analyzer.run_analysis()
+        
+        if bola_findings:
+            bola_report_path = os.path.join(os.path.dirname(traffic_file), "bola_report.json")
+            with open(bola_report_path, 'w', encoding='utf-8') as f:
+                json.dump(bola_findings, f, indent=2)
+            print(f"✅ Report BOLA salvato in {bola_report_path}")
+    except Exception as e:
+        print(f"⚠️ Errore durante l'esecuzione dell'analisi BOLA: {e}")
+
+    # --------------------------------------------------------------------------
     # FASE 4, 5 & 6: Normalization, Correlation & OpenAPI Generation
     # --------------------------------------------------------------------------
     print("\n⚙️ [FASE 4 & 5] Endpoint Normalization & Correlation Engine...")

@@ -132,3 +132,18 @@ paths:
       responses:
         '404':
           description: Risposta osservata con status 404
+  /api/v1/debug/dump-database:
+    post:
+      summary: Endpoint POST rilevato (Non Documentato)
+      description: 'Rilevato a runtime (Classificazione: RUNTIME_ONLY, Confidence:
+        0.7).'
+      responses:
+        '200':
+          description: Risposta osservata con status 200
+      parameters:
+      - name: token
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Parametro query osservato a runtime

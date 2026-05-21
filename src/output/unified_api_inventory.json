@@ -14,12 +14,16 @@
       ]
     },
     "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/0uuofdetq8/dev/_user_request_/users/1",
+      "last_seen_url": "http://localhost:4566/restapis/0uuofdetq8/dev/_user_request_/users/42",
       "content_type": "application/json"
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
+    "auth_detected": true,
+    "auth_sources": [
+      "runtime"
+    ],
+    "query_params": [
+      "v"
+    ],
     "body_params": [],
     "observed_status_codes": [
       200
@@ -40,12 +44,16 @@
       "route_parameters": []
     },
     "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/0uuofdetq8/dev/_user_request_/users",
+      "last_seen_url": "http://localhost:4566/restapis/0uuofdetq8/dev/_user_request_/users",
       "content_type": "application/json"
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
+    "auth_detected": true,
+    "auth_sources": [
+      "runtime"
+    ],
+    "query_params": [
+      "v"
+    ],
     "body_params": [],
     "observed_status_codes": [
       200
@@ -66,15 +74,19 @@
       "route_parameters": []
     },
     "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/0uuofdetq8/dev/_user_request_/login",
+      "last_seen_url": "http://localhost:4566/restapis/0uuofdetq8/dev/_user_request_/login",
       "content_type": "application/json"
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
+    "auth_detected": true,
+    "auth_sources": [
+      "runtime"
+    ],
+    "query_params": [
+      "v"
+    ],
     "body_params": [],
     "observed_status_codes": [
-      404
+      200
     ],
     "classification": "CONFIRMED",
     "confidence_score": 1.0
@@ -92,12 +104,16 @@
       "route_parameters": []
     },
     "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/0uuofdetq8/dev/_user_request_/admin",
+      "last_seen_url": "http://localhost:4566/restapis/0uuofdetq8/dev/_user_request_/admin",
       "content_type": "application/json"
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
+    "auth_detected": true,
+    "auth_sources": [
+      "runtime"
+    ],
+    "query_params": [
+      "v"
+    ],
     "body_params": [],
     "observed_status_codes": [
       200
@@ -118,15 +134,19 @@
       "route_parameters": []
     },
     "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/0uuofdetq8/dev/_user_request_/upload",
+      "last_seen_url": "http://localhost:4566/restapis/0uuofdetq8/dev/_user_request_/upload",
       "content_type": "application/json"
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
+    "auth_detected": true,
+    "auth_sources": [
+      "runtime"
+    ],
+    "query_params": [
+      "v"
+    ],
     "body_params": [],
     "observed_status_codes": [
-      404
+      200
     ],
     "classification": "CONFIRMED",
     "confidence_score": 1.0
@@ -144,12 +164,16 @@
       "route_parameters": []
     },
     "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/0uuofdetq8/dev/_user_request_/search",
+      "last_seen_url": "http://localhost:4566/restapis/0uuofdetq8/dev/_user_request_/search",
       "content_type": "application/json"
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
+    "auth_detected": true,
+    "auth_sources": [
+      "runtime"
+    ],
+    "query_params": [
+      "v"
+    ],
     "body_params": [],
     "observed_status_codes": [
       200
@@ -170,12 +194,16 @@
       "route_parameters": []
     },
     "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/0uuofdetq8/dev/_user_request_/debug",
+      "last_seen_url": "http://localhost:4566/restapis/0uuofdetq8/dev/_user_request_/debug",
       "content_type": "application/json"
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
+    "auth_detected": true,
+    "auth_sources": [
+      "runtime"
+    ],
+    "query_params": [
+      "v"
+    ],
     "body_params": [],
     "observed_status_codes": [
       200
@@ -196,57 +224,44 @@
       "route_parameters": []
     },
     "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/0uuofdetq8/dev/_user_request_/notes",
+      "last_seen_url": "http://localhost:4566/restapis/0uuofdetq8/dev/_user_request_/notes",
       "content_type": "application/json"
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
+    "auth_detected": true,
+    "auth_sources": [
+      "runtime"
+    ],
+    "query_params": [
+      "v"
+    ],
     "body_params": [],
     "observed_status_codes": [
-      404
+      200
     ],
     "classification": "CONFIRMED",
     "confidence_score": 1.0
   },
   {
-    "path": "/robots.txt",
-    "method": "GET",
+    "path": "/api/v1/debug/dump-database",
+    "method": "POST",
     "sources": [
       "runtime"
     ],
     "static_metadata": null,
     "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/robots.txt",
-      "content_type": "application/xml"
+      "last_seen_url": "http://localhost:4566/restapis/0uuofdetq8/dev/_user_request_/api/v1/debug/dump-database",
+      "content_type": "application/json"
     },
     "auth_detected": false,
     "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [
-      404
+    "query_params": [
+      "token"
     ],
-    "classification": "RUNTIME_ONLY",
-    "confidence_score": 0.7
-  },
-  {
-    "path": "/sitemap.xml",
-    "method": "GET",
-    "sources": [
-      "runtime"
+    "body_params": [
+      "raw_sql"
     ],
-    "static_metadata": null,
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/sitemap.xml",
-      "content_type": "application/xml"
-    },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
     "observed_status_codes": [
-      404
+      200
     ],
     "classification": "RUNTIME_ONLY",
     "confidence_score": 0.7
