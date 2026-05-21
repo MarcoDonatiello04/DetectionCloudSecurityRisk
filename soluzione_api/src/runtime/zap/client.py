@@ -11,7 +11,7 @@ class ZAPRuntimeClient:
     Avvia spidering ed active scanning mirati per generare traffico HTTP
     verso il target di test facendolo transitare per il proxy Mitmproxy.
     """
-    def __init__(self, zap_url: str = "http://localhost:8080", api_key: str = ""):
+    def __init__(self, zap_url: str = "http://localhost:8090", api_key: str = ""):
         self.zap_url = zap_url.rstrip("/")
         self.api_key = api_key
 
@@ -42,7 +42,7 @@ class ZAPRuntimeClient:
     def wait_for_zap(self, timeout_sec: int = 60) -> bool:
         """Attende che ZAP sia pronto ed avviato."""
         start_time = time.time()
-        print("⏳ Attesa del demone OWASP ZAP (connessione a localhost:8080)...")
+        print("⏳ Attesa del demone OWASP ZAP (connessione a localhost:8090)...")
         while time.time() - start_time < timeout_sec:
             if self.is_alive():
                 print("🔗 Connessione a OWASP ZAP stabilita!")

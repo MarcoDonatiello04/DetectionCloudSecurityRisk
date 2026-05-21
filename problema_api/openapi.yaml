@@ -8,6 +8,15 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
+    KeycloakAuth:
+      type: oauth2
+      description: Keycloak Local Authentication via Password flow
+      flows:
+        password:
+          tokenUrl: http://localhost:8080/realms/myrealm/protocol/openid-connect/token
+          scopes:
+            openid: Access standard openid claims
+            profile: Access profile info
 paths:
   /users:
     get:
@@ -147,3 +156,25 @@ paths:
         schema:
           type: string
         description: Parametro query osservato a runtime
+  /api/orders/{order_id}:
+    get:
+      summary: Get order details
+      description: Retrieve details for a specific order. Volontariamente vulnerabile a BOLA.
+      security:
+        - KeycloakAuth: []
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: L'ID dell'ordine da recuperare
+      responses:
+        '200':
+          description: OK - Ordine recuperato con successo
+        '401':
+          description: Unauthorized - Token mancante o non valido
+        '403':
+          description: Forbidden - Accesso non autorizzato (in caso di patch BOLA attiva)
+        '404':
+          description: Not Found - Ordine non trovato

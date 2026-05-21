@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ZAP_API_URL="http://localhost:8080"
+ZAP_API_URL="http://localhost:8090"
 REPORTS_DIR="reports/zap"
 
 echo "========================================================="

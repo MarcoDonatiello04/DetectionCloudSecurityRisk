@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # ===========================================================================
   # 1. MITMPROXY CENTRAL PROXY
@@ -11,16 +13,20 @@ services:
     command: mitmdump -s /home/mitmproxy/scripts/addon.py -p 8081 --mode regular --ssl-insecure
     ports:
       - "8081:8081"
+    networks:
+      - tesi-net
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   # ===========================================================================
-  # 3. OWASP ZAP DAST ENGINE (Runtime Verification Oracle)
+  # 2. OWASP ZAP DAST ENGINE (Porta host cambiata in 8090 per evitare conflitti)
   # ===========================================================================
   owasp-zap:
     image: ghcr.io/zaproxy/zaproxy:stable
     container_name: tesi-owasp-zap
-    user: root  # Permette permessi di scrittura completi nel volume se necessario
+    user: root
+    networks:
+      - tesi-net
     extra_hosts:
       - "host.docker.internal:host-gateway"
     command: >
@@ -32,6 +38,52 @@ services:
       -config connection.proxyChain.hostName=tesi-mitmproxy
       -config connection.proxyChain.port=8081
     ports:
-      - "8080:8080"
+      - "8090:8080"
     depends_on:
       - mitmproxy
+
+  # ===========================================================================
+  # 3. KEYCLOAK IDENTITY PROVIDER (Porta host 8080)
+  # ===========================================================================
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: tesi-keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    networks:
+      - tesi-net
+
+  # ===========================================================================
+  # 4. TARGET API SERVER (Porta host 5000)
+  # ===========================================================================
+  api-server:
+    image: python:3.11-slim
+    container_name: tesi-api-server
+    volumes:
+      - ./tests/target_poc:/app
+    working_dir: /app
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - KEYCLOAK_SERVER_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=myrealm
+    command: >
+      sh -c "pip install --no-cache-dir flask pyjwt cryptography requests && python -m flask run --host=0.0.0.0 --port=5000"
+    ports:
+      - "5000:5000"
+    networks:
+      - tesi-net
+    depends_on:
+      - keycloak
+
+networks:
+  tesi-net:
+    name: tesi-net
+    driver: bridge

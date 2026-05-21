@@ -63,5 +63,5 @@ echo -e "${BLUE}=========================================================${NC}"
 cd ../../
 echo "TARGET_URL=$API_URL" > config/environments/.target_env
 echo "ZAP_TARGET_URL=$ZAP_TARGET_URL" >> config/environments/.target_env
-echo "ZAP_API_URL=http://localhost:8080" >> config/environments/.target_env
+echo "ZAP_API_URL=http://localhost:8090" >> config/environments/.target_env
 echo -e "${GREEN}[+] Environment salvato in config/environments/.target_env${NC}"

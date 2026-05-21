@@ -13,7 +13,7 @@ class ZAPRunner(ScannerInterface):
     Include una modalità fallback/mock integrata per le difese in sede di tesi nel caso 
     in cui l'istanza ZAP locale non sia raggiungibile.
     """
-    def __init__(self, base_url: str = "http://localhost:8080", api_key: str = ""):
+    def __init__(self, base_url: str = "http://localhost:8090", api_key: str = ""):
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
 
@@ -65,7 +65,7 @@ class ZAPRunner(ScannerInterface):
         # Test di connettività verso ZAP
         status = self._call_api("core/view/version/")
         if not status:
-            print("⚠️ Demone ZAP non raggiungibile sul port 8080. Attivazione ZAP Simulation Engine (Tesi Demo Mode)...")
+            print("⚠️ Demone ZAP non raggiungibile sul port 8090. Attivazione ZAP Simulation Engine (Tesi Demo Mode)...")
             return self._simulate_zap_alerts(target_urls)
             
         print(f"🔗 Connesso a OWASP ZAP (Versione: {status.get('version')})")

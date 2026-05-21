@@ -150,7 +150,7 @@ def run_pipeline(target_dir: str = ".", target_host: str = None):
 
     # 2. Se ZAP è online, stimoliamo l'API anche con lo scanner DAST
     if zap_online:
-        print("🔗 OWASP ZAP Daemon rilevato su localhost:8080. Inizio scansione DAST...")
+        print("🔗 OWASP ZAP Daemon rilevato su localhost:8090. Inizio scansione DAST...")
         test_urls = []
         for se in static_endpoints:
             path = se["path"]

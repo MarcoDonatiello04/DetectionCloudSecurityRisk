@@ -3064,5 +3064,516 @@
     "request_body": "",
     "status_code": 404,
     "response_body": "{\"error\": \"Not Found\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:50.732783",
+    "method": "GET",
+    "path": "/users",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/users",
+    "headers": {
+      "Host": "host.docker.internal:4566",
+      "User-Agent": "DynamicTrafficGenerator/1.0",
+      "Accept-Encoding": "gzip, deflate, zstd",
+      "Accept": "*/*",
+      "Connection": "keep-alive"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "[{\"id\": 1, \"name\": \"Alice\"}, {\"id\": 2, \"name\": \"Bob\"}]"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:50.773778",
+    "method": "GET",
+    "path": "/users/1",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/users/1",
+    "headers": {
+      "Host": "host.docker.internal:4566",
+      "User-Agent": "DynamicTrafficGenerator/1.0",
+      "Accept-Encoding": "gzip, deflate, zstd",
+      "Accept": "*/*",
+      "Connection": "keep-alive"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "{\"id\": \"1\", \"name\": \"User_1\", \"details\": \"Found via unsafe query\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:50.850877",
+    "method": "GET",
+    "path": "/users/10",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/users/10",
+    "headers": {
+      "Host": "host.docker.internal:4566",
+      "User-Agent": "DynamicTrafficGenerator/1.0",
+      "Accept-Encoding": "gzip, deflate, zstd",
+      "Accept": "*/*",
+      "Connection": "keep-alive"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "{\"id\": \"10\", \"name\": \"User_10\", \"details\": \"Found via unsafe query\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:50.915337",
+    "method": "POST",
+    "path": "/login",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/login",
+    "headers": {
+      "Host": "host.docker.internal:4566",
+      "User-Agent": "DynamicTrafficGenerator/1.0",
+      "Accept-Encoding": "gzip, deflate, zstd",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Content-Length": "59",
+      "Content-Type": "application/json"
+    },
+    "request_body": "{\"username\": \"admin\", \"password\": \"supersecretpassword123\"}",
+    "status_code": 200,
+    "response_body": "{\"token\": \"fake-jwt-token-12345\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:50.953840",
+    "method": "GET",
+    "path": "/admin",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/admin",
+    "headers": {
+      "Host": "host.docker.internal:4566",
+      "User-Agent": "DynamicTrafficGenerator/1.0",
+      "Accept-Encoding": "gzip, deflate, zstd",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Authorization": "Bearer fake-jwt-token-12345"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "{\"message\": \"Admin Area\", \"db_password\": \"supersecretpassword123\", \"users_count\": 42}"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:54.014419",
+    "method": "POST",
+    "path": "/upload",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/upload",
+    "headers": {
+      "Host": "host.docker.internal:4566",
+      "User-Agent": "DynamicTrafficGenerator/1.0",
+      "Accept-Encoding": "gzip, deflate, zstd",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Content-Length": "81",
+      "Content-Type": "application/json"
+    },
+    "request_body": "{\"filename\": \"thesis_report.txt\", \"content\": \"Dynamic Cloud Security Audit 2026\"}",
+    "status_code": 502,
+    "response_body": "{\"message\": \"Internal server error\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:54.572325",
+    "method": "GET",
+    "path": "/search",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/search?q=cross-site-scripting-test",
+    "headers": {
+      "Host": "host.docker.internal:4566",
+      "User-Agent": "DynamicTrafficGenerator/1.0",
+      "Accept-Encoding": "gzip, deflate, zstd",
+      "Accept": "*/*",
+      "Connection": "keep-alive"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "{\"results\": [], \"query\": \"cross-site-scripting-test\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:54.607767",
+    "method": "GET",
+    "path": "/debug",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/debug",
+    "headers": {
+      "Host": "host.docker.internal:4566",
+      "User-Agent": "DynamicTrafficGenerator/1.0",
+      "Accept-Encoding": "gzip, deflate, zstd",
+      "Accept": "*/*",
+      "Connection": "keep-alive"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "{\"env\": {\"EDGE_PORT\": \"4566\", \"AWS_LAMBDA_FUNCTION_VERSION\": \"$LATEST\", \"AWS_ENDPOINT_URL\": \"http://localstack:4566\", \"AWS_CONTAINER_CREDENTIALS_FULL_URI\": \"http://127.0.0.1:9001/2021-04-23/credentials\", \"AWS_SESSION_TOKEN\": \"FQoGZXIvYXdzEuVCX2R1YO17tcjxk=u4p5g=uIptHG6+g9rHBenGFgsrH35a0FoF7/507UFUOcix4s=XXmuU0mdiJlzNYx7+doun91WLhzlRpKehGo10ry5t+BGGvFAR5H916P2yFsEVhjT0SeQGTZKkjDFCEuzWcm6qP92tGCTWOFs2TwTXZL5SgaL23+txnt9oynVdRnmcmYMFdqXIMYlxTmkDAohfRyTssYrZSaXE+XCayuZCs3Xez9EWmQV8vt09PJjd9QTWyi9ZeBNZsouRVb11HRm7908d+yu+2czMSTkLAE=YUQ3d73ocHZN2HKBok/o9yCAsT+Hrug69tmAa6WSt5chIeA95\", \"AWS_CA_BUNDLE\": \"\", \"AWS_LAMBDA_FUNCTION_TIMEOUT\": \"3\", \"LOCALSTACK_HOSTNAME\": \"172.17.0.2\", \"LD_LIBRARY_PATH\": \"/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib\", \"AWS_LAMBDA_LOG_GROUP_NAME\": \"/aws/lambda/vulnerable-api-handler\", \"LAMBDA_TASK_ROOT\": \"/var/task\", \"AWS_LAMBDA_LOG_STREAM_NAME\": \"2026/05/21/[$LATEST]2c1cb638109001aa990c1a8f0597ac1b\", \"AWS_LAMBDA_RUNTIME_API\": \"127.0.0.1:9001\", \"AWS_EXECUTION_ENV\": \"AWS_Lambda_python3.11\", \"DEBUG_MODE\": \"true\", \"AWS_XRAY_DAEMON_ADDRESS\": \"127.0.0.1:2000\", \"AWS_LAMBDA_FUNCTION_NAME\": \"vulnerable-api-handler\", \"PATH\": \"/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin\", \"AWS_DEFAULT_REGION\": \"us-east-1\", \"SECRET_KEY\": \"AKIAIOSFODNN7EXAMPLE\", \"PWD\": \"/var/task\", \"AWS_SECRET_ACCESS_KEY\": \"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\", \"LAMBDA_RUNTIME_DIR\": \"/var/runtime\", \"LANG\": \"en_US.UTF-8\", \"AWS_LAMBDA_INITIALIZATION_TYPE\": \"on-demand\", \"AWS_REGION\": \"us-east-1\", \"TZ\": \":UTC\", \"AWS_ACCESS_KEY_ID\": \"LSIAQAAAAAAALJQFLGYJ\", \"SHLVL\": \"0\", \"no_proxy\": \"localhost.localstack.cloud,172.17.0.2\", \"_AWS_XRAY_DAEMON_ADDRESS\": \"127.0.0.1\", \"_AWS_XRAY_DAEMON_PORT\": \"2000\", \"AWS_XRAY_CONTEXT_MISSING\": \"LOG_ERROR\", \"AWS_CONTAINER_AUTHORIZATION_TOKEN\": \"e40e81d0-b7ec-492b-95f4-6778bf6a033e\", \"_HANDLER\": \"app.handler\", \"AWS_LAMBDA_FUNCTION_MEMORY_SIZE\": \"128\", \"PYTHONPATH\": \"/var/runtime\", \"_X_AMZN_TRACE_ID\": \"Root=1-6a0f1052-5fa6c0abd706b36e92140fa6;Parent=12e4858974699533;Sampled=1\"}, \"event\": {\"headers\": {\"Host\": \"host.docker.internal:4566\", \"User-Agent\": \"DynamicTrafficGenerator/1.0\", \"Accept-Encoding\": \"gzip, deflate, zstd\", \"Accept\": \"*/*\", \"X-Forwarded-For\": \"172.17.0.1\", \"X-Forwarded-Port\": \"4566\", \"X-Forwarded-Proto\": \"HTTP\", \"X-Amzn-Trace-Id\": \"Root=1-6a0f1052-845c8d2e04fb03c7e06272b3;Parent=03b88082f11a0140;Sampled=0\"}, \"multiValueHeaders\": {\"Host\": [\"host.docker.internal:4566\"], \"User-Agent\": [\"DynamicTrafficGenerator/1.0\"], \"Accept-Encoding\": [\"gzip, deflate, zstd\"], \"Accept\": [\"*/*\"], \"X-Forwarded-For\": [\"172.17.0.1\"], \"X-Forwarded-Port\": [\"4566\"], \"X-Forwarded-Proto\": [\"HTTP\"], \"X-Amzn-Trace-Id\": [\"Root=1-6a0f1052-845c8d2e04fb03c7e06272b3;Parent=03b88082f11a0140;Sampled=0\"]}, \"body\": null, \"isBase64Encoded\": false, \"requestContext\": {\"accountId\": \"000000000000\", \"apiId\": \"njea0urhk9\", \"deploymentId\": \"qrnrmr4qd2\", \"domainName\": \"host.docker.internal:4566\", \"domainPrefix\": \"host\", \"extendedRequestId\": \"fb64fe01\", \"httpMethod\": \"GET\", \"identity\": {\"accountId\": null, \"accessKey\": null, \"caller\": null, \"cognitoAuthenticationProvider\": null, \"cognitoAuthenticationType\": null, \"cognitoIdentityId\": null, \"cognitoIdentityPoolId\": null, \"principalOrgId\": null, \"sourceIp\": \"127.0.0.1\", \"user\": null, \"userAgent\": \"DynamicTrafficGenerator/1.0\", \"userArn\": null}, \"path\": \"/dev/debug\", \"protocol\": \"HTTP/1.1\", \"requestId\": \"46126e27-b2d7-42e3-aba2-7610468aaec9\", \"requestTime\": \"21/May/2026:14:01:54 \", \"requestTimeEpoch\": 1779372114592, \"stage\": \"dev\", \"resourcePath\": \"/{proxy+}\", \"resourceId\": \"zbwvtncis3\"}, \"stageVariables\": null, \"queryStringParameters\": null, \"multiValueQueryStringParameters\": null, \"pathParameters\": {\"proxy\": \"debug\"}, \"httpMethod\": \"GET\", \"path\": \"/debug\", \"resource\": \"/{proxy+}\"}}"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:57.648013",
+    "method": "POST",
+    "path": "/notes",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/notes",
+    "headers": {
+      "Host": "host.docker.internal:4566",
+      "User-Agent": "DynamicTrafficGenerator/1.0",
+      "Accept-Encoding": "gzip, deflate, zstd",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Content-Length": "70",
+      "Content-Type": "application/json"
+    },
+    "request_body": "{\"id\": \"100\", \"content\": \"Active learning with dynamic API discovery\"}",
+    "status_code": 502,
+    "response_body": "{\"message\": \"Internal server error\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:57.730469",
+    "method": "GET",
+    "path": "/robots.txt",
+    "full_url": "http://host.docker.internal:4566/robots.txt",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>ea5fd626-32f5-4f3f-ade1-b3fbcc100bda</RequestId><BucketName>robots.txt</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:57.743136",
+    "method": "GET",
+    "path": "/sitemap.xml",
+    "full_url": "http://host.docker.internal:4566/sitemap.xml",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>fc0c4968-4c34-422f-8180-dd94f5611b64</RequestId><BucketName>sitemap.xml</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:58.292696",
+    "method": "GET",
+    "path": "/users/1",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/users/1",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "{\"id\": \"1\", \"name\": \"User_1\", \"details\": \"Found via unsafe query\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:59.714954",
+    "method": "GET",
+    "path": "/robots.txt",
+    "full_url": "http://host.docker.internal:4566/robots.txt",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>67f8ee24-8ae3-42fa-a3e4-a834d7c3e5d7</RequestId><BucketName>robots.txt</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:59.728034",
+    "method": "GET",
+    "path": "/sitemap.xml",
+    "full_url": "http://host.docker.internal:4566/sitemap.xml",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>5d887d6a-1068-46c1-979f-6fbff883be53</RequestId><BucketName>sitemap.xml</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:01:59.737773",
+    "method": "GET",
+    "path": "/users",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/users",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "[{\"id\": 1, \"name\": \"Alice\"}, {\"id\": 2, \"name\": \"Bob\"}]"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:01.740896",
+    "method": "GET",
+    "path": "/robots.txt",
+    "full_url": "http://host.docker.internal:4566/robots.txt",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>7c558d65-b11e-46d6-8d81-b3b3a8d65e96</RequestId><BucketName>robots.txt</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:01.752221",
+    "method": "GET",
+    "path": "/sitemap.xml",
+    "full_url": "http://host.docker.internal:4566/sitemap.xml",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>a1b6df99-5eae-40bb-bd4d-d66b0e369414</RequestId><BucketName>sitemap.xml</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:01.763340",
+    "method": "GET",
+    "path": "/login",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/login",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "{\"error\": \"Not Found\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:03.773570",
+    "method": "GET",
+    "path": "/sitemap.xml",
+    "full_url": "http://host.docker.internal:4566/sitemap.xml",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>601c270a-b917-41a3-b9a6-c3c7159c0518</RequestId><BucketName>sitemap.xml</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:03.786389",
+    "method": "GET",
+    "path": "/robots.txt",
+    "full_url": "http://host.docker.internal:4566/robots.txt",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>52707c93-20c2-4f19-b11f-861be63fbfb3</RequestId><BucketName>robots.txt</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:03.797464",
+    "method": "GET",
+    "path": "/admin",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/admin",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "{\"message\": \"Admin Area\", \"db_password\": \"supersecretpassword123\", \"users_count\": 42}"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:05.794255",
+    "method": "GET",
+    "path": "/sitemap.xml",
+    "full_url": "http://host.docker.internal:4566/sitemap.xml",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>25c0a37b-9716-4446-990b-bade6d14051a</RequestId><BucketName>sitemap.xml</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:05.807526",
+    "method": "GET",
+    "path": "/robots.txt",
+    "full_url": "http://host.docker.internal:4566/robots.txt",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>03d8245c-b752-4ccd-aa95-1be7d056b04c</RequestId><BucketName>robots.txt</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:05.818138",
+    "method": "GET",
+    "path": "/upload",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/upload",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "{\"error\": \"Not Found\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:07.819916",
+    "method": "GET",
+    "path": "/sitemap.xml",
+    "full_url": "http://host.docker.internal:4566/sitemap.xml",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>675149c2-d9d7-4595-a4e0-20036ae8c4ec</RequestId><BucketName>sitemap.xml</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:07.833408",
+    "method": "GET",
+    "path": "/robots.txt",
+    "full_url": "http://host.docker.internal:4566/robots.txt",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>2f856f9a-5c3e-44a7-8666-7348a25d601c</RequestId><BucketName>robots.txt</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:07.844777",
+    "method": "GET",
+    "path": "/search",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/search",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "{\"results\": [], \"query\": \"\"}"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:09.848451",
+    "method": "GET",
+    "path": "/sitemap.xml",
+    "full_url": "http://host.docker.internal:4566/sitemap.xml",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>665a51e4-2516-4795-a135-b2b2440b2b89</RequestId><BucketName>sitemap.xml</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:09.859657",
+    "method": "GET",
+    "path": "/robots.txt",
+    "full_url": "http://host.docker.internal:4566/robots.txt",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>fa07a5e4-79ef-47f7-a995-57b5b12b1119</RequestId><BucketName>robots.txt</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:09.871193",
+    "method": "GET",
+    "path": "/debug",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/debug",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 200,
+    "response_body": "{\"env\": {\"AWS_LAMBDA_FUNCTION_VERSION\": \"$LATEST\", \"EDGE_PORT\": \"4566\", \"AWS_ENDPOINT_URL\": \"http://localstack:4566\", \"AWS_CONTAINER_CREDENTIALS_FULL_URI\": \"http://127.0.0.1:9001/2021-04-23/credentials\", \"AWS_SESSION_TOKEN\": \"FQoGZXIvYXdzEuVCX2R1YO17tcjxk=u4p5g=uIptHG6+g9rHBenGFgsrH35a0FoF7/507UFUOcix4s=XXmuU0mdiJlzNYx7+doun91WLhzlRpKehGo10ry5t+BGGvFAR5H916P2yFsEVhjT0SeQGTZKkjDFCEuzWcm6qP92tGCTWOFs2TwTXZL5SgaL23+txnt9oynVdRnmcmYMFdqXIMYlxTmkDAohfRyTssYrZSaXE+XCayuZCs3Xez9EWmQV8vt09PJjd9QTWyi9ZeBNZsouRVb11HRm7908d+yu+2czMSTkLAE=YUQ3d73ocHZN2HKBok/o9yCAsT+Hrug69tmAa6WSt5chIeA95\", \"AWS_CA_BUNDLE\": \"\", \"AWS_LAMBDA_FUNCTION_TIMEOUT\": \"3\", \"LOCALSTACK_HOSTNAME\": \"172.17.0.2\", \"LAMBDA_TASK_ROOT\": \"/var/task\", \"AWS_LAMBDA_LOG_GROUP_NAME\": \"/aws/lambda/vulnerable-api-handler\", \"LD_LIBRARY_PATH\": \"/var/lang/lib:/lib64:/usr/lib64:/var/runtime:/var/runtime/lib:/var/task:/var/task/lib:/opt/lib\", \"AWS_LAMBDA_LOG_STREAM_NAME\": \"2026/05/21/[$LATEST]2c1cb638109001aa990c1a8f0597ac1b\", \"AWS_LAMBDA_RUNTIME_API\": \"127.0.0.1:9001\", \"AWS_EXECUTION_ENV\": \"AWS_Lambda_python3.11\", \"DEBUG_MODE\": \"true\", \"AWS_XRAY_DAEMON_ADDRESS\": \"127.0.0.1:2000\", \"AWS_LAMBDA_FUNCTION_NAME\": \"vulnerable-api-handler\", \"PATH\": \"/var/lang/bin:/usr/local/bin:/usr/bin/:/bin:/opt/bin\", \"SECRET_KEY\": \"AKIAIOSFODNN7EXAMPLE\", \"AWS_DEFAULT_REGION\": \"us-east-1\", \"PWD\": \"/var/task\", \"AWS_SECRET_ACCESS_KEY\": \"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\", \"LAMBDA_RUNTIME_DIR\": \"/var/runtime\", \"LANG\": \"en_US.UTF-8\", \"AWS_LAMBDA_INITIALIZATION_TYPE\": \"on-demand\", \"TZ\": \":UTC\", \"AWS_REGION\": \"us-east-1\", \"AWS_ACCESS_KEY_ID\": \"LSIAQAAAAAAALJQFLGYJ\", \"SHLVL\": \"0\", \"no_proxy\": \"localhost.localstack.cloud,172.17.0.2\", \"_AWS_XRAY_DAEMON_ADDRESS\": \"127.0.0.1\", \"_AWS_XRAY_DAEMON_PORT\": \"2000\", \"AWS_XRAY_CONTEXT_MISSING\": \"LOG_ERROR\", \"AWS_CONTAINER_AUTHORIZATION_TOKEN\": \"e40e81d0-b7ec-492b-95f4-6778bf6a033e\", \"_HANDLER\": \"app.handler\", \"AWS_LAMBDA_FUNCTION_MEMORY_SIZE\": \"128\", \"PYTHONPATH\": \"/var/runtime\", \"_X_AMZN_TRACE_ID\": \"Root=1-6a0f1061-3d1e5b3cc5d2430cd4c2c096;Parent=051cc97aceb5cb13;Sampled=1\"}, \"event\": {\"headers\": {\"host\": \"host.docker.internal:4566\", \"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\", \"pragma\": \"no-cache\", \"cache-control\": \"no-cache\", \"X-Forwarded-For\": \"172.17.0.1\", \"X-Forwarded-Port\": \"4566\", \"X-Forwarded-Proto\": \"HTTP\", \"Accept\": \"application/json\", \"X-Amzn-Trace-Id\": \"Root=1-6a0f1061-e6a318dc4e9ad57b42571cb6;Parent=65e39985498d3f9f;Sampled=0\"}, \"multiValueHeaders\": {\"host\": [\"host.docker.internal:4566\"], \"User-Agent\": [\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\"], \"pragma\": [\"no-cache\"], \"cache-control\": [\"no-cache\"], \"X-Forwarded-For\": [\"172.17.0.1\"], \"X-Forwarded-Port\": [\"4566\"], \"X-Forwarded-Proto\": [\"HTTP\"], \"Accept\": [\"application/json\"], \"X-Amzn-Trace-Id\": [\"Root=1-6a0f1061-e6a318dc4e9ad57b42571cb6;Parent=65e39985498d3f9f;Sampled=0\"]}, \"body\": null, \"isBase64Encoded\": false, \"requestContext\": {\"accountId\": \"000000000000\", \"apiId\": \"njea0urhk9\", \"deploymentId\": \"qrnrmr4qd2\", \"domainName\": \"host.docker.internal:4566\", \"domainPrefix\": \"host\", \"extendedRequestId\": \"42188e9b\", \"httpMethod\": \"GET\", \"identity\": {\"accountId\": null, \"accessKey\": null, \"caller\": null, \"cognitoAuthenticationProvider\": null, \"cognitoAuthenticationType\": null, \"cognitoIdentityId\": null, \"cognitoIdentityPoolId\": null, \"principalOrgId\": null, \"sourceIp\": \"127.0.0.1\", \"user\": null, \"userAgent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36\", \"userArn\": null}, \"path\": \"/dev/debug\", \"protocol\": \"HTTP/1.1\", \"requestId\": \"c577d364-6721-411f-ac71-91ee0361a8de\", \"requestTime\": \"21/May/2026:14:02:09 \", \"requestTimeEpoch\": 1779372129841, \"stage\": \"dev\", \"resourcePath\": \"/{proxy+}\", \"resourceId\": \"zbwvtncis3\"}, \"stageVariables\": null, \"queryStringParameters\": null, \"multiValueQueryStringParameters\": null, \"pathParameters\": {\"proxy\": \"debug\"}, \"httpMethod\": \"GET\", \"path\": \"/debug\", \"resource\": \"/{proxy+}\"}}"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:11.871510",
+    "method": "GET",
+    "path": "/robots.txt",
+    "full_url": "http://host.docker.internal:4566/robots.txt",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>2527db57-3f10-4d88-9e46-3acd6cdc2ce4</RequestId><BucketName>robots.txt</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:11.885543",
+    "method": "GET",
+    "path": "/sitemap.xml",
+    "full_url": "http://host.docker.internal:4566/sitemap.xml",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "<?xml version='1.0' encoding='utf-8'?>\n<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><RequestId>423f4ab6-aeae-44a2-b491-784f032b689f</RequestId><BucketName>sitemap.xml</BucketName></Error>"
+  },
+  {
+    "timestamp": "2026-05-21T14:02:11.896835",
+    "method": "GET",
+    "path": "/notes",
+    "full_url": "http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_/notes",
+    "headers": {
+      "host": "host.docker.internal:4566",
+      "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+      "pragma": "no-cache",
+      "cache-control": "no-cache"
+    },
+    "request_body": "",
+    "status_code": 404,
+    "response_body": "{\"error\": \"Not Found\"}"
   }
 ]

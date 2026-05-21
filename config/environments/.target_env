@@ -1,3 +1,3 @@
-TARGET_URL=http://localhost:4566/restapis/kketuciwgc/dev/_user_request_
-ZAP_TARGET_URL=http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_
+TARGET_URL=http://localhost:4566/restapis/njea0urhk9/dev/_user_request_
+ZAP_TARGET_URL=http://host.docker.internal:4566/restapis/njea0urhk9/dev/_user_request_
 ZAP_API_URL=http://localhost:8080
