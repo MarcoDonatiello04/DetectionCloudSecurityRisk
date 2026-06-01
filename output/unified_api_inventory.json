@@ -1,293 +1,750 @@
 [
   {
-    "path": "/users/{id}",
-    "method": "GET",
-    "sources": [
-      "static",
-      "runtime"
+    "finding_id": "semgrep-b926b62051f7",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [flask]: GET /api/orders/{d} non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "HIGH",
+    "confidence": 0.8,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "tests/target_poc/app.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/orders/{d}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/api/orders/{d}",
+    "related_findings": [
+      "semgrep-39e1fa01349d"
     ],
-    "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
-      "framework": "aws-lambda",
-      "route_parameters": [
-        "id"
-      ]
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/api/orders/{d}",
+      "file": "tests/target_poc/app.py",
+      "auth_detected": false,
+      "framework": "flask",
+      "merged_semgrep-39e1fa01349d": {},
+      "correlated_risk_score": 7.0
     },
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users/1",
-      "content_type": ""
-    },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "CONFIRMED",
-    "confidence_score": 1.0
+    "detected_at": "2026-06-01T19:37:02.285658"
   },
   {
-    "path": "/users",
-    "method": "GET",
-    "sources": [
-      "static",
-      "runtime"
-    ],
-    "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
-      "framework": "aws-lambda, python-semgrep",
-      "route_parameters": []
+    "finding_id": "semgrep-4cc40671e79f",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [fastapi, python-semgrep]: GET /health protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.8,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/presentation/api.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
     },
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/users",
-      "content_type": ""
+    "api": {
+      "endpoint": "/health",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "CONFIRMED",
-    "confidence_score": 1.0
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/health",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/health",
+      "file": "src/presentation/api.py",
+      "auth_detected": true,
+      "framework": "fastapi, python-semgrep",
+      "correlated_risk_score": 2.2
+    },
+    "detected_at": "2026-06-01T19:37:02.285676"
   },
   {
-    "path": "/login",
-    "method": "GET",
-    "sources": [
-      "static",
-      "runtime"
-    ],
-    "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
-      "framework": "aws-lambda, python-semgrep",
-      "route_parameters": []
+    "finding_id": "semgrep-7c19e0c75b37",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [fastapi]: POST /scan protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.8,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/presentation/api.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
     },
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/login",
-      "content_type": ""
+    "api": {
+      "endpoint": "/scan",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "CONFIRMED",
-    "confidence_score": 1.0
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/scan",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/scan",
+      "file": "src/presentation/api.py",
+      "auth_detected": true,
+      "framework": "fastapi",
+      "correlated_risk_score": 2.2
+    },
+    "detected_at": "2026-06-01T19:37:02.285682"
   },
   {
-    "path": "/admin",
-    "method": "GET",
-    "sources": [
-      "static",
-      "runtime"
-    ],
-    "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
-      "framework": "aws-lambda, python-semgrep",
-      "route_parameters": []
+    "finding_id": "semgrep-5ec9712ae07d",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [python-semgrep]: GET /users non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.8,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "problema_api/lambda_api/app.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
     },
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/admin",
-      "content_type": ""
+    "api": {
+      "endpoint": "/users",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
     },
-    "auth_detected": true,
-    "auth_sources": [
-      "runtime"
-    ],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "CONFIRMED",
-    "confidence_score": 1.0
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/users",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/users",
+      "file": "problema_api/lambda_api/app.py",
+      "auth_detected": false,
+      "framework": "python-semgrep",
+      "correlated_risk_score": 5.5
+    },
+    "detected_at": "2026-06-01T19:37:02.285688"
   },
   {
-    "path": "/upload",
-    "method": "GET",
-    "sources": [
-      "static",
-      "runtime"
-    ],
-    "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
-      "framework": "aws-lambda, python-semgrep",
-      "route_parameters": []
+    "finding_id": "semgrep-9e8d59dd03e4",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [python-semgrep]: GET /login non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.8,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "problema_api/lambda_api/app.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
     },
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/upload",
-      "content_type": ""
+    "api": {
+      "endpoint": "/login",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "CONFIRMED",
-    "confidence_score": 1.0
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/login",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/login",
+      "file": "problema_api/lambda_api/app.py",
+      "auth_detected": false,
+      "framework": "python-semgrep",
+      "correlated_risk_score": 5.5
+    },
+    "detected_at": "2026-06-01T19:37:02.285693"
   },
   {
-    "path": "/search",
-    "method": "GET",
-    "sources": [
-      "static",
-      "runtime"
-    ],
-    "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
-      "framework": "aws-lambda, python-semgrep",
-      "route_parameters": []
+    "finding_id": "semgrep-1f59f971327f",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [python-semgrep]: GET /admin non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.8,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "problema_api/lambda_api/app.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
     },
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/search",
-      "content_type": ""
+    "api": {
+      "endpoint": "/admin",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "CONFIRMED",
-    "confidence_score": 1.0
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/admin",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/admin",
+      "file": "problema_api/lambda_api/app.py",
+      "auth_detected": false,
+      "framework": "python-semgrep",
+      "correlated_risk_score": 5.5
+    },
+    "detected_at": "2026-06-01T19:37:02.285697"
   },
   {
-    "path": "/debug",
-    "method": "GET",
-    "sources": [
-      "static",
-      "runtime"
-    ],
-    "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
-      "framework": "aws-lambda, python-semgrep",
-      "route_parameters": []
+    "finding_id": "semgrep-606b99f02bf6",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [python-semgrep]: GET /upload non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.8,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "problema_api/lambda_api/app.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
     },
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/debug",
-      "content_type": ""
+    "api": {
+      "endpoint": "/upload",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "CONFIRMED",
-    "confidence_score": 1.0
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/upload",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/upload",
+      "file": "problema_api/lambda_api/app.py",
+      "auth_detected": false,
+      "framework": "python-semgrep",
+      "correlated_risk_score": 5.5
+    },
+    "detected_at": "2026-06-01T19:37:02.285701"
   },
   {
-    "path": "/notes",
-    "method": "GET",
-    "sources": [
-      "static",
-      "runtime"
-    ],
-    "static_metadata": {
-      "file": "target_poc/lambda_api/app.py",
-      "framework": "aws-lambda, python-semgrep",
-      "route_parameters": []
+    "finding_id": "semgrep-9d7e14b9dc27",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [python-semgrep]: GET /search non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.8,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "problema_api/lambda_api/app.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
     },
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/notes",
-      "content_type": ""
+    "api": {
+      "endpoint": "/search",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "CONFIRMED",
-    "confidence_score": 1.0
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/search",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/search",
+      "file": "problema_api/lambda_api/app.py",
+      "auth_detected": false,
+      "framework": "python-semgrep",
+      "correlated_risk_score": 5.5
+    },
+    "detected_at": "2026-06-01T19:37:02.285705"
   },
   {
-    "path": "/login",
-    "method": "POST",
-    "sources": [
-      "runtime"
-    ],
-    "static_metadata": null,
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/login",
-      "content_type": ""
+    "finding_id": "semgrep-bef206ff1198",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [python-semgrep]: GET /debug non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.8,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "problema_api/lambda_api/app.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "RUNTIME_ONLY",
-    "confidence_score": 0.7
+    "api": {
+      "endpoint": "/debug",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/debug",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/debug",
+      "file": "problema_api/lambda_api/app.py",
+      "auth_detected": false,
+      "framework": "python-semgrep",
+      "correlated_risk_score": 5.5
+    },
+    "detected_at": "2026-06-01T19:37:02.285708"
   },
   {
-    "path": "/upload",
-    "method": "POST",
-    "sources": [
-      "runtime"
-    ],
-    "static_metadata": null,
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/upload",
-      "content_type": ""
+    "finding_id": "semgrep-74f87aaeb2cd",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [python-semgrep]: GET /notes non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.8,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "problema_api/lambda_api/app.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "RUNTIME_ONLY",
-    "confidence_score": 0.7
+    "api": {
+      "endpoint": "/notes",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/notes",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/notes",
+      "file": "problema_api/lambda_api/app.py",
+      "auth_detected": false,
+      "framework": "python-semgrep",
+      "correlated_risk_score": 5.5
+    },
+    "detected_at": "2026-06-01T19:37:02.285712"
   },
   {
-    "path": "/notes",
-    "method": "POST",
-    "sources": [
-      "runtime"
-    ],
-    "static_metadata": null,
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/restapis/kketuciwgc/dev/_user_request_/notes",
-      "content_type": ""
+    "finding_id": "semgrep-8824b7fcac26",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [python-semgrep]: GET /scan non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.8,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/presentation/api.py",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "RUNTIME_ONLY",
-    "confidence_score": 0.7
+    "api": {
+      "endpoint": "/scan",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/scan",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/scan",
+      "file": "src/presentation/api.py",
+      "auth_detected": false,
+      "framework": "python-semgrep",
+      "correlated_risk_score": 5.5
+    },
+    "detected_at": "2026-06-01T19:37:02.285715"
   },
   {
-    "path": "/robots.txt",
-    "method": "GET",
-    "sources": [
-      "runtime"
-    ],
-    "static_metadata": null,
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/robots.txt",
-      "content_type": ""
+    "finding_id": "semgrep-d4001956a33c",
+    "source": "SEMGREP",
+    "category": "AUTHORIZATION",
+    "title": "Potenziale BOLA / IDOR statico rilevato",
+    "description": "L'endpoint '/users/{id}' riceve parametri identificativi nel percorso. Richiede validazione rigorosa dei permessi sull'oggetto specifico (OWASP API1:2023).",
+    "severity": "CRITICAL",
+    "confidence": 1.0,
+    "rule_id": "bola-route-static-check",
+    "rule_name": "Object-based Routing Exposure",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/users/{id}",
+      "method": null,
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "RUNTIME_ONLY",
-    "confidence_score": 0.7
+    "validation_status": "CONFIRMED",
+    "runtime_evidence": {
+      "tested_url": "http://localhost:5000/users/42",
+      "http_status": 200,
+      "response_time_ms": null,
+      "response_headers": {},
+      "response_snippet": null,
+      "accessible_without_auth": null,
+      "rate_limit_detected": null
+    },
+    "risk_context": null,
+    "correlation_key": "api:GET:/users/{id}",
+    "related_findings": [
+      "shadow_api-f50809c7e661"
+    ],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "runtime_verification_shadow_api-f50809c7e661": {
+        "method": "GET",
+        "path": "/users/42",
+        "full_url": "http://localhost:5000/users/42",
+        "status": 200,
+        "headers": {
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0Mn0.signature"
+        },
+        "body_params": {}
+      },
+      "correlated_risk_score": 8.6
+    },
+    "detected_at": "2026-06-01T19:37:02.289625"
   },
   {
-    "path": "/sitemap.xml",
-    "method": "GET",
-    "sources": [
-      "runtime"
-    ],
-    "static_metadata": null,
-    "runtime_metadata": {
-      "last_seen_url": "http://host.docker.internal:4566/sitemap.xml",
-      "content_type": ""
+    "finding_id": "semgrep-dda866177a60",
+    "source": "SEMGREP",
+    "category": "AUTHORIZATION",
+    "title": "Potenziale BOLA / IDOR statico rilevato",
+    "description": "L'endpoint '/api/v1/posts/{post_id}/comments' riceve parametri identificativi nel percorso. Richiede validazione rigorosa dei permessi sull'oggetto specifico (OWASP API1:2023).",
+    "severity": "HIGH",
+    "confidence": 0.7,
+    "rule_id": "bola-route-static-check",
+    "rule_name": "Object-based Routing Exposure",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/api/v1/posts/{post_id}/comments",
+      "method": null,
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
     },
-    "auth_detected": false,
-    "auth_sources": [],
-    "query_params": [],
-    "body_params": [],
-    "observed_status_codes": [],
-    "classification": "RUNTIME_ONLY",
-    "confidence_score": 0.7
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/api/v1/posts/{post_id}/comments",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "correlated_risk_score": 6.8
+    },
+    "detected_at": "2026-06-01T19:37:02.289633"
+  },
+  {
+    "finding_id": "semgrep-1984c2a9840f",
+    "source": "SEMGREP",
+    "category": "AUTHORIZATION",
+    "title": "Potenziale BOLA / IDOR statico rilevato",
+    "description": "L'endpoint '/api/v1/users/{id}/profile' riceve parametri identificativi nel percorso. Richiede validazione rigorosa dei permessi sull'oggetto specifico (OWASP API1:2023).",
+    "severity": "HIGH",
+    "confidence": 0.7,
+    "rule_id": "bola-route-static-check",
+    "rule_name": "Object-based Routing Exposure",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/api/v1/users/{id}/profile",
+      "method": null,
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/api/v1/users/{id}/profile",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "correlated_risk_score": 6.8
+    },
+    "detected_at": "2026-06-01T19:37:02.289639"
+  },
+  {
+    "finding_id": "semgrep-03e05e0b5c98",
+    "source": "SEMGREP",
+    "category": "AUTHORIZATION",
+    "title": "Potenziale BOLA / IDOR statico rilevato",
+    "description": "L'endpoint '/orders/{id}' riceve parametri identificativi nel percorso. Richiede validazione rigorosa dei permessi sull'oggetto specifico (OWASP API1:2023).",
+    "severity": "HIGH",
+    "confidence": 0.7,
+    "rule_id": "bola-route-static-check",
+    "rule_name": "Object-based Routing Exposure",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/orders/{id}",
+      "method": null,
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/orders/{id}",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "correlated_risk_score": 6.8
+    },
+    "detected_at": "2026-06-01T19:37:02.289643"
+  },
+  {
+    "finding_id": "shadow_api-cad8c91a47c9",
+    "source": "SHADOW_API",
+    "category": "API_EXPOSURE",
+    "title": "Shadow API (Endpoint non documentato rilevato a runtime)",
+    "description": "Rilevata chiamata HTTP verso 'POST /api/v1/debug/dump-database' nel traffico di runtime, ma nessun endpoint corrispondente è stato trovato nel codice sorgente analizzato. Questo indica la presenza di una Shadow API non tracciata o di una potenziale backdoor.",
+    "severity": "HIGH",
+    "confidence": 0.9,
+    "rule_id": "shadow-api-detected",
+    "rule_name": "Shadow API Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/api/v1/debug/dump-database",
+      "method": "POST",
+      "base_url": "http://localhost:5000",
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "CONFIRMED",
+    "runtime_evidence": {
+      "tested_url": "http://localhost:5000/api/v1/debug/dump-database",
+      "http_status": 200,
+      "response_time_ms": null,
+      "response_headers": {},
+      "response_snippet": null,
+      "accessible_without_auth": null,
+      "rate_limit_detected": null
+    },
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null,
+      "attack_complexity": null,
+      "impact": null
+    },
+    "correlation_key": "api:POST:/api/v1/debug/dump-database",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/v1/debug/dump-database",
+      "full_url": "http://localhost:5000/api/v1/debug/dump-database",
+      "status": 200,
+      "headers": {},
+      "body_params": {
+        "raw_sql": "SELECT * FROM secrets"
+      },
+      "correlated_risk_score": 6.8
+    },
+    "detected_at": "2026-06-01T19:37:02.294818"
   }
 ]
