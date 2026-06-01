@@ -7,6 +7,7 @@ from src.domain.entities import Finding
 from src.application.orchestrator import ScanPipelineOrchestrator
 from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
 from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
+from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
 from src.infrastructure.adapters.zap_adapter import ZapClientAdapter
 from src.infrastructure.adapters.mitmproxy_adapter import MitmproxyClientAdapter
 from src.infrastructure.persistence.report_repository import ReportRepository
@@ -72,9 +73,12 @@ def main():
     logger.info(f"Absolute Target Path: {target_abs}")
 
     # 1. Inizializza gli scanner core (adapters)
+    # SpectralScannerAdapter: lancia Stoplight Spectral sul contratto OpenAPI del progetto
+    openapi_spec = os.path.abspath("problema_api/openapi.yaml")
     scanners = [
         CheckovScannerAdapter(),
-        SemgrepScannerAdapter()
+        SemgrepScannerAdapter(),
+        SpectralScannerAdapter(),  # Analisi conformità contratto OpenAPI
     ]
     
     # 2. Inizializza l'orchestratore
