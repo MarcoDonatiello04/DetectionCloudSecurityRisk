@@ -13,3 +13,12 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# Logs
+*.log
+
+# Generated Reports & Output
+output/unified_security_report.json
+output/unified_api_inventory.json
+output/dashboard.html
+output/zap_report.json

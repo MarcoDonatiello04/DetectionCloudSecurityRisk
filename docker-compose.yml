@@ -8,8 +8,8 @@ services:
     image: mitmproxy/mitmproxy:latest
     container_name: tesi-mitmproxy
     volumes:
-      - ./soluzione_api/src/runtime/mitmproxy:/home/mitmproxy/scripts
-      - ./soluzione_api/src/output:/home/mitmproxy/output
+      - ./src/infrastructure/adapters/mitmproxy:/home/mitmproxy/scripts
+      - ./output:/home/mitmproxy/output
     command: mitmdump -s /home/mitmproxy/scripts/addon.py -p 8081 --mode regular --ssl-insecure
     ports:
       - "8081:8081"
@@ -66,7 +66,7 @@ services:
     image: python:3.11-slim
     container_name: tesi-api-server
     volumes:
-      - ./tests/target_poc:/app
+      - ./problema_api/bola:/app
     working_dir: /app
     environment:
       - FLASK_APP=app.py

@@ -4,3 +4,4 @@ s3scanner
 checkov
 semgrep
 pyyaml
+zaproxy

@@ -37,21 +37,28 @@ class APIEndpointNormalizer:
         segments = path.split('/')
         normalized_segments = []
 
+        placeholder_regex = re.compile(r'^(<[^>]+>|\{[^}]+\}|:[a-zA-Z_][a-zA-Z0-9_]*)$')
+
         for segment in segments:
             if not segment:
                 normalized_segments.append("")
                 continue
 
-            if segment.startswith('{') and segment.endswith('}'):
-                normalized_segments.append(segment)
+            # Se è un placeholder dinamico, convertilo nello standard unificato {id}
+            if placeholder_regex.match(segment):
+                normalized_segments.append("{id}")
                 continue
 
+            # Controlla se corrisponde ad un UUID
             if cls.UUID_REGEX.match(segment):
                 normalized_segments.append("{id}")
+            # Controlla se corrisponde ad un numero
             elif cls.NUMERIC_REGEX.match(segment):
                 normalized_segments.append("{id}")
+            # Controlla se corrisponde ad un hash esadecimale (es: identificatori MongoDB o sessioni)
             elif cls.HEX_HASH_REGEX.match(segment):
-                if segment.lower() not in ("login", "admin", "debug", "notes", "users", "items", "views", "posts", "lists"):
+                # Escludiamo parole note corte per evitare falsi positivi
+                if segment.lower() not in ("login", "admin", "debug", "notes", "users", "notes", "items", "views", "posts", "lists"):
                     normalized_segments.append("{id}")
                 else:
                     normalized_segments.append(segment)

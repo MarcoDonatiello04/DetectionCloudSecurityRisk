@@ -11,6 +11,7 @@ from src.infrastructure.adapters.zap_adapter import ZapClientAdapter
 from src.infrastructure.adapters.mitmproxy_adapter import MitmproxyClientAdapter
 from src.infrastructure.persistence.report_repository import ReportRepository
 from src.presentation.dashboard_generator import APIDashboardGenerator
+from src.core.dynamic_orchestrator import DynamicOrchestrator
 
 # Configurazione logger
 logging.basicConfig(
@@ -46,6 +47,16 @@ def parse_args():
         "--zap-url", 
         default="http://localhost:8090", 
         help="URL del daemon OWASP ZAP per stimolazione e scansione DAST"
+    )
+    parser.add_argument(
+        "--target-base-url",
+        default="http://localhost:5000",
+        help="URL di base dell'API target per seeding e attacchi D-AST"
+    )
+    parser.add_argument(
+        "--keycloak-url",
+        default="http://localhost:8080",
+        help="URL di base del server Keycloak per acquisizione token"
     )
     return parser.parse_args()
 
@@ -126,6 +137,18 @@ def main():
     dashboard_path = os.path.join(args.output_dir, "dashboard.html")
     dash_gen = APIDashboardGenerator(correlated_findings)
     dash_gen.generate(dashboard_path)
+
+    # 7. Esecuzione scansione D-AST dinamica
+    logger.info("⚡ Avvio fase D-AST (Dynamic Application Security Testing)...")
+    try:
+        dast_orchestrator = DynamicOrchestrator(
+            target_base_url=args.target_base_url,
+            keycloak_url=args.keycloak_url,
+            zap_proxy_url=args.zap_url
+        )
+        dast_orchestrator.run_dast_pipeline(api_inventory, output_dir=args.output_dir)
+    except Exception as e:
+        logger.error(f"⚠️ Esecuzione D-AST fallita: {e}", exc_info=True)
 
     logger.info("================================================================================")
     logger.info(f"🏆 PIPELINE COMPLETATA. Report salvato in '{args.output_dir}/'")

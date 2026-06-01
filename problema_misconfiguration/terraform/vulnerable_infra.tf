@@ -98,8 +98,8 @@ resource "aws_iam_role_policy" "vulnerable_lambda_policy" {
 # 5. Lambda Function
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_dir  = "${path.module}/../../problema_api/lambda_api"
-  output_path = "${path.module}/../../problema_api/lambda_api.zip"
+  source_dir  = "${path.module}/../../problema_api/generic_vulns"
+  output_path = "${path.module}/../../problema_api/generic_vulns.zip"
 }
 
 resource "aws_lambda_function" "vulnerable_api_lambda" {

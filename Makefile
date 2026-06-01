@@ -1,24 +1,17 @@
-.PHONY: setup start-localstack terraform scan-dast clean
+.PHONY: setup-env iac-analysis api-security clean
 
-setup:
-	@echo "=> Setting up the entire Cloud Security Testing Environment..."
-	@bash scripts/setup/start_system.sh
+setup-env:
+	@bash scripts/1_setup_environment.sh
 
-start-localstack:
-	@echo "=> Starting LocalStack..."
-	@bash scripts/localstack/start_localstack.sh
+iac-analysis:
+	@bash scripts/2_iac_analysis.sh
 
-terraform:
-	@echo "=> Provisioning Vulnerable Infrastructure..."
-	@bash scripts/terraform/run_terraform.sh
-
-scan-dast:
-	@echo "=> Starting OWASP ZAP DAST Scan..."
-	@bash scripts/scanning/run_zap_scan.sh
+api-security:
+	@bash scripts/3_api_security.sh
 
 clean:
 	@echo "=> Cleaning up environment..."
-	@docker compose down
+	@docker compose down -v
 	@rm -rf problema_misconfiguration/terraform/.terraform
 	@rm -f problema_misconfiguration/terraform/*.tfstate*
 	@rm -f config/environments/.target_env
