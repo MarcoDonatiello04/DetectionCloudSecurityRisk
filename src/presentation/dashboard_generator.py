@@ -8,8 +8,8 @@ logger = logging.getLogger("SecurityPlatform.DashboardGenerator")
 
 # Sorgenti per sezione
 STATIC_SOURCES   = {"CHECKOV", "SEMGREP"}
-OPENAPI_SOURCES  = {"SPECTRAL"}
-BOLA_SOURCES     = {"ZAP_DAST", "RUNTIME_VALIDATOR", "SHADOW_API"}
+OPENAPI_SOURCES  = {"SPECTRAL", "SHADOW_API"}   # Spectral lint + Shadow/undocumented endpoints
+BOLA_SOURCES     = {"ZAP_DAST", "RUNTIME_VALIDATOR"}  # Solo test BOLA differenziali
 
 
 class APIDashboardGenerator:
@@ -73,6 +73,7 @@ class APIDashboardGenerator:
                 stats["openapi_total"] += 1
                 if sev == "high":   stats["openapi_high"] += 1
                 if sev == "medium": stats["openapi_medium"] += 1
+                if src == "SHADOW_API": stats.setdefault("shadow_total", 0); stats["shadow_total"] = stats.get("shadow_total", 0) + 1
             elif src in BOLA_SOURCES:
                 stats["bola_total"] += 1
                 if f.validation_status.value == "CONFIRMED": stats["bola_confirmed"] += 1
@@ -1070,11 +1071,13 @@ class APIDashboardGenerator:
     const STATS        = {stats_json};
 
     const STATIC_SOURCES  = new Set(["CHECKOV", "SEMGREP"]);
-    const OPENAPI_SOURCES = new Set(["SPECTRAL"]);
-    const BOLA_SOURCES    = new Set(["ZAP_DAST", "RUNTIME_VALIDATOR", "SHADOW_API"]);
+    const OPENAPI_SOURCES = new Set(["SPECTRAL", "SHADOW_API"]);
+    const BOLA_SOURCES    = new Set(["ZAP_DAST", "RUNTIME_VALIDATOR"]);
 
     const staticFindings  = ALL_FINDINGS.filter(f => STATIC_SOURCES.has(f.source));
     const openapiFindings = ALL_FINDINGS.filter(f => OPENAPI_SOURCES.has(f.source));
+    const spectralFindings = ALL_FINDINGS.filter(f => f.source === "SPECTRAL");
+    const shadowFindings   = ALL_FINDINGS.filter(f => f.source === "SHADOW_API");
     const bolaFindings    = ALL_FINDINGS.filter(f => BOLA_SOURCES.has(f.source));
 
     /* ─── Active filters state ────────────────────────────────────── */
@@ -1298,46 +1301,52 @@ class APIDashboardGenerator:
     /* PANEL 2 — OPENAPI                                                 */
     /* ================================================================ */
     function buildOpenAPIUI() {{
-        const hi = openapiFindings.filter(f => f.severity==='HIGH').length;
-        const me = openapiFindings.filter(f => f.severity==='MEDIUM').length;
-        const cats = countBy(openapiFindings, f => f.category);
-        const endpts = new Set(openapiFindings.filter(f => f.api?.endpoint).map(f => f.api.endpoint));
+        const hi  = spectralFindings.filter(f => f.severity==='HIGH').length;
+        const me  = spectralFindings.filter(f => f.severity==='MEDIUM').length;
+        const endpts = new Set(shadowFindings.map(f => (f.api?.method||'?') + ' ' + (f.api?.endpoint || f.location?.file_path || '?')));
 
         makeSectionStats('openapi-section-stats', [
-            ['Violazioni Totali',  openapiFindings.length, 'var(--violet)'],
-            ['Alta Severità',      hi,                      'var(--rose)'],
-            ['Media Severità',     me,                      'var(--amber)'],
-            ['Endpoint Coinvolti', endpts.size,             'var(--sky)'],
-            ['Spec Analizzata',    '1',                     'var(--emerald)'],
+            ['Violazioni Spectral', spectralFindings.length, 'var(--violet)'],
+            ['Alta Severità',       hi,                       'var(--rose)'],
+            ['Media Severità',      me,                       'var(--amber)'],
+            ['Shadow Endpoints',    shadowFindings.length,    'var(--orange)'],
+            ['Spec Analizzata',     '1',                      'var(--emerald)'],
         ]);
 
-        // Endpoint summary bar
-        if (openapiFindings.length > 0) {{
-            const epSummary = document.getElementById('openapi-ep-summary');
+        // ── Blocco Shadow API ─────────────────────────────────────────
+        const epSummary = document.getElementById('openapi-ep-summary');
+        if (shadowFindings.length > 0) {{
             const epMap = {{}};
-            openapiFindings.forEach(f => {{
-                if (!f.api?.endpoint) return;
-                const k = (f.api.method||'ANY') + ' ' + f.api.endpoint;
+            shadowFindings.forEach(f => {{
+                const meth = f.api?.method || 'GET';
+                const path = f.api?.endpoint || f.location?.file_path || f.title || '?';
+                const k = meth + ' ' + path;
                 epMap[k] = (epMap[k]||0)+1;
             }});
-            if (Object.keys(epMap).length > 0) {{
-                epSummary.innerHTML = `
-                    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.3rem;">
-                        <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.8rem;font-weight:700;">Endpoint con Violazioni</div>
+            epSummary.innerHTML = `
+                <div style="margin-bottom:1.2rem;">
+                    <div style="background:rgba(249,115,22,0.06);border:1px solid rgba(249,115,22,0.2);border-radius:14px;padding:1rem 1.3rem;">
+                        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.8rem;">
+                            <span style="font-size:1.1rem;">👻</span>
+                            <span style="font-size:0.85rem;font-weight:700;color:var(--orange);">Shadow API — Endpoint Non Documentati (${{shadowFindings.length}})</span>
+                            <span style="font-size:0.75rem;color:var(--text-muted);margin-left:auto;">rilevati da Mitmproxy traffic analysis</span>
+                        </div>
                         <div class="endpoint-grid">
                             ${{Object.entries(epMap).map(([ep, cnt]) => {{
                                 const parts = ep.split(' ');
                                 const meth  = parts[0];
                                 const path  = parts.slice(1).join(' ');
-                                return `<div class="ep-row">
+                                return `<div class="ep-row" style="border-color:rgba(249,115,22,0.15);">
                                     <span class="ep-method method-${{meth.toLowerCase()}}">${{meth}}</span>
                                     <span class="ep-path">${{path}}</span>
-                                    <span class="ep-rule">${{cnt}} violaz.</span>
+                                    <span class="ep-rule" style="color:var(--orange);">${{cnt}} occorrenze</span>
                                 </div>`;
                             }}).join('')}}
                         </div>
-                    </div>`;
-            }}
+                    </div>
+                </div>`;
+        }} else {{
+            epSummary.innerHTML = '';
         }}
 
         buildSevFilters('filter-openapi-sev', openapiFindings, 'flt-active2', 'openapi', 'sev', renderOpenAPI);
@@ -1347,22 +1356,33 @@ class APIDashboardGenerator:
 
     function renderOpenAPI() {{
         const q = (document.getElementById('search-openapi').value||'').toLowerCase();
-        const filtered = openapiFindings.filter(f => {{
+        // Filtriamo solo i Spectral per la lista (gli Shadow API hanno il loro blocco separato sopra)
+        const filtered = spectralFindings.filter(f => {{
             if (state.openapi.sev !== 'ALL' && f.severity !== state.openapi.sev) return false;
             if (state.openapi.cat !== 'ALL' && f.category !== state.openapi.cat) return false;
             if (q && !(f.title+f.description+(f.rule_id||'')+(f.api?.endpoint||'')).toLowerCase().includes(q)) return false;
             return true;
         }});
 
-        document.getElementById('openapi-result-count').textContent =
-            filtered.length + ' di ' + openapiFindings.length + ' violazioni';
+        const resultLabel = spectralFindings.length === 0
+            ? 'Spettral non ancora eseguito — lancia `make api-security` per generare i risultati'
+            : filtered.length + ' di ' + spectralFindings.length + ' violazioni Spectral';
+        document.getElementById('openapi-result-count').textContent = resultLabel;
 
         const container = document.getElementById('openapi-list');
         const empty     = document.getElementById('openapi-empty');
 
-        if (openapiFindings.length === 0) {{
-            container.innerHTML = '';
-            empty.style.display = 'block';
+        if (spectralFindings.length === 0) {{
+            container.innerHTML = `
+                <div style="background:rgba(167,139,250,0.05);border:1px dashed rgba(167,139,250,0.2);border-radius:14px;padding:2rem;text-align:center;">
+                    <div style="font-size:2rem;margin-bottom:0.8rem;">⚙️</div>
+                    <div style="font-weight:700;color:var(--violet);margin-bottom:0.4rem;">Spectral non ancora eseguito</div>
+                    <div style="font-size:0.82rem;color:var(--text-secondary);">I risultati del linting OpenAPI (Stoplight Spectral) compariranno qui dopo la prossima esecuzione della pipeline.</div>
+                    <div style="margin-top:0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.78rem;background:rgba(0,0,0,0.3);border-radius:8px;padding:0.6rem 1rem;color:var(--sky);display:inline-block;">
+                        make api-security
+                    </div>
+                </div>`;
+            empty.style.display = 'none';
             return;
         }}
 
@@ -1386,16 +1406,15 @@ class APIDashboardGenerator:
         const critical  = bolaFindings.filter(f => f.severity==='CRITICAL').length;
         const zap       = bolaFindings.filter(f => f.source==='ZAP_DAST').length;
         const rval      = bolaFindings.filter(f => f.source==='RUNTIME_VALIDATOR').length;
-        const shadow    = bolaFindings.filter(f => f.source==='SHADOW_API').length;
 
         makeSectionStats('bola-section-stats', [
-            ['Finding BOLA',       bolaFindings.length, 'var(--rose)'],
+            ['Test BOLA',          bolaFindings.length, 'var(--rose)'],
             ['Confermati',         confirmed,            'var(--emerald)'],
             ['Critici',            critical,             'var(--rose)'],
             ['ZAP D-AST',          zap,                  'var(--amber)'],
             ['Runtime Validator',  rval,                 'var(--violet)'],
-            ['Shadow API',         shadow,               'var(--sky)'],
         ]);
+
 
         // Banner riassuntivo BOLA
         if (bolaFindings.length > 0) {{

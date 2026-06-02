@@ -44,7 +44,7 @@
       "framework": "flask",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909340"
+    "detected_at": "2026-06-01T23:21:12.323920"
   },
   {
     "finding_id": "semgrep-4d00e09e6b04",
@@ -100,7 +100,7 @@
       },
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909359"
+    "detected_at": "2026-06-01T23:21:12.323937"
   },
   {
     "finding_id": "semgrep-4cc40671e79f",
@@ -147,7 +147,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-01T22:45:24.909368"
+    "detected_at": "2026-06-01T23:21:12.323948"
   },
   {
     "finding_id": "semgrep-7c19e0c75b37",
@@ -194,7 +194,7 @@
       "framework": "fastapi",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-01T22:45:24.909375"
+    "detected_at": "2026-06-01T23:21:12.323954"
   },
   {
     "finding_id": "semgrep-23b078766f81",
@@ -241,7 +241,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909380"
+    "detected_at": "2026-06-01T23:21:12.323959"
   },
   {
     "finding_id": "semgrep-5ec9712ae07d",
@@ -288,7 +288,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909391"
+    "detected_at": "2026-06-01T23:21:12.323970"
   },
   {
     "finding_id": "semgrep-9e8d59dd03e4",
@@ -335,7 +335,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909395"
+    "detected_at": "2026-06-01T23:21:12.323973"
   },
   {
     "finding_id": "semgrep-1f59f971327f",
@@ -382,7 +382,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909399"
+    "detected_at": "2026-06-01T23:21:12.323977"
   },
   {
     "finding_id": "semgrep-606b99f02bf6",
@@ -429,7 +429,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909403"
+    "detected_at": "2026-06-01T23:21:12.323981"
   },
   {
     "finding_id": "semgrep-9d7e14b9dc27",
@@ -476,7 +476,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909410"
+    "detected_at": "2026-06-01T23:21:12.323987"
   },
   {
     "finding_id": "semgrep-bef206ff1198",
@@ -523,7 +523,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909415"
+    "detected_at": "2026-06-01T23:21:12.323991"
   },
   {
     "finding_id": "semgrep-74f87aaeb2cd",
@@ -570,7 +570,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909419"
+    "detected_at": "2026-06-01T23:21:12.323994"
   },
   {
     "finding_id": "semgrep-8824b7fcac26",
@@ -617,131 +617,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-01T22:45:24.909423"
-  },
-  {
-    "finding_id": "semgrep-d4001956a33c",
-    "source": "SEMGREP",
-    "category": "AUTHORIZATION",
-    "title": "Potenziale BOLA / IDOR statico rilevato",
-    "description": "L'endpoint '/users/{id}' riceve parametri identificativi nel percorso. Richiede validazione rigorosa dei permessi sull'oggetto specifico (OWASP API1:2023).",
-    "severity": "CRITICAL",
-    "confidence": 1.0,
-    "rule_id": "bola-route-static-check",
-    "rule_name": "Object-based Routing Exposure",
-    "resource_type": null,
-    "resource_name": null,
-    "resource_id": null,
-    "location": null,
-    "api": {
-      "endpoint": "/users/{id}",
-      "method": null,
-      "base_url": null,
-      "api_version": null,
-      "requires_authentication": true
-    },
-    "validation_status": "CONFIRMED",
-    "runtime_evidence": {
-      "tested_url": "http://api-server:5000/users/100",
-      "http_status": 404,
-      "response_time_ms": null,
-      "response_headers": {},
-      "response_snippet": null,
-      "accessible_without_auth": null,
-      "rate_limit_detected": null
-    },
-    "risk_context": null,
-    "correlation_key": "api:GET:/users/{id}",
-    "related_findings": [
-      "shadow_api-f50809c7e661"
-    ],
-    "owasp_api_category": null,
-    "cwe_id": null,
-    "cve_id": null,
-    "remediation": null,
-    "tags": [],
-    "references": [],
-    "raw_data": {
-      "runtime_verification_shadow_api-f50809c7e661": {
-        "method": "GET",
-        "path": "/users/100",
-        "full_url": "http://api-server:5000/users/100",
-        "status": 404,
-        "headers": {
-          "host": "api-server:5000",
-          "User-Agent": "python-requests/2.33.1",
-          "Accept": "*/*",
-          "Connection": "keep-alive",
-          "Authorization": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAidXNlcl9iIiwgIm5hbWUiOiAidXNlcl9iIiwgInByZWZlcnJlZF91c2VybmFtZSI6ICJ1c2VyX2IiLCAicm9sZXMiOiBbInVzZXIiXX0.mocksignature"
-        },
-        "auth_header": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAidXNlcl9iIiwgIm5hbWUiOiAidXNlcl9iIiwgInByZWZlcnJlZF91c2VybmFtZSI6ICJ1c2VyX2IiLCAicm9sZXMiOiBbInVzZXIiXX0.mocksignature",
-        "body_params": {}
-      },
-      "correlated_risk_score": 8.6
-    },
-    "detected_at": "2026-06-01T22:45:24.913563"
-  },
-  {
-    "finding_id": "semgrep-dda866177a60",
-    "source": "SEMGREP",
-    "category": "AUTHORIZATION",
-    "title": "Potenziale BOLA / IDOR statico rilevato",
-    "description": "L'endpoint '/api/v1/posts/{post_id}/comments' riceve parametri identificativi nel percorso. Richiede validazione rigorosa dei permessi sull'oggetto specifico (OWASP API1:2023).",
-    "severity": "CRITICAL",
-    "confidence": 1.0,
-    "rule_id": "bola-route-static-check",
-    "rule_name": "Object-based Routing Exposure",
-    "resource_type": null,
-    "resource_name": null,
-    "resource_id": null,
-    "location": null,
-    "api": {
-      "endpoint": "/api/v1/posts/{post_id}/comments",
-      "method": null,
-      "base_url": null,
-      "api_version": null,
-      "requires_authentication": true
-    },
-    "validation_status": "CONFIRMED",
-    "runtime_evidence": {
-      "tested_url": "http://api-server:5000/api/v1/posts/100/comments",
-      "http_status": 404,
-      "response_time_ms": null,
-      "response_headers": {},
-      "response_snippet": null,
-      "accessible_without_auth": null,
-      "rate_limit_detected": null
-    },
-    "risk_context": null,
-    "correlation_key": "api:GET:/api/v1/posts/{id}/comments",
-    "related_findings": [
-      "shadow_api-13dfa94b833d"
-    ],
-    "owasp_api_category": null,
-    "cwe_id": null,
-    "cve_id": null,
-    "remediation": null,
-    "tags": [],
-    "references": [],
-    "raw_data": {
-      "runtime_verification_shadow_api-13dfa94b833d": {
-        "method": "GET",
-        "path": "/api/v1/posts/100/comments",
-        "full_url": "http://api-server:5000/api/v1/posts/100/comments",
-        "status": 404,
-        "headers": {
-          "host": "api-server:5000",
-          "User-Agent": "python-requests/2.33.1",
-          "Accept": "*/*",
-          "Connection": "keep-alive",
-          "Authorization": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAidXNlcl9iIiwgIm5hbWUiOiAidXNlcl9iIiwgInByZWZlcnJlZF91c2VybmFtZSI6ICJ1c2VyX2IiLCAicm9sZXMiOiBbInVzZXIiXX0.mocksignature"
-        },
-        "auth_header": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAidXNlcl9iIiwgIm5hbWUiOiAidXNlcl9iIiwgInByZWZlcnJlZF91c2VybmFtZSI6ICJ1c2VyX2IiLCAicm9sZXMiOiBbInVzZXIiXX0.mocksignature",
-        "body_params": {}
-      },
-      "correlated_risk_score": 8.6
-    },
-    "detected_at": "2026-06-01T22:45:24.913576"
+    "detected_at": "2026-06-01T23:21:12.323998"
   },
   {
     "finding_id": "semgrep-1984c2a9840f",
@@ -803,7 +679,7 @@
       },
       "correlated_risk_score": 8.6
     },
-    "detected_at": "2026-06-01T22:45:24.913583"
+    "detected_at": "2026-06-01T23:21:16.418811"
   },
   {
     "finding_id": "semgrep-03e05e0b5c98",
@@ -865,7 +741,106 @@
       },
       "correlated_risk_score": 8.6
     },
-    "detected_at": "2026-06-01T22:45:24.913587"
+    "detected_at": "2026-06-01T23:21:16.418819"
+  },
+  {
+    "finding_id": "semgrep-d4001956a33c",
+    "source": "SEMGREP",
+    "category": "AUTHORIZATION",
+    "title": "Potenziale BOLA / IDOR statico rilevato",
+    "description": "L'endpoint '/users/{id}' riceve parametri identificativi nel percorso. Richiede validazione rigorosa dei permessi sull'oggetto specifico (OWASP API1:2023).",
+    "severity": "HIGH",
+    "confidence": 0.7,
+    "rule_id": "bola-route-static-check",
+    "rule_name": "Object-based Routing Exposure",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/users/{id}",
+      "method": null,
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/users/{id}",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "correlated_risk_score": 6.8
+    },
+    "detected_at": "2026-06-01T23:21:16.418824"
+  },
+  {
+    "finding_id": "semgrep-dda866177a60",
+    "source": "SEMGREP",
+    "category": "AUTHORIZATION",
+    "title": "Potenziale BOLA / IDOR statico rilevato",
+    "description": "L'endpoint '/api/v1/posts/{post_id}/comments' riceve parametri identificativi nel percorso. Richiede validazione rigorosa dei permessi sull'oggetto specifico (OWASP API1:2023).",
+    "severity": "CRITICAL",
+    "confidence": 1.0,
+    "rule_id": "bola-route-static-check",
+    "rule_name": "Object-based Routing Exposure",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/api/v1/posts/{post_id}/comments",
+      "method": null,
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "validation_status": "CONFIRMED",
+    "runtime_evidence": {
+      "tested_url": "http://api-server:5000/api/v1/posts/100/comments",
+      "http_status": 404,
+      "response_time_ms": null,
+      "response_headers": {},
+      "response_snippet": null,
+      "accessible_without_auth": null,
+      "rate_limit_detected": null
+    },
+    "risk_context": null,
+    "correlation_key": "api:GET:/api/v1/posts/{id}/comments",
+    "related_findings": [
+      "shadow_api-13dfa94b833d"
+    ],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "runtime_verification_shadow_api-13dfa94b833d": {
+        "method": "GET",
+        "path": "/api/v1/posts/100/comments",
+        "full_url": "http://api-server:5000/api/v1/posts/100/comments",
+        "status": 404,
+        "headers": {
+          "host": "api-server:5000",
+          "User-Agent": "python-requests/2.33.1",
+          "Accept": "*/*",
+          "Connection": "keep-alive",
+          "Authorization": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAidXNlcl9iIiwgIm5hbWUiOiAidXNlcl9iIiwgInByZWZlcnJlZF91c2VybmFtZSI6ICJ1c2VyX2IiLCAicm9sZXMiOiBbInVzZXIiXX0.mocksignature"
+        },
+        "auth_header": "Bearer eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAidXNlcl9iIiwgIm5hbWUiOiAidXNlcl9iIiwgInByZWZlcnJlZF91c2VybmFtZSI6ICJ1c2VyX2IiLCAicm9sZXMiOiBbInVzZXIiXX0.mocksignature",
+        "body_params": {}
+      },
+      "correlated_risk_score": 8.6
+    },
+    "detected_at": "2026-06-01T23:21:16.418829"
   },
   {
     "finding_id": "semgrep-8b0805dfae2b",
@@ -929,7 +904,7 @@
       },
       "correlated_risk_score": 8.6
     },
-    "detected_at": "2026-06-01T22:45:24.913592"
+    "detected_at": "2026-06-01T23:21:16.418834"
   },
   {
     "finding_id": "semgrep-1ac1488ce1b2",
@@ -993,7 +968,7 @@
       },
       "correlated_risk_score": 8.6
     },
-    "detected_at": "2026-06-01T22:45:24.913596"
+    "detected_at": "2026-06-01T23:21:16.418838"
   },
   {
     "finding_id": "shadow_api-7d8fdb14d4b1",
@@ -1057,7 +1032,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226326"
+    "detected_at": "2026-06-01T23:21:16.907482"
   },
   {
     "finding_id": "shadow_api-4ffac21c87b7",
@@ -1121,7 +1096,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226352"
+    "detected_at": "2026-06-01T23:21:16.907508"
   },
   {
     "finding_id": "shadow_api-32e2840fd6ab",
@@ -1187,7 +1162,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226393"
+    "detected_at": "2026-06-01T23:21:16.907535"
   },
   {
     "finding_id": "shadow_api-db2a370edaee",
@@ -1253,7 +1228,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226467"
+    "detected_at": "2026-06-01T23:21:16.907560"
   },
   {
     "finding_id": "shadow_api-48580af49376",
@@ -1318,7 +1293,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226512"
+    "detected_at": "2026-06-01T23:21:16.907604"
   },
   {
     "finding_id": "shadow_api-7264c67679f3",
@@ -1383,7 +1358,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226531"
+    "detected_at": "2026-06-01T23:21:16.907620"
   },
   {
     "finding_id": "shadow_api-05c51cb7f096",
@@ -1448,7 +1423,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226549"
+    "detected_at": "2026-06-01T23:21:16.907637"
   },
   {
     "finding_id": "shadow_api-62871912b8a4",
@@ -1513,7 +1488,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226563"
+    "detected_at": "2026-06-01T23:21:16.907651"
   },
   {
     "finding_id": "shadow_api-64b3c7e31ad6",
@@ -1578,7 +1553,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226586"
+    "detected_at": "2026-06-01T23:21:16.907666"
   },
   {
     "finding_id": "shadow_api-64a717296606",
@@ -1643,7 +1618,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226628"
+    "detected_at": "2026-06-01T23:21:16.907715"
   },
   {
     "finding_id": "shadow_api-c4d281d49aff",
@@ -1708,7 +1683,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226646"
+    "detected_at": "2026-06-01T23:21:16.907750"
   },
   {
     "finding_id": "shadow_api-2339aa78838b",
@@ -1773,7 +1748,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226665"
+    "detected_at": "2026-06-01T23:21:16.907781"
   },
   {
     "finding_id": "shadow_api-2ef64915e820",
@@ -1838,7 +1813,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226765"
+    "detected_at": "2026-06-01T23:21:16.907799"
   },
   {
     "finding_id": "shadow_api-e31691193ab6",
@@ -1903,7 +1878,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226786"
+    "detected_at": "2026-06-01T23:21:16.907816"
   },
   {
     "finding_id": "shadow_api-8a19a845721a",
@@ -1968,7 +1943,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226835"
+    "detected_at": "2026-06-01T23:21:16.908199"
   },
   {
     "finding_id": "shadow_api-c909018eb206",
@@ -2033,7 +2008,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226891"
+    "detected_at": "2026-06-01T23:21:16.908224"
   },
   {
     "finding_id": "shadow_api-2f04af5869ad",
@@ -2098,7 +2073,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226914"
+    "detected_at": "2026-06-01T23:21:16.908247"
   },
   {
     "finding_id": "shadow_api-186fb85da2a5",
@@ -2163,7 +2138,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226930"
+    "detected_at": "2026-06-01T23:21:16.908265"
   },
   {
     "finding_id": "shadow_api-9e28fd6ca147",
@@ -2228,7 +2203,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226947"
+    "detected_at": "2026-06-01T23:21:16.908286"
   },
   {
     "finding_id": "shadow_api-5fe09ca920fe",
@@ -2293,7 +2268,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226968"
+    "detected_at": "2026-06-01T23:21:16.908307"
   },
   {
     "finding_id": "shadow_api-ecaa8a28e6a0",
@@ -2358,7 +2333,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.226984"
+    "detected_at": "2026-06-01T23:21:16.908323"
   },
   {
     "finding_id": "shadow_api-47bf38e94623",
@@ -2423,7 +2398,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227001"
+    "detected_at": "2026-06-01T23:21:16.908338"
   },
   {
     "finding_id": "shadow_api-e4097e1522b1",
@@ -2488,7 +2463,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227016"
+    "detected_at": "2026-06-01T23:21:16.908353"
   },
   {
     "finding_id": "shadow_api-d5369ce520d5",
@@ -2553,7 +2528,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227035"
+    "detected_at": "2026-06-01T23:21:16.908372"
   },
   {
     "finding_id": "shadow_api-973947aa762e",
@@ -2618,7 +2593,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227052"
+    "detected_at": "2026-06-01T23:21:16.908391"
   },
   {
     "finding_id": "shadow_api-c5a9136d611e",
@@ -2683,7 +2658,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227069"
+    "detected_at": "2026-06-01T23:21:16.908409"
   },
   {
     "finding_id": "shadow_api-5872f3c86505",
@@ -2748,7 +2723,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227084"
+    "detected_at": "2026-06-01T23:21:16.908424"
   },
   {
     "finding_id": "shadow_api-23f68def6ce2",
@@ -2813,7 +2788,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227100"
+    "detected_at": "2026-06-01T23:21:16.908441"
   },
   {
     "finding_id": "shadow_api-b8dadd5a9994",
@@ -2878,7 +2853,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227115"
+    "detected_at": "2026-06-01T23:21:16.908459"
   },
   {
     "finding_id": "shadow_api-168ca3faada2",
@@ -2943,7 +2918,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227129"
+    "detected_at": "2026-06-01T23:21:16.908476"
   },
   {
     "finding_id": "shadow_api-0e4db27bdaaa",
@@ -3008,7 +2983,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227144"
+    "detected_at": "2026-06-01T23:21:16.908493"
   },
   {
     "finding_id": "shadow_api-6dcb99f72e66",
@@ -3073,7 +3048,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227160"
+    "detected_at": "2026-06-01T23:21:16.908511"
   },
   {
     "finding_id": "shadow_api-1c65b1faffaf",
@@ -3138,7 +3113,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227174"
+    "detected_at": "2026-06-01T23:21:16.908529"
   },
   {
     "finding_id": "shadow_api-a322f93da44e",
@@ -3203,7 +3178,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227188"
+    "detected_at": "2026-06-01T23:21:16.908545"
   },
   {
     "finding_id": "shadow_api-657f1382ce8a",
@@ -3268,7 +3243,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227204"
+    "detected_at": "2026-06-01T23:21:16.908561"
   },
   {
     "finding_id": "shadow_api-15eb0cf23e23",
@@ -3333,7 +3308,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227220"
+    "detected_at": "2026-06-01T23:21:16.908577"
   },
   {
     "finding_id": "shadow_api-825cae494afd",
@@ -3398,7 +3373,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227236"
+    "detected_at": "2026-06-01T23:21:16.908594"
   },
   {
     "finding_id": "shadow_api-fba16b44c7d6",
@@ -3463,7 +3438,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227252"
+    "detected_at": "2026-06-01T23:21:16.908611"
   },
   {
     "finding_id": "shadow_api-218883290216",
@@ -3528,7 +3503,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227267"
+    "detected_at": "2026-06-01T23:21:16.908626"
   },
   {
     "finding_id": "shadow_api-5b11fd3dad07",
@@ -3593,7 +3568,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227287"
+    "detected_at": "2026-06-01T23:21:16.908649"
   },
   {
     "finding_id": "shadow_api-145312f5f05e",
@@ -3658,7 +3633,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227305"
+    "detected_at": "2026-06-01T23:21:16.908670"
   },
   {
     "finding_id": "shadow_api-0b2322b8e9a4",
@@ -3723,7 +3698,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227321"
+    "detected_at": "2026-06-01T23:21:16.908687"
   },
   {
     "finding_id": "shadow_api-e78e00b17321",
@@ -3788,7 +3763,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227336"
+    "detected_at": "2026-06-01T23:21:16.908704"
   },
   {
     "finding_id": "shadow_api-d15e9a74d557",
@@ -3853,7 +3828,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227352"
+    "detected_at": "2026-06-01T23:21:16.908722"
   },
   {
     "finding_id": "shadow_api-b064a75fe0eb",
@@ -3918,7 +3893,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227367"
+    "detected_at": "2026-06-01T23:21:16.908739"
   },
   {
     "finding_id": "shadow_api-c3e29f69020e",
@@ -3983,7 +3958,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227382"
+    "detected_at": "2026-06-01T23:21:16.908754"
   },
   {
     "finding_id": "shadow_api-964b167bb66f",
@@ -4048,7 +4023,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227396"
+    "detected_at": "2026-06-01T23:21:16.908770"
   },
   {
     "finding_id": "shadow_api-418bbd93cafb",
@@ -4113,7 +4088,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227411"
+    "detected_at": "2026-06-01T23:21:16.908787"
   },
   {
     "finding_id": "shadow_api-c5e0d054e31b",
@@ -4178,7 +4153,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227426"
+    "detected_at": "2026-06-01T23:21:16.908803"
   },
   {
     "finding_id": "shadow_api-b61c54ad4df2",
@@ -4243,7 +4218,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227441"
+    "detected_at": "2026-06-01T23:21:16.908818"
   },
   {
     "finding_id": "shadow_api-4406d254db95",
@@ -4308,7 +4283,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227457"
+    "detected_at": "2026-06-01T23:21:16.908835"
   },
   {
     "finding_id": "shadow_api-0823829e7a0b",
@@ -4373,7 +4348,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227472"
+    "detected_at": "2026-06-01T23:21:16.908852"
   },
   {
     "finding_id": "shadow_api-9df149dd40e2",
@@ -4438,7 +4413,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227489"
+    "detected_at": "2026-06-01T23:21:16.908870"
   },
   {
     "finding_id": "shadow_api-f71253bbe815",
@@ -4503,7 +4478,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227505"
+    "detected_at": "2026-06-01T23:21:16.908887"
   },
   {
     "finding_id": "shadow_api-f5336597c766",
@@ -4568,7 +4543,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227520"
+    "detected_at": "2026-06-01T23:21:16.908903"
   },
   {
     "finding_id": "shadow_api-8c5b266254e8",
@@ -4633,7 +4608,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227535"
+    "detected_at": "2026-06-01T23:21:16.908918"
   },
   {
     "finding_id": "shadow_api-b7181db6dd76",
@@ -4698,7 +4673,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227550"
+    "detected_at": "2026-06-01T23:21:16.908934"
   },
   {
     "finding_id": "shadow_api-c3250578664c",
@@ -4763,7 +4738,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227565"
+    "detected_at": "2026-06-01T23:21:16.908949"
   },
   {
     "finding_id": "shadow_api-5b3164615260",
@@ -4828,7 +4803,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227579"
+    "detected_at": "2026-06-01T23:21:16.908967"
   },
   {
     "finding_id": "shadow_api-39a00d9a484d",
@@ -4893,7 +4868,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227593"
+    "detected_at": "2026-06-01T23:21:16.908984"
   },
   {
     "finding_id": "shadow_api-fb6d1f703601",
@@ -4958,7 +4933,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227608"
+    "detected_at": "2026-06-01T23:21:16.909002"
   },
   {
     "finding_id": "shadow_api-c9c7fb8fa486",
@@ -5023,7 +4998,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227623"
+    "detected_at": "2026-06-01T23:21:16.909020"
   },
   {
     "finding_id": "shadow_api-618b3dee2a63",
@@ -5088,7 +5063,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227642"
+    "detected_at": "2026-06-01T23:21:16.909038"
   },
   {
     "finding_id": "shadow_api-dd1385606969",
@@ -5153,7 +5128,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227657"
+    "detected_at": "2026-06-01T23:21:16.909056"
   },
   {
     "finding_id": "shadow_api-638a95527218",
@@ -5218,7 +5193,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227673"
+    "detected_at": "2026-06-01T23:21:16.909082"
   },
   {
     "finding_id": "shadow_api-ea2b8166c2c0",
@@ -5283,7 +5258,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227688"
+    "detected_at": "2026-06-01T23:21:16.909097"
   },
   {
     "finding_id": "shadow_api-89e5ea321df0",
@@ -5348,7 +5323,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227704"
+    "detected_at": "2026-06-01T23:21:16.909118"
   },
   {
     "finding_id": "shadow_api-02b062f9c9b9",
@@ -5413,7 +5388,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227768"
+    "detected_at": "2026-06-01T23:21:16.909187"
   },
   {
     "finding_id": "shadow_api-2a2f8c44cce2",
@@ -5478,7 +5453,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227782"
+    "detected_at": "2026-06-01T23:21:16.909205"
   },
   {
     "finding_id": "shadow_api-0b432e9a57f1",
@@ -5543,7 +5518,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227797"
+    "detected_at": "2026-06-01T23:21:16.909220"
   },
   {
     "finding_id": "shadow_api-e20b6fc01d7e",
@@ -5608,7 +5583,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227812"
+    "detected_at": "2026-06-01T23:21:16.909237"
   },
   {
     "finding_id": "shadow_api-3445077e82d4",
@@ -5673,7 +5648,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227826"
+    "detected_at": "2026-06-01T23:21:16.909254"
   },
   {
     "finding_id": "shadow_api-fa6b15e1b6bd",
@@ -5738,7 +5713,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227840"
+    "detected_at": "2026-06-01T23:21:16.909271"
   },
   {
     "finding_id": "shadow_api-61fc981b209f",
@@ -5803,7 +5778,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227855"
+    "detected_at": "2026-06-01T23:21:16.909288"
   },
   {
     "finding_id": "shadow_api-76d675effd9f",
@@ -5868,7 +5843,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227875"
+    "detected_at": "2026-06-01T23:21:16.909307"
   },
   {
     "finding_id": "shadow_api-f4cae54fe55e",
@@ -5933,7 +5908,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227891"
+    "detected_at": "2026-06-01T23:21:16.909326"
   },
   {
     "finding_id": "shadow_api-afe7ac3309db",
@@ -5998,7 +5973,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227906"
+    "detected_at": "2026-06-01T23:21:16.909343"
   },
   {
     "finding_id": "shadow_api-ea5f9cfa8fa6",
@@ -6063,7 +6038,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227919"
+    "detected_at": "2026-06-01T23:21:16.909359"
   },
   {
     "finding_id": "shadow_api-42f8cfb4b53d",
@@ -6128,7 +6103,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.227934"
+    "detected_at": "2026-06-01T23:21:16.909374"
   },
   {
     "finding_id": "shadow_api-bb12a6f59aff",
@@ -6193,7 +6168,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228024"
+    "detected_at": "2026-06-01T23:21:16.909466"
   },
   {
     "finding_id": "shadow_api-ebcf35dceeb4",
@@ -6258,7 +6233,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228043"
+    "detected_at": "2026-06-01T23:21:16.909490"
   },
   {
     "finding_id": "shadow_api-1590ac51ddc1",
@@ -6323,7 +6298,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228056"
+    "detected_at": "2026-06-01T23:21:16.909507"
   },
   {
     "finding_id": "shadow_api-d282b9043426",
@@ -6388,7 +6363,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228073"
+    "detected_at": "2026-06-01T23:21:16.909527"
   },
   {
     "finding_id": "shadow_api-1e64fb0aafbd",
@@ -6453,7 +6428,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228482"
+    "detected_at": "2026-06-01T23:21:16.909904"
   },
   {
     "finding_id": "shadow_api-5aa2219672dd",
@@ -6518,7 +6493,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228497"
+    "detected_at": "2026-06-01T23:21:16.909922"
   },
   {
     "finding_id": "shadow_api-109b91539d5f",
@@ -6583,7 +6558,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228533"
+    "detected_at": "2026-06-01T23:21:16.909955"
   },
   {
     "finding_id": "shadow_api-f420f375b888",
@@ -6648,7 +6623,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228552"
+    "detected_at": "2026-06-01T23:21:16.909977"
   },
   {
     "finding_id": "shadow_api-4dcd23b1d4c9",
@@ -6713,7 +6688,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228901"
+    "detected_at": "2026-06-01T23:21:16.910303"
   },
   {
     "finding_id": "shadow_api-3c43a2743908",
@@ -6778,7 +6753,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228916"
+    "detected_at": "2026-06-01T23:21:16.910325"
   },
   {
     "finding_id": "shadow_api-2420f603736a",
@@ -6843,7 +6818,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228935"
+    "detected_at": "2026-06-01T23:21:16.910349"
   },
   {
     "finding_id": "shadow_api-a70f3c2b5e92",
@@ -6908,7 +6883,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.228949"
+    "detected_at": "2026-06-01T23:21:16.910367"
   },
   {
     "finding_id": "shadow_api-3b5cc45dbc90",
@@ -6973,7 +6948,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.229323"
+    "detected_at": "2026-06-01T23:21:16.910700"
   },
   {
     "finding_id": "shadow_api-16160d788304",
@@ -7038,7 +7013,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.229336"
+    "detected_at": "2026-06-01T23:21:16.910716"
   },
   {
     "finding_id": "shadow_api-2e70bc64b636",
@@ -7103,7 +7078,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.229368"
+    "detected_at": "2026-06-01T23:21:16.910749"
   },
   {
     "finding_id": "shadow_api-a54c9f12217e",
@@ -7168,7 +7143,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.229381"
+    "detected_at": "2026-06-01T23:21:16.910764"
   },
   {
     "finding_id": "shadow_api-9d12d8d16f39",
@@ -7233,7 +7208,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.229735"
+    "detected_at": "2026-06-01T23:21:16.911117"
   },
   {
     "finding_id": "shadow_api-ca3a2119e02d",
@@ -7298,7 +7273,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.229752"
+    "detected_at": "2026-06-01T23:21:16.911138"
   },
   {
     "finding_id": "shadow_api-a6e4c7ec6db9",
@@ -7363,7 +7338,7 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.229767"
+    "detected_at": "2026-06-01T23:21:16.911157"
   },
   {
     "finding_id": "shadow_api-27042307094f",
@@ -7428,6 +7403,266 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-01T22:45:25.229785"
+    "detected_at": "2026-06-01T23:21:16.911178"
+  },
+  {
+    "finding_id": "shadow_api-f6b82bec2dfc",
+    "source": "SHADOW_API",
+    "category": "API_EXPOSURE",
+    "title": "Shadow API (Endpoint non documentato rilevato a runtime)",
+    "description": "Rilevata chiamata HTTP verso 'GET /zap1698066725785062801' nel traffico di runtime, ma nessun endpoint corrispondente è stato trovato nel codice sorgente analizzato. Questo indica la presenza di una Shadow API non tracciata o di una potenziale backdoor.",
+    "severity": "HIGH",
+    "confidence": 0.9,
+    "rule_id": "shadow-api-detected",
+    "rule_name": "Shadow API Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/zap1698066725785062801",
+      "method": "GET",
+      "base_url": "http://api-server:5000",
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "CONFIRMED",
+    "runtime_evidence": {
+      "tested_url": "http://api-server:5000/zap1698066725785062801",
+      "http_status": 404,
+      "response_time_ms": null,
+      "response_headers": {},
+      "response_snippet": null,
+      "accessible_without_auth": null,
+      "rate_limit_detected": null
+    },
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null,
+      "attack_complexity": null,
+      "impact": null
+    },
+    "correlation_key": "api:GET:/zap1698066725785062801",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/zap1698066725785062801",
+      "full_url": "http://api-server:5000/zap1698066725785062801",
+      "status": 404,
+      "headers": {
+        "host": "api-server:5000",
+        "User-Agent": "python-requests/2.33.1",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJLZXFFTGtQS1Q4UkcwQWlUODFoMk0ycU13RURGOV95di1nT0M1U2FycXhFIn0.eyJleHAiOjE3ODAzNTQyMjUsImlhdCI6MTc4MDM1MzkyNSwianRpIjoib25ydHJvOmQ1Y2NkMDk2LWM1NTgtNzg3Zi0zMmNiLTZmMTFiZjVmMjYwMCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9yZWFsbXMvbXlyZWFsbSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzMGMyZGQ5MC1lODU0LTQwMWYtOTE5ZC02NGM0NDQzOTAwNDciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzZWN1cml0eS1wbGF0Zm9ybS1jbGllbnQiLCJzaWQiOiJpQlduTVd0MFg2S05Id010d2ZtZkxqTUsiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtbXlyZWFsbSIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJVc2VyIEIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyX2IiLCJnaXZlbl9uYW1lIjoiVXNlciIsImZhbWlseV9uYW1lIjoiQiIsImVtYWlsIjoidXNlcl9iQGV4YW1wbGUuY29tIn0.Pga8ue06wKEE_KXqYUwsqBpi-5zo8w_XXY7LfH08NIf761oihI4zsoZOvthqBKooQxswkUGmOmvahBqEiDx9CSnrBP4k007LqfWpbKpyO3S5AHGO7rxo4CLWburbylep8HQNQr64WZXQWuXHXAeoOKe7XQJC6KFfGuth3Ck2tF1JLAPpF9yngpaAtzfqMBDfPqnejAuLWHH8xX-q_VgCFRFaaBWTobkeI7h6oOnmAPOV7SqWNl0qmbk8KW7mhg4h4O5gSaTn7oRUpsP-u7XZPkJS2zFNc9kwW2V7X-sxjJj4pMoOMe-NMFYVYkR2quy9eufzDvQ9b8l_JM_Fnv0RWQ"
+      },
+      "auth_header": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJLZXFFTGtQS1Q4UkcwQWlUODFoMk0ycU13RURGOV95di1nT0M1U2FycXhFIn0.eyJleHAiOjE3ODAzNTQyMjUsImlhdCI6MTc4MDM1MzkyNSwianRpIjoib25ydHJvOmQ1Y2NkMDk2LWM1NTgtNzg3Zi0zMmNiLTZmMTFiZjVmMjYwMCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9yZWFsbXMvbXlyZWFsbSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzMGMyZGQ5MC1lODU0LTQwMWYtOTE5ZC02NGM0NDQzOTAwNDciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzZWN1cml0eS1wbGF0Zm9ybS1jbGllbnQiLCJzaWQiOiJpQlduTVd0MFg2S05Id010d2ZtZkxqTUsiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtbXlyZWFsbSIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJVc2VyIEIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyX2IiLCJnaXZlbl9uYW1lIjoiVXNlciIsImZhbWlseV9uYW1lIjoiQiIsImVtYWlsIjoidXNlcl9iQGV4YW1wbGUuY29tIn0.Pga8ue06wKEE_KXqYUwsqBpi-5zo8w_XXY7LfH08NIf761oihI4zsoZOvthqBKooQxswkUGmOmvahBqEiDx9CSnrBP4k007LqfWpbKpyO3S5AHGO7rxo4CLWburbylep8HQNQr64WZXQWuXHXAeoOKe7XQJC6KFfGuth3Ck2tF1JLAPpF9yngpaAtzfqMBDfPqnejAuLWHH8xX-q_VgCFRFaaBWTobkeI7h6oOnmAPOV7SqWNl0qmbk8KW7mhg4h4O5gSaTn7oRUpsP-u7XZPkJS2zFNc9kwW2V7X-sxjJj4pMoOMe-NMFYVYkR2quy9eufzDvQ9b8l_JM_Fnv0RWQ",
+      "body_params": {},
+      "correlated_risk_score": 6.8
+    },
+    "detected_at": "2026-06-01T23:21:16.911507"
+  },
+  {
+    "finding_id": "shadow_api-340f4768b297",
+    "source": "SHADOW_API",
+    "category": "API_EXPOSURE",
+    "title": "Shadow API (Endpoint non documentato rilevato a runtime)",
+    "description": "Rilevata chiamata HTTP verso 'GET /.zap1206649600028085005' nel traffico di runtime, ma nessun endpoint corrispondente è stato trovato nel codice sorgente analizzato. Questo indica la presenza di una Shadow API non tracciata o di una potenziale backdoor.",
+    "severity": "HIGH",
+    "confidence": 0.9,
+    "rule_id": "shadow-api-detected",
+    "rule_name": "Shadow API Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/.zap1206649600028085005",
+      "method": "GET",
+      "base_url": "http://api-server:5000",
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "CONFIRMED",
+    "runtime_evidence": {
+      "tested_url": "http://api-server:5000/.zap1206649600028085005",
+      "http_status": 404,
+      "response_time_ms": null,
+      "response_headers": {},
+      "response_snippet": null,
+      "accessible_without_auth": null,
+      "rate_limit_detected": null
+    },
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null,
+      "attack_complexity": null,
+      "impact": null
+    },
+    "correlation_key": "api:GET:/.zap1206649600028085005",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/.zap1206649600028085005",
+      "full_url": "http://api-server:5000/.zap1206649600028085005",
+      "status": 404,
+      "headers": {
+        "host": "api-server:5000",
+        "User-Agent": "python-requests/2.33.1",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJLZXFFTGtQS1Q4UkcwQWlUODFoMk0ycU13RURGOV95di1nT0M1U2FycXhFIn0.eyJleHAiOjE3ODAzNTQyMjUsImlhdCI6MTc4MDM1MzkyNSwianRpIjoib25ydHJvOmQ1Y2NkMDk2LWM1NTgtNzg3Zi0zMmNiLTZmMTFiZjVmMjYwMCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9yZWFsbXMvbXlyZWFsbSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzMGMyZGQ5MC1lODU0LTQwMWYtOTE5ZC02NGM0NDQzOTAwNDciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzZWN1cml0eS1wbGF0Zm9ybS1jbGllbnQiLCJzaWQiOiJpQlduTVd0MFg2S05Id010d2ZtZkxqTUsiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtbXlyZWFsbSIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJVc2VyIEIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyX2IiLCJnaXZlbl9uYW1lIjoiVXNlciIsImZhbWlseV9uYW1lIjoiQiIsImVtYWlsIjoidXNlcl9iQGV4YW1wbGUuY29tIn0.Pga8ue06wKEE_KXqYUwsqBpi-5zo8w_XXY7LfH08NIf761oihI4zsoZOvthqBKooQxswkUGmOmvahBqEiDx9CSnrBP4k007LqfWpbKpyO3S5AHGO7rxo4CLWburbylep8HQNQr64WZXQWuXHXAeoOKe7XQJC6KFfGuth3Ck2tF1JLAPpF9yngpaAtzfqMBDfPqnejAuLWHH8xX-q_VgCFRFaaBWTobkeI7h6oOnmAPOV7SqWNl0qmbk8KW7mhg4h4O5gSaTn7oRUpsP-u7XZPkJS2zFNc9kwW2V7X-sxjJj4pMoOMe-NMFYVYkR2quy9eufzDvQ9b8l_JM_Fnv0RWQ"
+      },
+      "auth_header": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJLZXFFTGtQS1Q4UkcwQWlUODFoMk0ycU13RURGOV95di1nT0M1U2FycXhFIn0.eyJleHAiOjE3ODAzNTQyMjUsImlhdCI6MTc4MDM1MzkyNSwianRpIjoib25ydHJvOmQ1Y2NkMDk2LWM1NTgtNzg3Zi0zMmNiLTZmMTFiZjVmMjYwMCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9yZWFsbXMvbXlyZWFsbSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzMGMyZGQ5MC1lODU0LTQwMWYtOTE5ZC02NGM0NDQzOTAwNDciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzZWN1cml0eS1wbGF0Zm9ybS1jbGllbnQiLCJzaWQiOiJpQlduTVd0MFg2S05Id010d2ZtZkxqTUsiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtbXlyZWFsbSIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJVc2VyIEIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyX2IiLCJnaXZlbl9uYW1lIjoiVXNlciIsImZhbWlseV9uYW1lIjoiQiIsImVtYWlsIjoidXNlcl9iQGV4YW1wbGUuY29tIn0.Pga8ue06wKEE_KXqYUwsqBpi-5zo8w_XXY7LfH08NIf761oihI4zsoZOvthqBKooQxswkUGmOmvahBqEiDx9CSnrBP4k007LqfWpbKpyO3S5AHGO7rxo4CLWburbylep8HQNQr64WZXQWuXHXAeoOKe7XQJC6KFfGuth3Ck2tF1JLAPpF9yngpaAtzfqMBDfPqnejAuLWHH8xX-q_VgCFRFaaBWTobkeI7h6oOnmAPOV7SqWNl0qmbk8KW7mhg4h4O5gSaTn7oRUpsP-u7XZPkJS2zFNc9kwW2V7X-sxjJj4pMoOMe-NMFYVYkR2quy9eufzDvQ9b8l_JM_Fnv0RWQ",
+      "body_params": {},
+      "correlated_risk_score": 6.8
+    },
+    "detected_at": "2026-06-01T23:21:16.911525"
+  },
+  {
+    "finding_id": "shadow_api-3e515a24b64a",
+    "source": "SHADOW_API",
+    "category": "API_EXPOSURE",
+    "title": "Shadow API (Endpoint non documentato rilevato a runtime)",
+    "description": "Rilevata chiamata HTTP verso 'GET /zap8904404030100286694' nel traffico di runtime, ma nessun endpoint corrispondente è stato trovato nel codice sorgente analizzato. Questo indica la presenza di una Shadow API non tracciata o di una potenziale backdoor.",
+    "severity": "HIGH",
+    "confidence": 0.9,
+    "rule_id": "shadow-api-detected",
+    "rule_name": "Shadow API Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/zap8904404030100286694",
+      "method": "GET",
+      "base_url": "http://api-server:5000",
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "CONFIRMED",
+    "runtime_evidence": {
+      "tested_url": "http://api-server:5000/zap8904404030100286694",
+      "http_status": 404,
+      "response_time_ms": null,
+      "response_headers": {},
+      "response_snippet": null,
+      "accessible_without_auth": null,
+      "rate_limit_detected": null
+    },
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null,
+      "attack_complexity": null,
+      "impact": null
+    },
+    "correlation_key": "api:GET:/zap8904404030100286694",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/zap8904404030100286694",
+      "full_url": "http://api-server:5000/zap8904404030100286694",
+      "status": 404,
+      "headers": {
+        "host": "api-server:5000",
+        "User-Agent": "python-requests/2.33.1",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJLZXFFTGtQS1Q4UkcwQWlUODFoMk0ycU13RURGOV95di1nT0M1U2FycXhFIn0.eyJleHAiOjE3ODAzNTQyMjUsImlhdCI6MTc4MDM1MzkyNSwianRpIjoib25ydHJvOmQ1Y2NkMDk2LWM1NTgtNzg3Zi0zMmNiLTZmMTFiZjVmMjYwMCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9yZWFsbXMvbXlyZWFsbSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzMGMyZGQ5MC1lODU0LTQwMWYtOTE5ZC02NGM0NDQzOTAwNDciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzZWN1cml0eS1wbGF0Zm9ybS1jbGllbnQiLCJzaWQiOiJpQlduTVd0MFg2S05Id010d2ZtZkxqTUsiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtbXlyZWFsbSIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJVc2VyIEIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyX2IiLCJnaXZlbl9uYW1lIjoiVXNlciIsImZhbWlseV9uYW1lIjoiQiIsImVtYWlsIjoidXNlcl9iQGV4YW1wbGUuY29tIn0.Pga8ue06wKEE_KXqYUwsqBpi-5zo8w_XXY7LfH08NIf761oihI4zsoZOvthqBKooQxswkUGmOmvahBqEiDx9CSnrBP4k007LqfWpbKpyO3S5AHGO7rxo4CLWburbylep8HQNQr64WZXQWuXHXAeoOKe7XQJC6KFfGuth3Ck2tF1JLAPpF9yngpaAtzfqMBDfPqnejAuLWHH8xX-q_VgCFRFaaBWTobkeI7h6oOnmAPOV7SqWNl0qmbk8KW7mhg4h4O5gSaTn7oRUpsP-u7XZPkJS2zFNc9kwW2V7X-sxjJj4pMoOMe-NMFYVYkR2quy9eufzDvQ9b8l_JM_Fnv0RWQ"
+      },
+      "auth_header": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJLZXFFTGtQS1Q4UkcwQWlUODFoMk0ycU13RURGOV95di1nT0M1U2FycXhFIn0.eyJleHAiOjE3ODAzNTQyMjUsImlhdCI6MTc4MDM1MzkyNSwianRpIjoib25ydHJvOmQ1Y2NkMDk2LWM1NTgtNzg3Zi0zMmNiLTZmMTFiZjVmMjYwMCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9yZWFsbXMvbXlyZWFsbSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzMGMyZGQ5MC1lODU0LTQwMWYtOTE5ZC02NGM0NDQzOTAwNDciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzZWN1cml0eS1wbGF0Zm9ybS1jbGllbnQiLCJzaWQiOiJpQlduTVd0MFg2S05Id010d2ZtZkxqTUsiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtbXlyZWFsbSIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJVc2VyIEIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyX2IiLCJnaXZlbl9uYW1lIjoiVXNlciIsImZhbWlseV9uYW1lIjoiQiIsImVtYWlsIjoidXNlcl9iQGV4YW1wbGUuY29tIn0.Pga8ue06wKEE_KXqYUwsqBpi-5zo8w_XXY7LfH08NIf761oihI4zsoZOvthqBKooQxswkUGmOmvahBqEiDx9CSnrBP4k007LqfWpbKpyO3S5AHGO7rxo4CLWburbylep8HQNQr64WZXQWuXHXAeoOKe7XQJC6KFfGuth3Ck2tF1JLAPpF9yngpaAtzfqMBDfPqnejAuLWHH8xX-q_VgCFRFaaBWTobkeI7h6oOnmAPOV7SqWNl0qmbk8KW7mhg4h4O5gSaTn7oRUpsP-u7XZPkJS2zFNc9kwW2V7X-sxjJj4pMoOMe-NMFYVYkR2quy9eufzDvQ9b8l_JM_Fnv0RWQ",
+      "body_params": {},
+      "correlated_risk_score": 6.8
+    },
+    "detected_at": "2026-06-01T23:21:16.911581"
+  },
+  {
+    "finding_id": "shadow_api-a5689f9c6de2",
+    "source": "SHADOW_API",
+    "category": "API_EXPOSURE",
+    "title": "Shadow API (Endpoint non documentato rilevato a runtime)",
+    "description": "Rilevata chiamata HTTP verso 'GET /.zap4716446859734619756' nel traffico di runtime, ma nessun endpoint corrispondente è stato trovato nel codice sorgente analizzato. Questo indica la presenza di una Shadow API non tracciata o di una potenziale backdoor.",
+    "severity": "HIGH",
+    "confidence": 0.9,
+    "rule_id": "shadow-api-detected",
+    "rule_name": "Shadow API Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": null,
+    "api": {
+      "endpoint": "/.zap4716446859734619756",
+      "method": "GET",
+      "base_url": "http://api-server:5000",
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "CONFIRMED",
+    "runtime_evidence": {
+      "tested_url": "http://api-server:5000/.zap4716446859734619756",
+      "http_status": 404,
+      "response_time_ms": null,
+      "response_headers": {},
+      "response_snippet": null,
+      "accessible_without_auth": null,
+      "rate_limit_detected": null
+    },
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null,
+      "attack_complexity": null,
+      "impact": null
+    },
+    "correlation_key": "api:GET:/.zap4716446859734619756",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/.zap4716446859734619756",
+      "full_url": "http://api-server:5000/.zap4716446859734619756",
+      "status": 404,
+      "headers": {
+        "host": "api-server:5000",
+        "User-Agent": "python-requests/2.33.1",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJLZXFFTGtQS1Q4UkcwQWlUODFoMk0ycU13RURGOV95di1nT0M1U2FycXhFIn0.eyJleHAiOjE3ODAzNTQyMjUsImlhdCI6MTc4MDM1MzkyNSwianRpIjoib25ydHJvOmQ1Y2NkMDk2LWM1NTgtNzg3Zi0zMmNiLTZmMTFiZjVmMjYwMCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9yZWFsbXMvbXlyZWFsbSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzMGMyZGQ5MC1lODU0LTQwMWYtOTE5ZC02NGM0NDQzOTAwNDciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzZWN1cml0eS1wbGF0Zm9ybS1jbGllbnQiLCJzaWQiOiJpQlduTVd0MFg2S05Id010d2ZtZkxqTUsiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtbXlyZWFsbSIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJVc2VyIEIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyX2IiLCJnaXZlbl9uYW1lIjoiVXNlciIsImZhbWlseV9uYW1lIjoiQiIsImVtYWlsIjoidXNlcl9iQGV4YW1wbGUuY29tIn0.Pga8ue06wKEE_KXqYUwsqBpi-5zo8w_XXY7LfH08NIf761oihI4zsoZOvthqBKooQxswkUGmOmvahBqEiDx9CSnrBP4k007LqfWpbKpyO3S5AHGO7rxo4CLWburbylep8HQNQr64WZXQWuXHXAeoOKe7XQJC6KFfGuth3Ck2tF1JLAPpF9yngpaAtzfqMBDfPqnejAuLWHH8xX-q_VgCFRFaaBWTobkeI7h6oOnmAPOV7SqWNl0qmbk8KW7mhg4h4O5gSaTn7oRUpsP-u7XZPkJS2zFNc9kwW2V7X-sxjJj4pMoOMe-NMFYVYkR2quy9eufzDvQ9b8l_JM_Fnv0RWQ"
+      },
+      "auth_header": "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJLZXFFTGtQS1Q4UkcwQWlUODFoMk0ycU13RURGOV95di1nT0M1U2FycXhFIn0.eyJleHAiOjE3ODAzNTQyMjUsImlhdCI6MTc4MDM1MzkyNSwianRpIjoib25ydHJvOmQ1Y2NkMDk2LWM1NTgtNzg3Zi0zMmNiLTZmMTFiZjVmMjYwMCIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9yZWFsbXMvbXlyZWFsbSIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIzMGMyZGQ5MC1lODU0LTQwMWYtOTE5ZC02NGM0NDQzOTAwNDciLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzZWN1cml0eS1wbGF0Zm9ybS1jbGllbnQiLCJzaWQiOiJpQlduTVd0MFg2S05Id010d2ZtZkxqTUsiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtbXlyZWFsbSIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJVc2VyIEIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ1c2VyX2IiLCJnaXZlbl9uYW1lIjoiVXNlciIsImZhbWlseV9uYW1lIjoiQiIsImVtYWlsIjoidXNlcl9iQGV4YW1wbGUuY29tIn0.Pga8ue06wKEE_KXqYUwsqBpi-5zo8w_XXY7LfH08NIf761oihI4zsoZOvthqBKooQxswkUGmOmvahBqEiDx9CSnrBP4k007LqfWpbKpyO3S5AHGO7rxo4CLWburbylep8HQNQr64WZXQWuXHXAeoOKe7XQJC6KFfGuth3Ck2tF1JLAPpF9yngpaAtzfqMBDfPqnejAuLWHH8xX-q_VgCFRFaaBWTobkeI7h6oOnmAPOV7SqWNl0qmbk8KW7mhg4h4O5gSaTn7oRUpsP-u7XZPkJS2zFNc9kwW2V7X-sxjJj4pMoOMe-NMFYVYkR2quy9eufzDvQ9b8l_JM_Fnv0RWQ",
+      "body_params": {},
+      "correlated_risk_score": 6.8
+    },
+    "detected_at": "2026-06-01T23:21:16.911602"
   }
 ]
