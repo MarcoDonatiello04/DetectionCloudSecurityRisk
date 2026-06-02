@@ -12,7 +12,7 @@ from src.domain.events import (
 )
 from src.application.event_bus import EventBus
 from src.application.plugin_loader import PluginLoader
-from src.application.correlation/engine import RiskCorrelationEngine
+from src.application.correlation.engine import RiskCorrelationEngine
 
 logger = logging.getLogger("SecurityPlatform.Orchestrator")
 

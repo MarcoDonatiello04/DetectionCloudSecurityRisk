@@ -4,7 +4,7 @@ from src.domain.entities import Finding
 from src.application.orchestrator import ScanPipelineOrchestrator
 from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
 from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
-from src.infrastructure.persistence/report_repository import ReportRepository
+from src.infrastructure.persistence.report_repository import ReportRepository
 
 app = FastAPI(
     title="Security Platform Core API",
