@@ -3,7 +3,7 @@ import re
 import uuid
 import base64
 import os
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 import requests
 import urllib3
 

@@ -5,3 +5,5 @@ checkov
 semgrep
 pyyaml
 zaproxy
+fastapi
+uvicorn
