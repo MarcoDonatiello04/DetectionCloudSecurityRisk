@@ -1,0 +1,132 @@
+@startuml
+title Diagramma dei Componenti UML - Cloud Security Risk Assessment System
+
+skinparam component {
+    BackgroundColor<<Input>> #D1E8E2
+    BackgroundColor<<Processing>> #EFE6DD
+    BackgroundColor<<Output>> #F1F0E8
+    BackgroundColor<<Utility>> #F9E0BB
+    BorderColor #2C3E50
+    ArrowColor #2C3E50
+}
+
+skinparam interface {
+    BackgroundColor #34495E
+    BorderColor #34495E
+}
+
+' ==========================================
+' COMPONENTI STRUTTURATI IN LAYER
+' ==========================================
+
+package "Input Layer" {
+    component "CLI / API Gateway" as CLI <<Input>>
+}
+
+package "Processing Layer" {
+    component "Config Manager" as Config <<Processing>>
+    component "Scanner Module" as Scanner <<Processing>>
+    component "Vulnerability Detector" as Detector <<Processing>>
+    component "Risk Engine" as RiskEngine <<Processing>>
+}
+
+package "Output Layer" {
+    component "Report Generator" as Reporter <<Output>>
+}
+
+package "Utility Layer" {
+    component "Centralized Logger" as CentralLogger <<Utility>>
+}
+
+database "Cloud Provider APIs\n(AWS / GCP / Azure)" as CloudProvider
+database "Local File System" as FileSystem
+
+' ==========================================
+' INTERFACCE ESPOSTE
+' ==========================================
+
+interface "IScanRequest" as IScan
+interface "IConfig" as IConf
+interface "ICloudData" as IData
+interface "IVulnData" as IVuln
+interface "IRiskScore" as IRisk
+interface "ILog" as ILog
+
+' ==========================================
+' BINDING DELLE INTERFACCE
+' ==========================================
+
+CLI -up- IScan
+Config -down- IConf
+Scanner -right- IData
+Detector -right- IVuln
+RiskEngine -down- IRisk
+CentralLogger -left- ILog
+
+' ==========================================
+' FLUSSI DI DIPENDENZA E COMUNICAZIONE
+' ==========================================
+
+' Inizio scansione e configurazione
+CLI ..> IConf : "legge parametri"
+Scanner ..> IConf : "richiede credenziali"
+
+' Raccolta dati da cloud
+Scanner --> CloudProvider : "legge risorse cloud"
+Scanner ..> IData : "espone risorse grezze"
+
+' Rilevamento vulnerabilità
+Detector ..> IData : "consuma risorse"
+Detector ..> IVuln : "espone findings statici/runtime"
+
+' Scoring del rischio
+RiskEngine ..> IVuln : "legge findings"
+RiskEngine ..> IRisk : "espone findings valutati (0-10)"
+
+' Report finale
+Reporter ..> IRisk : "raccoglie metriche"
+Reporter ..> IConf : "legge destinazioni report"
+Reporter --> FileSystem : "scrive report (JSON, PDF, HTML)"
+
+' Centralized Logging (Trasversale/Cross-cutting)
+CLI ..> ILog : "logga eventi"
+Scanner ..> ILog : "logga API calls"
+Detector ..> ILog : "logga rilevamenti"
+RiskEngine ..> ILog : "logga calcoli score"
+Reporter ..> ILog : "logga export"
+
+' ==========================================
+' NOTE ESPLICATIVE SUI COMPONENTI CRITICI
+' ==========================================
+
+note top of CLI
+  **CLI / API Gateway (Entry Point)**
+  Punto di accesso unico per l'operatore.
+  Gestisce la validazione dei comandi
+  e attiva il workflow di scansione.
+end note
+
+note right of Scanner
+  **Scanner Module**
+  Interagisce in modalità read-only
+  con i provider cloud tramite SDK.
+  Richiede credenziali di sicurezza
+  valide gestite dal Config Manager.
+end note
+
+note right of RiskEngine
+  **Risk Engine (Central Scoring)**
+  Calcola lo score normalizzato (0.0 - 10.0)
+  in base all'impatto e alla confidenza
+  di exploitabilità (correlazione).
+end note
+
+note bottom of Config
+  **Config Manager**
+  Centralizza i parametri di tolleranza,
+  le soglie di rischio (CRITICAL, HIGH, ecc.)
+  e gestisce in modo sicuro le chiavi
+  OIDC/Keycloak e le credenziali cloud.
+end note
+
+@enduml
