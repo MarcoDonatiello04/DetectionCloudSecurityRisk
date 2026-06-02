@@ -10,6 +10,11 @@ from src.domain.entities import Finding, FindingSource, FindingCategory, Severit
 
 logger = logging.getLogger("SecurityPlatform.ZapAdapter")
 
+# Configurazione default di esecuzione per ZAP Daemon
+DEFAULT_ZAP_URL = "http://localhost:8090"
+API_CALL_TIMEOUT_SECONDS = 10
+SPIDER_POLL_INTERVAL_SECONDS = 1
+
 
 class ZapClientAdapter(IScanner):
     """
@@ -18,11 +23,28 @@ class ZapClientAdapter(IScanner):
     trasformandoli nel modello di Finding del Dominio.
     """
 
-    def __init__(self, zap_url: str = "http://localhost:8090", api_key: str = ""):
+    def __init__(self, zap_url: str = DEFAULT_ZAP_URL, api_key: str = ""):
+        """
+        Inizializza l'adattatore ZapClientAdapter con l'URL del demone e la chiave API.
+
+        Args:
+            zap_url (str): L'URL completo del demone ZAP.
+            api_key (str): Chiave API opzionale per l'autenticazione su ZAP.
+        """
         self.zap_url = zap_url.rstrip("/")
         self.api_key = api_key
 
     def _call_api(self, endpoint: str, params: Dict[str, str] = {}) -> Dict[str, Any]:
+        """
+        Esegue una chiamata HTTP GET JSON verso l'API REST di OWASP ZAP.
+
+        Args:
+            endpoint (str): Il percorso dell'endpoint API di ZAP (es. spider/view/status/).
+            params (Dict[str, str]): Parametri di query aggiuntivi.
+
+        Returns:
+            Dict[str, Any]: I dati JSON deserializzati restituiti da ZAP, o un dizionario vuoto in caso di errore.
+        """
         try:
             url = f"{self.zap_url}/JSON/{endpoint}"
             query_parts = []
@@ -35,13 +57,19 @@ class ZapClientAdapter(IScanner):
                 url += "?" + "&".join(query_parts)
                 
             req = urllib.request.Request(url)
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=API_CALL_TIMEOUT_SECONDS) as response:
                 return json.loads(response.read().decode('utf-8'))
-        except Exception as e:
+        except (urllib.error.URLError, json.JSONDecodeError, OSError, Exception) as e:
             logger.debug(f"Chiamata API ZAP fallita ({endpoint}): {e}")
             return {}
 
     def is_alive(self) -> bool:
+        """
+        Controlla se il demone OWASP ZAP è attivo e raggiungibile.
+
+        Returns:
+            bool: True se ZAP risponde correttamente, altrimenti False.
+        """
         resp = self._call_api("core/view/version/")
         return "version" in resp
 
@@ -49,10 +77,16 @@ class ZapClientAdapter(IScanner):
         """
         Esegue lo spidering su target_url per stimolare le API 
         e raccoglie i findings/alert generati da ZAP.
+
+        Args:
+            target_url (str): L'URL completo dell'applicazione target da scansionare.
+
+        Returns:
+            List[Finding]: Lista di Finding generati dagli alert di sicurezza di ZAP.
         """
         logger.info(f"🚀 Avvio scansione attiva DAST tramite ZAP su: {target_url}")
         if not self.is_alive():
-            logger.warning("OWASP ZAP Daemon non raggiungibile su localhost:8090. DAST saltato.")
+            logger.warning(f"OWASP ZAP Daemon non raggiungibile su {self.zap_url}. DAST saltato.")
             return []
 
         # 1. Avvia Spidering
@@ -65,7 +99,7 @@ class ZapClientAdapter(IScanner):
                 status = int(status_resp.get("status", 100))
                 if status >= 100:
                     break
-                time.sleep(1)
+                time.sleep(SPIDER_POLL_INTERVAL_SECONDS)
         
         # 2. Recupero degli Alert registrati da ZAP
         findings: List[Finding] = []

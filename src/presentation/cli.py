@@ -21,8 +21,28 @@ logging.basicConfig(
 )
 logger = logging.getLogger("SecurityPlatform.CLI")
 
+# Configurazione costanti di default del CLI
+DEFAULT_PLUGINS_DIR = "src/plugins"
+DEFAULT_OUTPUT_DIR = "output"
+DEFAULT_TRAFFIC_FILE = "soluzione_api/src/output/raw_traffic.json"
+DEFAULT_FALLBACK_TRAFFIC_FILE = "output/raw_traffic.json"
+DEFAULT_ZAP_URL = "http://localhost:8090"
+DEFAULT_TARGET_BASE_URL = "http://localhost:5000"
+DEFAULT_KEYCLOAK_URL = "http://localhost:8080"
 
-def parse_args():
+DEFAULT_OPENAPI_SPEC_PATH = "problema_api/openapi.yaml"
+REPORT_FINDINGS_FILENAME = "unified_security_report.json"
+REPORT_INVENTORY_FILENAME = "unified_api_inventory.json"
+DASHBOARD_FILENAME = "dashboard.html"
+
+
+def parse_args() -> argparse.Namespace:
+    """
+    Effettua il parsing degli argomenti da riga di comando per il tool CLI.
+
+    Returns:
+        argparse.Namespace: Gli argomenti parsati.
+    """
     parser = argparse.ArgumentParser(description="Security Platform Core - Unified Scanner & Detector CLI")
     parser.add_argument(
         "--target-dir", 
@@ -31,38 +51,41 @@ def parse_args():
     )
     parser.add_argument(
         "--plugins-dir", 
-        default="src/plugins", 
+        default=DEFAULT_PLUGINS_DIR, 
         help="Directory contenente i plugin dei detector"
     )
     parser.add_argument(
         "--output-dir", 
-        default="output", 
+        default=DEFAULT_OUTPUT_DIR, 
         help="Directory dove salvare i report dei findings"
     )
     parser.add_argument(
         "--traffic-file", 
-        default="soluzione_api/src/output/raw_traffic.json",
+        default=DEFAULT_TRAFFIC_FILE,
         help="File contenente il traffico catturato da mitmproxy"
     )
     parser.add_argument(
         "--zap-url", 
-        default="http://localhost:8090", 
+        default=DEFAULT_ZAP_URL, 
         help="URL del daemon OWASP ZAP per stimolazione e scansione DAST"
     )
     parser.add_argument(
         "--target-base-url",
-        default="http://localhost:5000",
+        default=DEFAULT_TARGET_BASE_URL,
         help="URL di base dell'API target per seeding e attacchi D-AST"
     )
     parser.add_argument(
         "--keycloak-url",
-        default="http://localhost:8080",
+        default=DEFAULT_KEYCLOAK_URL,
         help="URL di base del server Keycloak per acquisizione token"
     )
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
+    """
+    Funzione principale che esegue l'intera pipeline di security Discovery, Correlation, Seeding e D-AST.
+    """
     args = parse_args()
     
     logger.info("================================================================================")
@@ -74,7 +97,7 @@ def main():
 
     # 1. Inizializza gli scanner core (adapters)
     # SpectralScannerAdapter: lancia Stoplight Spectral sul contratto OpenAPI del progetto
-    openapi_spec = os.path.abspath("problema_api/openapi.yaml")
+    openapi_spec = os.path.abspath(DEFAULT_OPENAPI_SPEC_PATH)
     scanners = [
         CheckovScannerAdapter(),
         SemgrepScannerAdapter(),
@@ -91,7 +114,7 @@ def main():
     # Se il file non esiste, proviamo a controllare se è presente nella cartella output locale
     traffic_path = args.traffic_file
     if not os.path.exists(traffic_path):
-        traffic_path = "output/raw_traffic.json"
+        traffic_path = DEFAULT_FALLBACK_TRAFFIC_FILE
         
     mitm_adapter = MitmproxyClientAdapter(traffic_path)
     raw_traffic = mitm_adapter.load_captured_traffic()
@@ -128,17 +151,17 @@ def main():
 
     # 5. Persistenza dei risultati
     report_repo = ReportRepository(args.output_dir)
-    report_repo.save_findings(correlated_findings, "unified_security_report.json")
+    report_repo.save_findings(correlated_findings, REPORT_FINDINGS_FILENAME)
 
     # Salviamo l'inventario delle API correlate in formato serializzato per consistenza
     api_inventory = []
     for f in correlated_findings:
         if f.api and f.api.endpoint:
             api_inventory.append(f.to_dict())
-    report_repo.save_inventory(api_inventory, "unified_api_inventory.json")
+    report_repo.save_inventory(api_inventory, REPORT_INVENTORY_FILENAME)
 
     # 6. Generazione Dashboard interattiva
-    dashboard_path = os.path.join(args.output_dir, "dashboard.html")
+    dashboard_path = os.path.join(args.output_dir, DASHBOARD_FILENAME)
     dash_gen = APIDashboardGenerator(correlated_findings)
     dash_gen.generate(dashboard_path)
 

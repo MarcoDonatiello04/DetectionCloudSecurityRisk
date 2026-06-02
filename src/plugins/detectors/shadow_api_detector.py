@@ -16,18 +16,42 @@ class ShadowAPIDetectorPlugin(IDetector):
     """
 
     def __init__(self):
+        """
+        Inizializza il ShadowAPIDetectorPlugin impostando un set vuoto per le rotte statiche note.
+        """
         # Insieme degli endpoint statici noti in formato "METHOD:PATH"
         self._static_routes: Set[str] = set()
 
     @property
     def name(self) -> str:
+        """
+        Ritorna il nome del plugin.
+
+        Returns:
+            str: Il nome del plugin.
+        """
         return "Shadow-API-Hunter-Plugin"
 
     @property
     def subscribed_events(self) -> List[str]:
+        """
+        Ritorna l'elenco degli eventi di dominio registrati su cui effettuare l'analisi.
+
+        Returns:
+            List[str]: Lista dei tipi di eventi a cui questo detector è iscritto.
+        """
         return [EVENT_STATIC_SCAN_COMPLETED, EVENT_TRAFFIC_CAPTURED]
 
     def analyze(self, payload: Any) -> List[Finding]:
+        """
+        Funge da coordinatore dell'analisi dei log statici e del traffico catturato.
+
+        Args:
+            payload (Any): I dati inviati insieme all'evento.
+
+        Returns:
+            List[Finding]: Lista dei Finding di sicurezza Shadow API individuati.
+        """
         findings: List[Finding] = []
         
         # 1. Carica le rotte statiche note
@@ -52,6 +76,15 @@ class ShadowAPIDetectorPlugin(IDetector):
         return findings
 
     def _hunt_shadow_apis(self, traffic: List[Dict[str, Any]]) -> List[Finding]:
+        """
+        Confronta gli indirizzi URL passati a runtime con l'inventario statico per individuare le Shadow API.
+
+        Args:
+            traffic (List[Dict[str, Any]]): Lista delle transazioni di traffico catturate.
+
+        Returns:
+            List[Finding]: Lista dei Finding relativi a Shadow API rilevati.
+        """
         findings = []
         seen_shadows = set()
 

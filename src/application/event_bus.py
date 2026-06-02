@@ -14,11 +14,20 @@ class EventBus(IEventBus):
     """
     
     def __init__(self):
+        """
+        Inizializza l'EventBus istanziando la struttura dei sottoscrittori e il lock.
+        """
         self._subscribers: Dict[str, List[Callable[[DomainEvent], None]]] = {}
         self._lock = threading.RLock()
 
     def subscribe(self, event_type: str, handler: Callable[[DomainEvent], None]) -> None:
-        """Sottoscrive un handler per ricevere eventi del tipo specificato."""
+        """
+        Sottoscrive un handler per ricevere eventi del tipo specificato.
+
+        Args:
+            event_type (str): Il nome del tipo di evento al quale iscriversi.
+            handler (Callable[[DomainEvent], None]): La callback da registrare.
+        """
         with self._lock:
             if event_type not in self._subscribers:
                 self._subscribers[event_type] = []
@@ -30,6 +39,10 @@ class EventBus(IEventBus):
         """
         Pubblica un evento sul bus. Il payload viene racchiuso in un DomainEvent 
         e inviato in modo sincrono a tutti gli handler registrati.
+
+        Args:
+            event_type (str): Il nome del tipo di evento da pubblicare.
+            event_data (Any): Il payload o i dati associati all'evento.
         """
         event = DomainEvent(name=event_type, payload=event_data)
         handlers = []

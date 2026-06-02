@@ -16,6 +16,10 @@ from src.normalization.normalizer import APIEndpointNormalizer
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logger = logging.getLogger("SecurityPlatform.Plugins.BOLADetector")
 
+# Configurazione costanti del Plugin BOLA
+MAX_FILE_READ_BYTES = 100000
+ACTIVE_TEST_TIMEOUT_SECONDS = 2
+
 
 class BOLADetectorPlugin(IDetector):
     """
@@ -26,18 +30,42 @@ class BOLADetectorPlugin(IDetector):
     """
 
     def __init__(self):
+        """
+        Inizializza il BOLADetectorPlugin compilando le espressioni regolari per ID e UUID.
+        """
         self.numeric_id_regex = re.compile(r'/(\d+)(/|$)')
         self.uuid_regex = re.compile(r'/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})(/|$)')
 
     @property
     def name(self) -> str:
+        """
+        Ritorna il nome del plugin.
+
+        Returns:
+            str: Il nome del plugin.
+        """
         return "BOLA-IDOR-Detector-Plugin"
 
     @property
     def subscribed_events(self) -> List[str]:
+        """
+        Ritorna l'elenco degli eventi di dominio registrati su cui effettuare l'analisi.
+
+        Returns:
+            List[str]: Lista dei tipi di eventi a cui questo detector è iscritto.
+        """
         return [EVENT_STATIC_SCAN_COMPLETED, EVENT_TRAFFIC_CAPTURED]
 
     def analyze(self, payload: Any) -> List[Finding]:
+        """
+        Funge da orchestratore logico dell'analisi per eventi di tipo statico o dinamico.
+
+        Args:
+            payload (Any): I dati inviati insieme all'evento.
+
+        Returns:
+            List[Finding]: Lista di Finding generati durante l'analisi statica o dinamica.
+        """
         findings: List[Finding] = []
         
         # Gestiamo l'evento Static Scan Completed
@@ -55,7 +83,15 @@ class BOLADetectorPlugin(IDetector):
         return findings
 
     def _analyze_static_routes(self, target_dir: str) -> List[Finding]:
-        """Scansiona staticamente i file per trovare percorsi tipo /users/{id} o simili."""
+        """
+        Scansiona staticamente i file per trovare percorsi tipo /users/{id} o simili.
+
+        Args:
+            target_dir (str): Directory target contenente il codice sorgente.
+
+        Returns:
+            List[Finding]: Lista di Finding preventivi basati su percorsi che includono ID risorsa.
+        """
         findings = []
         object_routes = []
 
@@ -67,7 +103,7 @@ class BOLADetectorPlugin(IDetector):
                     filepath = os.path.join(root, file)
                     try:
                         with open(filepath, 'r', encoding='utf-8') as f:
-                            content = f.read(100000) # Legge max 100KB per performance
+                            content = f.read(MAX_FILE_READ_BYTES)  # Legge max 100KB per performance
                             # Trova rotte contenenti parametri dinamici {id} o <id>
                             matches = re.findall(r'([\'"]/[a-zA-Z0-9_/]*(?:\{[a-zA-Z0-9_]+\}|<[a-zA-Z0-9_:]+>)[a-zA-Z0-9_/]*[\'"])', content)
                             for match in matches:
@@ -99,7 +135,15 @@ class BOLADetectorPlugin(IDetector):
         return findings
 
     def _analyze_runtime_traffic(self, traffic: List[Dict[str, Any]]) -> List[Finding]:
-        """Esegue active testing per bypassare autorizzazione e controllare BOLA."""
+        """
+        Esegue active testing per bypassare l'autorizzazione e convalidare BOLA sul traffico reale.
+
+        Args:
+            traffic (List[Dict[str, Any]]): Transazioni HTTP intercettate.
+
+        Returns:
+            List[Finding]: Vulnerabilità confermate a runtime.
+        """
         findings = []
         
         # Deduplica i percorsi per evitare spam di scansioni
@@ -128,8 +172,19 @@ class BOLADetectorPlugin(IDetector):
 
         return findings
 
-    def _dispatch_request(self, method: str, url: str, headers: Dict[str, str], data: Any = None):
-        """Metodo helper per inoltrare le richieste verso localhost."""
+    def _dispatch_request(self, method: str, url: str, headers: Dict[str, str], data: Any = None) -> Tuple[int, str]:
+        """
+        Metodo helper interno per inoltrare le richieste manipolate verso il backend target.
+
+        Args:
+            method (str): Metodo HTTP (GET, POST, ecc.).
+            url (str): URL completo di destinazione.
+            headers (Dict[str, str]): Intestazioni HTTP da associare.
+            data (Any, optional): Payload del corpo della richiesta.
+
+        Returns:
+            Tuple[int, str]: Stato HTTP e contenuto della risposta.
+        """
         try:
             # Mappatura host container/docker a localhost se eseguiamo in locale
             url = url.replace("host.docker.internal", "localhost")
@@ -138,15 +193,24 @@ class BOLADetectorPlugin(IDetector):
             clean_headers = {k: v for k, v in headers.items() if k.lower() not in ['host', 'content-length']}
             
             if data and isinstance(data, dict):
-                resp = requests.request(method, url, headers=clean_headers, json=data, verify=False, timeout=2)
+                resp = requests.request(method, url, headers=clean_headers, json=data, verify=False, timeout=ACTIVE_TEST_TIMEOUT_SECONDS)
             else:
-                resp = requests.request(method, url, headers=clean_headers, data=data, verify=False, timeout=2)
+                resp = requests.request(method, url, headers=clean_headers, data=data, verify=False, timeout=ACTIVE_TEST_TIMEOUT_SECONDS)
                 
             return resp.status_code, resp.text
         except Exception:
             return 0, ""
 
     def _test_id_tampering(self, req: Dict[str, Any]) -> Finding:
+        """
+        Esegue la manipolazione (tampering) dei parametri identificativi nel percorso della risorsa.
+
+        Args:
+            req (Dict[str, Any]): Richiesta di rete originale da testare.
+
+        Returns:
+            Finding: Finding generato in caso di exploitabilità confermata, altrimenti None.
+        """
         path = req.get("path", "")
         url = req.get("full_url", "")
         method = req.get("method", "GET")
@@ -199,6 +263,15 @@ class BOLADetectorPlugin(IDetector):
         return None
 
     def _test_token_removal(self, req: Dict[str, Any]) -> Finding:
+        """
+        Verifica la vulnerabilità di Broken Authentication rimuovendo l'header Authorization.
+
+        Args:
+            req (Dict[str, Any]): Richiesta di rete originale da testare.
+
+        Returns:
+            Finding: Finding generato in caso di autenticazione non forzata (200 OK), altrimenti None.
+        """
         url = req.get("full_url", "")
         path = req.get("path", "")
         method = req.get("method", "GET")

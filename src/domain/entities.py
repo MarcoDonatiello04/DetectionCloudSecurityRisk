@@ -4,8 +4,19 @@ from datetime import datetime
 from enum import Enum
 import hashlib
 
+# ─── PUNTEGGI DI SEVERITÀ DI DEFAULT ─────────────────────────────────────────
+
+SEVERITY_SCORE_CRITICAL = 9.0
+SEVERITY_SCORE_HIGH = 7.0
+SEVERITY_SCORE_MEDIUM = 4.5
+SEVERITY_SCORE_LOW = 2.0
+SEVERITY_SCORE_INFO = 0.0
+
 
 class Severity(Enum):
+    """
+    Rappresenta il livello di gravità (Severità) di un Finding di sicurezza.
+    """
     CRITICAL = "CRITICAL"
     HIGH = "HIGH"
     MEDIUM = "MEDIUM"
@@ -14,18 +25,26 @@ class Severity(Enum):
 
     @property
     def score(self) -> float:
-        """Ritorna il punteggio di severità numerico standard per il calcolo del rischio."""
+        """
+        Ritorna il punteggio di severità numerico standard per il calcolo del rischio.
+
+        Returns:
+            float: Punteggio numerico assegnato alla severità.
+        """
         mapping = {
-            Severity.CRITICAL: 9.0,
-            Severity.HIGH: 7.0,
-            Severity.MEDIUM: 4.5,
-            Severity.LOW: 2.0,
-            Severity.INFO: 0.0
+            Severity.CRITICAL: SEVERITY_SCORE_CRITICAL,
+            Severity.HIGH: SEVERITY_SCORE_HIGH,
+            Severity.MEDIUM: SEVERITY_SCORE_MEDIUM,
+            Severity.LOW: SEVERITY_SCORE_LOW,
+            Severity.INFO: SEVERITY_SCORE_INFO
         }
         return mapping.get(self, 0.0)
 
 
 class FindingCategory(Enum):
+    """
+    Specifica la categoria di vulnerabilità o di configurazione rilevata.
+    """
     # Infrastructure & IaC
     IAM = "IAM"
     STORAGE = "STORAGE"
@@ -54,6 +73,9 @@ class FindingCategory(Enum):
 
 
 class FindingSource(Enum):
+    """
+    Rappresenta lo scanner o lo strumento sorgente che ha rilevato il Finding.
+    """
     CHECKOV = "CHECKOV"
     SPECTRAL = "SPECTRAL"
     SEMGREP = "SEMGREP"
@@ -63,6 +85,9 @@ class FindingSource(Enum):
 
 
 class ValidationStatus(Enum):
+    """
+    Rappresenta lo stato di convalida empirica di un Finding.
+    """
     NOT_VALIDATED = "NOT_VALIDATED"
     CONFIRMED = "CONFIRMED"
     FALSE_POSITIVE = "FALSE_POSITIVE"
@@ -72,6 +97,9 @@ class ValidationStatus(Enum):
 
 @dataclass(frozen=True)
 class CodeLocation:
+    """
+    Rappresenta la localizzazione fisica all'interno dei file sorgente del Finding.
+    """
     file_path: str
     start_line: Optional[int] = None
     end_line: Optional[int] = None
@@ -80,6 +108,9 @@ class CodeLocation:
 
 @dataclass(frozen=True)
 class APIContext:
+    """
+    Rappresenta il contesto dell'endpoint API associato al Finding di sicurezza.
+    """
     endpoint: Optional[str] = None
     method: Optional[str] = None
     base_url: Optional[str] = None
@@ -89,6 +120,9 @@ class APIContext:
 
 @dataclass(frozen=True)
 class RuntimeEvidence:
+    """
+    Evidenza empirica raccolta a runtime che convalida la vulnerabilità.
+    """
     tested_url: Optional[str] = None
     http_status: Optional[int] = None
     response_time_ms: Optional[int] = None
@@ -100,6 +134,9 @@ class RuntimeEvidence:
 
 @dataclass(frozen=True)
 class RiskContext:
+    """
+    Contesto aggiuntivo per determinare il livello complessivo di esposizione al rischio.
+    """
     internet_exposed: Optional[bool] = None
     sensitive_data_detected: Optional[bool] = None
     public_resource: Optional[bool] = None
@@ -161,7 +198,23 @@ class Finding:
         target_identifier: str,
         **kwargs
     ) -> 'Finding':
-        """Factory method per istanziare Finding generando un ID deterministico."""
+        """
+        Factory method per istanziare Finding generando un ID deterministico.
+
+        Args:
+            source (FindingSource): Sorgente del finding.
+            category (FindingCategory): Categoria logica.
+            title (str): Titolo descrittivo.
+            description (str): Descrizione estesa.
+            severity (Severity): Livello di gravità.
+            confidence (float): Livello di confidenza (0.0 a 1.0).
+            rule_id (str): Identificativo della regola violata.
+            target_identifier (str): Identificativo della risorsa target.
+            **kwargs: Altri parametri opzionali supportati dalla classe.
+
+        Returns:
+            Finding: Istanza di Finding creata con ID univoco.
+        """
         finding_id = cls.generate_deterministic_id(source, rule_id, target_identifier)
         return cls(
             finding_id=finding_id,
@@ -177,12 +230,27 @@ class Finding:
 
     @staticmethod
     def generate_deterministic_id(source: FindingSource, rule_id: str, target_identifier: str) -> str:
-        """Genera un identificativo stabile e univoco per evitare duplicati in correlazione."""
+        """
+        Genera un identificativo stabile e univoco per evitare duplicati in correlazione.
+
+        Args:
+            source (FindingSource): Sorgente dello scanner.
+            rule_id (str): Identificativo della regola di scansione.
+            target_identifier (str): Stringa identificativa della risorsa target.
+
+        Returns:
+            str: Identificativo deterministico calcolato in hash.
+        """
         raw_key = f"{source.value}|{rule_id}|{target_identifier}".encode('utf-8')
         return f"{source.value.lower()}-{hashlib.md5(raw_key).hexdigest()[:12]}"
 
     def to_dict(self) -> Dict[str, Any]:
-        """Serializza il Finding in un dizionario compatibile con JSON."""
+        """
+        Serializza il Finding in un dizionario compatibile con JSON.
+
+        Returns:
+            Dict[str, Any]: Mappa di attributi serializzati del Finding.
+        """
         return {
             "finding_id": self.finding_id,
             "source": self.source.value,

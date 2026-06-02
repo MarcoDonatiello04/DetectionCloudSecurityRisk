@@ -12,7 +12,7 @@ from src.domain.events import (
 )
 from src.application.event_bus import EventBus
 from src.application.plugin_loader import PluginLoader
-from src.application.correlation.engine import RiskCorrelationEngine
+from src.application.correlation/engine import RiskCorrelationEngine
 
 logger = logging.getLogger("SecurityPlatform.Orchestrator")
 
@@ -25,6 +25,13 @@ class ScanPipelineOrchestrator:
     """
 
     def __init__(self, plugins_dir: str, target_dir: str):
+        """
+        Inizializza l'orchestratore impostando le cartelle dei plugin e del target di scansione.
+
+        Args:
+            plugins_dir (str): Percorso della cartella contenente i plugin.
+            target_dir (str): Percorso della cartella target da analizzare.
+        """
         self.target_dir = target_dir
         self.event_bus = EventBus()
         self.plugin_loader = PluginLoader(plugins_dir)
@@ -38,8 +45,13 @@ class ScanPipelineOrchestrator:
         # Sottoscrizione al bus per accumulare i findings generati dai detector
         self.event_bus.subscribe(EVENT_FINDING_DETECTED, self._on_finding_detected)
 
-    def _on_finding_detected(self, event) -> None:
-        """Callback eseguita quando un detector pubblica un Finding sul bus."""
+    def _on_finding_detected(self, event: Any) -> None:
+        """
+        Callback eseguita quando un detector pubblica un Finding sul bus.
+
+        Args:
+            event (DomainEvent): L'evento intercettato contenente il Finding nel payload.
+        """
         finding = event.payload
         if isinstance(finding, Finding):
             self.detected_findings.append(finding)
@@ -55,6 +67,13 @@ class ScanPipelineOrchestrator:
         5. I detector (iscritti ai vari eventi) analizzano i dati e sollevano FindingDetected.
         6. Correla tutti i findings statici, rilevati dai detector e runtime.
         7. Emette EVENT_PIPELINE_COMPLETED.
+
+        Args:
+            static_scanners (List[IScanner]): Lista delle istanze degli scanner statici da eseguire.
+            raw_traffic_data (List[Dict[str, Any]], optional): Dati sul traffico di rete catturato.
+
+        Returns:
+            List[Finding]: Lista finale dei Finding correlati e ordinati per punteggio di rischio.
         """
         logger.info("🎬 Avvio Pipeline di Security Detection ed Event Correlation...")
         self.detected_findings = []
@@ -122,7 +141,12 @@ class ScanPipelineOrchestrator:
         return correlated_results
 
     def _register_detector_handlers(self, detectors: List[IDetector]) -> None:
-        """Registra i metodi analyze dei detector sull'Event Bus in base alle loro iscrizioni."""
+        """
+        Registra i metodi analyze dei detector sull'Event Bus in base alle loro iscrizioni.
+
+        Args:
+            detectors (List[IDetector]): Lista dei detector caricati da associare al bus degli eventi.
+        """
         for detector in detectors:
             # Convenzione: se il detector definisce "subscribed_events", lo usiamo per il binding automatico.
             # Altrimenti lo associamo a entrambi per compatibilità di default.

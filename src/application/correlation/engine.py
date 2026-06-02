@@ -5,6 +5,24 @@ from src.normalization.normalizer import APIEndpointNormalizer
 
 logger = logging.getLogger("SecurityPlatform.CorrelationEngine")
 
+# Pesi per il calcolo dello score di rischio complessivo (Formula: sev_score * 0.6 + conf * 0.2 + context * 0.2)
+RISK_WEIGHT_SEVERITY = 0.6
+RISK_WEIGHT_CONFIDENCE = 0.2
+RISK_WEIGHT_CONTEXT = 0.2
+
+# Moltiplicatori del punteggio di contesto di rischio
+CONTEXT_SCORE_INTERNET_EXPOSED = 4.0
+CONTEXT_SCORE_SENSITIVE_DATA = 4.0
+CONTEXT_SCORE_PUBLIC_RESOURCE = 2.0
+
+# Valori di punteggio di contesto di default basati sulla categoria di Finding
+DEFAULT_CONTEXT_AUTHENTICATION_AUTHORIZATION = 6.0
+DEFAULT_CONTEXT_OTHER = 3.0
+
+# Limite massimo e fattore di normalizzazione della confidenza
+MAX_RISK_SCORE = 10.0
+CONFIDENCE_NORMALIZER = 10.0
+
 
 class RiskCorrelationEngine:
     """
@@ -15,6 +33,9 @@ class RiskCorrelationEngine:
     """
 
     def __init__(self):
+        """
+        Inizializza il RiskCorrelationEngine impostando il dizionario dei findings correlati.
+        """
         self.correlated_findings: Dict[str, Finding] = {}
 
     def correlate(self, static_findings: List[Finding], runtime_findings: List[Finding]) -> List[Finding]:
@@ -22,6 +43,13 @@ class RiskCorrelationEngine:
         Unisce i findings statici e runtime in un inventario correlato.
         Se un rischio statico trova riscontro in un test o log a runtime, lo convalida (CONFIRMED)
         e adegua la severity ed il punteggio di rischio.
+
+        Args:
+            static_findings (List[Finding]): Lista dei Finding derivati da scansioni statiche.
+            runtime_findings (List[Finding]): Lista dei Finding derivati da verifiche a runtime.
+
+        Returns:
+            List[Finding]: Lista dei Finding correlati.
         """
         self.correlated_findings = {}
 
@@ -72,32 +100,46 @@ class RiskCorrelationEngine:
         """
         Calcola un punteggio di rischio numerico normalizzato (0.0 - 10.0).
         Formula: (Severità * 0.6) + (Confidenza * 0.2) + (ContextMultiplier * 0.2)
+
+        Args:
+            finding (Finding): Il Finding su cui calcolare il punteggio di rischio.
+
+        Returns:
+            float: Il punteggio complessivo di rischio calcolato.
         """
         sev_score = finding.severity.score
-        conf_score = finding.confidence * 10.0
+        conf_score = finding.confidence * CONFIDENCE_NORMALIZER
         
         # Moltiplicatore di contesto (es: esposto a internet, dati sensibili)
         context_score = 0.0
         if finding.risk_context:
             if finding.risk_context.internet_exposed:
-                context_score += 4.0
+                context_score += CONTEXT_SCORE_INTERNET_EXPOSED
             if finding.risk_context.sensitive_data_detected:
-                context_score += 4.0
+                context_score += CONTEXT_SCORE_SENSITIVE_DATA
             if finding.risk_context.public_resource:
-                context_score += 2.0
+                context_score += CONTEXT_SCORE_PUBLIC_RESOURCE
         else:
             # Default basato sulla categoria
             if finding.category in (FindingCategory.AUTHENTICATION, FindingCategory.AUTHORIZATION):
-                context_score = 6.0
+                context_score = DEFAULT_CONTEXT_AUTHENTICATION_AUTHORIZATION
             else:
-                context_score = 3.0
+                context_score = DEFAULT_CONTEXT_OTHER
 
         # Calcolo pesato
-        risk_score = (sev_score * 0.6) + (conf_score * 0.2) + (context_score * 0.2)
-        return round(min(risk_score, 10.0), 2)
+        risk_score = (sev_score * RISK_WEIGHT_SEVERITY) + (conf_score * RISK_WEIGHT_CONFIDENCE) + (context_score * RISK_WEIGHT_CONTEXT)
+        return round(min(risk_score, MAX_RISK_SCORE), 2)
 
     def _get_correlation_key(self, finding: Finding) -> str:
-        """Determina la chiave logica per raggruppare i findings."""
+        """
+        Determina la chiave logica per raggruppare i findings in base alla risorsa target.
+
+        Args:
+            finding (Finding): Il Finding da cui estrarre o generare la chiave.
+
+        Returns:
+            str: La stringa identificativa della chiave di correlazione.
+        """
         if finding.correlation_key:
             return finding.correlation_key
             
@@ -118,7 +160,13 @@ class RiskCorrelationEngine:
         return f"generic:{finding.finding_id}"
 
     def _merge_findings(self, target: Finding, source: Finding) -> None:
-        """Sincronizza due findings statici sulla stessa risorsa."""
+        """
+        Sincronizza due findings statici sulla stessa risorsa.
+
+        Args:
+            target (Finding): Il Finding destinazione in cui confluire i dati.
+            source (Finding): Il Finding origine da cui estrarre i dati da unire.
+        """
         # Se la sorgente ha severity maggiore, la eleviamo
         if source.severity.score > target.severity.score:
             target.severity = source.severity

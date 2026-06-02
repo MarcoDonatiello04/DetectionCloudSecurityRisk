@@ -25,8 +25,8 @@ import json
 import logging
 import base64
 import time
-import requests
 from typing import List, Dict, Any, Tuple
+import requests
 from zapv2 import ZAPv2
 
 # Allineamento con il sistema di Discovery centralizzato della Core Pipeline
@@ -40,8 +40,93 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 logger = logging.getLogger("SecurityPlatform.DynamicAST")
 
 
-# Rimosso RouteParser isolato in favore dell'integrazione diretta con l'inventario unificato.
+# ─── ECCEZIONI PERSONALIZZATE ────────────────────────────────────────────────
 
+class OrchestratorError(Exception):
+    """Classe base per le eccezioni dell'orchestratore D-AST."""
+    pass
+
+
+class IdentityManagerError(OrchestratorError):
+    """Eccezione sollevata da IdentityManager in caso di errori di autenticazione."""
+    pass
+
+
+class SeedingError(OrchestratorError):
+    """Eccezione sollevata da DatabaseSeeder in caso di errore di popolamento dati."""
+    pass
+
+
+class ScannerError(OrchestratorError):
+    """Eccezione sollevata da ZapController in caso di fallimento della scansione."""
+    pass
+
+
+# ─── COSTANTI DI DOMINIO E CONFIGURAZIONE ───────────────────────────────────
+
+# Livelli di Rischio del Dominio Sicurezza Cloud
+RISK_LEVEL_CRITICAL = "CRITICAL"
+RISK_LEVEL_HIGH = "HIGH"
+RISK_LEVEL_MEDIUM = "MEDIUM"
+RISK_LEVEL_LOW = "LOW"
+RISK_LEVEL_INFO = "INFO"
+
+# Credenziali di default per il seeding e identità di test
+DEFAULT_USER_A_USERNAME = "user_a"
+DEFAULT_USER_A_PASSWORD = "Password123!"
+DEFAULT_USER_B_USERNAME = "user_b"
+DEFAULT_USER_B_PASSWORD = "Password123!"
+DEFAULT_CLIENT_ID = "security-platform-client"
+
+# Intervalli di ID deterministici per il Seeding
+SEED_START_USER_A = 100
+SEED_END_USER_A = 110
+SEED_START_USER_B = 200
+SEED_END_USER_B = 210
+
+# Parametri di connessione e timeout di default
+DEFAULT_KEYCLOAK_URL = "http://localhost:8080"
+DEFAULT_KEYCLOAK_REALM = "myrealm"
+DEFAULT_ZAP_PROXY_URL = "http://localhost:8090"
+DEFAULT_TARGET_BASE_URL = "http://localhost:5000"
+
+HTTP_TIMEOUT_SHORT_SECONDS = 3
+HTTP_TIMEOUT_MEDIUM_SECONDS = 5
+ZAP_POLL_INTERVAL_SECONDS = 2
+
+
+# ─── FUNZIONI DI VALIDAZIONE DELL'INPUT ──────────────────────────────────────
+
+def validate_url(url: str, param_name: str) -> None:
+    """
+    Valida la struttura formale di un URL passato come parametro.
+
+    Args:
+        url (str): L'URL da verificare.
+        param_name (str): Il nome del parametro per scopi di diagnostica.
+
+    Raises:
+        ValueError: Se l'URL non inizia con 'http://' o 'https://'.
+    """
+    if not url or not (url.startswith("http://") or url.startswith("https://")):
+        raise ValueError(f"Parametro '{param_name}' non valido: deve iniziare con http:// o https://. Valore: {url}")
+
+
+def validate_api_inventory(inventory: List[Dict[str, Any]]) -> None:
+    """
+    Valida la struttura dei dati dell'inventario API prima dell'elaborazione.
+
+    Args:
+        inventory (List[Dict[str, Any]]): L'inventario delle API da validare.
+
+    Raises:
+        ValueError: Se l'inventario non è una lista valida di dizionari.
+    """
+    if not isinstance(inventory, list):
+        raise ValueError("L'inventario delle API deve essere una lista.")
+
+
+# ─── CLASSI PRINCIPALI DEL FLUSSO ───────────────────────────────────────────
 
 class IdentityManager:
     """
@@ -49,24 +134,44 @@ class IdentityManager:
     per impostare le identità di test deterministiche.
     """
 
-    def __init__(self, keycloak_url: str = "http://localhost:8080", realm: str = "myrealm"):
-        self.token_url = f"{keycloak_url}/realms/{realm}/protocol/openid-connect/token"
-        self.client_id = "security-platform-client"
+    def __init__(self, keycloak_url: str = DEFAULT_KEYCLOAK_URL, realm: str = DEFAULT_KEYCLOAK_REALM):
+        """
+        Inizializza l'IdentityManager impostando gli endpoint di Keycloak.
+
+        Args:
+            keycloak_url (str): URL di base del server Keycloak.
+            realm (str): Realm Keycloak da utilizzare.
+
+        Raises:
+            ValueError: Se keycloak_url non è un URL valido.
+        """
+        validate_url(keycloak_url, "keycloak_url")
+        self.token_url = f"{keycloak_url.rstrip('/')}/realms/{realm}/protocol/openid-connect/token"
+        self.client_id = DEFAULT_CLIENT_ID
 
     def get_headers_for_identities(self) -> Dict[str, Dict[str, str]]:
         """
         Interagisce con Keycloak per acquisire i token per User A e User B.
         Implementa un fallback robusto con JWT fittizi se il server Keycloak locale è offline.
+
+        Returns:
+            Dict[str, Dict[str, str]]: Matrice degli header di autenticazione configurati.
+
+        Example:
+            >>> manager = IdentityManager()
+            >>> headers = manager.get_headers_for_identities()
+            >>> print("Authorization" in headers["userA"])
+            True
         """
         identities = {
-            "user_a": {"username": "user_a", "password": "Password123!"},
-            "user_b": {"username": "user_b", "password": "Password123!"}
+            "user_a": {"username": DEFAULT_USER_A_USERNAME, "password": DEFAULT_USER_A_PASSWORD},
+            "user_b": {"username": DEFAULT_USER_B_USERNAME, "password": DEFAULT_USER_B_PASSWORD}
         }
         
         headers_matrix = {
             "userA": {},
             "userB": {},
-            "anonymous": {} # Intenzionalmente privo di header Authorization per Broken Auth
+            "anonymous": {}  # Intenzionalmente privo di header Authorization per Broken Auth
         }
 
         for identity_key, credentials in identities.items():
@@ -84,7 +189,16 @@ class IdentityManager:
         return headers_matrix
 
     def _fetch_token(self, username: str, password: str) -> str:
-        """Esegue una chiamata POST standard (Resource Owner Password Credentials Grant) a Keycloak."""
+        """
+        Esegue una chiamata POST standard (Resource Owner Password Credentials Grant) a Keycloak.
+
+        Args:
+            username (str): Username dell'utente per l'autenticazione.
+            password (str): Password dell'utente.
+
+        Returns:
+            str: Token di accesso se autenticato con successo, altrimenti stringa vuota.
+        """
         payload = {
             "client_id": self.client_id,
             "grant_type": "password",
@@ -93,15 +207,23 @@ class IdentityManager:
             "scope": "openid"
         }
         try:
-            response = requests.post(self.token_url, data=payload, timeout=3)
+            response = requests.post(self.token_url, data=payload, timeout=HTTP_TIMEOUT_SHORT_SECONDS)
             if response.status_code == 200:
-                return response.json().get("access_token")
-        except Exception as e:
+                return response.json().get("access_token", "")
+        except requests.exceptions.RequestException as e:
             logger.debug(f"Impossibile connettersi a Keycloak ({self.token_url}): {e}")
         return ""
 
     def _generate_mock_jwt(self, username: str) -> str:
-        """Genera un token JWT mock base64-encoded deterministico per scopi di fallback."""
+        """
+        Genera un token JWT mock base64-encoded deterministico per scopi di fallback.
+
+        Args:
+            username (str): Nome dell'utente da includere nel payload.
+
+        Returns:
+            str: Token JWT fittizio in formato stringa.
+        """
         header = {"alg": "HS256", "typ": "JWT"}
         payload = {
             "sub": username, 
@@ -121,13 +243,29 @@ class DatabaseSeeder:
     Inietta dati dinamici nell'applicazione target prima della scansione.
     """
 
-    def __init__(self, seed_url: str = "http://localhost:5000/test/seed"):
+    def __init__(self, seed_url: str = f"{DEFAULT_TARGET_BASE_URL}/test/seed"):
+        """
+        Inizializza il DatabaseSeeder con l'URL dell'endpoint di seeding.
+
+        Args:
+            seed_url (str): URL dell'endpoint di seeding dell'applicazione target.
+
+        Raises:
+            ValueError: Se seed_url non è un URL valido.
+        """
+        validate_url(seed_url, "seed_url")
         self.seed_url = seed_url
 
     def seed_target_application(self, dynamic_endpoints: List[Dict[str, Any]]) -> bool:
         """
         Estrae le risorse dagli endpoint dinamici, genera il dataset strutturato per risorsa
         e lo inietta tramite chiamata POST all'endpoint di debug dell'applicazione target.
+
+        Args:
+            dynamic_endpoints (List[Dict[str, Any]]): Lista degli endpoint dinamici rilevati.
+
+        Returns:
+            bool: True se il seeding è andato a buon fine, altrimenti False.
         """
         if not dynamic_endpoints:
             logger.info("Nessuna rotta dinamica rilevata. Seeding non necessario.")
@@ -140,23 +278,23 @@ class DatabaseSeeder:
         seed_payload = {}
         for res in resources:
             seed_payload[res] = {}
-            # Assegna gli ID da 100 a 110 a user_a (vittima)
-            for idx in range(100, 111):
+            # Assegna gli ID da SEED_START_USER_A a SEED_END_USER_A a user_a (vittima)
+            for idx in range(SEED_START_USER_A, SEED_END_USER_A + 1):
                 seed_payload[res][str(idx)] = "user_a"
-            # Assegna gli ID da 200 a 210 a user_b (attaccante)
-            for idx in range(200, 211):
+            # Assegna gli ID da SEED_START_USER_B a SEED_END_USER_B a user_b (attaccante)
+            for idx in range(SEED_START_USER_B, SEED_END_USER_B + 1):
                 seed_payload[res][str(idx)] = "user_b"
 
         logger.info(f"Generato dataset sintetico strutturato per: {list(resources)}")
         
         try:
-            response = requests.post(self.seed_url, json=seed_payload, timeout=5)
+            response = requests.post(self.seed_url, json=seed_payload, timeout=HTTP_TIMEOUT_MEDIUM_SECONDS)
             if response.status_code == 200:
                 logger.info("✅ Database Seeding completato con successo sull'API target.")
                 return True
             else:
                 logger.warning(f"⚠️ Chiamata di seeding restituita con stato {response.status_code}.")
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             logger.error(f"❌ Errore durante la chiamata di seeding a {self.seed_url}: {e}")
             
         return False
@@ -168,7 +306,17 @@ class ZapController:
     Configura le sessioni e invia traffico tramite il proxy per la scansione differenziale.
     """
 
-    def __init__(self, zap_proxy_url: str = "http://localhost:8090"):
+    def __init__(self, zap_proxy_url: str = DEFAULT_ZAP_PROXY_URL):
+        """
+        Inizializza il controller OWASP ZAP con l'URL del proxy.
+
+        Args:
+            zap_proxy_url (str): URL del proxy di ZAP (es. http://localhost:8090).
+
+        Raises:
+            ValueError: Se zap_proxy_url non è un URL valido.
+        """
+        validate_url(zap_proxy_url, "zap_proxy_url")
         self.zap_proxy_url = zap_proxy_url
         self.zap = ZAPv2(proxies={"http": zap_proxy_url, "https": zap_proxy_url})
 
@@ -178,11 +326,21 @@ class ZapController:
         dynamic_endpoints: List[Dict[str, Any]], 
         headers_matrix: Dict[str, Dict[str, str]],
         output_dir: str = "output"
-    ):
+    ) -> None:
         """
         Pianifica ed esegue gli attacchi differenziali reali inviando traffico
         tramite il proxy di OWASP ZAP.
+
+        Args:
+            target_base_url (str): URL dell'applicazione target da analizzare.
+            dynamic_endpoints (List[Dict[str, Any]]): Lista degli endpoint dinamici da testare.
+            headers_matrix (Dict[str, Dict[str, str]]): Matrice di header di autenticazione per i test.
+            output_dir (str): Directory di destinazione per il report finale.
+
+        Raises:
+            ValueError: Se target_base_url non è valido.
         """
+        validate_url(target_base_url, "target_base_url")
         logger.info("🔥 Avvio test differenziale con traffico reale proxato su OWASP ZAP...")
         
         proxies = {
@@ -201,49 +359,31 @@ class ZapController:
         for ep in dynamic_endpoints:
             path = ep["path"]
             # Sostituiamo il parametro {id} con l'ID deterministico '100' di User A
-            test_path = path.replace("{id}", "100")
+            test_path = path.replace("{id}", str(SEED_START_USER_A))
             target_url = f"{target_base_url.rstrip('/')}{test_path}"
 
             # Convertiamo localhost in api-server (il nome del container Flask nella rete Docker compose)
             zap_target_url = target_url.replace("localhost", "api-server").replace("127.0.0.1", "api-server")
 
-            # ------------------------------------------------------------------
             # 1. TEST BOLA: Richiesta con token di User B (Attaccante) per la risorsa di User A
-            # ------------------------------------------------------------------
-            logger.info(f"🧪 [BOLA Test] Invio richiesta a {zap_target_url} con token User B (Attaccante) tramite ZAP...")
-            headers_b = headers_matrix["userB"]
-            
-            try:
-                resp_b = requests.get(zap_target_url, headers=headers_b, proxies=proxies, verify=False, timeout=5)
-                logger.info(f"   ↳ Risposta User B: Status={resp_b.status_code}")
-                
-                if resp_b.status_code == 200:
-                    logger.error(f"🚨 [ALERT CRITICAL] BOLA RILEVATO SU: {target_url}")
-                    logger.info("   ↳ Inoltro istruzione di Active Scan a ZAP per consolidare il finding...")
-                    try:
-                        self.zap.ascan.scan(url=zap_target_url, recurse="false")
-                    except Exception as ze:
-                        logger.debug(f"ZAP ascan fallito: {ze}")
-            except Exception as e:
-                logger.error(f"Errore durante il test BOLA su {target_url}: {e}")
+            self._execute_active_vulnerability_test(
+                test_name="BOLA Test",
+                url=zap_target_url,
+                display_url=target_url,
+                headers=headers_matrix["userB"],
+                proxies=proxies,
+                vulnerability_label="BOLA RILEVATO"
+            )
 
-            # ------------------------------------------------------------------
             # 2. TEST BROKEN AUTHENTICATION: Richiesta senza token (Anonymous)
-            # ------------------------------------------------------------------
-            logger.info(f"🧪 [Broken Auth Test] Invio richiesta a {zap_target_url} senza token (Anonymous) tramite ZAP...")
-            try:
-                resp_anon = requests.get(zap_target_url, proxies=proxies, verify=False, timeout=5)
-                logger.info(f"   ↳ Risposta Anonymous: Status={resp_anon.status_code}")
-                
-                if resp_anon.status_code == 200:
-                    logger.error(f"🚨 [ALERT CRITICAL] BROKEN AUTHENTICATION RILEVATA SU: {target_url}")
-                    logger.info("   ↳ Inoltro istruzione di Active Scan a ZAP per consolidare il finding...")
-                    try:
-                        self.zap.ascan.scan(url=zap_target_url, recurse="false")
-                    except Exception as ze:
-                        logger.debug(f"ZAP ascan fallito: {ze}")
-            except Exception as e:
-                logger.error(f"Errore durante il test Broken Auth su {target_url}: {e}")
+            self._execute_active_vulnerability_test(
+                test_name="Broken Auth Test",
+                url=zap_target_url,
+                display_url=target_url,
+                headers=headers_matrix["anonymous"],
+                proxies=proxies,
+                vulnerability_label="BROKEN AUTHENTICATION RILEVATA"
+            )
 
         # Attendi la conclusione degli active scan
         self._wait_for_scan_completion()
@@ -252,7 +392,62 @@ class ZapController:
         report_path = os.path.join(output_dir, "zap_report.json")
         self._export_report(report_path)
 
-    def _wait_for_scan_completion(self):
+    def _execute_active_vulnerability_test(
+        self,
+        test_name: str,
+        url: str,
+        display_url: str,
+        headers: Dict[str, str],
+        proxies: Dict[str, str],
+        vulnerability_label: str
+    ) -> None:
+        """
+        Esegue un singolo test di stimolazione attiva inviando traffico reale e valutando
+        il codice di risposta per determinare la presenza di vulnerabilità di sicurezza.
+
+        Args:
+            test_name (str): Nome del test in esecuzione (es. 'BOLA Test').
+            url (str): URL del container target su cui inoltrare la richiesta proxata.
+            display_url (str): URL originale per scopi di visualizzazione nei log.
+            headers (Dict[str, str]): Header di autenticazione da includere nella chiamata.
+            proxies (Dict[str, str]): Mappa di proxy HTTP/HTTPS da forzare.
+            vulnerability_label (str): Etichetta descrittiva del tipo di vulnerabilità ricercata.
+        """
+        logger.info(f"🧪 [{test_name}] Invio richiesta a {url} tramite ZAP...")
+        try:
+            resp = requests.get(url, headers=headers, proxies=proxies, verify=False, timeout=HTTP_TIMEOUT_MEDIUM_SECONDS)
+            logger.info(f"   ↳ Risposta: Status={resp.status_code}")
+            
+            risk_level = self.assess_vulnerability_risk(resp.status_code)
+            if risk_level == RISK_LEVEL_CRITICAL:
+                logger.error(f"🚨 [ALERT CRITICAL] {vulnerability_label} SU: {display_url}")
+                logger.info("   ↳ Inoltro istruzione di Active Scan a ZAP per consolidare il finding...")
+                try:
+                    self.zap.ascan.scan(url=url, recurse="false")
+                except Exception as ze:
+                    logger.debug(f"ZAP ascan fallito: {ze}")
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Errore durante il {test_name} su {display_url}: {e}")
+
+    def assess_vulnerability_risk(self, status_code: int) -> str:
+        """
+        Valuta il livello di rischio associato allo status code di risposta per i test differenziali.
+
+        Args:
+            status_code (int): Lo status code HTTP della risposta ottenuta.
+
+        Returns:
+            str: Il livello di rischio determinato (CRITICAL o INFO).
+        """
+        # Se un endpoint protetto risponde 200 OK senza autorizzazione valida, il rischio è CRITICAL
+        if status_code == 200:
+            return RISK_LEVEL_CRITICAL
+        return RISK_LEVEL_INFO
+
+    def _wait_for_scan_completion(self) -> None:
+        """
+        Attende la conclusione degli active scan registrati su OWASP ZAP effettuando il polling dello stato.
+        """
         while True:
             try:
                 status = int(self.zap.ascan.status())
@@ -261,16 +456,22 @@ class ZapController:
                     break
             except Exception:
                 break
-            time.sleep(2)
+            time.sleep(ZAP_POLL_INTERVAL_SECONDS)
         logger.info("ZAP Active Scan completato!")
 
-    def _export_report(self, report_path: str):
+    def _export_report(self, report_path: str) -> None:
+        """
+        Esporta il report finale di sicurezza in formato JSON recuperando i dati da ZAP.
+
+        Args:
+            report_path (str): Il percorso file del report da salvare.
+        """
         try:
             report_data = self.zap.core.jsonreport()
             with open(report_path, "w", encoding="utf-8") as f:
                 f.write(json.dumps(report_data, indent=2, ensure_ascii=False))
             logger.info(f"✅ Report finale di ZAP salvato con successo in: {report_path}")
-        except Exception as e:
+        except (OSError, Exception) as e:
             logger.error(f"Errore durante l'esportazione del report di ZAP: {e}")
 
 
@@ -283,13 +484,28 @@ class DynamicOrchestrator:
 
     def __init__(
         self, 
-        target_base_url: str = "http://localhost:5000",
-        keycloak_url: str = "http://localhost:8080",
-        zap_proxy_url: str = "http://localhost:8090"
+        target_base_url: str = DEFAULT_TARGET_BASE_URL,
+        keycloak_url: str = DEFAULT_KEYCLOAK_URL,
+        zap_proxy_url: str = DEFAULT_ZAP_PROXY_URL
     ):
+        """
+        Inizializza l'orchestratore dinamico configurando le dipendenze richieste.
+
+        Args:
+            target_base_url (str): URL di base dell'applicazione web target.
+            keycloak_url (str): URL di Keycloak per la gestione delle identità.
+            zap_proxy_url (str): URL del proxy OWASP ZAP.
+
+        Raises:
+            ValueError: Se uno degli URL passati non è formalmente valido.
+        """
+        validate_url(target_base_url, "target_base_url")
+        validate_url(keycloak_url, "keycloak_url")
+        validate_url(zap_proxy_url, "zap_proxy_url")
+        
         self.target_base_url = target_base_url
         self.identity_manager = IdentityManager(keycloak_url=keycloak_url)
-        self.seeder = DatabaseSeeder(seed_url=f"{target_base_url}/test/seed")
+        self.seeder = DatabaseSeeder(seed_url=f"{target_base_url.rstrip('/')}/test/seed")
         self.zap_controller = ZapController(zap_proxy_url=zap_proxy_url)
 
     def _extract_endpoints_from_inventory(self, api_inventory: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -297,7 +513,17 @@ class DynamicOrchestrator:
         Estrae le rotte dall'inventario dei findings della pipeline,
         dividendole in dinamiche (con parametri {id}) e statiche.
         Raggruppa i metodi per ciascun percorso normalizzato.
+
+        Args:
+            api_inventory (List[Dict[str, Any]]): Dati grezzi dell'inventario API della pipeline.
+
+        Returns:
+            Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]: Endpoint dinamici e statici estratti.
+
+        Raises:
+            ValueError: Se l'inventario non supera la validazione di struttura.
         """
+        validate_api_inventory(api_inventory)
         path_to_methods = {}
         for finding in api_inventory:
             api_ctx = finding.get("api")
@@ -342,11 +568,18 @@ class DynamicOrchestrator:
         logger.info(f"Filtro endpoint da inventario completato. Trovati {len(dynamic_endpoints)} endpoint dinamici e {len(static_endpoints)} statici.")
         return dynamic_endpoints, static_endpoints
 
-    def run_dast_pipeline(self, api_inventory: List[Dict[str, Any]], output_dir: str = "output"):
+    def run_dast_pipeline(self, api_inventory: List[Dict[str, Any]], output_dir: str = "output") -> None:
+        """
+        Esegue l'intero workflow orchestrato del D-AST: estrazione, provisioning, seeding e attacco differenziale.
+
+        Args:
+            api_inventory (List[Dict[str, Any]]): L'inventario delle API estratto per il seeding e la scansione.
+            output_dir (str): Cartella di destinazione dei report.
+        """
         logger.info("🚀 Avvio Pipeline di Automazione D-AST...")
 
         # 1. Estrazione & Raggruppamento Endpoint da Inventario Pipeline
-        dynamic_eps, static_eps = self._extract_endpoints_from_inventory(api_inventory)
+        dynamic_eps, _ = self._extract_endpoints_from_inventory(api_inventory)
 
         # 2. Identity Provisioning (Keycloak)
         headers_matrix = self.identity_manager.get_headers_for_identities()
@@ -369,16 +602,15 @@ class DynamicOrchestrator:
 
 if __name__ == "__main__":
     # Esempio di esecuzione manuale standalone o caricamento dell'ultimo inventario
-    import os
     inventory_path = "output/unified_api_inventory.json"
     if os.path.exists(inventory_path):
         logger.info(f"Caricamento inventario esistente da {inventory_path} per esecuzione standalone...")
         with open(inventory_path, "r", encoding="utf-8") as f:
-            api_inventory = json.load(f)
+            api_inv = json.load(f)
     else:
         logger.info("Nessun inventario trovato. Utilizzo di un inventario mock per test standalone...")
         # Generiamo dei mock findings che assomigliano alla struttura reale dei findings della pipeline
-        api_inventory = [
+        api_inv = [
             {
                 "api": {"endpoint": "/api/orders/<order_id>", "method": "GET"}
             },
@@ -394,4 +626,4 @@ if __name__ == "__main__":
         ]
     
     orchestrator = DynamicOrchestrator()
-    orchestrator.run_dast_pipeline(api_inventory)
+    orchestrator.run_dast_pipeline(api_inv)
