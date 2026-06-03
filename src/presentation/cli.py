@@ -149,23 +149,7 @@ def main() -> None:
         raw_traffic_data=raw_traffic
     )
 
-    # 5. Persistenza dei risultati
-    report_repo = ReportRepository(args.output_dir)
-    report_repo.save_findings(correlated_findings, REPORT_FINDINGS_FILENAME)
-
-    # Salviamo l'inventario delle API correlate in formato serializzato per consistenza
-    api_inventory = []
-    for f in correlated_findings:
-        if f.api and f.api.endpoint:
-            api_inventory.append(f.to_dict())
-    report_repo.save_inventory(api_inventory, REPORT_INVENTORY_FILENAME)
-
-    # 6. Generazione Dashboard interattiva
-    dashboard_path = os.path.join(args.output_dir, DASHBOARD_FILENAME)
-    dash_gen = APIDashboardGenerator(correlated_findings)
-    dash_gen.generate(dashboard_path)
-
-    # 7. Esecuzione scansione D-AST dinamica
+    # 5. Esecuzione scansione D-AST dinamica
     logger.info("⚡ Avvio fase D-AST (Dynamic Application Security Testing)...")
     try:
         dast_orchestrator = DynamicOrchestrator(
@@ -173,9 +157,54 @@ def main() -> None:
             keycloak_url=args.keycloak_url,
             zap_proxy_url=args.zap_url
         )
-        dast_orchestrator.run_dast_pipeline(api_inventory, output_dir=args.output_dir)
+        # Costruiamo l'inventario per ZAP basandoci sui findings provvisori
+        api_inventory = []
+        for f in correlated_findings:
+            if f.api and f.api.endpoint:
+                api_inventory.append(f.to_dict())
+
+        dast_findings = dast_orchestrator.run_dast_pipeline(api_inventory, output_dir=args.output_dir) or []
+        
+        # Recuperiamo gli alert da ZAP per integrarli nei findings correlati
+        logger.info("📥 Recupero dei findings dinamici generati da OWASP ZAP...")
+        zap_client = ZapClientAdapter(zap_url=args.zap_url)
+        # ZAP scansiona mappando localhost a api-server per il container
+        zap_target_url = args.target_base_url.replace("localhost", "api-server").replace("127.0.0.1", "api-server")
+        zap_findings = zap_client.scan(zap_target_url)
+        logger.info(f"   - Trovati {len(zap_findings)} findings da OWASP ZAP.")
+        
+        # Uniamo tutti i runtime findings (mitmproxy + zap + test differenziali di sbarramento)
+        all_runtime = list(orchestrator.runtime_findings) + zap_findings + dast_findings
+        
+        # Correliamo nuovamente l'intero set
+        correlated_findings = orchestrator.correlation_engine.correlate(
+            orchestrator.static_findings,
+            all_runtime
+        )
+        
+        # Ricalcoliamo i punteggi di rischio
+        for f in correlated_findings:
+            score = orchestrator.correlation_engine.calculate_risk_score(f)
+            f.raw_data["correlated_risk_score"] = score
+
     except Exception as e:
-        logger.error(f"⚠️ Esecuzione D-AST fallita: {e}", exc_info=True)
+        logger.error(f"⚠️ Esecuzione D-AST o recupero findings ZAP fallito: {e}", exc_info=True)
+
+    # 6. Persistenza dei risultati finali
+    report_repo = ReportRepository(args.output_dir)
+    report_repo.save_findings(correlated_findings, REPORT_FINDINGS_FILENAME)
+
+    # Salviamo l'inventario finale delle API correlate
+    final_api_inventory = []
+    for f in correlated_findings:
+        if f.api and f.api.endpoint:
+            final_api_inventory.append(f.to_dict())
+    report_repo.save_inventory(final_api_inventory, REPORT_INVENTORY_FILENAME)
+
+    # 7. Generazione Dashboard interattiva con dati completi
+    dashboard_path = os.path.join(args.output_dir, DASHBOARD_FILENAME)
+    dash_gen = APIDashboardGenerator(correlated_findings)
+    dash_gen.generate(dashboard_path)
 
     logger.info("================================================================================")
     logger.info(f"🏆 PIPELINE COMPLETATA. Report salvato in '{args.output_dir}/'")

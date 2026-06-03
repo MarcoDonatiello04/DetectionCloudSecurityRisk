@@ -128,176 +128,10 @@ def validate_api_inventory(inventory: List[Dict[str, Any]]) -> None:
 
 # ─── CLASSI PRINCIPALI DEL FLUSSO ───────────────────────────────────────────
 
-class IdentityManager:
-    """
-    Gestisce la generazione e l'ottenimento dei token di sessione da Keycloak
-    per impostare le identità di test deterministiche.
-    """
-
-    def __init__(self, keycloak_url: str = DEFAULT_KEYCLOAK_URL, realm: str = DEFAULT_KEYCLOAK_REALM):
-        """
-        Inizializza l'IdentityManager impostando gli endpoint di Keycloak.
-
-        Args:
-            keycloak_url (str): URL di base del server Keycloak.
-            realm (str): Realm Keycloak da utilizzare.
-
-        Raises:
-            ValueError: Se keycloak_url non è un URL valido.
-        """
-        validate_url(keycloak_url, "keycloak_url")
-        self.token_url = f"{keycloak_url.rstrip('/')}/realms/{realm}/protocol/openid-connect/token"
-        self.client_id = DEFAULT_CLIENT_ID
-
-    def get_headers_for_identities(self) -> Dict[str, Dict[str, str]]:
-        """
-        Interagisce con Keycloak per acquisire i token per User A e User B.
-        Implementa un fallback robusto con JWT fittizi se il server Keycloak locale è offline.
-
-        Returns:
-            Dict[str, Dict[str, str]]: Matrice degli header di autenticazione configurati.
-
-        Example:
-            >>> manager = IdentityManager()
-            >>> headers = manager.get_headers_for_identities()
-            >>> print("Authorization" in headers["userA"])
-            True
-        """
-        identities = {
-            "user_a": {"username": DEFAULT_USER_A_USERNAME, "password": DEFAULT_USER_A_PASSWORD},
-            "user_b": {"username": DEFAULT_USER_B_USERNAME, "password": DEFAULT_USER_B_PASSWORD}
-        }
-        
-        headers_matrix = {
-            "userA": {},
-            "userB": {},
-            "anonymous": {}  # Intenzionalmente privo di header Authorization per Broken Auth
-        }
-
-        for identity_key, credentials in identities.items():
-            matrix_key = "userA" if identity_key == "user_a" else "userB"
-            token = self._fetch_token(credentials["username"], credentials["password"])
-            
-            if token:
-                headers_matrix[matrix_key] = {"Authorization": f"Bearer {token}"}
-            else:
-                logger.warning(f"Keycloak offline o non configurato per {identity_key}. Utilizzo di un JWT di fallback.")
-                mock_jwt = self._generate_mock_jwt(credentials["username"])
-                headers_matrix[matrix_key] = {"Authorization": f"Bearer {mock_jwt}"}
-
-        logger.info("Matrice degli Header delle Identità configurata con successo.")
-        return headers_matrix
-
-    def _fetch_token(self, username: str, password: str) -> str:
-        """
-        Esegue una chiamata POST standard (Resource Owner Password Credentials Grant) a Keycloak.
-
-        Args:
-            username (str): Username dell'utente per l'autenticazione.
-            password (str): Password dell'utente.
-
-        Returns:
-            str: Token di accesso se autenticato con successo, altrimenti stringa vuota.
-        """
-        payload = {
-            "client_id": self.client_id,
-            "grant_type": "password",
-            "username": username,
-            "password": password,
-            "scope": "openid"
-        }
-        try:
-            response = requests.post(self.token_url, data=payload, timeout=HTTP_TIMEOUT_SHORT_SECONDS)
-            if response.status_code == 200:
-                return response.json().get("access_token", "")
-        except requests.exceptions.RequestException as e:
-            logger.debug(f"Impossibile connettersi a Keycloak ({self.token_url}): {e}")
-        return ""
-
-    def _generate_mock_jwt(self, username: str) -> str:
-        """
-        Genera un token JWT mock base64-encoded deterministico per scopi di fallback.
-
-        Args:
-            username (str): Nome dell'utente da includere nel payload.
-
-        Returns:
-            str: Token JWT fittizio in formato stringa.
-        """
-        header = {"alg": "HS256", "typ": "JWT"}
-        payload = {
-            "sub": username, 
-            "name": username, 
-            "preferred_username": username, 
-            "roles": ["user"]
-        }
-        h_b64 = base64.urlsafe_b64encode(json.dumps(header).encode()).decode().rstrip("=")
-        p_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
-        signature = "mocksignature"
-        return f"{h_b64}.{p_b64}.{signature}"
-
-
-class DatabaseSeeder:
-    """
-    Componente di Automated Dynamic Seeding.
-    Inietta dati dinamici nell'applicazione target prima della scansione.
-    """
-
-    def __init__(self, seed_url: str = f"{DEFAULT_TARGET_BASE_URL}/test/seed"):
-        """
-        Inizializza il DatabaseSeeder con l'URL dell'endpoint di seeding.
-
-        Args:
-            seed_url (str): URL dell'endpoint di seeding dell'applicazione target.
-
-        Raises:
-            ValueError: Se seed_url non è un URL valido.
-        """
-        validate_url(seed_url, "seed_url")
-        self.seed_url = seed_url
-
-    def seed_target_application(self, dynamic_endpoints: List[Dict[str, Any]]) -> bool:
-        """
-        Estrae le risorse dagli endpoint dinamici, genera il dataset strutturato per risorsa
-        e lo inietta tramite chiamata POST all'endpoint di debug dell'applicazione target.
-
-        Args:
-            dynamic_endpoints (List[Dict[str, Any]]): Lista degli endpoint dinamici rilevati.
-
-        Returns:
-            bool: True se il seeding è andato a buon fine, altrimenti False.
-        """
-        if not dynamic_endpoints:
-            logger.info("Nessuna rotta dinamica rilevata. Seeding non necessario.")
-            return True
-
-        # Raccogliamo tutte le risorse distinte
-        resources = {ep["resource_name"] for ep in dynamic_endpoints}
-        
-        # Generiamo il payload JSON strutturato per risorsa richiesto
-        seed_payload = {}
-        for res in resources:
-            seed_payload[res] = {}
-            # Assegna gli ID da SEED_START_USER_A a SEED_END_USER_A a user_a (vittima)
-            for idx in range(SEED_START_USER_A, SEED_END_USER_A + 1):
-                seed_payload[res][str(idx)] = "user_a"
-            # Assegna gli ID da SEED_START_USER_B a SEED_END_USER_B a user_b (attaccante)
-            for idx in range(SEED_START_USER_B, SEED_END_USER_B + 1):
-                seed_payload[res][str(idx)] = "user_b"
-
-        logger.info(f"Generato dataset sintetico strutturato per: {list(resources)}")
-        
-        try:
-            response = requests.post(self.seed_url, json=seed_payload, timeout=HTTP_TIMEOUT_MEDIUM_SECONDS)
-            if response.status_code == 200:
-                logger.info("✅ Database Seeding completato con successo sull'API target.")
-                return True
-            else:
-                logger.warning(f"⚠️ Chiamata di seeding restituita con stato {response.status_code}.")
-        except requests.exceptions.RequestException as e:
-            logger.error(f"❌ Errore durante la chiamata di seeding a {self.seed_url}: {e}")
-            
-        return False
+from src.core.identity_context import IdentityManager, DatabaseSeeder
+from src.core.bola.state_manager import BOLAStateManager
+from src.core.bola.attack_vector import BOLAAttackVector
+from src.core.bola.assertion_engine import APIAssertionEngine
 
 
 class ZapController:
@@ -319,34 +153,31 @@ class ZapController:
         validate_url(zap_proxy_url, "zap_proxy_url")
         self.zap_proxy_url = zap_proxy_url
         self.zap = ZAPv2(proxies={"http": zap_proxy_url, "https": zap_proxy_url})
+        self.test_results = []
 
     def run_differential_scan(
         self, 
         target_base_url: str, 
         dynamic_endpoints: List[Dict[str, Any]], 
         headers_matrix: Dict[str, Dict[str, str]],
+        uuid_alice: str,
+        uuid_bob: str,
+        uuid_charlie: str,
+        role_map: Dict[str, str],
         output_dir: str = "output"
     ) -> None:
         """
         Pianifica ed esegue gli attacchi differenziali reali inviando traffico
-        tramite il proxy di OWASP ZAP.
-
-        Args:
-            target_base_url (str): URL dell'applicazione target da analizzare.
-            dynamic_endpoints (List[Dict[str, Any]]): Lista degli endpoint dinamici da testare.
-            headers_matrix (Dict[str, Dict[str, str]]): Matrice di header di autenticazione per i test.
-            output_dir (str): Directory di destinazione per il report finale.
-
-        Raises:
-            ValueError: Se target_base_url non è valido.
+        tramite il proxy di OWASP ZAP, supportando i metodi HTTP GET, PUT e DELETE.
+        Usa la logica di Role-Aware Testing per distinguere BOLA orizzontale/verticale/safe.
         """
         validate_url(target_base_url, "target_base_url")
-        logger.info("🔥 Avvio test differenziale con traffico reale proxato su OWASP ZAP...")
+        logger.info("🔥 Avvio test differenziale esteso e Role-Aware (GET, PUT, DELETE)...")
+        self.test_results = []
         
-        proxies = {
-            "http": self.zap_proxy_url,
-            "https": self.zap_proxy_url
-        }
+        # Inizializza i moduli BOLA e reset dello stato
+        state_manager = BOLAStateManager(target_base_url)
+        attack_vector = BOLAAttackVector(self.zap_proxy_url)
 
         # Configurazione contesto ZAP
         context_name = "API_Security_Context"
@@ -356,93 +187,126 @@ class ZapController:
         except Exception as e:
             logger.debug(f"Errore creazione contesto ZAP: {e}")
 
+        methods_to_test = ["GET", "PUT", "DELETE"]
+
+        role_alice = role_map.get(uuid_alice, "user")
+        role_bob = role_map.get(uuid_bob, "user")
+        role_charlie = role_map.get(uuid_charlie, "admin")
+
         for ep in dynamic_endpoints:
             path = ep["path"]
-            # Sostituiamo il parametro {id} con l'ID deterministico '100' di User A
-            test_path = path.replace("{id}", str(SEED_START_USER_A))
-            target_url = f"{target_base_url.rstrip('/')}{test_path}"
+            logger.info(f"🧪 [BOLA Role-Aware Assessment] Analisi endpoint dinamico: {path}")
 
-            # Convertiamo localhost in api-server (il nome del container Flask nella rete Docker compose)
-            zap_target_url = target_url.replace("localhost", "api-server").replace("127.0.0.1", "api-server")
+            for method in methods_to_test:
+                # 1. Snapshot dello stato prima del test
+                state_manager.take_snapshot()
 
-            # 1. TEST BOLA: Richiesta con token di User B (Attaccante) per la risorsa di User A
-            self._execute_active_vulnerability_test(
-                test_name="BOLA Test",
-                url=zap_target_url,
-                display_url=target_url,
-                headers=headers_matrix["userB"],
-                proxies=proxies,
-                vulnerability_label="BOLA RILEVATO"
-            )
+                # 2. Generazione ed esecuzione dei vettori di attacco per i 3 scenari
+                scenarios_results = attack_vector.execute_tampering(
+                    method=method,
+                    target_base_url=target_base_url,
+                    path=path,
+                    headers_matrix=headers_matrix,
+                    uuid_alice=uuid_alice,
+                    uuid_bob=uuid_bob,
+                    uuid_charlie=uuid_charlie,
+                    role_alice=role_alice,
+                    role_bob=role_bob,
+                    role_charlie=role_charlie
+                )
 
-            # 2. TEST BROKEN AUTHENTICATION: Richiesta senza token (Anonymous)
-            self._execute_active_vulnerability_test(
-                test_name="Broken Auth Test",
-                url=zap_target_url,
-                display_url=target_url,
-                headers=headers_matrix["anonymous"],
-                proxies=proxies,
-                vulnerability_label="BROKEN AUTHENTICATION RILEVATA"
-            )
+                for stim in scenarios_results:
+                    res_alice = stim["res_alice"]
+                    res_bob = stim["res_bob"]
+                    res_anon = stim["res_anon"]
+                    attacker_role = stim["attacker_role"]
+                    owner_role = stim["owner_role"]
+                    scenario_name = stim["scenario_name"]
+                    target_url = stim["target_url"]
+                    zap_target_url = stim["zap_target_url"]
+
+                    # 3. Valutazione BOLA differenziale tramite APIAssertionEngine (Role-Aware)
+                    if res_alice is not None and res_bob is not None:
+                        assertion_result = APIAssertionEngine.evaluate_bola_assertion(
+                            method=method,
+                            res_alice=res_alice,
+                            res_bob=res_bob,
+                            requesting_user_role=attacker_role,
+                            resource_owner_role=owner_role
+                        )
+                        is_vulnerable = assertion_result["is_vulnerable"]
+                        verdict = assertion_result["verdict"]
+
+                        import urllib.parse
+                        parsed_url = urllib.parse.urlparse(target_url)
+
+                        # Registriamo i dettagli del test
+                        self.test_results.append({
+                            "url": target_url,
+                            "path": parsed_url.path,
+                            "method": method,
+                            "status_code": res_bob.status_code,
+                            "test_name": f"{scenario_name} {method} Test",
+                            "is_vulnerable": is_vulnerable,
+                            "assertion_details": assertion_result,
+                            "response_text": res_bob.text
+                        })
+
+                        logger.info(
+                            f"      [{scenario_name} - {method}] Verdict: {verdict}\n"
+                            f"        - http_status_assertion: {assertion_result['http_status_assertion']}\n"
+                            f"        - content_keyword_assertion: {assertion_result['content_keyword_assertion']}\n"
+                            f"        - structural_similarity_assertion: {assertion_result['structural_similarity_assertion']}"
+                        )
+
+                        if is_vulnerable:
+                            logger.error(f"🚨 [ALERT CRITICAL] {verdict} RILEVATO SU: {method} {target_url}")
+                            try:
+                                self.zap.ascan.scan(url=zap_target_url, recurse="false")
+                            except Exception as ze:
+                                logger.debug(f"ZAP ascan fallito: {ze}")
+                        else:
+                            logger.info(f"✅ [SAFE] {scenario_name} {method} su: {target_url} (Verdetto: {verdict})")
+                    else:
+                        logger.warning(f"⚠️ Impossibile eseguire BOLA Assessment per {scenario_name} {method} dovuto a errori di rete.")
+
+                    # 4. Broken Authentication Check (Anonymous)
+                    if res_anon is not None:
+                        is_anon_vulnerable = (res_anon.status_code in (200, 204))
+                        import urllib.parse
+                        parsed_url = urllib.parse.urlparse(target_url)
+
+                        self.test_results.append({
+                            "url": target_url,
+                            "path": parsed_url.path,
+                            "method": method,
+                            "status_code": res_anon.status_code,
+                            "test_name": f"Broken Auth {scenario_name} {method} Test",
+                            "is_vulnerable": is_anon_vulnerable,
+                            "assertion_details": {
+                                "http_status_assertion": not is_anon_vulnerable,
+                                "content_keyword_assertion": True,
+                                "structural_similarity_assertion": True
+                            },
+                            "response_text": res_anon.text
+                        })
+
+                        if is_anon_vulnerable:
+                            logger.error(f"🚨 [ALERT CRITICAL] BROKEN AUTHENTICATION RILEVATA SU: {method} {target_url}")
+                            try:
+                                self.zap.ascan.scan(url=zap_target_url, recurse="false")
+                            except Exception as ze:
+                                logger.debug(f"ZAP ascan fallito: {ze}")
+                
+                # 5. Rollback dello stato dopo il test per ripulire gli effetti collaterali
+                state_manager.trigger_rollback()
 
         # Attendi la conclusione degli active scan
         self._wait_for_scan_completion()
         
-        # Salvataggio del report ZAP nella cartella output configurata
+        # Salvataggio del report ZAP
         report_path = os.path.join(output_dir, "zap_report.json")
         self._export_report(report_path)
-
-    def _execute_active_vulnerability_test(
-        self,
-        test_name: str,
-        url: str,
-        display_url: str,
-        headers: Dict[str, str],
-        proxies: Dict[str, str],
-        vulnerability_label: str
-    ) -> None:
-        """
-        Esegue un singolo test di stimolazione attiva inviando traffico reale e valutando
-        il codice di risposta per determinare la presenza di vulnerabilità di sicurezza.
-
-        Args:
-            test_name (str): Nome del test in esecuzione (es. 'BOLA Test').
-            url (str): URL del container target su cui inoltrare la richiesta proxata.
-            display_url (str): URL originale per scopi di visualizzazione nei log.
-            headers (Dict[str, str]): Header di autenticazione da includere nella chiamata.
-            proxies (Dict[str, str]): Mappa di proxy HTTP/HTTPS da forzare.
-            vulnerability_label (str): Etichetta descrittiva del tipo di vulnerabilità ricercata.
-        """
-        logger.info(f"🧪 [{test_name}] Invio richiesta a {url} tramite ZAP...")
-        try:
-            resp = requests.get(url, headers=headers, proxies=proxies, verify=False, timeout=HTTP_TIMEOUT_MEDIUM_SECONDS)
-            logger.info(f"   ↳ Risposta: Status={resp.status_code}")
-            
-            risk_level = self.assess_vulnerability_risk(resp.status_code)
-            if risk_level == RISK_LEVEL_CRITICAL:
-                logger.error(f"🚨 [ALERT CRITICAL] {vulnerability_label} SU: {display_url}")
-                logger.info("   ↳ Inoltro istruzione di Active Scan a ZAP per consolidare il finding...")
-                try:
-                    self.zap.ascan.scan(url=url, recurse="false")
-                except Exception as ze:
-                    logger.debug(f"ZAP ascan fallito: {ze}")
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Errore durante il {test_name} su {display_url}: {e}")
-
-    def assess_vulnerability_risk(self, status_code: int) -> str:
-        """
-        Valuta il livello di rischio associato allo status code di risposta per i test differenziali.
-
-        Args:
-            status_code (int): Lo status code HTTP della risposta ottenuta.
-
-        Returns:
-            str: Il livello di rischio determinato (CRITICAL o INFO).
-        """
-        # Se un endpoint protetto risponde 200 OK senza autorizzazione valida, il rischio è CRITICAL
-        if status_code == 200:
-            return RISK_LEVEL_CRITICAL
-        return RISK_LEVEL_INFO
 
     def _wait_for_scan_completion(self) -> None:
         """
@@ -568,13 +432,16 @@ class DynamicOrchestrator:
         logger.info(f"Filtro endpoint da inventario completato. Trovati {len(dynamic_endpoints)} endpoint dinamici e {len(static_endpoints)} statici.")
         return dynamic_endpoints, static_endpoints
 
-    def run_dast_pipeline(self, api_inventory: List[Dict[str, Any]], output_dir: str = "output") -> None:
+    def run_dast_pipeline(self, api_inventory: List[Dict[str, Any]], output_dir: str = "output") -> List[Finding]:
         """
         Esegue l'intero workflow orchestrato del D-AST: estrazione, provisioning, seeding e attacco differenziale.
 
         Args:
             api_inventory (List[Dict[str, Any]]): L'inventario delle API estratto per il seeding e la scansione.
             output_dir (str): Cartella di destinazione dei report.
+
+        Returns:
+            List[Finding]: Lista di Finding che rappresentano i risultati dei test differenziali eseguiti.
         """
         logger.info("🚀 Avvio Pipeline di Automazione D-AST...")
 
@@ -583,21 +450,99 @@ class DynamicOrchestrator:
 
         # 2. Identity Provisioning (Keycloak)
         headers_matrix = self.identity_manager.get_headers_for_identities()
+        uuid_alice = self.identity_manager.identity_map.get("UUID_ALICE")
+        uuid_bob = self.identity_manager.identity_map.get("UUID_BOB")
+        uuid_charlie = self.identity_manager.identity_map.get("UUID_CHARLIE")
+        role_map = self.identity_manager.role_map
 
-        # 3. Dynamic Database Seeding
-        seeding_success = self.seeder.seed_target_application(dynamic_eps)
+        # 3. Dynamic Database Seeding (Context-Aware con UUID estratti per 3 utenti)
+        seeding_success = self.seeder.seed_target_application(dynamic_eps, uuid_alice, uuid_bob, uuid_charlie)
         if not seeding_success:
             logger.warning("Procedo con il test DAST anche se il seeding dinamico ha rilevato degli avvisi.")
 
-        # 4. Differential Scan & Authorization Testing
+        # 4. Differential Scan & Authorization Testing (Passando gli UUID di contesto)
         self.zap_controller.run_differential_scan(
             target_base_url=self.target_base_url,
             dynamic_endpoints=dynamic_eps,
             headers_matrix=headers_matrix,
+            uuid_alice=uuid_alice,
+            uuid_bob=uuid_bob,
+            uuid_charlie=uuid_charlie,
+            role_map=role_map,
             output_dir=output_dir
         )
 
-        logger.info("🏆 Pipeline D-AST completata con successo!")
+        logger.info("🏆 Pipeline D-AST completata con successo! Generazione dei findings di sbarramento...")
+        
+        # Generiamo i findings per attestare se gli endpoint sono sicuri o vulnerabili
+        from src.domain.entities import Finding, FindingSource, FindingCategory, Severity, APIContext, RuntimeEvidence, ValidationStatus
+        dast_findings = []
+        
+        for res in self.zap_controller.test_results:
+            path = res["path"]
+            method = res["method"]
+            status_code = res["status_code"]
+            test_name = res["test_name"]
+            is_vulnerable = res["is_vulnerable"]
+            assertion_details = res["assertion_details"]
+            
+            # Formattiamo i dettagli delle asserzioni per l'evidenza
+            details_str = (
+                f"Asserzioni di Sicurezza BOLA:\n"
+                f"  - http_status_assertion: {assertion_details['http_status_assertion']}\n"
+                f"  - content_keyword_assertion: {assertion_details['content_keyword_assertion']}\n"
+                f"  - structural_similarity_assertion: {assertion_details['structural_similarity_assertion']}\n"
+                f"Verdetto finale: {'VULNERABLE' if is_vulnerable else 'SAFE'}"
+            )
+
+            evidence = RuntimeEvidence(
+                tested_url=res["url"],
+                http_status=status_code,
+                response_snippet=details_str + f"\n\nPayload di Bob:\n{res['response_text'][:500]}"
+            )
+            
+            if is_vulnerable:
+                finding = Finding.create(
+                    source=FindingSource.RUNTIME_VALIDATOR,
+                    category=FindingCategory.AUTHORIZATION if "BOLA" in test_name else FindingCategory.AUTHENTICATION,
+                    title=f"Vulnerabilità {test_name} confermata a runtime",
+                    description=(
+                        f"Il test differenziale '{test_name}' per l'endpoint '{path}' ha confermato che l'accesso "
+                        f"non autorizzato è possibile.\n{details_str}"
+                    ),
+                    severity=Severity.HIGH,
+                    confidence=1.0,
+                    rule_id="dynamic-bola-exploited" if "BOLA" in test_name else "dynamic-broken-auth-exploited",
+                    target_identifier=f"{method}:{path}:{test_name}",
+                    rule_name=f"Dynamic {test_name} Exploitation Check",
+                    api=APIContext(endpoint=path, method=method, requires_authentication=True),
+                    runtime_evidence=evidence,
+                    correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}"
+                )
+                finding.validation_status = ValidationStatus.CONFIRMED
+            else:
+                finding = Finding.create(
+                    source=FindingSource.RUNTIME_VALIDATOR,
+                    category=FindingCategory.AUTHORIZATION if "BOLA" in test_name else FindingCategory.AUTHENTICATION,
+                    title=f"Test {test_name} - Endpoint Sicuro ({status_code})",
+                    description=(
+                        f"Il test differenziale '{test_name}' ha verificato che l'accesso non autorizzato viene "
+                        f"bloccato correttamente.\n{details_str}"
+                    ),
+                    severity=Severity.INFO,
+                    confidence=1.0,
+                    rule_id="dynamic-test-secure",
+                    target_identifier=f"{method}:{path}:{test_name}",
+                    rule_name="Dynamic Differential Authorization Check",
+                    api=APIContext(endpoint=path, method=method, requires_authentication=True),
+                    runtime_evidence=evidence,
+                    correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}"
+                )
+                finding.validation_status = ValidationStatus.CONFIRMED
+
+            dast_findings.append(finding)
+                
+        return dast_findings
 
 
 if __name__ == "__main__":

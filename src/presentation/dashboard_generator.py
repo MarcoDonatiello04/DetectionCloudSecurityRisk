@@ -1,6 +1,7 @@
 import os
 import json
 import logging
+import yaml
 from typing import List, Dict, Any
 from src.domain.entities import Finding
 
@@ -8,16 +9,16 @@ logger = logging.getLogger("SecurityPlatform.DashboardGenerator")
 
 # Sorgenti per sezione
 STATIC_SOURCES   = {"CHECKOV", "SEMGREP"}
-OPENAPI_SOURCES  = {"SPECTRAL", "SHADOW_API"}   # Spectral lint + Shadow/undocumented endpoints
-BOLA_SOURCES     = {"ZAP_DAST", "RUNTIME_VALIDATOR"}  # Solo test BOLA differenziali
+OPENAPI_SOURCES  = {"SPECTRAL", "SHADOW_API"}
+BOLA_SOURCES     = {"ZAP_DAST", "RUNTIME_VALIDATOR"}
 
 
 class APIDashboardGenerator:
     """
-    Generatore di dashboard HTML/CSS/JS interattive Premium a 3 sezioni:
-      1. Analisi Statica     (Checkov + Semgrep)
-      2. Conformità OpenAPI  (Spectral contract linting)
-      3. Analisi BOLA/D-AST  (ZAP DAST + Runtime Validator)
+    Generatore di dashboard HTML/CSS/JS interattive Premium a 3 sezioni riprogettate:
+      1. Analisi IaC (Checkov)
+      2. Catalogo API & Conformità OpenAPI (Documentati vs Shadow vs Violazioni Spectral)
+      3. Analisi BOLA su Endpoint Dinamici (Test differenziali ZAP/Runtime Validator)
     """
 
     def __init__(self, findings: List[Finding]):
@@ -26,10 +27,12 @@ class APIDashboardGenerator:
     def generate(self, output_path: str):
         """Genera e salva la dashboard HTML con i dati incorporati."""
         serialized = [f.to_dict() for f in self.findings]
-        stats = self._calculate_stats(self.findings)
+        endpoints = self._build_endpoint_catalog(self.findings)
+        stats = self._calculate_stats(self.findings, endpoints)
 
         html_content = self._get_template(
             json.dumps(serialized, ensure_ascii=False),
+            json.dumps(endpoints, ensure_ascii=False),
             json.dumps(stats, ensure_ascii=False)
         )
 
@@ -37,20 +40,172 @@ class APIDashboardGenerator:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write(html_content)
-            logger.info(f"✨ Dashboard premium a 3 sezioni creata in: {output_path}")
+            logger.info(f"✨ Dashboard premium a 3 sezioni riprogettata in: {output_path}")
         except Exception as e:
             logger.error(f"Errore scrittura dashboard: {e}", exc_info=True)
 
-    def _calculate_stats(self, findings: List[Finding]) -> Dict[str, Any]:
+    def _parse_openapi_spec(self) -> List[Dict[str, Any]]:
+        """Carica ed estrae le rotte definite nel file openapi.yaml."""
+        spec_paths = [
+            "problema_api/openapi.yaml",
+            "../problema_api/openapi.yaml",
+            "./openapi.yaml"
+        ]
+        for p in spec_paths:
+            if os.path.exists(p):
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        spec = yaml.safe_load(f)
+                        paths = spec.get("paths", {})
+                        endpoints = []
+                        for path, path_item in paths.items():
+                            if not path_item:
+                                continue
+                            for method in ["get", "post", "put", "delete", "patch", "options", "head"]:
+                                if method in path_item:
+                                    endpoints.append({
+                                        "path": path,
+                                        "method": method.upper(),
+                                        "summary": path_item[method].get("summary", ""),
+                                        "description": path_item[method].get("description", ""),
+                                        "documented": True
+                                    })
+                        return endpoints
+                except Exception as e:
+                    logger.error(f"Errore caricamento spec OpenAPI da {p}: {e}")
+        return []
+
+    def _build_endpoint_catalog(self, findings: List[Finding]) -> List[Dict[str, Any]]:
+        """Costruisce il catalogo completo degli endpoint incrociando specifiche e findings."""
+        # 1. Carica endpoint documentati in OpenAPI
+        documented_endpoints = self._parse_openapi_spec()
+
+        catalog = {}
+        for ep in documented_endpoints:
+            key = f"{ep['method']} {ep['path']}"
+            catalog[key] = {
+                "method": ep["method"],
+                "path": ep["path"],
+                "summary": ep["summary"],
+                "description": ep["description"],
+                "documented": True,
+                "shadow": False,
+                "violations": [],
+                "bola_status": "UNTESTED",  # UNTESTED, SAFE, VULNERABLE, POTENTIAL
+                "bola_findings": []
+            }
+
+        # 2. Analizza i findings per popolare violazioni, shadow api e bola
+        from src.normalization.normalizer import APIEndpointNormalizer
+        for f in findings:
+            if not f.api or not f.api.endpoint:
+                continue
+
+            method = (f.api.method or "GET").upper()
+            norm_path = APIEndpointNormalizer.normalize_path(f.api.endpoint)
+            key = f"{method} {norm_path}"
+
+            matched_key = None
+            if key in catalog:
+                matched_key = key
+            else:
+                for cat_key, cat_ep in catalog.items():
+                    if cat_ep["method"] == method:
+                        if APIEndpointNormalizer.normalize_path(cat_ep["path"]) == norm_path:
+                            matched_key = cat_key
+                            break
+
+            if not matched_key:
+                # È un endpoint non documentato (Shadow API)
+                matched_key = key
+                catalog[matched_key] = {
+                    "method": method,
+                    "path": norm_path,
+                    "summary": f.title if f.source.value == "SHADOW_API" else "Endpoint Rilevato",
+                    "description": f.description,
+                    "documented": False,
+                    "shadow": True,
+                    "violations": [],
+                    "bola_status": "UNTESTED",
+                    "bola_findings": []
+                }
+
+            ep_entry = catalog[matched_key]
+
+            # Spectral violations
+            if f.source.value == "SPECTRAL":
+                ep_entry["violations"].append({
+                    "rule_id": f.rule_id,
+                    "title": f.title,
+                    "description": f.description,
+                    "severity": f.severity.value,
+                    "line": f.location.start_line if f.location else None
+                })
+
+            # BOLA / D-AST
+            is_bola = (
+                f.category.value == "AUTHORIZATION" or 
+                f.category.value == "AUTHENTICATION" or
+                "bola" in f.title.lower() or 
+                "idor" in f.title.lower() or
+                f.source.value in ("ZAP_DAST", "RUNTIME_VALIDATOR")
+            )
+            if is_bola:
+                ep_entry["bola_findings"].append(f.to_dict())
+                if f.rule_id == "dynamic-test-secure":
+                    if ep_entry["bola_status"] not in ("VULNERABLE", "POTENTIAL"):
+                        ep_entry["bola_status"] = "SAFE"
+                else:
+                    if f.validation_status.value == "CONFIRMED":
+                        ep_entry["bola_status"] = "VULNERABLE"
+                    elif ep_entry["bola_status"] not in ("VULNERABLE", "SAFE"):
+                        ep_entry["bola_status"] = "POTENTIAL"
+
+        # 3. Imposta stato test BOLA per gli endpoint dinamici
+        for ep_entry in catalog.values():
+            path = ep_entry["path"]
+            is_dynamic = "{" in path or "<" in path or ":" in path or "id" in path.lower()
+            ep_entry["is_dynamic"] = is_dynamic
+            
+            # Controlla se abbiamo ricevuto evidenza di sbarramento (status 401 o 403) o se l'assertion engine lo ritiene sicuro
+            has_blocking_evidence = False
+            for f in ep_entry["bola_findings"]:
+                if f.get("rule_id") == "dynamic-test-secure":
+                    has_blocking_evidence = True
+                    break
+                re = f.get("runtime_evidence")
+                if re:
+                    status = re.get("http_status")
+                    if status in (401, 403):
+                        has_blocking_evidence = True
+                        break
+            
+            if is_dynamic:
+                if ep_entry["bola_status"] in ("UNTESTED", "SAFE"):
+                    if ep_entry["bola_status"] == "SAFE" or has_blocking_evidence:
+                        ep_entry["bola_status"] = "SAFE"
+                    else:
+                        ep_entry["bola_status"] = "UNTESTED"
+
+        return sorted(list(catalog.values()), key=lambda x: (x["path"], x["method"]))
+
+    def _calculate_stats(self, findings: List[Finding], endpoints: List[Dict[str, Any]]) -> Dict[str, Any]:
         stats = {
             "total":           len(findings),
             "critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0,
             "confirmed": 0,
-            # Contatori per sezione
-            "static_total":   0, "static_critical": 0, "static_high": 0,
-            "openapi_total":  0, "openapi_high": 0, "openapi_medium": 0,
-            "bola_total":     0, "bola_confirmed": 0, "bola_critical": 0,
-            "categories": {}
+            # Contatori Checkov
+            "checkov_total": 0, "checkov_critical": 0, "checkov_high": 0, "checkov_medium": 0, "checkov_low": 0,
+            # Contatori OpenAPI
+            "openapi_total": len(endpoints),
+            "openapi_documented": sum(1 for e in endpoints if e["documented"]),
+            "openapi_shadow": sum(1 for e in endpoints if e["shadow"]),
+            "openapi_violations": sum(len(e["violations"]) for e in endpoints),
+            # Contatori BOLA
+            "bola_total": sum(1 for e in endpoints if e["is_dynamic"]),
+            "bola_vulnerable": sum(1 for e in endpoints if e["is_dynamic"] and e["bola_status"] == "VULNERABLE"),
+            "bola_potential": sum(1 for e in endpoints if e["is_dynamic"] and e["bola_status"] == "POTENTIAL"),
+            "bola_safe": sum(1 for e in endpoints if e["is_dynamic"] and e["bola_status"] == "SAFE")
         }
 
         for f in findings:
@@ -61,34 +216,21 @@ class APIDashboardGenerator:
             if f.validation_status.value == "CONFIRMED":
                 stats["confirmed"] += 1
 
-            cat = f.category.value
-            stats["categories"][cat] = stats["categories"].get(cat, 0) + 1
-
-            src = f.source.value
-            if src in STATIC_SOURCES:
-                stats["static_total"] += 1
-                if sev == "critical": stats["static_critical"] += 1
-                if sev == "high":     stats["static_high"] += 1
-            elif src in OPENAPI_SOURCES:
-                stats["openapi_total"] += 1
-                if sev == "high":   stats["openapi_high"] += 1
-                if sev == "medium": stats["openapi_medium"] += 1
-                if src == "SHADOW_API": stats.setdefault("shadow_total", 0); stats["shadow_total"] = stats.get("shadow_total", 0) + 1
-            elif src in BOLA_SOURCES:
-                stats["bola_total"] += 1
-                if f.validation_status.value == "CONFIRMED": stats["bola_confirmed"] += 1
-                if sev == "critical": stats["bola_critical"] += 1
+            if f.source.value == "CHECKOV":
+                stats["checkov_total"] += 1
+                if sev in ["critical", "high", "medium", "low"]:
+                    stats[f"checkov_{sev}"] += 1
 
         return stats
 
-    def _get_template(self, findings_json: str, stats_json: str) -> str:
+    def _get_template(self, findings_json: str, endpoints_json: str, stats_json: str) -> str:
         return f"""<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cloud API Security &amp; Risk Dashboard</title>
-    <meta name="description" content="Dashboard premium di analisi della sicurezza API cloud: analisi statica IaC, conformità OpenAPI e rilevamento BOLA/D-AST.">
+    <meta name="description" content="Dashboard premium di analisi della sicurezza: Checkov IaC, Conformità OpenAPI e Analisi BOLA.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -96,16 +238,17 @@ class APIDashboardGenerator:
     <style>
         /* ─── Design Tokens ─────────────────────────────────────────── */
         :root {{
-            --bg-main:          #080c16;
-            --bg-surface:       #0f1629;
-            --bg-card:          rgba(22, 33, 62, 0.75);
-            --bg-input:         #1a2744;
-            --border:           rgba(255,255,255,0.07);
+            --bg-main:          #080b11;
+            --bg-surface:       #0e1320;
+            --bg-card:          rgba(20, 27, 45, 0.7);
+            --bg-input:         #161e31;
+            --border:           rgba(255,255,255,0.06);
+            --border-hover:     rgba(255,255,255,0.12);
             --border-active:    rgba(56,189,248,0.35);
 
-            --text-primary:     #f0f6ff;
-            --text-secondary:   #7c93b8;
-            --text-muted:       #4a6080;
+            --text-primary:     #f3f4f6;
+            --text-secondary:   #9ca3af;
+            --text-muted:       #6b7280;
 
             --sky:      #38bdf8;
             --indigo:   #818cf8;
@@ -117,16 +260,12 @@ class APIDashboardGenerator:
             --teal:     #14b8a6;
 
             --glow-sky:     rgba(56,189,248,0.12);
-            --glow-indigo:  rgba(129,140,248,0.12);
+            --glow-violet:  rgba(167,139,250,0.12);
             --glow-rose:    rgba(251,113,133,0.12);
 
-            /* Tab theme per sezione */
             --tab1-color: var(--sky);
-            --tab1-glow:  rgba(56,189,248,0.15);
             --tab2-color: var(--violet);
-            --tab2-glow:  rgba(167,139,250,0.15);
             --tab3-color: var(--rose);
-            --tab3-glow:  rgba(251,113,133,0.15);
         }}
 
         *, *::before, *::after {{
@@ -148,7 +287,7 @@ class APIDashboardGenerator:
 
         /* ─── Header ────────────────────────────────────────────────── */
         header {{
-            background: rgba(8,12,22,0.85);
+            background: rgba(8,11,17,0.85);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
             padding: 0 2.5rem;
@@ -159,7 +298,6 @@ class APIDashboardGenerator:
             position: sticky;
             top: 0;
             z-index: 200;
-            box-shadow: 0 1px 0 rgba(56,189,248,0.05);
         }}
 
         .logo-section {{
@@ -576,7 +714,6 @@ class APIDashboardGenerator:
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
-            cursor: pointer;
         }}
 
         .fcard:hover {{
@@ -585,7 +722,6 @@ class APIDashboardGenerator:
             transform: translateY(-1px);
         }}
 
-        /* Barra laterale colorata per severità */
         .fcard::before {{
             content: '';
             position: absolute;
@@ -599,10 +735,6 @@ class APIDashboardGenerator:
         .sev-medium::before   {{ background: var(--indigo);  }}
         .sev-low::before      {{ background: var(--sky);     }}
         .sev-info::before     {{ background: var(--text-muted); }}
-
-        /* Glow sottile per critical */
-        .sev-critical {{ box-shadow: inset 0 0 30px rgba(251,113,133,0.03); }}
-        .sev-high     {{ box-shadow: inset 0 0 30px rgba(251,191,36,0.02); }}
 
         .fcard-header {{
             display: flex;
@@ -658,12 +790,6 @@ class APIDashboardGenerator:
             border: 1px solid rgba(16,185,129,0.25);
         }}
 
-        .tag-bola {{
-            background: rgba(251,113,133,0.12);
-            color: var(--rose);
-            border: 1px solid rgba(251,113,133,0.2);
-        }}
-
         .fcard-desc {{
             font-size: 0.88rem;
             color: var(--text-secondary);
@@ -691,7 +817,7 @@ class APIDashboardGenerator:
         .meta-key {{
             color: var(--text-muted);
             font-weight: 600;
-            min-width: 90px;
+            min-width: 100px;
         }}
 
         .meta-val {{
@@ -702,7 +828,7 @@ class APIDashboardGenerator:
         }}
 
         .code-block {{
-            background: #040810;
+            background: #04060b;
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 8px;
             padding: 0.7rem 0.9rem;
@@ -736,8 +862,8 @@ class APIDashboardGenerator:
             line-height: 1.5;
         }}
 
-        /* ─── OpenAPI Endpoint Table ─────────────────────────────────── */
-        .endpoint-grid {{
+        /* ─── OpenAPI Master Table ────────────────────────────────────── */
+        .endpoint-list {{
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
@@ -747,26 +873,35 @@ class APIDashboardGenerator:
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 14px;
-            padding: 1rem 1.3rem;
-            display: grid;
-            grid-template-columns: 80px 1fr auto;
-            gap: 1rem;
-            align-items: center;
-            transition: all 0.2s ease;
+            padding: 1.1rem 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            transition: all 0.25s ease;
         }}
 
         .ep-row:hover {{
-            border-color: rgba(167,139,250,0.2);
-            background: rgba(167,139,250,0.03);
+            border-color: rgba(167,139,250,0.15);
+            background: rgba(167,139,250,0.01);
+        }}
+
+        .ep-main-info {{
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            user-select: none;
         }}
 
         .ep-method {{
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.78rem;
             font-weight: 700;
-            padding: 0.3rem 0.6rem;
+            padding: 0.35rem 0.7rem;
             border-radius: 8px;
             text-align: center;
+            min-width: 80px;
+            flex-shrink: 0;
         }}
 
         .method-get    {{ background: rgba(16,185,129,0.15);  color: var(--emerald); }}
@@ -777,42 +912,108 @@ class APIDashboardGenerator:
 
         .ep-path {{
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             color: var(--text-primary);
+            font-weight: 600;
+            flex-grow: 1;
         }}
 
-        .ep-rule {{
-            font-size: 0.78rem;
-            color: var(--text-secondary);
-        }}
-
-        /* ─── BOLA diff badge ────────────────────────────────────────── */
-        .bola-badge {{
-            display: inline-flex;
+        .ep-status-badges {{
+            display: flex;
             align-items: center;
-            gap: 0.4rem;
-            padding: 0.3rem 0.7rem;
-            border-radius: 30px;
+            gap: 0.5rem;
+        }}
+
+        .ep-status-tag {{
             font-size: 0.73rem;
             font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 30px;
+            text-transform: uppercase;
+        }}
+
+        .status-compliant   {{ background: rgba(16,185,129,0.12); color: var(--emerald); border: 1px solid rgba(16,185,129,0.2); }}
+        .status-shadow      {{ background: rgba(249,115,22,0.12);  color: var(--orange);  border: 1px solid rgba(249,115,22,0.25); }}
+        .status-violating   {{ background: rgba(251,113,133,0.12); color: var(--rose);    border: 1px solid rgba(251,113,133,0.25); }}
+
+        .ep-chevron {{
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }}
+
+        .ep-row.expanded .ep-chevron {{
+            transform: rotate(90deg);
+        }}
+
+        .ep-details {{
+            display: none;
+            border-top: 1px solid var(--border);
+            padding-top: 0.9rem;
+            animation: fadeIn 0.25s ease;
+        }}
+
+        .ep-row.expanded .ep-details {{
+            display: block;
+        }}
+
+        .detail-card {{
+            background: rgba(10,16,35,0.4);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+        }}
+
+        .detail-card h4 {{
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }}
 
-        .bola-vuln    {{ background: rgba(251,113,133,0.15); color: var(--rose);    border: 1px solid rgba(251,113,133,0.3); }}
-        .bola-partial {{ background: rgba(251,191,36,0.12);  color: var(--amber);   border: 1px solid rgba(251,191,36,0.25); }}
-        .bola-safe    {{ background: rgba(16,185,129,0.1);   color: var(--emerald); border: 1px solid rgba(16,185,129,0.2); }}
-
-        .risk-score {{
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            font-weight: 700;
+        /* Violations list */
+        .violation-item {{
+            border-left: 2px solid var(--rose);
+            padding-left: 0.8rem;
+            margin-bottom: 0.8rem;
         }}
 
-        /* ─── Empty state ────────────────────────────────────────────── */
+        .violation-item:last-child {{
+            margin-bottom: 0;
+        }}
+
+        .violation-title {{
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+            font-family: 'JetBrains Mono', monospace;
+        }}
+
+        .violation-desc {{
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }}
+
+        /* ─── BOLA Status Badges ──────────────────────────────────────── */
+        .bola-status-badge {{
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 30px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+
+        .bola-vulnerable {{ background: rgba(251,113,133,0.15); color: var(--rose);    border: 1px solid rgba(251,113,133,0.3); }}
+        .bola-potential  {{ background: rgba(251,191,36,0.12);  color: var(--amber);   border: 1px solid rgba(251,191,36,0.25); }}
+        .bola-safe       {{ background: rgba(16,185,129,0.1);   color: var(--emerald); border: 1px solid rgba(16,185,129,0.2); }}
+        .bola-untested   {{ background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid var(--border); }}
+
+        /* Empty state */
         .empty-state {{
             padding: 4rem 2rem;
             text-align: center;
@@ -826,7 +1027,6 @@ class APIDashboardGenerator:
         .empty-state h3 {{ font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }}
         .empty-state p  {{ font-size: 0.85rem; margin-top: 0.4rem; }}
 
-        /* ─── Result count ───────────────────────────────────────────── */
         .result-count {{
             font-size: 0.8rem;
             color: var(--text-muted);
@@ -834,7 +1034,7 @@ class APIDashboardGenerator:
             font-family: 'JetBrains Mono', monospace;
         }}
 
-        /* ─── Responsive ─────────────────────────────────────────────── */
+        /* Responsive */
         @media (max-width: 1100px) {{
             .panel-layout {{ grid-template-columns: 1fr; }}
             .panel-sidebar {{ position: static; }}
@@ -843,11 +1043,10 @@ class APIDashboardGenerator:
 
         @media (max-width: 680px) {{
             main {{ padding: 1.2rem; }}
-            .global-stats {{ grid-template-columns: 1fr 1fr; }}
+            .global-stats {{ grid-template-columns: 1fr; }}
             .tab-btn span:not(.tab-icon):not(.tab-count) {{ display: none; }}
         }}
 
-        /* ─── Scrollbar ──────────────────────────────────────────────── */
         ::-webkit-scrollbar {{ width: 6px; height: 6px; }}
         ::-webkit-scrollbar-track {{ background: transparent; }}
         ::-webkit-scrollbar-thumb {{ background: rgba(255,255,255,0.1); border-radius: 3px; }}
@@ -865,7 +1064,7 @@ class APIDashboardGenerator:
         </div>
         <div class="header-right">
             <span class="scan-time" id="scan-timestamp"></span>
-            <span class="version-badge">v2.0.0 · 3-Panel View</span>
+            <span class="version-badge">v3.0.0 · Core Engine</span>
         </div>
     </header>
 
@@ -873,24 +1072,24 @@ class APIDashboardGenerator:
         <!-- ╔══ GLOBAL STATS ══╗ -->
         <div class="global-stats">
             <div class="gstat gstat-total">
-                <div class="gstat-label">Finding Totali</div>
+                <div class="gstat-label">Findings Totali</div>
                 <div class="gstat-value" id="gs-total">0</div>
-                <div class="gstat-sub">tutte le sorgenti</div>
+                <div class="gstat-sub">infrastruttura &amp; codice</div>
             </div>
             <div class="gstat gstat-danger">
                 <div class="gstat-label">Critici / Alti</div>
                 <div class="gstat-value" id="gs-danger">0</div>
-                <div class="gstat-sub">richiedono attenzione immediata</div>
+                <div class="gstat-sub">richiedono intervento</div>
             </div>
             <div class="gstat gstat-conf">
                 <div class="gstat-label">Confermati Runtime</div>
                 <div class="gstat-value" id="gs-confirmed">0</div>
-                <div class="gstat-sub">validati con evidenza DAST</div>
+                <div class="gstat-sub">exploit validati con test</div>
             </div>
             <div class="gstat gstat-static">
-                <div class="gstat-label">Analisi Statica</div>
+                <div class="gstat-label">Rotte API Catalogate</div>
                 <div class="gstat-value" id="gs-static">0</div>
-                <div class="gstat-sub">Checkov + Semgrep</div>
+                <div class="gstat-sub">OpenAPI + scoperte</div>
             </div>
         </div>
 
@@ -900,7 +1099,7 @@ class APIDashboardGenerator:
                     aria-selected="true" aria-controls="panel-1"
                     onclick="switchTab(1)">
                 <span class="tab-icon">🔬</span>
-                <span>Analisi Statica</span>
+                <span>Analisi IaC (Checkov)</span>
                 <span class="tab-count" id="tab-count-1">0</span>
             </button>
             <button id="tab-btn-2" class="tab-btn" role="tab"
@@ -914,70 +1113,66 @@ class APIDashboardGenerator:
                     aria-selected="false" aria-controls="panel-3"
                     onclick="switchTab(3)">
                 <span class="tab-icon">🎯</span>
-                <span>Analisi BOLA / D-AST</span>
+                <span>Analisi BOLA</span>
                 <span class="tab-count" id="tab-count-3">0</span>
             </button>
         </nav>
 
         <!-- ═══════════════════════════════════════════════════════════ -->
-        <!-- PANEL 1 · ANALISI STATICA (Checkov + Semgrep)              -->
+        <!-- PANEL 1 · ANALISI IAC (Checkov)                            -->
         <!-- ═══════════════════════════════════════════════════════════ -->
         <div id="panel-1" class="tab-panel active" role="tabpanel" aria-labelledby="tab-btn-1">
             <div class="section-header">
                 <div class="section-icon icon-static">🔬</div>
                 <div>
                     <h2 style="background: linear-gradient(90deg, var(--sky), var(--indigo)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
-                        Analisi Statica IaC &amp; AST
+                        Analisi Infrastrutturale IaC (Checkov)
                     </h2>
-                    <p>Scansione infrastruttura Terraform con <strong>Checkov</strong> e analisi del codice sorgente con <strong>Semgrep</strong></p>
+                    <p>Rilevamento di misconfiguration e vulnerabilità statiche in file Terraform tramite <strong>Checkov</strong></p>
                 </div>
             </div>
 
-            <div class="section-stats" id="static-section-stats"></div>
+            <div class="section-stats" id="checkov-section-stats"></div>
 
             <div class="panel-layout">
                 <div class="panel-sidebar">
                     <div class="sidebar-card">
                         <h3>Severità</h3>
-                        <div class="filter-group" id="filter-static-sev"></div>
-                    </div>
-                    <div class="sidebar-card">
-                        <h3>Sorgente</h3>
-                        <div class="filter-group" id="filter-static-src"></div>
+                        <div class="filter-group" id="filter-checkov-sev"></div>
                     </div>
                     <div class="sidebar-card">
                         <h3>Categoria</h3>
-                        <div class="filter-group" id="filter-static-cat"></div>
+                        <div class="filter-group" id="filter-checkov-cat"></div>
                     </div>
                 </div>
 
                 <div>
                     <div class="search-wrap">
-                        <input type="text" id="search-static" placeholder="Cerca rule, risorsa, percorso…"
-                               oninput="renderStatic()" aria-label="Cerca nei finding statici">
+                        <input type="text" id="search-checkov" placeholder="Cerca risorsa, regola, file…"
+                               oninput="renderCheckov()" aria-label="Cerca nei finding Checkov">
                     </div>
-                    <div class="result-count" id="static-result-count"></div>
-                    <div class="findings-list" id="static-list"></div>
-                    <div class="empty-state" id="static-empty" style="display:none;">
+                    <div class="result-count" id="checkov-result-count"></div>
+                    <div class="findings-list" id="checkov-list"></div>
+                    <div class="empty-state" id="checkov-empty" style="display:none;">
                         <div class="empty-icon">🟢</div>
                         <h3>Nessun problema rilevato!</h3>
-                        <p>Nessun finding corrisponde ai filtri correnti.</p>
+                        <p>Nessun finding Checkov corrisponde ai filtri impostati.</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════ -->
-        <!-- PANEL 2 · CONFORMITÀ OPENAPI (Spectral)                    -->
+        <!-- PANEL 2 · CONFORMITÀ OPENAPI & CATALOGO API                -->
         <!-- ═══════════════════════════════════════════════════════════ -->
         <div id="panel-2" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-2">
             <div class="section-header">
                 <div class="section-icon icon-openapi">📋</div>
                 <div>
                     <h2 style="background: linear-gradient(90deg, var(--violet), var(--indigo)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
-                        Conformità Contratto OpenAPI
+                        Catalogo API &amp; Conformità Contratto
                     </h2>
-                    <p>Linting del contratto <strong>problema_api/openapi.yaml</strong> con <strong>Stoplight Spectral</strong> — regole OWASP API Top 10</p>
+                    <p>Linting del contratto con <strong>Spectral</strong>, classificazione degli endpoint e rilevamento delle <strong>Shadow APIs</strong></p>
                 </div>
             </div>
 
@@ -986,77 +1181,72 @@ class APIDashboardGenerator:
             <div class="panel-layout">
                 <div class="panel-sidebar">
                     <div class="sidebar-card">
-                        <h3>Severità</h3>
-                        <div class="filter-group" id="filter-openapi-sev"></div>
-                    </div>
-                    <div class="sidebar-card">
-                        <h3>Categoria</h3>
-                        <div class="filter-group" id="filter-openapi-cat"></div>
+                        <h3>Stato Endpoint</h3>
+                        <div class="filter-group" id="filter-openapi-status">
+                            <button class="flt-btn flt-active2" onclick="setOpenAPIStatus('ALL')">Tutti</button>
+                            <button class="flt-btn" onclick="setOpenAPIStatus('DOCUMENTED')">Documentati</button>
+                            <button class="flt-btn" onclick="setOpenAPIStatus('SHADOW')">Shadow API</button>
+                            <button class="flt-btn" onclick="setOpenAPIStatus('VIOLATING')">Con Violazioni</button>
+                        </div>
                     </div>
                 </div>
 
                 <div>
                     <div class="search-wrap">
-                        <input type="text" id="search-openapi" placeholder="Cerca rule ID, endpoint, messaggio…"
-                               oninput="renderOpenAPI()" aria-label="Cerca nei finding OpenAPI">
+                        <input type="text" id="search-openapi" placeholder="Cerca endpoint, path, violazione o metodo…"
+                               oninput="renderOpenAPI()" aria-label="Cerca nel catalogo API">
                     </div>
                     <div class="result-count" id="openapi-result-count"></div>
-                    <div id="openapi-ep-summary" style="margin-bottom:1.2rem;"></div>
-                    <div class="findings-list" id="openapi-list"></div>
+                    <div class="endpoint-list" id="openapi-endpoints-list"></div>
                     <div class="empty-state" id="openapi-empty" style="display:none;">
-                        <div class="empty-icon">✅</div>
-                        <h3>Contratto Conforme!</h3>
-                        <p>Nessuna violazione OpenAPI rilevata da Spectral.</p>
+                        <div class="empty-icon">🔍</div>
+                        <h3>Nessun endpoint trovato</h3>
+                        <p>Nessun endpoint corrisponde ai criteri di ricerca.</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════ -->
-        <!-- PANEL 3 · BOLA / D-AST (ZAP + Runtime Validator)           -->
+        <!-- PANEL 3 · ANALISI BOLA SU ENDPOINT DINAMICI                -->
         <!-- ═══════════════════════════════════════════════════════════ -->
         <div id="panel-3" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-3">
             <div class="section-header">
                 <div class="section-icon icon-bola">🎯</div>
                 <div>
                     <h2 style="background: linear-gradient(90deg, var(--rose), var(--orange)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
-                        Analisi BOLA &amp; D-AST
+                        Analisi BOLA su Endpoint Dinamici
                     </h2>
-                    <p>Test differenziale di autorizzazione <strong>BOLA/IDOR</strong> — rilevamento con <strong>OWASP ZAP</strong> e <strong>Runtime Validator</strong> tramite token Keycloak</p>
+                    <p>Testing differenziale di autorizzazione (BOLA/IDOR/Auth Bypass) degli endpoint dinamici a runtime con <strong>ZAP</strong> e <strong>Validator</strong></p>
                 </div>
             </div>
 
             <div class="section-stats" id="bola-section-stats"></div>
 
-            <div id="bola-summary-banner" style="margin-bottom:1.5rem;"></div>
-
             <div class="panel-layout">
                 <div class="panel-sidebar">
                     <div class="sidebar-card">
-                        <h3>Stato</h3>
-                        <div class="filter-group" id="filter-bola-status"></div>
-                    </div>
-                    <div class="sidebar-card">
-                        <h3>Sorgente</h3>
-                        <div class="filter-group" id="filter-bola-src"></div>
-                    </div>
-                    <div class="sidebar-card">
-                        <h3>Severità</h3>
-                        <div class="filter-group" id="filter-bola-sev"></div>
+                        <h3>Stato Test BOLA</h3>
+                        <div class="filter-group" id="filter-bola-status">
+                            <button class="flt-btn flt-active3" onclick="setBolaStatus('ALL')">Tutti</button>
+                            <button class="flt-btn" onclick="setBolaStatus('VULNERABLE')">Vulnerabili</button>
+                            <button class="flt-btn" onclick="setBolaStatus('POTENTIAL')">Potenziali</button>
+                            <button class="flt-btn" onclick="setBolaStatus('SAFE')">Sicuri / Protetti</button>
+                        </div>
                     </div>
                 </div>
 
                 <div>
                     <div class="search-wrap">
-                        <input type="text" id="search-bola" placeholder="Cerca endpoint, URL, evidenza…"
-                               oninput="renderBola()" aria-label="Cerca nei finding BOLA">
+                        <input type="text" id="search-bola" placeholder="Cerca path, evidenza, status…"
+                               oninput="renderBola()" aria-label="Cerca nei test BOLA">
                     </div>
                     <div class="result-count" id="bola-result-count"></div>
-                    <div class="findings-list" id="bola-list"></div>
+                    <div class="endpoint-list" id="bola-endpoints-list"></div>
                     <div class="empty-state" id="bola-empty" style="display:none;">
-                        <div class="empty-icon">🔒</div>
-                        <h3>Nessun BOLA rilevato!</h3>
-                        <p>Nessun finding corrisponde ai filtri correnti.</p>
+                        <div class="empty-icon">🛡️</div>
+                        <h3>Nessun endpoint dinamico</h3>
+                        <p>Nessun endpoint dinamico corrisponde ai filtri correnti.</p>
                     </div>
                 </div>
             </div>
@@ -1068,30 +1258,21 @@ class APIDashboardGenerator:
     /* DATA                                                              */
     /* ================================================================ */
     const ALL_FINDINGS = {findings_json};
+    const ENDPOINTS    = {endpoints_json};
     const STATS        = {stats_json};
 
-    const STATIC_SOURCES  = new Set(["CHECKOV", "SEMGREP"]);
-    const OPENAPI_SOURCES = new Set(["SPECTRAL", "SHADOW_API"]);
-    const BOLA_SOURCES    = new Set(["ZAP_DAST", "RUNTIME_VALIDATOR"]);
+    const checkovFindings = ALL_FINDINGS.filter(f => f.source === "CHECKOV");
 
-    const staticFindings  = ALL_FINDINGS.filter(f => STATIC_SOURCES.has(f.source));
-    const openapiFindings = ALL_FINDINGS.filter(f => OPENAPI_SOURCES.has(f.source));
-    const spectralFindings = ALL_FINDINGS.filter(f => f.source === "SPECTRAL");
-    const shadowFindings   = ALL_FINDINGS.filter(f => f.source === "SHADOW_API");
-    const bolaFindings    = ALL_FINDINGS.filter(f => BOLA_SOURCES.has(f.source));
-
-    /* ─── Active filters state ────────────────────────────────────── */
     const state = {{
-        static:  {{ sev: 'ALL', src: 'ALL', cat: 'ALL' }},
-        openapi: {{ sev: 'ALL', cat: 'ALL' }},
-        bola:    {{ status: 'ALL', src: 'ALL', sev: 'ALL' }}
+        checkov: {{ sev: 'ALL', cat: 'ALL' }},
+        openapi: {{ status: 'ALL' }},
+        bola:    {{ status: 'ALL' }}
     }};
 
     /* ================================================================ */
     /* INIT                                                              */
     /* ================================================================ */
     document.addEventListener('DOMContentLoaded', () => {{
-        // Timestamp
         const d = new Date();
         document.getElementById('scan-timestamp').textContent =
             'Generata: ' + d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', {{hour:'2-digit', minute:'2-digit'}});
@@ -1100,14 +1281,14 @@ class APIDashboardGenerator:
         document.getElementById('gs-total').textContent     = STATS.total;
         document.getElementById('gs-danger').textContent    = STATS.critical + STATS.high;
         document.getElementById('gs-confirmed').textContent = STATS.confirmed;
-        document.getElementById('gs-static').textContent    = STATS.static_total;
+        document.getElementById('gs-static').textContent    = ENDPOINTS.length;
 
         // Tab counts
-        document.getElementById('tab-count-1').textContent = staticFindings.length;
-        document.getElementById('tab-count-2').textContent = openapiFindings.length;
-        document.getElementById('tab-count-3').textContent = bolaFindings.length;
+        document.getElementById('tab-count-1').textContent = checkovFindings.length;
+        document.getElementById('tab-count-2').textContent = ENDPOINTS.length;
+        document.getElementById('tab-count-3').textContent = STATS.bola_total;
 
-        buildStaticUI();
+        buildCheckovUI();
         buildOpenAPIUI();
         buildBolaUI();
     }});
@@ -1135,71 +1316,14 @@ class APIDashboardGenerator:
         return `<span class="tag tag-sev-${{sev.toLowerCase()}}">${{sev}}</span>`;
     }}
 
-    function srcTag(src) {{
-        return `<span class="tag tag-source">${{src}}</span>`;
-    }}
-
     function countBy(arr, keyFn) {{
         const m = {{}};
         arr.forEach(x => {{ const k = keyFn(x); m[k] = (m[k]||0)+1; }});
         return m;
     }}
 
-    function buildFilterBtns(containerId, items, activeClass, onClickFn, currentGetter) {{
-        const el = document.getElementById(containerId);
-        el.innerHTML = '';
-        [['ALL','Tutti'],...items].forEach(([val, label]) => {{
-            const btn = document.createElement('button');
-            btn.className = 'flt-btn' + (currentGetter() === val ? ' ' + activeClass : '');
-            btn.innerHTML = `${{label}} <span class="fc">${{val === 'ALL' ? items.reduce((s,[,,,c])=>s+(c||0),0) : ''}}</span>`;
-            btn.onclick = () => {{ onClickFn(val); }};
-            el.appendChild(btn);
-        }});
-    }}
-
-    function buildSevFilters(containerId, findings, activeClass, stateName, subKey, renderFn) {{
-        const counts = countBy(findings, f => f.severity);
-        const sevs = ['CRITICAL','HIGH','MEDIUM','LOW','INFO']
-            .filter(s => counts[s])
-            .map(s => [s, s[0]+s.slice(1).toLowerCase(), null, counts[s]]);
-
-        const el = document.getElementById(containerId);
-        el.innerHTML = '';
-        [['ALL','Tutte', null, findings.length], ...sevs].forEach(([val, label,,cnt]) => {{
-            const btn = document.createElement('button');
-            btn.className = 'flt-btn' + (state[stateName][subKey] === val ? ' '+activeClass : '');
-            btn.innerHTML = `${{label}} <span class="fc">${{cnt ?? ''}}</span>`;
-            btn.onclick = () => {{ state[stateName][subKey] = val; renderFn(); buildSevFilters(containerId, findings, activeClass, stateName, subKey, renderFn); }};
-            el.appendChild(btn);
-        }});
-    }}
-
-    function buildSrcFilters(containerId, findings, activeClass, stateName, subKey, renderFn) {{
-        const counts = countBy(findings, f => f.source);
-        const srcs = Object.entries(counts).map(([k,v]) => [k,k,null,v]);
-        const el = document.getElementById(containerId);
-        el.innerHTML = '';
-        [['ALL','Tutte', null, findings.length], ...srcs].forEach(([val,label,,cnt]) => {{
-            const btn = document.createElement('button');
-            btn.className = 'flt-btn' + (state[stateName][subKey] === val ? ' '+activeClass : '');
-            btn.innerHTML = `${{label}} <span class="fc">${{cnt ?? ''}}</span>`;
-            btn.onclick = () => {{ state[stateName][subKey] = val; renderFn(); buildSrcFilters(containerId, findings, activeClass, stateName, subKey, renderFn); }};
-            el.appendChild(btn);
-        }});
-    }}
-
-    function buildCatFilters(containerId, findings, activeClass, stateName, subKey, renderFn) {{
-        const counts = countBy(findings, f => f.category);
-        const cats = Object.entries(counts).map(([k,v]) => [k, k.replace(/_/g,' '), null, v]);
-        const el = document.getElementById(containerId);
-        el.innerHTML = '';
-        [['ALL','Tutte', null, findings.length], ...cats].forEach(([val,label,,cnt]) => {{
-            const btn = document.createElement('button');
-            btn.className = 'flt-btn' + (state[stateName][subKey] === val ? ' '+activeClass : '');
-            btn.innerHTML = `${{label}} <span class="fc">${{cnt ?? ''}}</span>`;
-            btn.onclick = () => {{ state[stateName][subKey] = val; renderFn(); buildCatFilters(containerId, findings, activeClass, stateName, subKey, renderFn); }};
-            el.appendChild(btn);
-        }});
+    function toggleRow(element) {{
+        element.classList.toggle('expanded');
     }}
 
     function makeSectionStats(containerId, statsArr) {{
@@ -1212,27 +1336,13 @@ class APIDashboardGenerator:
         ).join('');
     }}
 
-    function renderFindingCard(f, extra='') {{
+    function renderFindingCard(f) {{
         const sevCls = 'sev-' + f.severity.toLowerCase();
-        const confirmed = f.validation_status === 'CONFIRMED';
         let meta = '';
-        if (f.api?.endpoint)        meta += `<div class="meta-row"><span class="meta-key">Endpoint</span><span class="meta-val">${{f.api.method||'?'}} ${{f.api.endpoint}}</span></div>`;
-        if (f.location?.file_path)  meta += `<div class="meta-row"><span class="meta-key">Sorgente</span><span class="meta-val">${{f.location.file_path}}${{f.location.start_line?' :'+f.location.start_line:''}}</span></div>`;
         if (f.resource_id)          meta += `<div class="meta-row"><span class="meta-key">Risorsa</span><span class="meta-val">${{f.resource_id}}</span></div>`;
-        if (f.rule_id)              meta += `<div class="meta-row"><span class="meta-key">Rule ID</span><span class="meta-val">${{f.rule_id}}</span></div>`;
-        if (f.raw_data?.correlated_risk_score != null)
-            meta += `<div class="meta-row"><span class="meta-key">Risk Score</span><span class="meta-val" style="color:var(--rose);font-weight:700">${{f.raw_data.correlated_risk_score}} / 10</span></div>`;
-        let runtime = '';
-        if (f.runtime_evidence) {{
-            const re = f.runtime_evidence;
-            runtime = `<div class="code-block">
-                [Evidenza Runtime]<br>
-                URL: ${{re.tested_url||'N/D'}}<br>
-                Status: ${{re.http_status||'N/D'}}<br>
-                ${{re.accessible_without_auth != null ? 'Accessibile senza auth: '+re.accessible_without_auth+'<br>' : ''}}
-                ${{re.response_snippet ? 'Snippet: '+re.response_snippet : ''}}
-            </div>`;
-        }}
+        if (f.location?.file_path)  meta += `<div class="meta-row"><span class="meta-key">File</span><span class="meta-val">${{f.location.file_path}}${{f.location.start_line?' :'+f.location.start_line:''}}</span></div>`;
+        if (f.rule_id)              meta += `<div class="meta-row"><span class="meta-key">Regola Checkov</span><span class="meta-val">${{f.rule_id}}</span></div>`;
+        
         const remediation = f.remediation
             ? `<div class="remediation-box"><h4>Rimedio Suggerito</h4><p>${{f.remediation}}</p></div>` : '';
 
@@ -1241,53 +1351,84 @@ class APIDashboardGenerator:
                 <div class="fcard-title">${{f.title}}</div>
                 <div class="fcard-tags">
                     ${{sevTag(f.severity)}}
-                    ${{srcTag(f.source)}}
-                    ${{confirmed ? '<span class="tag tag-confirmed">✓ Confermato</span>' : ''}}
-                    ${{extra}}
                 </div>
             </div>
             <div class="fcard-desc">${{f.description}}</div>
             ${{meta ? '<div class="fcard-meta">'+meta+'</div>' : ''}}
-            ${{runtime}}
             ${{remediation}}
         </div>`;
     }}
 
     /* ================================================================ */
-    /* PANEL 1 — STATIC                                                  */
+    /* PANEL 1 — CHECKOV                                                */
     /* ================================================================ */
-    function buildStaticUI() {{
-        const cr = staticFindings.filter(f => f.severity==='CRITICAL').length;
-        const hi = staticFindings.filter(f => f.severity==='HIGH').length;
-        const src = countBy(staticFindings, f => f.source);
-        makeSectionStats('static-section-stats', [
-            ['Finding Totali',    staticFindings.length,   'var(--sky)'],
-            ['Critici',           cr,                       'var(--rose)'],
-            ['Alti',              hi,                       'var(--amber)'],
-            ['Checkov',           src['CHECKOV']||0,        'var(--teal)'],
-            ['Semgrep',           src['SEMGREP']||0,        'var(--violet)'],
+    function buildCheckovUI() {{
+        makeSectionStats('checkov-section-stats', [
+            ['Findings Checkov', checkovFindings.length,  'var(--sky)'],
+            ['Critico',          STATS.checkov_critical,  'var(--rose)'],
+            ['Alto',             STATS.checkov_high,      'var(--amber)'],
+            ['Medio',            STATS.checkov_medium,    'var(--indigo)'],
+            ['Basso',            STATS.checkov_low,       'var(--teal)'],
         ]);
-        buildSevFilters('filter-static-sev', staticFindings, 'flt-active1', 'static', 'sev', renderStatic);
-        buildSrcFilters('filter-static-src', staticFindings, 'flt-active1', 'static', 'src', renderStatic);
-        buildCatFilters('filter-static-cat', staticFindings, 'flt-active1', 'static', 'cat', renderStatic);
-        renderStatic();
+        
+        buildSevFilters('filter-checkov-sev', checkovFindings, 'flt-active1', 'checkov', 'sev', renderCheckov);
+        buildCatFilters('filter-checkov-cat', checkovFindings, 'flt-active1', 'checkov', 'cat', renderCheckov);
+        renderCheckov();
     }}
 
-    function renderStatic() {{
-        const q = (document.getElementById('search-static').value||'').toLowerCase();
-        const filtered = staticFindings.filter(f => {{
-            if (state.static.sev !== 'ALL' && f.severity !== state.static.sev) return false;
-            if (state.static.src !== 'ALL' && f.source   !== state.static.src) return false;
-            if (state.static.cat !== 'ALL' && f.category !== state.static.cat) return false;
-            if (q && !(f.title+f.description+(f.rule_id||'')+(f.resource_id||'')+(f.location?.file_path||'')).toLowerCase().includes(q)) return false;
+    function buildSevFilters(containerId, findings, activeClass, stateName, subKey, renderFn) {{
+        const counts = countBy(findings, f => f.severity);
+        const sevs = ['CRITICAL','HIGH','MEDIUM','LOW','INFO']
+            .filter(s => counts[s])
+            .map(s => [s, s[0]+s.slice(1).toLowerCase(), counts[s]]);
+
+        const el = document.getElementById(containerId);
+        el.innerHTML = '';
+        [['ALL','Tutte', findings.length], ...sevs].forEach(([val, label, cnt]) => {{
+            const btn = document.createElement('button');
+            btn.className = 'flt-btn' + (state[stateName][subKey] === val ? ' '+activeClass : '');
+            btn.innerHTML = `${{label}} <span class="fc">${{cnt}}</span>`;
+            btn.onclick = () => {{ 
+                state[stateName][subKey] = val; 
+                renderFn(); 
+                buildSevFilters(containerId, findings, activeClass, stateName, subKey, renderFn); 
+            }};
+            el.appendChild(btn);
+        }});
+    }}
+
+    function buildCatFilters(containerId, findings, activeClass, stateName, subKey, renderFn) {{
+        const counts = countBy(findings, f => f.category);
+        const cats = Object.entries(counts).map(([k,v]) => [k, k.replace(/_/g,' '), v]);
+        const el = document.getElementById(containerId);
+        el.innerHTML = '';
+        [['ALL','Tutte', findings.length], ...cats].forEach(([val,label,cnt]) => {{
+            const btn = document.createElement('button');
+            btn.className = 'flt-btn' + (state[stateName][subKey] === val ? ' '+activeClass : '');
+            btn.innerHTML = `${{label}} <span class="fc">${{cnt}}</span>`;
+            btn.onclick = () => {{ 
+                state[stateName][subKey] = val; 
+                renderFn(); 
+                buildCatFilters(containerId, findings, activeClass, stateName, subKey, renderFn); 
+            }};
+            el.appendChild(btn);
+        }});
+    }}
+
+    function renderCheckov() {{
+        const q = (document.getElementById('search-checkov').value||'').toLowerCase();
+        const filtered = checkovFindings.filter(f => {{
+            if (state.checkov.sev !== 'ALL' && f.severity !== state.checkov.sev) return false;
+            if (state.checkov.cat !== 'ALL' && f.category !== state.checkov.cat) return false;
+            if (q && !(f.title+f.description+(f.rule_id||'')+(f.resource_id||'')).toLowerCase().includes(q)) return false;
             return true;
         }});
 
-        document.getElementById('static-result-count').textContent =
-            filtered.length + ' di ' + staticFindings.length + ' finding';
+        document.getElementById('checkov-result-count').textContent =
+            filtered.length + ' di ' + checkovFindings.length + ' findings';
 
-        const container = document.getElementById('static-list');
-        const empty     = document.getElementById('static-empty');
+        const container = document.getElementById('checkov-list');
+        const empty     = document.getElementById('checkov-empty');
         if (filtered.length === 0) {{
             container.innerHTML = '';
             empty.style.display = 'block';
@@ -1301,90 +1442,42 @@ class APIDashboardGenerator:
     /* PANEL 2 — OPENAPI                                                 */
     /* ================================================================ */
     function buildOpenAPIUI() {{
-        const hi  = spectralFindings.filter(f => f.severity==='HIGH').length;
-        const me  = spectralFindings.filter(f => f.severity==='MEDIUM').length;
-        const endpts = new Set(shadowFindings.map(f => (f.api?.method||'?') + ' ' + (f.api?.endpoint || f.location?.file_path || '?')));
-
         makeSectionStats('openapi-section-stats', [
-            ['Violazioni Spectral', spectralFindings.length, 'var(--violet)'],
-            ['Alta Severità',       hi,                       'var(--rose)'],
-            ['Media Severità',      me,                       'var(--amber)'],
-            ['Shadow Endpoints',    shadowFindings.length,    'var(--orange)'],
-            ['Spec Analizzata',     '1',                      'var(--emerald)'],
+            ['Rotte Totali',    STATS.openapi_total,      'var(--violet)'],
+            ['Documentate',     STATS.openapi_documented, 'var(--emerald)'],
+            ['Shadow API',      STATS.openapi_shadow,     'var(--orange)'],
+            ['Violazioni Spec', STATS.openapi_violations, 'var(--rose)'],
         ]);
+        renderOpenAPI();
+    }}
 
-        // ── Blocco Shadow API ─────────────────────────────────────────
-        const epSummary = document.getElementById('openapi-ep-summary');
-        if (shadowFindings.length > 0) {{
-            const epMap = {{}};
-            shadowFindings.forEach(f => {{
-                const meth = f.api?.method || 'GET';
-                const path = f.api?.endpoint || f.location?.file_path || f.title || '?';
-                const k = meth + ' ' + path;
-                epMap[k] = (epMap[k]||0)+1;
-            }});
-            epSummary.innerHTML = `
-                <div style="margin-bottom:1.2rem;">
-                    <div style="background:rgba(249,115,22,0.06);border:1px solid rgba(249,115,22,0.2);border-radius:14px;padding:1rem 1.3rem;">
-                        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.8rem;">
-                            <span style="font-size:1.1rem;">👻</span>
-                            <span style="font-size:0.85rem;font-weight:700;color:var(--orange);">Shadow API — Endpoint Non Documentati (${{shadowFindings.length}})</span>
-                            <span style="font-size:0.75rem;color:var(--text-muted);margin-left:auto;">rilevati da Mitmproxy traffic analysis</span>
-                        </div>
-                        <div class="endpoint-grid">
-                            ${{Object.entries(epMap).map(([ep, cnt]) => {{
-                                const parts = ep.split(' ');
-                                const meth  = parts[0];
-                                const path  = parts.slice(1).join(' ');
-                                return `<div class="ep-row" style="border-color:rgba(249,115,22,0.15);">
-                                    <span class="ep-method method-${{meth.toLowerCase()}}">${{meth}}</span>
-                                    <span class="ep-path">${{path}}</span>
-                                    <span class="ep-rule" style="color:var(--orange);">${{cnt}} occorrenze</span>
-                                </div>`;
-                            }}).join('')}}
-                        </div>
-                    </div>
-                </div>`;
-        }} else {{
-            epSummary.innerHTML = '';
-        }}
-
-        buildSevFilters('filter-openapi-sev', openapiFindings, 'flt-active2', 'openapi', 'sev', renderOpenAPI);
-        buildCatFilters('filter-openapi-cat', openapiFindings, 'flt-active2', 'openapi', 'cat', renderOpenAPI);
+    function setOpenAPIStatus(status) {{
+        state.openapi.status = status;
+        const btns = document.querySelectorAll('#filter-openapi-status .flt-btn');
+        btns.forEach((btn, idx) => {{
+            const val = ['ALL', 'DOCUMENTED', 'SHADOW', 'VIOLATING'][idx];
+            if (val === status) btn.classList.add('flt-active2');
+            else btn.classList.remove('flt-active2');
+        }});
         renderOpenAPI();
     }}
 
     function renderOpenAPI() {{
         const q = (document.getElementById('search-openapi').value||'').toLowerCase();
-        // Filtriamo solo i Spectral per la lista (gli Shadow API hanno il loro blocco separato sopra)
-        const filtered = spectralFindings.filter(f => {{
-            if (state.openapi.sev !== 'ALL' && f.severity !== state.openapi.sev) return false;
-            if (state.openapi.cat !== 'ALL' && f.category !== state.openapi.cat) return false;
-            if (q && !(f.title+f.description+(f.rule_id||'')+(f.api?.endpoint||'')).toLowerCase().includes(q)) return false;
+        const filtered = ENDPOINTS.filter(e => {{
+            if (state.openapi.status === 'DOCUMENTED' && !e.documented) return false;
+            if (state.openapi.status === 'SHADOW' && !e.shadow) return false;
+            if (state.openapi.status === 'VIOLATING' && e.violations.length === 0) return false;
+            
+            if (q && !(e.path + e.method + (e.summary||'') + (e.description||'')).toLowerCase().includes(q)) return false;
             return true;
         }});
 
-        const resultLabel = spectralFindings.length === 0
-            ? 'Spettral non ancora eseguito — lancia `make api-security` per generare i risultati'
-            : filtered.length + ' di ' + spectralFindings.length + ' violazioni Spectral';
-        document.getElementById('openapi-result-count').textContent = resultLabel;
+        document.getElementById('openapi-result-count').textContent =
+            filtered.length + ' di ' + ENDPOINTS.length + ' endpoint catalogati';
 
-        const container = document.getElementById('openapi-list');
+        const container = document.getElementById('openapi-endpoints-list');
         const empty     = document.getElementById('openapi-empty');
-
-        if (spectralFindings.length === 0) {{
-            container.innerHTML = `
-                <div style="background:rgba(167,139,250,0.05);border:1px dashed rgba(167,139,250,0.2);border-radius:14px;padding:2rem;text-align:center;">
-                    <div style="font-size:2rem;margin-bottom:0.8rem;">⚙️</div>
-                    <div style="font-weight:700;color:var(--violet);margin-bottom:0.4rem;">Spectral non ancora eseguito</div>
-                    <div style="font-size:0.82rem;color:var(--text-secondary);">I risultati del linting OpenAPI (Stoplight Spectral) compariranno qui dopo la prossima esecuzione della pipeline.</div>
-                    <div style="margin-top:0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.78rem;background:rgba(0,0,0,0.3);border-radius:8px;padding:0.6rem 1rem;color:var(--sky);display:inline-block;">
-                        make api-security
-                    </div>
-                </div>`;
-            empty.style.display = 'none';
-            return;
-        }}
 
         if (filtered.length === 0) {{
             container.innerHTML = '';
@@ -1392,9 +1485,66 @@ class APIDashboardGenerator:
             return;
         }}
         empty.style.display = 'none';
-        container.innerHTML = filtered.map(f => {{
-            const ruleTag = f.rule_id ? `<span class="tag tag-source">#${{f.rule_id}}</span>` : '';
-            return renderFindingCard(f, ruleTag);
+
+        container.innerHTML = filtered.map(e => {{
+            let statusTag = '';
+            if (e.shadow) {{
+                statusTag = '<span class="ep-status-tag status-shadow">👻 Shadow API</span>';
+            }} else if (e.violations.length > 0) {{
+                statusTag = `<span class="ep-status-tag status-violating">⚠️ ${{e.violations.length}} Violazioni Contratto</span>`;
+            }} else {{
+                statusTag = '<span class="ep-status-tag status-compliant">🟢 Documentato &amp; Conforme</span>';
+            }}
+
+            let detailsHtml = '';
+            if (e.shadow) {{
+                detailsHtml = `
+                    <div class="detail-card" style="border-left: 2px solid var(--orange);">
+                        <h4>Evidenza Endpoint Shadow</h4>
+                        <p>Questo endpoint è stato scoperto dinamicamente intercettando il traffico applicativo reale, ma non è documentato nelle specifiche OpenAPI ufficiale (openapi.yaml).</p>
+                        <p style="margin-top: 0.4rem; font-size: 0.8rem; color: var(--text-muted);">Azione consigliata: Documentare il percorso nella specifica OpenAPI per prevenire problemi di tracciabilità delle API.</p>
+                    </div>`;
+            }} else if (e.violations.length > 0) {{
+                detailsHtml = `
+                    <div class="detail-card">
+                        <h4>Violazioni di Conformità Spectral</h4>
+                        <div style="display:flex; flex-direction:column; gap:0.6rem;">
+                            ${{e.violations.map(v => `
+                                <div class="violation-item">
+                                    <div class="violation-title">${{v.rule_id}}</div>
+                                    <div class="violation-desc">${{v.description}}</div>
+                                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;">
+                                        Severità: ${{v.severity}} ${{v.line ? '· Riga: ' + v.line : ''}}
+                                    </div>
+                                </div>
+                            `).join('')}}
+                        </div>
+                    </div>`;
+            }} else {{
+                detailsHtml = `
+                    <div class="detail-card" style="border-left: 2px solid var(--emerald);">
+                        <p>L'endpoint rispetta tutte le regole del contratto previste da Stoplight Spectral (Nessuna violazione OWASP API).</p>
+                    </div>`;
+            }}
+
+            return `
+                <div class="ep-row">
+                    <div class="ep-main-info" onclick="toggleRow(this.parentElement)">
+                        <span class="ep-method method-${{e.method.toLowerCase()}}">${{e.method}}</span>
+                        <span class="ep-path">${{e.path}}</span>
+                        <div class="ep-status-badges">
+                            ${{statusTag}}
+                        </div>
+                        <span class="ep-chevron">▶</span>
+                    </div>
+                    <div class="ep-details">
+                        <p style="font-size:0.83rem; color:var(--text-secondary); margin-bottom: 0.8rem;">
+                            <strong>Summary:</strong> ${{e.summary || 'Nessun sommario'}}<br>
+                            ${{e.description ? '<strong>Description:</strong> ' + e.description : ''}}
+                        </p>
+                        ${{detailsHtml}}
+                    </div>
+                </div>`;
         }}).join('');
     }}
 
@@ -1402,92 +1552,117 @@ class APIDashboardGenerator:
     /* PANEL 3 — BOLA                                                    */
     /* ================================================================ */
     function buildBolaUI() {{
-        const confirmed = bolaFindings.filter(f => f.validation_status==='CONFIRMED').length;
-        const critical  = bolaFindings.filter(f => f.severity==='CRITICAL').length;
-        const zap       = bolaFindings.filter(f => f.source==='ZAP_DAST').length;
-        const rval      = bolaFindings.filter(f => f.source==='RUNTIME_VALIDATOR').length;
-
         makeSectionStats('bola-section-stats', [
-            ['Test BOLA',          bolaFindings.length, 'var(--rose)'],
-            ['Confermati',         confirmed,            'var(--emerald)'],
-            ['Critici',            critical,             'var(--rose)'],
-            ['ZAP D-AST',          zap,                  'var(--amber)'],
-            ['Runtime Validator',  rval,                 'var(--violet)'],
+            ['Endpoint Dinamici', STATS.bola_total,      'var(--rose)'],
+            ['BOLA Vulnerabili',  STATS.bola_vulnerable,   'var(--rose)'],
+            ['BOLA Potenziali',   STATS.bola_potential,    'var(--amber)'],
+            ['Test Sicuri',       STATS.bola_safe,         'var(--emerald)'],
         ]);
+        renderBola();
+    }}
 
-
-        // Banner riassuntivo BOLA
-        if (bolaFindings.length > 0) {{
-            const pct = Math.round(confirmed / bolaFindings.length * 100);
-            const banner = document.getElementById('bola-summary-banner');
-            const alertClass = confirmed > 0 ? 'bola-vuln' : 'bola-safe';
-            const alertText  = confirmed > 0 ?
-                `⚠️ ${{confirmed}} endpoint BOLA confermati con evidenza runtime (${{pct}}% del totale)` :
-                `✅ Nessun BOLA confermato a runtime — potenziali finding da verificare manualmente`;
-            banner.innerHTML = `
-                <div style="background:${{confirmed>0?'rgba(251,113,133,0.06)':'rgba(16,185,129,0.06)'}};border:1px solid ${{confirmed>0?'rgba(251,113,133,0.2)':'rgba(16,185,129,0.2)'}};border-radius:14px;padding:1rem 1.4rem;display:flex;align-items:center;gap:1rem;">
-                    <span style="font-size:1.5rem;">${{confirmed>0?'🔴':'🟢'}}</span>
-                    <div>
-                        <div style="font-weight:700;color:${{confirmed>0?'var(--rose)':'var(--emerald)'}};">${{alertText}}</div>
-                        <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.2rem;">
-                            Test differenziale con token admin vs anonimo — autenticazione Keycloak
-                        </div>
-                    </div>
-                </div>`;
-        }}
-
-        // Filtri status
-        const statusEl = document.getElementById('filter-bola-status');
-        const statusItems = [
-            ['ALL','Tutti',        bolaFindings.length],
-            ['CONFIRMED','Confermati', confirmed],
-            ['NOT_VALIDATED','Non Validati', bolaFindings.filter(f=>f.validation_status!=='CONFIRMED').length],
-        ];
-        statusEl.innerHTML = statusItems.map(([val,label,cnt]) =>
-            `<button class="flt-btn ${{state.bola.status===val?'flt-active3':''}}"
-                onclick="state.bola.status='${{val}}';renderBola();buildBolaUI();">
-                ${{label}} <span class="fc">${{cnt}}</span>
-             </button>`
-        ).join('');
-
-        buildSrcFilters('filter-bola-src', bolaFindings, 'flt-active3', 'bola', 'src', renderBola);
-        buildSevFilters('filter-bola-sev', bolaFindings, 'flt-active3', 'bola', 'sev', renderBola);
+    function setBolaStatus(status) {{
+        state.bola.status = status;
+        const btns = document.querySelectorAll('#filter-bola-status .flt-btn');
+        btns.forEach((btn, idx) => {{
+            const val = ['ALL', 'VULNERABLE', 'POTENTIAL', 'SAFE'][idx];
+            if (val === status) btn.classList.add('flt-active3');
+            else btn.classList.remove('flt-active3');
+        }});
         renderBola();
     }}
 
     function renderBola() {{
         const q = (document.getElementById('search-bola').value||'').toLowerCase();
-        const filtered = bolaFindings.filter(f => {{
-            if (state.bola.status !== 'ALL') {{
-                if (state.bola.status==='CONFIRMED'     && f.validation_status!=='CONFIRMED') return false;
-                if (state.bola.status==='NOT_VALIDATED' && f.validation_status==='CONFIRMED') return false;
-            }}
-            if (state.bola.src !== 'ALL' && f.source   !== state.bola.src) return false;
-            if (state.bola.sev !== 'ALL' && f.severity !== state.bola.sev) return false;
-            if (q && !(f.title+f.description+(f.api?.endpoint||'')+(f.runtime_evidence?.tested_url||'')).toLowerCase().includes(q)) return false;
+        
+        const filtered = ENDPOINTS.filter(e => {{
+            if (!e.is_dynamic) return false;
+            if (state.bola.status !== 'ALL' && e.bola_status !== state.bola.status) return false;
+            if (q && !(e.path + e.method + e.bola_status).toLowerCase().includes(q)) return false;
             return true;
         }});
 
         document.getElementById('bola-result-count').textContent =
-            filtered.length + ' di ' + bolaFindings.length + ' finding BOLA';
+            filtered.length + ' di ' + STATS.bola_total + ' endpoint dinamici analizzati';
 
-        const container = document.getElementById('bola-list');
+        const container = document.getElementById('bola-endpoints-list');
         const empty     = document.getElementById('bola-empty');
 
-        if (bolaFindings.length === 0 || filtered.length === 0) {{
+        if (filtered.length === 0) {{
             container.innerHTML = '';
             empty.style.display = 'block';
             return;
         }}
         empty.style.display = 'none';
 
-        container.innerHTML = filtered.map(f => {{
-            const isBola = f.category === 'AUTHORIZATION' || f.owasp_api_category?.includes('BOLA') || f.title?.toLowerCase().includes('bola') || f.title?.toLowerCase().includes('idor');
-            const bolaTag = isBola ? '<span class="tag tag-bola bola-badge">🎯 BOLA/IDOR</span>' : '';
-            const riskScore = f.raw_data?.correlated_risk_score;
-            const riskEl = riskScore != null ?
-                `<span class="risk-score" style="color:${{riskScore>=7?'var(--rose)':riskScore>=4?'var(--amber)':'var(--emerald)'}};margin-left:0.5rem;">⚡ ${{riskScore}}/10</span>` : '';
-            return renderFindingCard(f, bolaTag + riskEl);
+        container.innerHTML = filtered.map(e => {{
+            let statusTag = '';
+            if (e.bola_status === 'VULNERABLE') {{
+                statusTag = '<span class="bola-status-badge bola-vulnerable">🔴 BOLA Rilevato</span>';
+            }} else if (e.bola_status === 'POTENTIAL') {{
+                statusTag = '<span class="bola-status-badge bola-potential">🟡 Potenziale BOLA</span>';
+            }} else if (e.bola_status === 'SAFE') {{
+                statusTag = '<span class="bola-status-badge bola-safe">🟢 Protetto / Sicuro</span>';
+            }} else {{
+                statusTag = '<span class="bola-status-badge bola-untested">⚪ Non Testato</span>';
+            }}
+
+            let testEvidenceHtml = '';
+            if (e.bola_findings.length > 0) {{
+                testEvidenceHtml = e.bola_findings.map(f => {{
+                    const isConfirmed = f.validation_status === 'CONFIRMED';
+                    let evidenceSnippet = '';
+                    if (f.runtime_evidence) {{
+                        const re = f.runtime_evidence;
+                        evidenceSnippet = `
+                            <div class="code-block">
+                                [Evidenza di exploit a Runtime]<br>
+                                URL Testato: ${{re.tested_url || 'N/D'}}<br>
+                                Status Risposta: ${{re.http_status || 'N/D'}}<br>
+                                ${{re.accessible_without_auth != null ? 'Accessibile senza autorizzazione: ' + re.accessible_without_auth + '<br>' : ''}}
+                                ${{re.response_snippet ? 'Risposta payload: ' + re.response_snippet : ''}}
+                            </div>`;
+                    }}
+                    return `
+                        <div style="border-left: 2px solid ${{isConfirmed ? 'var(--rose)' : 'var(--amber)'}}; padding-left: 0.8rem; margin-bottom: 0.8rem;">
+                            <div style="font-weight: 700; font-size: 0.85rem;">${{f.title}}</div>
+                            <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.15rem;">${{f.description}}</div>
+                            ${{evidenceSnippet}}
+                            ${{f.remediation ? `<div class="remediation-box" style="margin-top:0.4rem;"><h4>Mitigazione</h4><p>${{f.remediation}}</p></div>` : ''}}
+                        </div>`;
+                }}).join('');
+            }} else if (e.bola_status === 'SAFE') {{
+                testEvidenceHtml = `
+                    <div style="border-left: 2px solid var(--emerald); padding-left: 0.8rem;">
+                        <div style="font-weight: 700; font-size: 0.85rem; color: var(--emerald);">L'endpoint è protetto</div>
+                        <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.15rem;">
+                            I test di tampering effettuati con token utente differenti (User A vs User B) e sessioni anonime sono stati rifiutati correttamente dall'applicazione con codici di stato di sicurezza (es. 403 Forbidden o 401 Unauthorized).
+                        </div>
+                    </div>`;
+            }} else {{
+                testEvidenceHtml = `
+                    <div style="border-left: 2px solid var(--text-muted); padding-left: 0.8rem; color: var(--text-muted); font-size:0.82rem;">
+                        Nessun test dinamico eseguito per questo endpoint.
+                    </div>`;
+            }}
+
+            return `
+                <div class="ep-row">
+                    <div class="ep-main-info" onclick="toggleRow(this.parentElement)">
+                        <span class="ep-method method-${{e.method.toLowerCase()}}">${{e.method}}</span>
+                        <span class="ep-path">${{e.path}}</span>
+                        <div class="ep-status-badges">
+                            ${{statusTag}}
+                        </div>
+                        <span class="ep-chevron">▶</span>
+                    </div>
+                    <div class="ep-details">
+                        <div class="detail-card">
+                            <h4>Dettaglio Testing Sicurezza Autorizzazioni</h4>
+                            ${{testEvidenceHtml}}
+                        </div>
+                    </div>
+                </div>`;
         }}).join('');
     }}
     </script>
