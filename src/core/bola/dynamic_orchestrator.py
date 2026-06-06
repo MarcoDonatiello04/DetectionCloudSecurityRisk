@@ -130,8 +130,8 @@ def validate_api_inventory(inventory: List[Dict[str, Any]]) -> None:
 # ─── CLASSI PRINCIPALI DEL FLUSSO ───────────────────────────────────────────
 
 from src.core.identity_context import IdentityManager, DatabaseSeeder
-from src.core.bola.state_manager import BOLAStateManager
-from src.core.bola.attack_vector import BOLAAttackVector
+from src.core.bola.state_manager import APIStateEngine
+from src.core.bola.attack_vector import ContextAwareAttackGenerator
 from src.core.bola.assertion_engine import APIAssertionEngine
 from src.core.bola.ownership_inference import OwnershipInferenceEngine
 from src.core.bola.object_discovery import ObjectReferenceDiscoveryEngine
@@ -180,8 +180,8 @@ class ZapController:
         self.test_results = []
         
         # Inizializza i moduli BOLA e reset dello stato
-        state_manager = BOLAStateManager(target_base_url)
-        attack_vector = BOLAAttackVector(self.zap_proxy_url)
+        state_engine = APIStateEngine(target_base_url)
+        attack_generator = ContextAwareAttackGenerator(self.zap_proxy_url)
 
         # Configurazione contesto ZAP
         context_name = "API_Security_Context"
@@ -205,10 +205,10 @@ class ZapController:
             for method in methods_to_test:
                 # 1. Snapshot dello stato prima del test
                 if use_state_management:
-                    state_manager.take_snapshot()
+                    APIStateEngine.take_snapshot(target_base_url)
 
                 # 2. Generazione ed esecuzione dei vettori di attacco per i 3 scenari
-                scenarios_results = attack_vector.execute_tampering(
+                scenarios_results = attack_generator.execute_tampering(
                     method=method,
                     target_base_url=target_base_url,
                     path=path,
@@ -307,7 +307,7 @@ class ZapController:
                 
                 # 5. Rollback dello stato dopo il test per ripulire gli effetti collaterali
                 if use_state_management:
-                    state_manager.trigger_rollback()
+                    APIStateEngine.trigger_rollback(target_base_url)
 
         # Attendi la conclusione degli active scan
         self._wait_for_scan_completion()

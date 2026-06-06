@@ -1,22 +1,24 @@
 """
-Modulo della Privilege Matrix (Matrice di Controllo Accessi) per Role-Aware Testing.
-Modella le regole di business attese per l'applicazione, determinando se una determinata
-operazione effettuata da un utente con un certo ruolo sulla risorsa di un altro utente
-sia legittima per design o se rappresenti una violazione BOLA (Orizzontale o Verticale).
+Requirements Analysis Document (RAD) & Object Design Document (ODD) Academic Alignment
+Modulo: Privilege Matrix / Controllo Accessi BOLA (AccessControlMatrix)
+Percorso: src/core/bola/role_matrix.py
+
+Questo modulo implementa la Privilege Matrix di controllo degli accessi. Definisce
+la logica di business gerarchica per determinare la legittimità o la classificazione
+di una violazione BOLA (Orizzontale o Verticale).
 """
 
 import logging
+from typing import Optional
 
-logger = logging.getLogger("SecurityPlatform.BOLA.RoleMatrix")
+logger = logging.getLogger("SecurityPlatform.BOLA.AccessControlMatrix")
 
 
 class AccessControlMatrix:
     """
-    Rappresenta la matrice delle autorizzazioni gerarchiche sulle risorse.
-    Regole di business attese:
-    - Un ruolo 'admin' ha accesso completo (lettura, scrittura, cancellazione) su qualsiasi risorsa.
-    - Un ruolo 'manager' ha accesso alle proprie risorse e a quelle degli utenti con ruolo 'user', ma non degli 'admin'.
-    - Un ruolo 'user' può accedere solo ed esclusivamente alle proprie risorse.
+    Rappresenta la Privilege Matrix gerarchica del sistema.
+    
+    Pattern Strutturale: Privilege Matrix / Role-Based Policy
     """
 
     HIERARCHY = {
@@ -26,47 +28,67 @@ class AccessControlMatrix:
     }
 
     @classmethod
-    def validate_access_legitimacy(cls, requesting_user_role: str, resource_owner_role: str, method: str) -> bool:
+    def validate_access_legitimacy(
+        cls, 
+        requesting_role: str, 
+        owner_role: str, 
+        method: str = "GET",
+        # Parametri legacy per retrocompatibilità con keyword arguments
+        requesting_user_role: Optional[str] = None,
+        resource_owner_role: Optional[str] = None
+    ) -> str:
         """
-        Valuta se l'accesso alla risorsa è legittimo in base alle regole dei ruoli.
+        Valuta se l'operazione richiesta è legittima rispetto alle regole di business.
+        
+        Regole di Business:
+        - Un ruolo 'admin' ha accesso completo e legittimo a qualsiasi risorsa.
+        - Un ruolo 'manager' ha accesso alle proprie risorse e a quelle degli utenti 'user', ma non degli 'admin'.
+        - Un ruolo 'user' può accedere solo alle proprie risorse. Qualsiasi interazione
+          su risorse di un altro 'user' (peer) è marcata come BOLA Orizzontale.
+        - Un tentativo di accesso da ruolo inferiore a risorsa di ruolo superiore è marcato come BOLA Verticale.
         
         Args:
-            requesting_user_role (str): Il ruolo dell'utente che effettua la richiesta (es. 'admin', 'user').
-            resource_owner_role (str): Il ruolo del proprietario effettivo della risorsa.
-            method (str): Il metodo HTTP dell'operazione (GET, PUT, DELETE, ecc.).
-
+            requesting_role (str): Il ruolo dell'utente che avvia la richiesta.
+            owner_role (str): Il ruolo dell'utente proprietario della risorsa target.
+            method (str): Il metodo HTTP dell'azione.
+            
         Returns:
-            bool: True se l'accesso è legittimo per design (es. Admin su User), 
-                  False se costituisce una violazione di sicurezza.
+            str: Verdetto formale: "LEGITTIMO", "BOLA_ORIZZONTALE" o "BOLA_VERTICALE".
         """
-        req_role = (requesting_user_role or "user").lower()
-        owner_role = (resource_owner_role or "user").lower()
-        method = method.upper()
+        # Risolve l'uso di parametri legacy
+        req_role_raw = requesting_role if requesting_role is not None else requesting_user_role
+        owner_role_raw = owner_role if owner_role is not None else resource_owner_role
 
-        # Sanitarizzazione dei ruoli per evitare disallineamenti
+        req_role = str(req_role_raw or "user").lower().strip()
+        owner_role = str(owner_role_raw or "user").lower().strip()
+        method = str(method or "GET").upper().strip()
+
+        # Allineamento con la gerarchia censita
         if req_role not in cls.HIERARCHY:
             req_role = "user"
         if owner_role not in cls.HIERARCHY:
             owner_role = "user"
 
-        logger.debug(f"Valutazione legittimità: Richiedente={req_role}, Proprietario={owner_role}, Metodo={method}")
+        logger.debug(f"📐 [ROLE MATRIX] Valutazione: {req_role} su risorsa di {owner_role} tramite {method}")
 
-        # Regola 1: Se l'utente richiedente è 'admin', l'accesso è sempre legittimo per design.
+        # 1. Accesso da parte di un Amministratore
         if req_role == "admin":
-            return True
+            return "LEGITTIMO"
 
-        # Regola 2: Un utente ordinario ('user') non può mai accedere a risorse di altri utenti (paritetici o superiori).
+        # 2. Accesso da parte di un Utente ordinario su un altro Utente ordinario (Peer-to-Peer)
         if req_role == "user" and owner_role == "user":
-            # Per scopi di test BOLA, se sono due identità diverse (Alice e Bob), l'accesso non è legittimo.
-            # Qui la matrice definisce le regole di ruolo generiche: un 'user' non ha diritti ereditati su altri 'user'.
-            return False
+            return "BOLA_ORIZZONTALE"
 
-        # Regola 3: Privilegio verticale (un ruolo inferiore che accede ad uno superiore)
+        # 3. Accesso da ruolo con privilegi inferiori a superiori (Scalata)
         if cls.HIERARCHY[req_role] < cls.HIERARCHY[owner_role]:
-            return False
+            return "BOLA_VERTICALE"
 
-        # Regola 4: Un 'manager' può accedere alle risorse degli 'user' per determinati metodi (es. GET o modifiche autorizzate)
+        # 4. Accesso da parte di un Manager su un Utente ordinario (Lecito)
         if req_role == "manager" and owner_role == "user":
-            return True
+            return "LEGITTIMO"
 
-        return False
+        # 5. Default in caso di ruoli identici non admin (es. manager su manager)
+        if req_role == owner_role:
+            return "BOLA_ORIZZONTALE"
+
+        return "BOLA_VERTICALE"

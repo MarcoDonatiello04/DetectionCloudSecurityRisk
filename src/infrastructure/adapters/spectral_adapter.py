@@ -112,8 +112,10 @@ class SpectralScannerAdapter(IScanner):
                             method=str(path_list[2]).upper()
                         )
                         target_ident += f"|{api_ctx.endpoint}|{api_ctx.method}"
-                    
-                    corr_key = source_file.split("/")[-1] if "/" in source_file else source_file
+                    corr_key = None
+                    if not api_ctx:
+                        filename = source_file.split("/")[-1] if "/" in source_file else source_file
+                        corr_key = f"openapi:{filename}:{rule_code}"
 
                     finding = Finding.create(
                         source=FindingSource.SPECTRAL,

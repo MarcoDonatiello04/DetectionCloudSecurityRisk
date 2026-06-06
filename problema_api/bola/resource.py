@@ -22,6 +22,14 @@ def get_generic_resource(resource_name, resource_id):
     Endpoint dinamico vulnerabile a BOLA (OWASP API1:2023).
     Accetta GET, POST, PUT, DELETE.
     """
+    import uuid
+    # 0. Validazione del parametro in formato UUID stringa
+    try:
+        uuid.UUID(str(resource_id))
+    except ValueError:
+        logger.warning(f"Richiesta respinta: l'ID risorsa '{resource_id}' non è in formato UUID valido.")
+        return jsonify({"error": f"Bad Request: resource_id '{resource_id}' must be a valid UUID string"}), 400
+
     # 1. Verifica dell'autenticazione (estrazione dell'utente dal JWT)
     username = extract_username(request)
     if not username:

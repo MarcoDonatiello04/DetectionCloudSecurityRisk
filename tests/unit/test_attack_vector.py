@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from src.core.bola.attack_vector import BOLAAttackVector
+from src.core.bola.attack_vector import ContextAwareAttackGenerator
 
 @patch('src.core.bola.attack_vector.requests.request')
 def test_execute_tampering_methods(mock_request):
@@ -16,7 +16,7 @@ def test_execute_tampering_methods(mock_request):
         "anonymous": {}
     }
 
-    vector = BOLAAttackVector(zap_proxy_url="http://localhost:8090")
+    vector = ContextAwareAttackGenerator(zap_proxy_url="http://localhost:8090")
     
     # Test a POST request
     results = vector.execute_tampering(
