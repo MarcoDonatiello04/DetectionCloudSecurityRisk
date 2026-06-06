@@ -22,13 +22,27 @@ QFrame#panelContent {
     border-radius: 12px;
 }
 
+/* Sidebar Section Headers */
+QLabel#sidebarSectionHeader {
+    font-size: 9px;
+    font-weight: 700;
+    color: #94a3b8; /* Slate 400 */
+    letter-spacing: 1.2px;
+    padding-left: 14px;
+    margin-top: 4px;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+}
+
 /* Sidebar Tab buttons */
 QPushButton#sidebarTab {
     background-color: transparent;
     color: #64748b;
     border: none;
-    border-radius: 8px;
-    padding: 10px 14px;
+    border-left: 3px solid transparent;
+    border-radius: 6px;
+    padding: 10px 12px 10px 15px;
+    margin: 2px 8px;
     text-align: left;
     font-size: 13px;
     font-weight: 500;
@@ -37,13 +51,14 @@ QPushButton#sidebarTab {
 QPushButton#sidebarTab:hover {
     color: #0f172a;
     background-color: #f1f5f9;
+    border-left: 3px solid rgba(99, 102, 241, 0.25);
 }
 
 QPushButton#sidebarTab:checked {
-    color: #0284c7;
-    background-color: #e0f2fe;
-    border-left: 3px solid #0284c7;
-    font-weight: bold;
+    color: #4f46e5;
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(99, 102, 241, 0.12), stop:1 rgba(99, 102, 241, 0.02));
+    border-left: 3px solid #6366f1;
+    font-weight: 600;
 }
 
 /* Common interactive controls */

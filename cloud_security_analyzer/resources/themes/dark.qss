@@ -13,7 +13,7 @@ QWidget {
 
 QFrame#sidebar {
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #090d16, stop:1 #030508);
-    border-right: 1px solid rgba(167, 139, 250, 0.08);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 QFrame#panelContent {
@@ -22,13 +22,26 @@ QFrame#panelContent {
     border-radius: 12px;
 }
 
+/* Sidebar Section Headers */
+QLabel#sidebarSectionHeader {
+    font-size: 9px;
+    font-weight: 700;
+    color: #4b5563; /* Gray 600 */
+    letter-spacing: 1.2px;
+    padding-left: 14px;
+    margin-top: 4px;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+}
+
 /* Sidebar Tab buttons */
 QPushButton#sidebarTab {
     background-color: transparent;
     color: #9ca3af;
     border: none;
-    border-radius: 8px;
-    padding: 12px 18px;
+    border-left: 3px solid transparent;
+    border-radius: 6px;
+    padding: 10px 12px 10px 15px;
     margin: 2px 8px;
     text-align: left;
     font-size: 13px;
@@ -38,16 +51,14 @@ QPushButton#sidebarTab {
 QPushButton#sidebarTab:hover {
     color: #ffffff;
     background-color: rgba(255, 255, 255, 0.04);
-    border-left: 3px solid rgba(167, 139, 250, 0.3);
-    padding-left: 15px; /* Effetto micro-animazione slide */
+    border-left: 3px solid rgba(167, 139, 250, 0.25);
 }
 
 QPushButton#sidebarTab:checked {
     color: #ffffff;
-    background-color: rgba(167, 139, 250, 0.12);
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(167, 139, 250, 0.16), stop:1 rgba(129, 140, 248, 0.04));
     border-left: 3px solid #a78bfa;
     font-weight: 600;
-    padding-left: 15px;
 }
 
 /* Common interactive controls */

@@ -8,12 +8,15 @@ Responsabilità:
 """
 
 import os
+import logging
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton, 
     QStackedWidget, QLabel, QFrame, QMessageBox, QStatusBar
 )
 from PySide6.QtCore import Slot, Qt
 from PySide6.QtGui import QFont, QIcon
+
+logger = logging.getLogger("SecurityPlatform.GUI.MainWindow")
 
 from cloud_security_analyzer.core.config import APP_TITLE, APP_VERSION, get_absolute_path
 from cloud_security_analyzer.controllers.main_controller import MainController
@@ -79,58 +82,75 @@ class MainWindow(QMainWindow):
         sidebar_layout.setContentsMargins(16, 24, 16, 24)
         sidebar_layout.setSpacing(8)
 
-        # Header Sidebar (Logo + Versione)
-        logo_container = QVBoxLayout()
-        logo_container.setSpacing(2)
-        logo_container.setContentsMargins(0, 0, 0, 24)
+        # Header Sidebar (Logo + Versione) - Layout Orizzontale Moderno
+        logo_container = QHBoxLayout()
+        logo_container.setSpacing(12)
+        logo_container.setContentsMargins(8, 0, 8, 16)
         
         lbl_logo_icon = QLabel("🛡️")
-        lbl_logo_icon.setFont(QFont("Outfit", 26))
+        lbl_logo_icon.setFont(QFont("Outfit", 24))
         lbl_logo_icon.setAlignment(Qt.AlignCenter)
         
+        text_container = QVBoxLayout()
+        text_container.setSpacing(1)
+        
         lbl_logo_title = QLabel(APP_TITLE.upper())
-        lbl_logo_title.setFont(QFont("Outfit", 11, QFont.Bold))
-        lbl_logo_title.setAlignment(Qt.AlignCenter)
-        lbl_logo_title.setStyleSheet("color: #38bdf8; letter-spacing: 1px;")
-
-        lbl_logo_ver = QLabel(f"SECURITY ENGINE v{APP_VERSION}")
+        lbl_logo_title.setFont(QFont("Outfit", 12, QFont.Bold))
+        lbl_logo_title.setStyleSheet("color: #38bdf8; letter-spacing: 0.5px;")
+        
+        lbl_logo_ver = QLabel(f"v{APP_VERSION} PRO")
         lbl_logo_ver.setFont(QFont("Outfit", 8))
-        lbl_logo_ver.setAlignment(Qt.AlignCenter)
-        lbl_logo_ver.setStyleSheet("color: #6b7280;")
-
+        lbl_logo_ver.setStyleSheet("color: #6b7280; font-weight: 500;")
+        
+        text_container.addWidget(lbl_logo_title)
+        text_container.addWidget(lbl_logo_ver)
+        
         logo_container.addWidget(lbl_logo_icon)
-        logo_container.addWidget(lbl_logo_title)
-        logo_container.addWidget(lbl_logo_ver)
+        logo_container.addLayout(text_container)
         
         # Linea di separazione sotto il logo
         logo_divider = QFrame(self)
         logo_divider.setFrameShape(QFrame.HLine)
-        logo_divider.setStyleSheet("background-color: rgba(255, 255, 255, 0.06); max-height: 1px; margin-top: 12px; margin-bottom: 8px;")
-        logo_container.addWidget(logo_divider)
+        logo_divider.setStyleSheet("background-color: rgba(255, 255, 255, 0.06); max-height: 1px; margin-top: 8px; margin-bottom: 16px;")
         
         sidebar_layout.addLayout(logo_container)
+        sidebar_layout.addWidget(logo_divider)
 
-        # Tab Buttons
-        self.tab_buttons = []
-        tabs_config = [
-            ("Dashboard", "📊  Dashboard"),
-            ("Findings", "🔍  Vulnerabilità (Tutte)"),
-            ("Endpoints", "🛣️  Catalogo API"),
-            ("Authorization", "🔑  Autorizzazione & BOLA"),
-            ("Authentication", "🔒  Autenticazione API"),
-            ("Infrastructure", "☁️  Infrastruttura IaC"),
-            ("Logs", "⚙️  Console di Sistema"),
-            ("Settings", "🛠️  Impostazioni")
+        # Tab Buttons organizzati in categorie/sezioni
+        self.tab_buttons = [None] * 8
+        groups_config = [
+            ("MONITORAGGIO", [
+                (0, "📊  Dashboard"),
+                (1, "🔍  Vulnerabilità (Tutte)"),
+                (2, "🛣️  Catalogo API")
+            ]),
+            ("VETTORI DI ATTACCO", [
+                (3, "🔑  Autorizzazione & BOLA"),
+                (4, "🔒  Autenticazione API"),
+                (5, "☁️  Infrastruttura IaC")
+            ]),
+            ("SISTEMA", [
+                (6, "⚙️  Console di Sistema"),
+                (7, "🛠️  Impostazioni")
+            ])
         ]
 
-        for index, (obj_name, label_text) in enumerate(tabs_config):
-            btn = QPushButton(label_text, self)
-            btn.setObjectName("sidebarTab")
-            btn.setCheckable(True)
-            # Collega il click alla selezione del rispettivo stacked widget index
-            btn.clicked.connect(lambda checked=False, idx=index: self._switch_tab(idx))
-            sidebar_layout.addWidget(btn)
-            self.tab_buttons.append(btn)
+        for sec_idx, (sec_name, items) in enumerate(groups_config):
+            if sec_idx > 0:
+                sidebar_layout.addSpacing(16)
+                
+            sec_header = QLabel(sec_name, self)
+            sec_header.setObjectName("sidebarSectionHeader")
+            sidebar_layout.addWidget(sec_header)
+            
+            for idx, label_text in items:
+                btn = QPushButton(label_text, self)
+                btn.setObjectName("sidebarTab")
+                btn.setCheckable(True)
+                btn.setCursor(Qt.PointingHandCursor)
+                btn.clicked.connect(lambda checked=False, index=idx: self._switch_tab(index))
+                sidebar_layout.addWidget(btn)
+                self.tab_buttons[idx] = btn
 
         # Imposta la prima tab attiva di default
         self.tab_buttons[0].setChecked(True)
@@ -226,12 +246,6 @@ class MainWindow(QMainWindow):
                     self.view_settings.rad_dark.setStyleSheet(f"QRadioButton {{ {text_color} border: none; }}")
                     self.view_settings.rad_light.setStyleSheet(f"QRadioButton {{ {text_color} border: none; }}")
                 
-                # Riconfigura lo stile della sidebar
-                if theme_name == "light":
-                    self.sidebar.setStyleSheet("QFrame#sidebar { background-color: #ffffff; border-right: 1px solid #e2e8f0; }")
-                else:
-                    self.sidebar.setStyleSheet("QFrame#sidebar { background-color: #0c101b; border-right: 1px solid #1c2333; }")
-                    
             except Exception as e:
                 logger.error(f"Impossibile applicare il foglio di stile {path}: {e}")
 

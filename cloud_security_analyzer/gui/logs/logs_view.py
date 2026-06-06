@@ -8,23 +8,32 @@ Responsabilità:
 
 import logging
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPlainTextEdit, QHBoxLayout, QPushButton, QLabel, QApplication
-from PySide6.QtCore import Slot, Qt
+from PySide6.QtCore import Slot, Qt, QObject, Signal
 from PySide6.QtGui import QFont
+
+class LogSignals(QObject):
+    """
+    Segnali per l'invio asincrono e thread-safe dei log alla GUI.
+    """
+    log_written = Signal(str)
+
 
 class LogHandler(logging.Handler):
     """
-    Handler di log personalizzato che scrive i record direttamente in una casella di testo Qt.
+    Handler di log personalizzato che scrive i record in modo thread-safe nella casella di testo Qt.
     """
 
     def __init__(self, text_widget: QPlainTextEdit):
         super().__init__()
         self.text_widget = text_widget
+        self.signals = LogSignals()
+        self.signals.log_written.connect(self.text_widget.appendPlainText)
         self.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
 
     def emit(self, record):
         msg = self.format(record)
-        # Assicura l'append del log nel thread principale
-        self.text_widget.appendPlainText(msg)
+        # Emette il segnale per delegare l'append del log al thread principale della GUI
+        self.signals.log_written.emit(msg)
 
 
 class LogsView(QWidget):
