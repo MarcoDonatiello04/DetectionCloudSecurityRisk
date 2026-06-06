@@ -78,11 +78,11 @@ app.add_url_rule("/test/seed", view_func=seed_database, methods=["POST"])
 app.add_url_rule("/test/snapshot", view_func=database_snapshot_endpoint, methods=["GET", "POST"])
 app.add_url_rule("/test/rollback", view_func=database_rollback_endpoint, methods=["POST"])
 
-# Rotta jolly dinamica abilitata per tutti i metodi HTTP (GET, POST, PUT, DELETE)
+# Rotta jolly dinamica abilitata per tutti i metodi HTTP (GET, POST, PUT, PATCH, DELETE)
 app.add_url_rule(
     "/api/<resource_name>/<resource_id>", 
     view_func=get_generic_resource, 
-    methods=["GET", "POST", "PUT", "DELETE"]
+    methods=["GET", "POST", "PUT", "PATCH", "DELETE"]
 )
 
 if __name__ == "__main__":

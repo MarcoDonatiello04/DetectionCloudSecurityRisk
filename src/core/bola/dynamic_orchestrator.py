@@ -133,6 +133,8 @@ from src.core.identity_context import IdentityManager, DatabaseSeeder
 from src.core.bola.state_manager import BOLAStateManager
 from src.core.bola.attack_vector import BOLAAttackVector
 from src.core.bola.assertion_engine import APIAssertionEngine
+from src.core.bola.ownership_inference import OwnershipInferenceEngine
+from src.core.bola.object_discovery import ObjectReferenceDiscoveryEngine
 
 
 class ZapController:
@@ -165,15 +167,16 @@ class ZapController:
         uuid_bob: str,
         uuid_charlie: str,
         role_map: Dict[str, str],
-        output_dir: str = "output"
+        output_dir: str = "output",
+        use_state_management: bool = True
     ) -> None:
         """
         Pianifica ed esegue gli attacchi differenziali reali inviando traffico
-        tramite il proxy di OWASP ZAP, supportando i metodi HTTP GET, PUT e DELETE.
+        tramite il proxy di OWASP ZAP, supportando i metodi HTTP GET, POST, PUT, PATCH e DELETE.
         Usa la logica di Role-Aware Testing per distinguere BOLA orizzontale/verticale/safe.
         """
         validate_url(target_base_url, "target_base_url")
-        logger.info("🔥 Avvio test differenziale esteso e Role-Aware (GET, PUT, DELETE)...")
+        logger.info("🔥 Avvio test differenziale esteso e Role-Aware...")
         self.test_results = []
         
         # Inizializza i moduli BOLA e reset dello stato
@@ -188,7 +191,7 @@ class ZapController:
         except Exception as e:
             logger.debug(f"Errore creazione contesto ZAP: {e}")
 
-        methods_to_test = ["GET", "PUT", "DELETE"]
+        methods_to_test = ["GET", "POST", "PUT", "PATCH", "DELETE"]
 
         role_alice = role_map.get(uuid_alice, "user")
         role_bob = role_map.get(uuid_bob, "user")
@@ -196,11 +199,13 @@ class ZapController:
 
         for ep in dynamic_endpoints:
             path = ep["path"]
+            discovered_refs = ep.get("discovered_refs", None)
             logger.info(f"🧪 [BOLA Role-Aware Assessment] Analisi endpoint dinamico: {path}")
 
             for method in methods_to_test:
                 # 1. Snapshot dello stato prima del test
-                state_manager.take_snapshot()
+                if use_state_management:
+                    state_manager.take_snapshot()
 
                 # 2. Generazione ed esecuzione dei vettori di attacco per i 3 scenari
                 scenarios_results = attack_vector.execute_tampering(
@@ -213,7 +218,8 @@ class ZapController:
                     uuid_charlie=uuid_charlie,
                     role_alice=role_alice,
                     role_bob=role_bob,
-                    role_charlie=role_charlie
+                    role_charlie=role_charlie,
+                    discovered_refs=discovered_refs
                 )
 
                 for stim in scenarios_results:
@@ -269,7 +275,7 @@ class ZapController:
                         else:
                             logger.info(f"✅ [SAFE] {scenario_name} {method} su: {target_url} (Verdetto: {verdict})")
                     else:
-                        logger.warning(f"⚠️ Impossibile eseguire BOLA Assessment per {scenario_name} {method} dovuto a errori di rete.")
+                        logger.warning(f"⚠️ Impossibile eseguire BOLA Assessment for {scenario_name} {method} dovuto a errori di rete.")
 
                     # 4. Broken Authentication Check (Anonymous)
                     if res_anon is not None:
@@ -300,7 +306,8 @@ class ZapController:
                                 logger.debug(f"ZAP ascan fallito: {ze}")
                 
                 # 5. Rollback dello stato dopo il test per ripulire gli effetti collaterali
-                state_manager.trigger_rollback()
+                if use_state_management:
+                    state_manager.trigger_rollback()
 
         # Attendi la conclusione degli active scan
         self._wait_for_scan_completion()
@@ -351,7 +358,8 @@ class DynamicOrchestrator:
         self, 
         target_base_url: str = DEFAULT_TARGET_BASE_URL,
         keycloak_url: str = DEFAULT_KEYCLOAK_URL,
-        zap_proxy_url: str = DEFAULT_ZAP_PROXY_URL
+        zap_proxy_url: str = DEFAULT_ZAP_PROXY_URL,
+        assessment_mode: bool = False
     ):
         """
         Inizializza l'orchestratore dinamico configurando le dipendenze richieste.
@@ -360,15 +368,14 @@ class DynamicOrchestrator:
             target_base_url (str): URL di base dell'applicazione web target.
             keycloak_url (str): URL di Keycloak per la gestione delle identità.
             zap_proxy_url (str): URL del proxy OWASP ZAP.
-
-        Raises:
-            ValueError: Se uno degli URL passati non è formalmente valido.
+            assessment_mode (bool): Abilita la modalità Assessment (senza seeding/snapshot/rollback).
         """
         validate_url(target_base_url, "target_base_url")
         validate_url(keycloak_url, "keycloak_url")
         validate_url(zap_proxy_url, "zap_proxy_url")
         
         self.target_base_url = target_base_url
+        self.assessment_mode = assessment_mode
         self.identity_manager = IdentityManager(keycloak_url=keycloak_url)
         self.seeder = DatabaseSeeder(seed_url=f"{target_base_url.rstrip('/')}/test/seed")
         self.zap_controller = ZapController(zap_proxy_url=zap_proxy_url)
@@ -418,7 +425,6 @@ class DynamicOrchestrator:
                     if segment == "{id}":
                         resource_name = segments[i - 1] if i > 0 else "generic_resource"
                         break
-                
                 dynamic_endpoints.append({
                     "path": path,
                     "methods": methods_list,
@@ -433,33 +439,91 @@ class DynamicOrchestrator:
         logger.info(f"Filtro endpoint da inventario completato. Trovati {len(dynamic_endpoints)} endpoint dinamici e {len(static_endpoints)} statici.")
         return dynamic_endpoints, static_endpoints
 
-    def run_dast_pipeline(self, api_inventory: List[Dict[str, Any]], output_dir: str = "output") -> List[Finding]:
+    def run_dast_pipeline(self, api_inventory: List[Dict[str, Any]], output_dir: str = "output", raw_traffic: List[Dict[str, Any]] = None) -> List[Finding]:
         """
         Esegue l'intero workflow orchestrato del D-AST: estrazione, provisioning, seeding e attacco differenziale.
 
         Args:
             api_inventory (List[Dict[str, Any]]): L'inventario delle API estratto per il seeding e la scansione.
             output_dir (str): Cartella di destinazione dei report.
-
-        Returns:
-            List[Finding]: Lista di Finding che rappresentano i risultati dei test differenziali eseguiti.
+            raw_traffic (List[Dict[str, Any]]): Traffico intercettato.
         """
         logger.info("🚀 Avvio Pipeline di Automazione D-AST...")
 
         # 1. Estrazione & Raggruppamento Endpoint da Inventario Pipeline
         dynamic_eps, _ = self._extract_endpoints_from_inventory(api_inventory)
 
-        # 2. Identity Provisioning (Keycloak)
-        headers_matrix = self.identity_manager.get_headers_for_identities()
-        uuid_alice = self.identity_manager.identity_map.get("UUID_ALICE")
-        uuid_bob = self.identity_manager.identity_map.get("UUID_BOB")
-        uuid_charlie = self.identity_manager.identity_map.get("UUID_CHARLIE")
-        role_map = self.identity_manager.role_map
+        headers_matrix = {}
+        uuid_alice = None
+        uuid_bob = None
+        uuid_charlie = None
+        role_map = {}
 
-        # 3. Dynamic Database Seeding (Context-Aware con UUID estratti per 3 utenti)
-        seeding_success = self.seeder.seed_target_application(dynamic_eps, uuid_alice, uuid_bob, uuid_charlie)
-        if not seeding_success:
-            logger.warning("Procedo con il test DAST anche se il seeding dinamico ha rilevato degli avvisi.")
+        # Se siamo in Assessment Mode o se abbiamo traffico a disposizione,
+        # arricchiamo gli endpoint ed estraiamo le relazioni di ownership
+        if self.assessment_mode or raw_traffic:
+            logger.info("🔍 [Assessment Mode / Traffic Analysis] Esecuzione Ownership Inference...")
+            inference_engine = OwnershipInferenceEngine()
+            inference_engine.analyze_traffic(raw_traffic)
+            
+            uuid_alice, uuid_bob, uuid_charlie, inferred_roles, inferred_headers = inference_engine.get_inferred_identities()
+            role_map.update(inferred_roles)
+            headers_matrix.update(inferred_headers)
+            
+            # Troviamo ulteriori endpoint con riferimenti a oggetti tramite ObjectReferenceDiscoveryEngine
+            if raw_traffic:
+                logger.info("🔍 [Object Reference Discovery] Analisi del traffico alla ricerca di ID nascosti...")
+                for entry in raw_traffic:
+                    refs = ObjectReferenceDiscoveryEngine.extract_references(entry)
+                    if refs:
+                        path = entry.get("path", "")
+                        norm_path = APIEndpointNormalizer.normalize_path(path)
+                        method = entry.get("method", "GET").upper()
+                        
+                        exists = False
+                        for ep in dynamic_eps:
+                            if ep["path"] == norm_path:
+                                exists = True
+                                if method not in ep["methods"]:
+                                    ep["methods"].append(method)
+                                if "discovered_refs" not in ep:
+                                    ep["discovered_refs"] = []
+                                ep["discovered_refs"].extend(refs)
+                                break
+                        
+                        if not exists:
+                            resource_name = "generic"
+                            for ref in refs:
+                                if ref["location"] == "path":
+                                    resource_name = ref["name"].replace("_id", "")
+                                    break
+                            
+                            dynamic_eps.append({
+                                "path": norm_path,
+                                "methods": [method],
+                                "resource_name": resource_name,
+                                "discovered_refs": refs
+                            })
+
+        # Se non siamo in Assessment Mode o se non siamo riusciti ad estrarre le identità dal traffico, usiamo Keycloak (Lab Mode)
+        use_state_management = True
+        if self.assessment_mode:
+            use_state_management = False
+
+        if not headers_matrix or not headers_matrix.get("userA") or not uuid_alice:
+            logger.info("🧪 [Lab Mode] Configurazione delle identità tramite Keycloak...")
+            headers_matrix = self.identity_manager.get_headers_for_identities()
+            uuid_alice = self.identity_manager.identity_map.get("UUID_ALICE")
+            uuid_bob = self.identity_manager.identity_map.get("UUID_BOB")
+            uuid_charlie = self.identity_manager.identity_map.get("UUID_CHARLIE")
+            role_map = self.identity_manager.role_map
+
+            # In Lab Mode eseguiamo anche il seeding e abilitiamo lo snapshot/rollback dello stato
+            seeding_success = self.seeder.seed_target_application(dynamic_eps, uuid_alice, uuid_bob, uuid_charlie)
+            if not seeding_success:
+                logger.warning("Procedo con il test DAST anche se il seeding dinamico ha rilevato degli avvisi.")
+        else:
+            logger.info("ℹ️ [Assessment Mode] Utilizzo delle identità e relazioni inferte dal traffico. Seeding saltato.")
 
         # 4. Differential Scan & Authorization Testing (Passando gli UUID di contesto)
         self.zap_controller.run_differential_scan(
@@ -470,7 +534,8 @@ class DynamicOrchestrator:
             uuid_bob=uuid_bob,
             uuid_charlie=uuid_charlie,
             role_map=role_map,
-            output_dir=output_dir
+            output_dir=output_dir,
+            use_state_management=use_state_management
         )
 
         logger.info("🏆 Pipeline D-AST completata con successo! Generazione dei findings di sbarramento...")

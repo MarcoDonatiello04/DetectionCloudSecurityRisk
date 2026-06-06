@@ -56,7 +56,45 @@ class APIAssertionEngine:
         # Asserzione strutturale differenziale
         if method == "GET":
             if res_bob.status_code == 200 and res_alice is not None:
-                structural_similarity_assertion = (len(res_bob.text) != len(res_alice.text))
+                try:
+                    json_alice = res_alice.json()
+                    json_bob = res_bob.json()
+                    
+                    def get_structure_keys(obj):
+                        if isinstance(obj, dict):
+                            keys = set(obj.keys())
+                            for k, v in obj.items():
+                                if isinstance(v, dict):
+                                    keys.update(f"{k}.{sub_k}" for sub_k in get_structure_keys(v))
+                            return keys
+                        elif isinstance(obj, list):
+                            keys = set()
+                            for item in obj:
+                                if isinstance(item, dict):
+                                    keys.update(get_structure_keys(item))
+                            return keys
+                        return set()
+
+                    keys_alice = get_structure_keys(json_alice)
+                    keys_bob = get_structure_keys(json_bob)
+                    
+                    if keys_alice and keys_bob:
+                        common_keys = keys_alice.intersection(keys_bob)
+                        similarity = len(common_keys) / max(len(keys_alice), len(keys_bob))
+                        # Se condividono almeno l'80% delle chiavi, sono simili (assertion = False)
+                        structural_similarity_assertion = (similarity < 0.8)
+                    else:
+                        structural_similarity_assertion = (type(json_alice) != type(json_bob))
+                except Exception:
+                    # Fallback non-JSON:
+                    len_a = len(res_alice.text) if res_alice.text else 0
+                    len_b = len(res_bob.text) if res_bob.text else 0
+                    if len_a == 0 or len_b == 0:
+                        structural_similarity_assertion = (len_a != len_b)
+                    else:
+                        # Se la lunghezza differisce di oltre 5 volte, le risposte sono strutturalmente diverse
+                        ratio = max(len_a, len_b) / min(len_a, len_b)
+                        structural_similarity_assertion = (ratio > 5.0)
             else:
                 structural_similarity_assertion = True
         else:

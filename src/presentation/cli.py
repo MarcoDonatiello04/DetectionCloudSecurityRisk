@@ -80,6 +80,11 @@ def parse_args() -> argparse.Namespace:
         default=DEFAULT_KEYCLOAK_URL,
         help="URL di base del server Keycloak per acquisizione token"
     )
+    parser.add_argument(
+        "--assessment-mode",
+        action="store_true",
+        help="Abilita la modalita' Assessment (senza seeding/snapshot/rollback)"
+    )
     return parser.parse_args()
 
 
@@ -156,7 +161,8 @@ def main() -> None:
         dast_orchestrator = DynamicOrchestrator(
             target_base_url=args.target_base_url,
             keycloak_url=args.keycloak_url,
-            zap_proxy_url=args.zap_url
+            zap_proxy_url=args.zap_url,
+            assessment_mode=args.assessment_mode
         )
         # Costruiamo l'inventario per ZAP basandoci sui findings provvisori
         api_inventory = []
@@ -164,7 +170,11 @@ def main() -> None:
             if f.api and f.api.endpoint:
                 api_inventory.append(f.to_dict())
 
-        dast_findings = dast_orchestrator.run_dast_pipeline(api_inventory, output_dir=args.output_dir) or []
+        dast_findings = dast_orchestrator.run_dast_pipeline(
+            api_inventory, 
+            output_dir=args.output_dir, 
+            raw_traffic=raw_traffic
+        ) or []
         
         # Recuperiamo gli alert da ZAP per integrarli nei findings correlati
         logger.info("📥 Recupero dei findings dinamici generati da OWASP ZAP...")

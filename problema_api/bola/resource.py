@@ -53,7 +53,7 @@ def get_generic_resource(resource_name, resource_id):
             "status": "success"
         }), 200
 
-    elif request.method in ("POST", "PUT"):
+    elif request.method in ("POST", "PUT", "PATCH"):
         logger.info(f"BOLA WRITE: Utente '{username}' modifica/sovrascrive la risorsa '{resource_id}' di '{owner}'")
         
         # Simula l'aggiornamento dei dettagli della risorsa

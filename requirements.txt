@@ -10,4 +10,4 @@ uvicorn
 pyjwt
 requests
 cryptography
-
+PySide6
