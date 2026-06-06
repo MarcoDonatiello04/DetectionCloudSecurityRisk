@@ -31,6 +31,7 @@ from zapv2 import ZAPv2
 
 # Allineamento con il sistema di Discovery centralizzato della Core Pipeline
 from src.normalization.normalizer import APIEndpointNormalizer
+from src.domain.entities import Finding
 
 # Disabilita gli alert SSL di urllib3 per le richieste passanti dal proxy di ZAP
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
