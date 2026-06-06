@@ -158,6 +158,7 @@ class EndpointsView(QWidget):
             # 2. Path
             path_item = QTableWidgetItem(ep.path)
             path_item.setFont(QFont("JetBrains Mono", 10))
+            path_item.setForeground(QColor("#e5e7eb"))
             path_item.setFlags(path_item.flags() & ~Qt.ItemIsEditable)
             self.table.setItem(row, 1, path_item)
 

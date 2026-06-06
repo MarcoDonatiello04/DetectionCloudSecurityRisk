@@ -205,17 +205,14 @@ def main() -> None:
     report_repo = ReportRepository(args.output_dir)
     report_repo.save_findings(correlated_findings, REPORT_FINDINGS_FILENAME)
 
-    # Salviamo l'inventario finale delle API correlate
-    final_api_inventory = []
-    for f in correlated_findings:
-        if f.api and f.api.endpoint:
-            final_api_inventory.append(f.to_dict())
-    report_repo.save_inventory(final_api_inventory, REPORT_INVENTORY_FILENAME)
-
     # 7. Generazione Dashboard interattiva con dati completi
     dashboard_path = os.path.join(args.output_dir, DASHBOARD_FILENAME)
     dash_gen = APIDashboardGenerator(correlated_findings)
     dash_gen.generate(dashboard_path)
+
+    # Salviamo l'inventario finale delle API correlate strutturato per la GUI
+    final_api_inventory = dash_gen._build_endpoint_catalog(correlated_findings)
+    report_repo.save_inventory(final_api_inventory, REPORT_INVENTORY_FILENAME)
 
     logger.info("================================================================================")
     logger.info(f"🏆 PIPELINE COMPLETATA. Report salvato in '{args.output_dir}/'")

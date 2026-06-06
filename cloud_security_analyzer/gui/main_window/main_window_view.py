@@ -101,6 +101,13 @@ class MainWindow(QMainWindow):
         logo_container.addWidget(lbl_logo_icon)
         logo_container.addWidget(lbl_logo_title)
         logo_container.addWidget(lbl_logo_ver)
+        
+        # Linea di separazione sotto il logo
+        logo_divider = QFrame(self)
+        logo_divider.setFrameShape(QFrame.HLine)
+        logo_divider.setStyleSheet("background-color: rgba(255, 255, 255, 0.06); max-height: 1px; margin-top: 12px; margin-bottom: 8px;")
+        logo_container.addWidget(logo_divider)
+        
         sidebar_layout.addLayout(logo_container)
 
         # Tab Buttons
@@ -147,13 +154,13 @@ class MainWindow(QMainWindow):
         self.view_endpoints = EndpointsView(self.endpoints_controller, self)
         
         # Controller dedicati clonando quello principale ma con presets diversi
-        authz_ctrl = FindingsController(self.state, {"category": ["AUTHORIZATION"]})
+        authz_ctrl = FindingsController(self.state, {"category": ["AUTHORIZATION"]}, self.findings_controller.remediation_engine)
         self.view_authz = AuthorizationView(authz_ctrl, self)
         
-        authn_ctrl = FindingsController(self.state, {"category": ["AUTHENTICATION"]})
+        authn_ctrl = FindingsController(self.state, {"category": ["AUTHENTICATION"]}, self.findings_controller.remediation_engine)
         self.view_authn = AuthenticationView(authn_ctrl, self)
         
-        infra_ctrl = FindingsController(self.state, {"source": ["CHECKOV"]})
+        infra_ctrl = FindingsController(self.state, {"source": ["CHECKOV"]}, self.findings_controller.remediation_engine)
         self.view_infra = InfrastructureView(infra_ctrl, self)
         
         self.view_logs = LogsView(self)

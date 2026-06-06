@@ -27,6 +27,7 @@ from cloud_security_analyzer.controllers.dashboard_controller import DashboardCo
 from cloud_security_analyzer.controllers.findings_controller import FindingsController
 from cloud_security_analyzer.controllers.endpoints_controller import EndpointsController
 
+from remediation import RemediationEngine
 from cloud_security_analyzer.gui.main_window.main_window_view import MainWindow
 
 def setup_gui_logging():
@@ -63,11 +64,12 @@ def main():
     
     export_service = ExportService(os.path.join(project_root, "reports"))
     pipeline_service = PipelineService(project_root)
+    remediation_engine = RemediationEngine()
 
     # 4. Istanziazione dei Controller (MVC)
     main_controller = MainController(scan_service, state_service, pipeline_service)
     dashboard_controller = DashboardController(state_service, scan_service)
-    findings_controller = FindingsController(state_service)
+    findings_controller = FindingsController(state_service, remediation_engine=remediation_engine)
     endpoints_controller = EndpointsController(state_service)
 
     # 5. Costruzione e visualizzazione della MainWindow

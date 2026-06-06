@@ -75,6 +75,20 @@ class PipelineService(QObject):
         self.process = QProcess(self)
         self.process.setWorkingDirectory(self.project_root)
         
+        # Configura l'ambiente del processo ereditando quello di sistema
+        # e arricchendolo con i percorsi standard per trovare i comandi (es. terraform, checkov)
+        import os
+        from PySide6.QtCore import QProcessEnvironment
+        env = QProcessEnvironment.systemEnvironment()
+        path = env.value("PATH", "")
+        venv_bin = os.path.join(self.project_root, ".venv", "bin")
+        standard_paths = [venv_bin, "/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin"]
+        for p in standard_paths:
+            if p not in path:
+                path = p + os.pathsep + path
+        env.insert("PATH", path)
+        self.process.setProcessEnvironment(env)
+        
         # Connette i canali di lettura standard
         self.process.readyReadStandardOutput.connect(self._read_output)
         self.process.readyReadStandardError.connect(self._read_error)

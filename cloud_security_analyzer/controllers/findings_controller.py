@@ -15,9 +15,39 @@ class FindingsController:
     Controller responsabile del coordinamento della schermata dei Findings.
     """
 
-    def __init__(self, state_service: StateService, preset_filters: dict = None):
+    def __init__(self, state_service: StateService, preset_filters: dict = None, remediation_engine = None):
         self.state = state_service
         self.preset_filters = preset_filters or {}
+        self.remediation_engine = remediation_engine
+
+    def get_remediation(self, finding: FindingModel):
+        """
+        Interroga il motore di Remediation Intelligence per ottenere la mitigazione.
+        """
+        if self.remediation_engine:
+            return self.remediation_engine.get_remediation(finding.finding)
+            
+        # Fallback se il motore non è istanziato
+        from remediation.models.remediation_model import RemediationModel
+        return RemediationModel(
+            finding_id=finding.id,
+            title=finding.title,
+            severity=finding.severity,
+            description=finding.description,
+            impact="Impatto non calcolato (motore offline).",
+            remediation_steps=[finding.remediation],
+            example="# Nessun esempio di configurazione disponibile.",
+            source="fallback_direct",
+            confidence=0.5
+        )
+
+    def get_remediation_source_fast(self, finding: FindingModel) -> str:
+        """
+        Ottiene l'origine della remediation in modo rapido senza chiamate LLM.
+        """
+        if self.remediation_engine:
+            return self.remediation_engine.get_remediation_source_fast(finding.finding)
+        return "fallback"
 
     def get_filtered_findings(self) -> List[FindingModel]:
         """
