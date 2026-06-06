@@ -226,7 +226,6 @@ class FindingsView(QWidget):
                 res_color = "#f59e0b"
             
             res_item = QTableWidgetItem(res_text)
-            from PySide6.QtGui import QColor
             res_item.setForeground(QColor(res_color))
             res_item.setFont(QFont("Outfit", 9, QFont.Bold))
             res_item.setFlags(res_item.flags() & ~Qt.ItemIsEditable)
