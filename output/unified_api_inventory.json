@@ -1047,7 +1047,7 @@
         "category": "AUTHENTICATION",
         "title": "Endpoint API non protetto rilevato (Statico)",
         "description": "L'endpoint API [python-semgrep]: GET /admin non sembra richiedere controlli di autenticazione a livello statico.",
-        "severity": "MEDIUM",
+        "severity": "HIGH",
         "confidence": 0.8,
         "rule_id": "unauthenticated-api-route",
         "rule_name": "API Route Detection",
@@ -1071,7 +1071,13 @@
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/admin",
-        "related_findings": [],
+        "related_findings": [
+          "spectral-0bdc40a0fe15",
+          "spectral-fd0f63570e9a",
+          "spectral-57ad74fe810f",
+          "spectral-7e1457744c63",
+          "spectral-218dcb74e4e0"
+        ],
         "owasp_api_category": null,
         "cwe_id": null,
         "cve_id": null,
@@ -1084,9 +1090,120 @@
           "file": "problema_api/generic_vulns/app.py",
           "auth_detected": false,
           "framework": "python-semgrep",
-          "correlated_risk_score": 5.5
+          "merged_spectral-0bdc40a0fe15": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/admin",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 53,
+                "character": 16
+              },
+              "end": {
+                "line": 55,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-fd0f63570e9a": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/admin",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 53,
+                "character": 16
+              },
+              "end": {
+                "line": 55,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-57ad74fe810f": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/admin",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 53,
+                "character": 16
+              },
+              "end": {
+                "line": 55,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-7e1457744c63": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/admin",
+              "get",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 53,
+                "character": 16
+              },
+              "end": {
+                "line": 55,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-218dcb74e4e0": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/admin",
+              "get",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 54,
+                "character": 14
+              },
+              "end": {
+                "line": 55,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-06T19:12:40.236361"
+        "detected_at": "2026-06-07T13:14:20.692117"
       }
     ],
     "is_dynamic": false
@@ -1686,7 +1803,7 @@
           "framework": "flask",
           "correlated_risk_score": 5.5
         },
-        "detected_at": "2026-06-06T19:12:40.236334"
+        "detected_at": "2026-06-07T13:14:20.692093"
       }
     ],
     "is_dynamic": false
@@ -2547,7 +2664,7 @@
         "category": "AUTHENTICATION",
         "title": "Endpoint API non protetto rilevato (Statico)",
         "description": "L'endpoint API [python-semgrep]: GET /debug non sembra richiedere controlli di autenticazione a livello statico.",
-        "severity": "MEDIUM",
+        "severity": "HIGH",
         "confidence": 0.8,
         "rule_id": "unauthenticated-api-route",
         "rule_name": "API Route Detection",
@@ -2571,7 +2688,15 @@
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/debug",
-        "related_findings": [],
+        "related_findings": [
+          "spectral-eb150fe9d03b",
+          "spectral-4c6ce4f651a4",
+          "spectral-fb9a92d686be",
+          "spectral-c8eff8a76fb9",
+          "spectral-7a326f03545c",
+          "spectral-a0769434b240",
+          "spectral-0b98022e21f9"
+        ],
         "owasp_api_category": null,
         "cwe_id": null,
         "cve_id": null,
@@ -2584,9 +2709,162 @@
           "file": "problema_api/generic_vulns/app.py",
           "auth_detected": false,
           "framework": "python-semgrep",
-          "correlated_risk_score": 5.5
+          "merged_spectral-eb150fe9d03b": {
+            "code": "owasp-api2-operation-security",
+            "path": [
+              "paths",
+              "/debug",
+              "get"
+            ],
+            "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 82,
+                "character": 8
+              },
+              "end": {
+                "line": 88,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-4c6ce4f651a4": {
+            "code": "owasp:api2:2023-read-restricted",
+            "path": [
+              "paths",
+              "/debug",
+              "get"
+            ],
+            "message": "This read operation is not protected by any security scheme.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 82,
+                "character": 8
+              },
+              "end": {
+                "line": 88,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-fb9a92d686be": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/debug",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 86,
+                "character": 16
+              },
+              "end": {
+                "line": 88,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-c8eff8a76fb9": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/debug",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 86,
+                "character": 16
+              },
+              "end": {
+                "line": 88,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-7a326f03545c": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/debug",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 86,
+                "character": 16
+              },
+              "end": {
+                "line": 88,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-a0769434b240": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/debug",
+              "get",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 86,
+                "character": 16
+              },
+              "end": {
+                "line": 88,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-0b98022e21f9": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/debug",
+              "get",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 87,
+                "character": 14
+              },
+              "end": {
+                "line": 88,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-06T19:12:40.236374"
+        "detected_at": "2026-06-07T13:14:20.692128"
       }
     ],
     "is_dynamic": false
@@ -2682,7 +2960,7 @@
           "framework": "fastapi, python-semgrep",
           "correlated_risk_score": 5.5
         },
-        "detected_at": "2026-06-06T19:12:40.236341"
+        "detected_at": "2026-06-07T13:14:20.692100"
       }
     ],
     "is_dynamic": false
@@ -2766,9 +3044,218 @@
     "description": "Rilevato a runtime (Classificazione: CONFIRMED, Confidence: 1.0).",
     "documented": true,
     "shadow": false,
-    "violations": [],
-    "bola_status": "UNTESTED",
-    "bola_findings": [],
+    "violations": [
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 34
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-34d6db7123dd",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "start_line": 34,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/login",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": null,
+        "related_findings": [
+          "spectral-e4cfb1f1ec2d",
+          "spectral-a8d8c7cb3ba2",
+          "spectral-10c8df78a6d7",
+          "spectral-00e271b5058a",
+          "spectral-7ac96b14e8c4",
+          "spectral-4ed7d766f71d"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/login",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 34,
+              "character": 8
+            },
+            "end": {
+              "line": 40,
+              "character": 57
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "merged_spectral-e4cfb1f1ec2d": {
+            "code": "owasp:api2:2023-read-restricted",
+            "path": [
+              "paths",
+              "/login",
+              "get"
+            ],
+            "message": "This read operation is not protected by any security scheme.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 34,
+                "character": 8
+              },
+              "end": {
+                "line": 40,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-a8d8c7cb3ba2": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/login",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 16
+              },
+              "end": {
+                "line": 40,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-10c8df78a6d7": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/login",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 16
+              },
+              "end": {
+                "line": 40,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-00e271b5058a": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/login",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 16
+              },
+              "end": {
+                "line": 40,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-7ac96b14e8c4": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/login",
+              "get",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 38,
+                "character": 16
+              },
+              "end": {
+                "line": 40,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-4ed7d766f71d": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/login",
+              "get",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 39,
+                "character": 14
+              },
+              "end": {
+                "line": 40,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-06-07T13:14:22.671067"
+      }
+    ],
     "is_dynamic": false
   },
   {
@@ -2787,7 +3274,7 @@
         "category": "AUTHENTICATION",
         "title": "Endpoint API non protetto rilevato (Statico)",
         "description": "L'endpoint API [python-semgrep]: POST /login non sembra richiedere controlli di autenticazione a livello statico.",
-        "severity": "MEDIUM",
+        "severity": "HIGH",
         "confidence": 0.8,
         "rule_id": "unauthenticated-api-route",
         "rule_name": "API Route Detection",
@@ -2811,7 +3298,15 @@
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:POST:/login",
-        "related_findings": [],
+        "related_findings": [
+          "spectral-52117806f3e4",
+          "spectral-f53f681fc3e0",
+          "spectral-a0a48af43865",
+          "spectral-b156c6cfeb32",
+          "spectral-64c959e43d48",
+          "spectral-d3ea842269f6",
+          "spectral-fc492ff8e0fd"
+        ],
         "owasp_api_category": null,
         "cwe_id": null,
         "cve_id": null,
@@ -2824,9 +3319,162 @@
           "file": "problema_api/generic_vulns/app.py",
           "auth_detected": false,
           "framework": "python-semgrep",
-          "correlated_risk_score": 5.5
+          "merged_spectral-52117806f3e4": {
+            "code": "owasp-api2-operation-security",
+            "path": [
+              "paths",
+              "/login",
+              "post"
+            ],
+            "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 41,
+                "character": 9
+              },
+              "end": {
+                "line": 47,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-f53f681fc3e0": {
+            "code": "owasp:api2:2023-write-restricted",
+            "path": [
+              "paths",
+              "/login",
+              "post"
+            ],
+            "message": "This write operation is not protected by any security scheme.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 41,
+                "character": 9
+              },
+              "end": {
+                "line": 47,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-a0a48af43865": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/login",
+              "post",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 45,
+                "character": 16
+              },
+              "end": {
+                "line": 47,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-b156c6cfeb32": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/login",
+              "post",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 45,
+                "character": 16
+              },
+              "end": {
+                "line": 47,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-64c959e43d48": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/login",
+              "post",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 45,
+                "character": 16
+              },
+              "end": {
+                "line": 47,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-d3ea842269f6": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/login",
+              "post",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 45,
+                "character": 16
+              },
+              "end": {
+                "line": 47,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-fc492ff8e0fd": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/login",
+              "post",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 46,
+                "character": 14
+              },
+              "end": {
+                "line": 47,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-06T19:12:40.236357"
+        "detected_at": "2026-06-07T13:14:20.692113"
       }
     ],
     "is_dynamic": false
@@ -2850,9 +3498,218 @@
     "description": "Rilevato a runtime (Classificazione: CONFIRMED, Confidence: 1.0).",
     "documented": true,
     "shadow": false,
-    "violations": [],
-    "bola_status": "UNTESTED",
-    "bola_findings": [],
+    "violations": [
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 90
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-76b239b3e7b0",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "start_line": 90,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/notes",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": null,
+        "related_findings": [
+          "spectral-af8dbf4bec9a",
+          "spectral-330e7fe54f86",
+          "spectral-0aff9a3680f7",
+          "spectral-40f362f5fd5d",
+          "spectral-459efc055e11",
+          "spectral-28ffe5ae0c74"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/notes",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 90,
+              "character": 8
+            },
+            "end": {
+              "line": 96,
+              "character": 57
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "merged_spectral-af8dbf4bec9a": {
+            "code": "owasp:api2:2023-read-restricted",
+            "path": [
+              "paths",
+              "/notes",
+              "get"
+            ],
+            "message": "This read operation is not protected by any security scheme.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 90,
+                "character": 8
+              },
+              "end": {
+                "line": 96,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-330e7fe54f86": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/notes",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 94,
+                "character": 16
+              },
+              "end": {
+                "line": 96,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-0aff9a3680f7": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/notes",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 94,
+                "character": 16
+              },
+              "end": {
+                "line": 96,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-40f362f5fd5d": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/notes",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 94,
+                "character": 16
+              },
+              "end": {
+                "line": 96,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-459efc055e11": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/notes",
+              "get",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 94,
+                "character": 16
+              },
+              "end": {
+                "line": 96,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-28ffe5ae0c74": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/notes",
+              "get",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 95,
+                "character": 14
+              },
+              "end": {
+                "line": 96,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-06-07T13:14:22.671742"
+      }
+    ],
     "is_dynamic": false
   },
   {
@@ -2871,7 +3728,7 @@
         "category": "AUTHENTICATION",
         "title": "Endpoint API non protetto rilevato (Statico)",
         "description": "L'endpoint API [python-semgrep]: POST /notes non sembra richiedere controlli di autenticazione a livello statico.",
-        "severity": "MEDIUM",
+        "severity": "HIGH",
         "confidence": 0.8,
         "rule_id": "unauthenticated-api-route",
         "rule_name": "API Route Detection",
@@ -2895,7 +3752,15 @@
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:POST:/notes",
-        "related_findings": [],
+        "related_findings": [
+          "spectral-4da27cb4ea09",
+          "spectral-24ec64b00da2",
+          "spectral-4629ff09f548",
+          "spectral-646c46c53fc8",
+          "spectral-29008b424a1e",
+          "spectral-6d89d912f881",
+          "spectral-804dcf27dfe6"
+        ],
         "owasp_api_category": null,
         "cwe_id": null,
         "cve_id": null,
@@ -2908,9 +3773,162 @@
           "file": "problema_api/generic_vulns/app.py",
           "auth_detected": false,
           "framework": "python-semgrep",
-          "correlated_risk_score": 5.5
+          "merged_spectral-4da27cb4ea09": {
+            "code": "owasp-api2-operation-security",
+            "path": [
+              "paths",
+              "/notes",
+              "post"
+            ],
+            "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 97,
+                "character": 9
+              },
+              "end": {
+                "line": 103,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-24ec64b00da2": {
+            "code": "owasp:api2:2023-write-restricted",
+            "path": [
+              "paths",
+              "/notes",
+              "post"
+            ],
+            "message": "This write operation is not protected by any security scheme.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 97,
+                "character": 9
+              },
+              "end": {
+                "line": 103,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-4629ff09f548": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/notes",
+              "post",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 101,
+                "character": 16
+              },
+              "end": {
+                "line": 103,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-646c46c53fc8": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/notes",
+              "post",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 101,
+                "character": 16
+              },
+              "end": {
+                "line": 103,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-29008b424a1e": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/notes",
+              "post",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 101,
+                "character": 16
+              },
+              "end": {
+                "line": 103,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-6d89d912f881": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/notes",
+              "post",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 101,
+                "character": 16
+              },
+              "end": {
+                "line": 103,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-804dcf27dfe6": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/notes",
+              "post",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 102,
+                "character": 14
+              },
+              "end": {
+                "line": 103,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-06T19:12:40.236378"
+        "detected_at": "2026-06-07T13:14:20.692132"
       }
     ],
     "is_dynamic": false
@@ -3102,43 +4120,54 @@
     "description": "Rilevato a runtime (Classificazione: RUNTIME_ONLY, Confidence: 0.7).",
     "documented": true,
     "shadow": false,
-    "violations": [],
-    "bola_status": "VULNERABLE",
+    "violations": [
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 105
+      }
+    ],
+    "bola_status": "POTENTIAL",
     "bola_findings": [
       {
-        "finding_id": "zap_dast-8c543dff2d97",
-        "source": "ZAP_DAST",
-        "category": "SECURITY_HEADERS",
-        "title": "Content Security Policy (CSP) Header Not Set",
-        "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.\nParametro affetto: \nEvidenza: ",
+        "finding_id": "spectral-e78555a678cf",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
         "severity": "HIGH",
         "confidence": 1.0,
-        "rule_id": "10038",
-        "rule_name": "Content Security Policy (CSP) Header Not Set",
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
         "resource_type": null,
         "resource_name": null,
         "resource_id": null,
-        "location": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "start_line": 105,
+          "end_line": null,
+          "code_snippet": null
+        },
         "api": {
           "endpoint": "/robots.txt",
           "method": "GET",
-          "base_url": "http://api-server:5000",
+          "base_url": null,
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "CONFIRMED",
+        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
-        "risk_context": {
-          "internet_exposed": true,
-          "sensitive_data_detected": null,
-          "public_resource": null,
-          "exploitable": true,
-          "attack_complexity": null,
-          "impact": null
-        },
+        "risk_context": null,
         "correlation_key": null,
         "related_findings": [
-          "zap_dast-7dcc2264a50b"
+          "spectral-251e9a7b1124",
+          "spectral-c8cf4b318c04",
+          "spectral-5e6ca9024bb5",
+          "spectral-c055610f04dc",
+          "spectral-99268ae9aabf",
+          "spectral-a343bcd6593a"
         ],
         "owasp_api_category": null,
         "cwe_id": null,
@@ -3147,76 +4176,160 @@
         "tags": [],
         "references": [],
         "raw_data": {
-          "nodeName": "http://api-server:5000/robots.txt",
-          "sourceid": "3",
-          "other": "",
-          "method": "GET",
-          "evidence": "",
-          "pluginId": "10038",
-          "cweid": "693",
-          "confidence": "High",
-          "sourceMessageId": 2220,
-          "wascid": "15",
-          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
-          "messageId": "2220",
-          "inputVector": "",
-          "url": "http://api-server:5000/robots.txt",
-          "tags": {
-            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-            "POLICY_QA_STD": "",
-            "POLICY_PENTEST": "",
-            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
-            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-            "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
-          },
-          "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
-          "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
-          "alert": "Content Security Policy (CSP) Header Not Set",
-          "param": "",
-          "attack": "",
-          "name": "Content Security Policy (CSP) Header Not Set",
-          "risk": "Medium",
-          "id": "733",
-          "alertRef": "10038-1",
-          "runtime_verification_zap_dast-7dcc2264a50b": {
-            "nodeName": "http://api-server:5000/robots.txt",
-            "sourceid": "3",
-            "other": "",
-            "method": "GET",
-            "evidence": "Werkzeug/3.1.8 Python/3.11.15",
-            "pluginId": "10036",
-            "cweid": "497",
-            "confidence": "High",
-            "sourceMessageId": 2220,
-            "wascid": "13",
-            "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
-            "messageId": "2220",
-            "inputVector": "",
-            "url": "http://api-server:5000/robots.txt",
-            "tags": {
-              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-              "POLICY_QA_STD": "",
-              "POLICY_PENTEST": "",
-              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-              "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
-              "CWE-497": "https://cwe.mitre.org/data/definitions/497.html",
-              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/robots.txt",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 105,
+              "character": 8
             },
-            "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
-            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
-            "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "param": "",
-            "attack": "",
-            "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "risk": "Low",
-            "id": "734",
-            "alertRef": "10036-2"
+            "end": {
+              "line": 111,
+              "character": 57
+            }
           },
-          "correlated_risk_score": 7.0
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "merged_spectral-251e9a7b1124": {
+            "code": "owasp:api2:2023-read-restricted",
+            "path": [
+              "paths",
+              "/robots.txt",
+              "get"
+            ],
+            "message": "This read operation is not protected by any security scheme.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 105,
+                "character": 8
+              },
+              "end": {
+                "line": 111,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-c8cf4b318c04": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/robots.txt",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 109,
+                "character": 16
+              },
+              "end": {
+                "line": 111,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-5e6ca9024bb5": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/robots.txt",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 109,
+                "character": 16
+              },
+              "end": {
+                "line": 111,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-c055610f04dc": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/robots.txt",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 109,
+                "character": 16
+              },
+              "end": {
+                "line": 111,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-99268ae9aabf": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/robots.txt",
+              "get",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 109,
+                "character": 16
+              },
+              "end": {
+                "line": 111,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-a343bcd6593a": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/robots.txt",
+              "get",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 110,
+                "character": 14
+              },
+              "end": {
+                "line": 111,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.4
         },
-        "detected_at": "2026-06-06T19:15:57.979896"
+        "detected_at": "2026-06-07T13:14:22.672014"
       }
     ],
     "is_dynamic": false
@@ -3249,7 +4362,7 @@
         "category": "AUTHENTICATION",
         "title": "Endpoint API non protetto rilevato (Statico)",
         "description": "L'endpoint API [python-semgrep]: GET /search non sembra richiedere controlli di autenticazione a livello statico.",
-        "severity": "MEDIUM",
+        "severity": "HIGH",
         "confidence": 0.8,
         "rule_id": "unauthenticated-api-route",
         "rule_name": "API Route Detection",
@@ -3273,7 +4386,15 @@
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/search",
-        "related_findings": [],
+        "related_findings": [
+          "spectral-5b760843712a",
+          "spectral-d5d7e35a732e",
+          "spectral-b92e6af5e61c",
+          "spectral-3885e0a217e7",
+          "spectral-41976275d081",
+          "spectral-481b764ec2f2",
+          "spectral-d20840365861"
+        ],
         "owasp_api_category": null,
         "cwe_id": null,
         "cve_id": null,
@@ -3286,9 +4407,162 @@
           "file": "problema_api/generic_vulns/app.py",
           "auth_detected": false,
           "framework": "python-semgrep",
-          "correlated_risk_score": 5.5
+          "merged_spectral-5b760843712a": {
+            "code": "owasp-api2-operation-security",
+            "path": [
+              "paths",
+              "/search",
+              "get"
+            ],
+            "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 74,
+                "character": 8
+              },
+              "end": {
+                "line": 80,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-d5d7e35a732e": {
+            "code": "owasp:api2:2023-read-restricted",
+            "path": [
+              "paths",
+              "/search",
+              "get"
+            ],
+            "message": "This read operation is not protected by any security scheme.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 74,
+                "character": 8
+              },
+              "end": {
+                "line": 80,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-b92e6af5e61c": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/search",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 78,
+                "character": 16
+              },
+              "end": {
+                "line": 80,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-3885e0a217e7": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/search",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 78,
+                "character": 16
+              },
+              "end": {
+                "line": 80,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-41976275d081": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/search",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 78,
+                "character": 16
+              },
+              "end": {
+                "line": 80,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-481b764ec2f2": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/search",
+              "get",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 78,
+                "character": 16
+              },
+              "end": {
+                "line": 80,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-d20840365861": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/search",
+              "get",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 79,
+                "character": 14
+              },
+              "end": {
+                "line": 80,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-06T19:12:40.236369"
+        "detected_at": "2026-06-07T13:14:20.692125"
       }
     ],
     "is_dynamic": false
@@ -3360,43 +4634,54 @@
     "description": "Rilevato a runtime (Classificazione: RUNTIME_ONLY, Confidence: 0.7).",
     "documented": true,
     "shadow": false,
-    "violations": [],
-    "bola_status": "VULNERABLE",
+    "violations": [
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 113
+      }
+    ],
+    "bola_status": "POTENTIAL",
     "bola_findings": [
       {
-        "finding_id": "zap_dast-5ed2d03a8795",
-        "source": "ZAP_DAST",
-        "category": "SECURITY_HEADERS",
-        "title": "Content Security Policy (CSP) Header Not Set",
-        "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.\nParametro affetto: \nEvidenza: ",
+        "finding_id": "spectral-f63c40bf9cdb",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
         "severity": "HIGH",
         "confidence": 1.0,
-        "rule_id": "10038",
-        "rule_name": "Content Security Policy (CSP) Header Not Set",
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
         "resource_type": null,
         "resource_name": null,
         "resource_id": null,
-        "location": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "start_line": 113,
+          "end_line": null,
+          "code_snippet": null
+        },
         "api": {
           "endpoint": "/sitemap.xml",
           "method": "GET",
-          "base_url": "http://api-server:5000",
+          "base_url": null,
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "CONFIRMED",
+        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
-        "risk_context": {
-          "internet_exposed": true,
-          "sensitive_data_detected": null,
-          "public_resource": null,
-          "exploitable": true,
-          "attack_complexity": null,
-          "impact": null
-        },
+        "risk_context": null,
         "correlation_key": null,
         "related_findings": [
-          "zap_dast-c811702cf033"
+          "spectral-e2bf80292b2e",
+          "spectral-2fb85e40c96c",
+          "spectral-b611c7b5db19",
+          "spectral-d365a7cc48e5",
+          "spectral-244072081a98",
+          "spectral-dea2755c65ff"
         ],
         "owasp_api_category": null,
         "cwe_id": null,
@@ -3405,76 +4690,160 @@
         "tags": [],
         "references": [],
         "raw_data": {
-          "nodeName": "http://api-server:5000/sitemap.xml",
-          "sourceid": "3",
-          "other": "",
-          "method": "GET",
-          "evidence": "",
-          "pluginId": "10038",
-          "cweid": "693",
-          "confidence": "High",
-          "sourceMessageId": 2219,
-          "wascid": "15",
-          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
-          "messageId": "2219",
-          "inputVector": "",
-          "url": "http://api-server:5000/sitemap.xml",
-          "tags": {
-            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-            "POLICY_QA_STD": "",
-            "POLICY_PENTEST": "",
-            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
-            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-            "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
-          },
-          "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
-          "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
-          "alert": "Content Security Policy (CSP) Header Not Set",
-          "param": "",
-          "attack": "",
-          "name": "Content Security Policy (CSP) Header Not Set",
-          "risk": "Medium",
-          "id": "731",
-          "alertRef": "10038-1",
-          "runtime_verification_zap_dast-c811702cf033": {
-            "nodeName": "http://api-server:5000/sitemap.xml",
-            "sourceid": "3",
-            "other": "",
-            "method": "GET",
-            "evidence": "Werkzeug/3.1.8 Python/3.11.15",
-            "pluginId": "10036",
-            "cweid": "497",
-            "confidence": "High",
-            "sourceMessageId": 2219,
-            "wascid": "13",
-            "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
-            "messageId": "2219",
-            "inputVector": "",
-            "url": "http://api-server:5000/sitemap.xml",
-            "tags": {
-              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-              "POLICY_QA_STD": "",
-              "POLICY_PENTEST": "",
-              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-              "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
-              "CWE-497": "https://cwe.mitre.org/data/definitions/497.html",
-              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/sitemap.xml",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 113,
+              "character": 8
             },
-            "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
-            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
-            "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "param": "",
-            "attack": "",
-            "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "risk": "Low",
-            "id": "732",
-            "alertRef": "10036-2"
+            "end": {
+              "line": 119,
+              "character": 57
+            }
           },
-          "correlated_risk_score": 7.0
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "merged_spectral-e2bf80292b2e": {
+            "code": "owasp:api2:2023-read-restricted",
+            "path": [
+              "paths",
+              "/sitemap.xml",
+              "get"
+            ],
+            "message": "This read operation is not protected by any security scheme.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 113,
+                "character": 8
+              },
+              "end": {
+                "line": 119,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-2fb85e40c96c": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/sitemap.xml",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 117,
+                "character": 16
+              },
+              "end": {
+                "line": 119,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-b611c7b5db19": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/sitemap.xml",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 117,
+                "character": 16
+              },
+              "end": {
+                "line": 119,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-d365a7cc48e5": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/sitemap.xml",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 117,
+                "character": 16
+              },
+              "end": {
+                "line": 119,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-244072081a98": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/sitemap.xml",
+              "get",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 117,
+                "character": 16
+              },
+              "end": {
+                "line": 119,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-dea2755c65ff": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/sitemap.xml",
+              "get",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 118,
+                "character": 14
+              },
+              "end": {
+                "line": 119,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.4
         },
-        "detected_at": "2026-06-06T19:15:57.979888"
+        "detected_at": "2026-06-07T13:14:22.672148"
       }
     ],
     "is_dynamic": false
@@ -3594,9 +4963,218 @@
     "description": "Rilevato a runtime (Classificazione: CONFIRMED, Confidence: 1.0).",
     "documented": true,
     "shadow": false,
-    "violations": [],
-    "bola_status": "UNTESTED",
-    "bola_findings": [],
+    "violations": [
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 59
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-20480dda6af1",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "start_line": 59,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/upload",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": null,
+        "related_findings": [
+          "spectral-418711742efe",
+          "spectral-f04ba93797ac",
+          "spectral-bce43c70e6f2",
+          "spectral-3840846077c8",
+          "spectral-b271107687cd",
+          "spectral-e943a79de593"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/upload",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 59,
+              "character": 8
+            },
+            "end": {
+              "line": 65,
+              "character": 57
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "merged_spectral-418711742efe": {
+            "code": "owasp:api2:2023-read-restricted",
+            "path": [
+              "paths",
+              "/upload",
+              "get"
+            ],
+            "message": "This read operation is not protected by any security scheme.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 59,
+                "character": 8
+              },
+              "end": {
+                "line": 65,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-f04ba93797ac": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/upload",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 63,
+                "character": 16
+              },
+              "end": {
+                "line": 65,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-bce43c70e6f2": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/upload",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 63,
+                "character": 16
+              },
+              "end": {
+                "line": 65,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-3840846077c8": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/upload",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 63,
+                "character": 16
+              },
+              "end": {
+                "line": 65,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-b271107687cd": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/upload",
+              "get",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 63,
+                "character": 16
+              },
+              "end": {
+                "line": 65,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-e943a79de593": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/upload",
+              "get",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 64,
+                "character": 14
+              },
+              "end": {
+                "line": 65,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-06-07T13:14:22.671352"
+      }
+    ],
     "is_dynamic": false
   },
   {
@@ -3615,7 +5193,7 @@
         "category": "AUTHENTICATION",
         "title": "Endpoint API non protetto rilevato (Statico)",
         "description": "L'endpoint API [python-semgrep]: POST /upload non sembra richiedere controlli di autenticazione a livello statico.",
-        "severity": "MEDIUM",
+        "severity": "HIGH",
         "confidence": 0.8,
         "rule_id": "unauthenticated-api-route",
         "rule_name": "API Route Detection",
@@ -3639,7 +5217,15 @@
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:POST:/upload",
-        "related_findings": [],
+        "related_findings": [
+          "spectral-aef5eb1a04ea",
+          "spectral-282d81f5a6a0",
+          "spectral-7b8f9e05d176",
+          "spectral-3fd1d136f1c9",
+          "spectral-27ed4b74dab0",
+          "spectral-a7e3c93d0a51",
+          "spectral-a20136c5d1d1"
+        ],
         "owasp_api_category": null,
         "cwe_id": null,
         "cve_id": null,
@@ -3652,9 +5238,162 @@
           "file": "problema_api/generic_vulns/app.py",
           "auth_detected": false,
           "framework": "python-semgrep",
-          "correlated_risk_score": 5.5
+          "merged_spectral-aef5eb1a04ea": {
+            "code": "owasp-api2-operation-security",
+            "path": [
+              "paths",
+              "/upload",
+              "post"
+            ],
+            "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 66,
+                "character": 9
+              },
+              "end": {
+                "line": 72,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-282d81f5a6a0": {
+            "code": "owasp:api2:2023-write-restricted",
+            "path": [
+              "paths",
+              "/upload",
+              "post"
+            ],
+            "message": "This write operation is not protected by any security scheme.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 66,
+                "character": 9
+              },
+              "end": {
+                "line": 72,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-7b8f9e05d176": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/upload",
+              "post",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 70,
+                "character": 16
+              },
+              "end": {
+                "line": 72,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-3fd1d136f1c9": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/upload",
+              "post",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 70,
+                "character": 16
+              },
+              "end": {
+                "line": 72,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-27ed4b74dab0": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/upload",
+              "post",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 70,
+                "character": 16
+              },
+              "end": {
+                "line": 72,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-a7e3c93d0a51": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/upload",
+              "post",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 70,
+                "character": 16
+              },
+              "end": {
+                "line": 72,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-a20136c5d1d1": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/upload",
+              "post",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 71,
+                "character": 14
+              },
+              "end": {
+                "line": 72,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-06T19:12:40.236365"
+        "detected_at": "2026-06-07T13:14:20.692121"
       }
     ],
     "is_dynamic": false
@@ -3667,7 +5406,7 @@
     "documented": true,
     "shadow": false,
     "violations": [],
-    "bola_status": "VULNERABLE",
+    "bola_status": "POTENTIAL",
     "bola_findings": [
       {
         "finding_id": "semgrep-5ec9712ae07d",
@@ -3675,8 +5414,8 @@
         "category": "AUTHENTICATION",
         "title": "Endpoint API non protetto rilevato (Statico)",
         "description": "L'endpoint API [python-semgrep]: GET /users non sembra richiedere controlli di autenticazione a livello statico.",
-        "severity": "CRITICAL",
-        "confidence": 1.0,
+        "severity": "HIGH",
+        "confidence": 0.8,
         "rule_id": "unauthenticated-api-route",
         "rule_name": "API Route Detection",
         "resource_type": null,
@@ -3695,13 +5434,18 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "CONFIRMED",
+        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/users",
         "related_findings": [
-          "zap_dast-398bc93d0e41",
-          "zap_dast-cf7ddd81d36f"
+          "spectral-6236bd41f1a3",
+          "spectral-756490c77f79",
+          "spectral-ddc33e79d48e",
+          "spectral-2785183b6306",
+          "spectral-ff8ef11b83c6",
+          "spectral-c2fde37902dc",
+          "spectral-f2055a4b32f2"
         ],
         "owasp_api_category": null,
         "cwe_id": null,
@@ -3715,78 +5459,162 @@
           "file": "problema_api/generic_vulns/app.py",
           "auth_detected": false,
           "framework": "python-semgrep",
-          "correlated_risk_score": 8.6,
-          "runtime_verification_zap_dast-398bc93d0e41": {
-            "nodeName": "http://api-server:5000/users",
-            "sourceid": "3",
-            "other": "",
-            "method": "GET",
-            "evidence": "",
-            "pluginId": "10038",
-            "cweid": "693",
-            "confidence": "High",
-            "sourceMessageId": 2241,
-            "wascid": "15",
-            "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
-            "messageId": "2241",
-            "inputVector": "",
-            "url": "http://api-server:5000/users",
-            "tags": {
-              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-              "POLICY_QA_STD": "",
-              "POLICY_PENTEST": "",
-              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-              "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
-              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+          "merged_spectral-6236bd41f1a3": {
+            "code": "owasp-api2-operation-security",
+            "path": [
+              "paths",
+              "/users",
+              "get"
+            ],
+            "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 26,
+                "character": 8
+              },
+              "end": {
+                "line": 32,
+                "character": 57
+              }
             },
-            "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
-            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
-            "alert": "Content Security Policy (CSP) Header Not Set",
-            "param": "",
-            "attack": "",
-            "name": "Content Security Policy (CSP) Header Not Set",
-            "risk": "Medium",
-            "id": "767",
-            "alertRef": "10038-1"
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
           },
-          "runtime_verification_zap_dast-cf7ddd81d36f": {
-            "nodeName": "http://api-server:5000/users",
-            "sourceid": "3",
-            "other": "",
-            "method": "GET",
-            "evidence": "Werkzeug/3.1.8 Python/3.11.15",
-            "pluginId": "10036",
-            "cweid": "497",
-            "confidence": "High",
-            "sourceMessageId": 2241,
-            "wascid": "13",
-            "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
-            "messageId": "2241",
-            "inputVector": "",
-            "url": "http://api-server:5000/users",
-            "tags": {
-              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-              "POLICY_QA_STD": "",
-              "POLICY_PENTEST": "",
-              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-              "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
-              "CWE-497": "https://cwe.mitre.org/data/definitions/497.html",
-              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+          "merged_spectral-756490c77f79": {
+            "code": "owasp:api2:2023-read-restricted",
+            "path": [
+              "paths",
+              "/users",
+              "get"
+            ],
+            "message": "This read operation is not protected by any security scheme.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 26,
+                "character": 8
+              },
+              "end": {
+                "line": 32,
+                "character": 57
+              }
             },
-            "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
-            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
-            "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "param": "",
-            "attack": "",
-            "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "risk": "Low",
-            "id": "768",
-            "alertRef": "10036-2"
-          }
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-ddc33e79d48e": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/users",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 30,
+                "character": 16
+              },
+              "end": {
+                "line": 32,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-2785183b6306": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/users",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 30,
+                "character": 16
+              },
+              "end": {
+                "line": 32,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-ff8ef11b83c6": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/users",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 30,
+                "character": 16
+              },
+              "end": {
+                "line": 32,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-c2fde37902dc": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/users",
+              "get",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 30,
+                "character": 16
+              },
+              "end": {
+                "line": 32,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-f2055a4b32f2": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/users",
+              "get",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 31,
+                "character": 14
+              },
+              "end": {
+                "line": 32,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-06T19:12:40.236352"
+        "detected_at": "2026-06-07T13:14:20.692109"
       }
     ],
     "is_dynamic": false
@@ -3870,59 +5698,56 @@
     "description": "",
     "documented": true,
     "shadow": false,
-    "violations": [],
-    "bola_status": "VULNERABLE",
+    "violations": [
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 11
+      }
+    ],
+    "bola_status": "POTENTIAL",
     "bola_findings": [
       {
-        "finding_id": "zap_dast-230d1b1935ca",
-        "source": "ZAP_DAST",
-        "category": "SECURITY_HEADERS",
-        "title": "Content Security Policy (CSP) Header Not Set",
-        "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.\nParametro affetto: \nEvidenza: ",
-        "severity": "CRITICAL",
+        "finding_id": "spectral-179b1804bfe2",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "owasp-api2-operation-security",
+        "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
         "confidence": 1.0,
-        "rule_id": "10038",
-        "rule_name": "Content Security Policy (CSP) Header Not Set",
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
         "resource_type": null,
         "resource_name": null,
         "resource_id": null,
-        "location": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "start_line": 11,
+          "end_line": null,
+          "code_snippet": null
+        },
         "api": {
-          "endpoint": "/users/9303182b-67ce-4bce-947e-e9e5f9a7305d",
+          "endpoint": "/users/{id}",
           "method": "GET",
-          "base_url": "http://api-server:5000",
+          "base_url": null,
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "CONFIRMED",
-        "runtime_evidence": {
-          "tested_url": "http://localhost:5000/users/30c2dd90-e854-401f-919d-64c444390047",
-          "http_status": 404,
-          "response_time_ms": null,
-          "response_headers": {},
-          "response_snippet": "Asserzioni di Sicurezza BOLA:\n  - http_status_assertion: True\n  - content_keyword_assertion: True\n  - structural_similarity_assertion: True\nVerdetto finale: SAFE\n\nPayload di Bob:\n<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
-          "accessible_without_auth": null,
-          "rate_limit_detected": null
-        },
-        "risk_context": {
-          "internet_exposed": true,
-          "sensitive_data_detected": null,
-          "public_resource": null,
-          "exploitable": true,
-          "attack_complexity": null,
-          "impact": null
-        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
         "correlation_key": null,
         "related_findings": [
-          "zap_dast-2481525d410f",
-          "zap_dast-039f2cfd137b",
-          "zap_dast-5a61337b630d",
-          "zap_dast-a5347b62df8e",
-          "zap_dast-e12d50318151",
-          "runtime_validator-b02a513840f0",
-          "runtime_validator-e4bf1837a452",
-          "runtime_validator-a301051e8d7c",
-          "runtime_validator-d40bc30b42b8"
+          "spectral-34e4bb8489ad",
+          "spectral-08a5466ca322",
+          "spectral-9bfca2c32ec5",
+          "spectral-5c9eb63aaec1",
+          "spectral-b688a45cc039",
+          "spectral-f1e55a8e3091",
+          "spectral-61817a02b231",
+          "spectral-2775b3e5271a"
         ],
         "owasp_api_category": null,
         "cwe_id": null,
@@ -3931,218 +5756,208 @@
         "tags": [],
         "references": [],
         "raw_data": {
-          "nodeName": "http://api-server:5000/users/9303182b-67ce-4bce-947e-e9e5f9a7305d",
-          "sourceid": "3",
-          "other": "",
-          "method": "GET",
-          "evidence": "",
-          "pluginId": "10038",
-          "cweid": "693",
-          "confidence": "High",
-          "sourceMessageId": 1130,
-          "wascid": "15",
-          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
-          "messageId": "1130",
-          "inputVector": "",
-          "url": "http://api-server:5000/users/9303182b-67ce-4bce-947e-e9e5f9a7305d",
-          "tags": {
-            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-            "POLICY_QA_STD": "",
-            "POLICY_PENTEST": "",
-            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
-            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-            "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
-          },
-          "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
-          "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
-          "alert": "Content Security Policy (CSP) Header Not Set",
-          "param": "",
-          "attack": "",
-          "name": "Content Security Policy (CSP) Header Not Set",
-          "risk": "Medium",
-          "id": "433",
-          "alertRef": "10038-1",
-          "runtime_verification_zap_dast-2481525d410f": {
-            "nodeName": "http://api-server:5000/users/9303182b-67ce-4bce-947e-e9e5f9a7305d",
-            "sourceid": "3",
-            "other": "",
-            "method": "GET",
-            "evidence": "Werkzeug/3.1.8 Python/3.11.15",
-            "pluginId": "10036",
-            "cweid": "497",
-            "confidence": "High",
-            "sourceMessageId": 1130,
-            "wascid": "13",
-            "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
-            "messageId": "1130",
-            "inputVector": "",
-            "url": "http://api-server:5000/users/9303182b-67ce-4bce-947e-e9e5f9a7305d",
-            "tags": {
-              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-              "POLICY_QA_STD": "",
-              "POLICY_PENTEST": "",
-              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-              "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
-              "CWE-497": "https://cwe.mitre.org/data/definitions/497.html",
-              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/users/{id}",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 8
             },
-            "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
-            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
-            "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "param": "",
-            "attack": "",
-            "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "risk": "Low",
-            "id": "435",
-            "alertRef": "10036-2"
+            "end": {
+              "line": 24,
+              "character": 62
+            }
           },
-          "runtime_verification_zap_dast-039f2cfd137b": {
-            "nodeName": "http://api-server:5000/users/7d2fed4a-7bb9-49e8-bd6d-2f6c3a707341",
-            "sourceid": "3",
-            "other": "",
-            "method": "GET",
-            "evidence": "",
-            "pluginId": "10038",
-            "cweid": "693",
-            "confidence": "High",
-            "sourceMessageId": 1134,
-            "wascid": "15",
-            "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
-            "messageId": "1134",
-            "inputVector": "",
-            "url": "http://api-server:5000/users/7d2fed4a-7bb9-49e8-bd6d-2f6c3a707341",
-            "tags": {
-              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-              "POLICY_QA_STD": "",
-              "POLICY_PENTEST": "",
-              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-              "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
-              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml",
+          "merged_spectral-34e4bb8489ad": {
+            "code": "owasp:api2:2023-read-restricted",
+            "path": [
+              "paths",
+              "/users/{id}",
+              "get"
+            ],
+            "message": "This read operation is not protected by any security scheme.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 11,
+                "character": 8
+              },
+              "end": {
+                "line": 24,
+                "character": 62
+              }
             },
-            "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
-            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
-            "alert": "Content Security Policy (CSP) Header Not Set",
-            "param": "",
-            "attack": "",
-            "name": "Content Security Policy (CSP) Header Not Set",
-            "risk": "Medium",
-            "id": "439",
-            "alertRef": "10038-1"
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
           },
-          "runtime_verification_zap_dast-5a61337b630d": {
-            "nodeName": "http://api-server:5000/users/7d2fed4a-7bb9-49e8-bd6d-2f6c3a707341",
-            "sourceid": "3",
-            "other": "",
-            "method": "GET",
-            "evidence": "Werkzeug/3.1.8 Python/3.11.15",
-            "pluginId": "10036",
-            "cweid": "497",
-            "confidence": "High",
-            "sourceMessageId": 1134,
-            "wascid": "13",
-            "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
-            "messageId": "1134",
-            "inputVector": "",
-            "url": "http://api-server:5000/users/7d2fed4a-7bb9-49e8-bd6d-2f6c3a707341",
-            "tags": {
-              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-              "POLICY_QA_STD": "",
-              "POLICY_PENTEST": "",
-              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-              "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
-              "CWE-497": "https://cwe.mitre.org/data/definitions/497.html",
-              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+          "merged_spectral-08a5466ca322": {
+            "code": "owasp:api4:2023-rate-limit-responses-429",
+            "path": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing rate limiting response in responses[429].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 15,
+                "character": 16
+              },
+              "end": {
+                "line": 17,
+                "character": 57
+              }
             },
-            "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
-            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
-            "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "param": "",
-            "attack": "",
-            "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "risk": "Low",
-            "id": "440",
-            "alertRef": "10036-2"
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
           },
-          "runtime_verification_zap_dast-a5347b62df8e": {
-            "nodeName": "http://api-server:5000/users/30c2dd90-e854-401f-919d-64c444390047",
-            "sourceid": "3",
-            "other": "",
-            "method": "GET",
-            "evidence": "",
-            "pluginId": "10038",
-            "cweid": "693",
-            "confidence": "High",
-            "sourceMessageId": 2844,
-            "wascid": "15",
-            "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
-            "messageId": "2844",
-            "inputVector": "",
-            "url": "http://api-server:5000/users/30c2dd90-e854-401f-919d-64c444390047",
-            "tags": {
-              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-              "POLICY_QA_STD": "",
-              "POLICY_PENTEST": "",
-              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-              "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
-              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+          "merged_spectral-9bfca2c32ec5": {
+            "code": "owasp:api8:2023-define-error-responses-401",
+            "path": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[401].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 15,
+                "character": 16
+              },
+              "end": {
+                "line": 17,
+                "character": 57
+              }
             },
-            "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
-            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
-            "alert": "Content Security Policy (CSP) Header Not Set",
-            "param": "",
-            "attack": "",
-            "name": "Content Security Policy (CSP) Header Not Set",
-            "risk": "Medium",
-            "id": "1757",
-            "alertRef": "10038-1"
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
           },
-          "runtime_verification_zap_dast-e12d50318151": {
-            "nodeName": "http://api-server:5000/users/30c2dd90-e854-401f-919d-64c444390047",
-            "sourceid": "3",
-            "other": "",
-            "method": "GET",
-            "evidence": "Werkzeug/3.1.8 Python/3.11.15",
-            "pluginId": "10036",
-            "cweid": "497",
-            "confidence": "High",
-            "sourceMessageId": 2844,
-            "wascid": "13",
-            "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
-            "messageId": "2844",
-            "inputVector": "",
-            "url": "http://api-server:5000/users/30c2dd90-e854-401f-919d-64c444390047",
-            "tags": {
-              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
-              "POLICY_QA_STD": "",
-              "POLICY_PENTEST": "",
-              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
-              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
-              "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
-              "CWE-497": "https://cwe.mitre.org/data/definitions/497.html",
-              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+          "merged_spectral-5c9eb63aaec1": {
+            "code": "owasp:api8:2023-define-error-responses-500",
+            "path": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses"
+            ],
+            "message": "Operation is missing responses[500].content.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 15,
+                "character": 16
+              },
+              "end": {
+                "line": 17,
+                "character": 57
+              }
             },
-            "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
-            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
-            "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "param": "",
-            "attack": "",
-            "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
-            "risk": "Low",
-            "id": "1759",
-            "alertRef": "10036-2"
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
           },
-          "runtime_verification_runtime_validator-b02a513840f0": {},
-          "runtime_verification_runtime_validator-e4bf1837a452": {},
-          "runtime_verification_runtime_validator-a301051e8d7c": {},
-          "runtime_verification_runtime_validator-d40bc30b42b8": {},
-          "correlated_risk_score": 8.2
+          "merged_spectral-b688a45cc039": {
+            "code": "owasp:api8:2023-define-error-validation",
+            "path": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses"
+            ],
+            "message": "Missing error response of either 400, 422 or 4XX.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 15,
+                "character": 16
+              },
+              "end": {
+                "line": 17,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-f1e55a8e3091": {
+            "code": "owasp:api4:2023-rate-limit",
+            "path": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses",
+              "200"
+            ],
+            "message": "All 2XX and 4XX responses should define rate limiting headers.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 16,
+                "character": 14
+              },
+              "end": {
+                "line": 17,
+                "character": 57
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-61817a02b231": {
+            "code": "owasp:api4:2023-string-limit",
+            "path": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "parameters",
+              "0",
+              "schema"
+            ],
+            "message": "Schema of type string must specify maxLength, enum, or const.",
+            "severity": 0,
+            "range": {
+              "start": {
+                "line": 22,
+                "character": 15
+              },
+              "end": {
+                "line": 23,
+                "character": 22
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "merged_spectral-2775b3e5271a": {
+            "code": "owasp:api4:2023-string-restricted",
+            "path": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "parameters",
+              "0",
+              "schema"
+            ],
+            "message": "Schema of type string should specify a format, pattern, enum, or const.",
+            "severity": 1,
+            "range": {
+              "start": {
+                "line": 22,
+                "character": 15
+              },
+              "end": {
+                "line": 23,
+                "character": 22
+              }
+            },
+            "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
+          },
+          "correlated_risk_score": 7.4
         },
-        "detected_at": "2026-06-06T19:15:57.979825"
+        "detected_at": "2026-06-07T13:14:22.670802"
       }
     ],
     "is_dynamic": true

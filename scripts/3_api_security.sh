@@ -33,5 +33,6 @@ PYTHONPATH=. ./.venv/bin/python3 -m src.presentation.cli \
 echo -e "\n${GREEN}[+] SECURITY PIPELINE COMPLETATA CON SUCCESSO!${NC}"
 echo -e "Report dei findings: output/unified_security_report.json"
 echo -e "Report DAST di ZAP: output/zap_report.json"
-echo -e "Dashboard Interattiva Premium: output/dashboard.html"
+echo -e "Per visualizzare la dashboard interattiva (Desktop App):"
+echo -e "  python3 cloud_security_analyzer/launcher.py"
 echo -e "${BLUE}=========================================================${NC}"

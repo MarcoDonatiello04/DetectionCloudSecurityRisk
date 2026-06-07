@@ -204,40 +204,36 @@ stateDiagram-v2
 ---
 
 ### 3.4.5. User interface – navigational path and screen mock-up
-L'interfaccia utente è costituita dalla **Cloud API Security & Risk Dashboard** (salvata in `output/dashboard.html`). Si tratta di una UI premium responsive a 3 sezioni con design in Dark Mode e Glassmorphism.
+L'interfaccia utente è costituita da una ricca **Desktop GUI App** basata su PySide6 (avviabile tramite `python3 cloud_security_analyzer/launcher.py`). Si tratta di un'applicazione desktop premium progettata secondo il pattern MVC e dotata di un tema grafico custom scuro/chiaro.
 
 #### Struttura di Navigazione
-* **Header**: Mostra il logo, lo stato globale della pipeline ("attivo"/"inattivo"), la versione del tool e il timestamp dell'ultimo scan.
-* **Global Stats Bar**: 4 KPI Cards interattive (Totale Findings, Severity Critica, Findings Convalidati a Runtime, Endpoint Scansionati).
-* **Tab Navigation**:
-  * **Tab 1: Analisi IaC (Checkov)**: Visualizzazione ad albero dei blocchi Terraform e violazioni associate.
-  * **Tab 2: Catalogo API & Conformità OpenAPI (Spectral)**: Mappa tutti gli endpoint evidenziando i documentati, gli shadow (non documentati) e le violazioni Spectral con i dettagli delle regole violate.
-  * **Tab 3: Analisi BOLA (D-AST)**: Mostra l'inventario dei test differenziali eseguiti a runtime (Orizzontali, Verticali, Broken Auth) con indicatori grafici sul verdetto (`SAFE`, `VULNERABLE`, `POTENTIAL`).
+* **Sidebar**: Menu laterale categorizzato per navigare rapidamente tra le sezioni principali:
+  - **Dashboard**: Vista di riepilogo con KPI Cards globali (Totale Findings, Risk Score Medio, Findings Convalidati, KPI di copertura) e grafici di riepilogo delle severità.
+  - **Findings**: Elenco completo dei riscontri di sicurezza con possibilità di filtraggio avanzato per severità, tipologia (statico vs dinamico), categoria e stato di convalida runtime. Include un modulo integrato di **Remediation** che mostra soluzioni KB e raccomandazioni basate su AI locale (Ollama).
+  - **API Catalog**: Catalogo interattivo di tutte le API scansionate, con demarcazione automatica tra API Documentate e Shadow API.
+  - **Infrastructure**: Vista dedicata alle misconfiguration infrastrutturali rilevate dal modulo Checkov (IaC) sui template Terraform.
+  - **Logs/Console**: Pannello integrato per visualizzare i log di esecuzione in tempo reale (thread-safe).
+  - **Settings**: Configurazione dei parametri della pipeline, della directory dei report e dei parametri di connessione LLM.
 
-#### Screen Mock-up (Rappresentazione Testuale dell'Interfaccia)
+#### Screen Mock-up (Rappresentazione Testuale dell'Interfaccia Desktop)
 ```
-+-----------------------------------------------------------------------------------+
-|  🛡️  SECURITY PLATFORM CORE  [SP Active]            v2.1  |  Scan: 2026-06-06 22:00  |
-+-----------------------------------------------------------------------------------+
-|  [ TOTAL FINDINGS: 413 ]  [ CRITICAL: 81 ]  [ RUNTIME CONFIRMED: 6 ]  [ APIs: 345]  |
-+-----------------------------------------------------------------------------------+
-|  > TAB 1: IaC (Checkov)   |  * TAB 2: OpenAPI & Spectral *  |  > TAB 3: BOLA D-AST  |
-+-----------------------------------------------------------------------------------+
-|  Endpoint Catalog & Compliance                                                    |
-|  🔍 Cerca rotta (es. /api/orders)...                                               |
-|                                                                                   |
-|  [GET]  /api/orders/{id}                                                          |
-|         Stato: ⚠️ 2 Violazioni di Conformità Spectral                             |
-|         [Violazione] owasp:api4:2023-rate-limit: All 2XX must define limit headers |
-|         [Violazione] owasp-api2-operation-security: Missing security schema (Auth) |
-|                                                                                   |
-|  [POST] /api/v1/debug/dump-database                                               |
-|         Stato: 💀 SHADOW API (Non documentato nel file OpenAPI ufficiale)          |
-|         Violazioni Spectral: N/D                                                   |
-|                                                                                   |
-|  [GET]  /api/profile                                                              |
-|         Stato: ✅ CONFORME (Nessuna violazione Spectral riscontrata)                |
-+-----------------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------------+
+|  🛡️  CLOUD SECURITY ANALYZER - DESKTOP CONTROLLER                                     - X|
++-----------------------------------------------------------------------------------------+
+| [DASHBOARD]     |  Dashboard Overview                                                   |
+| [FINDINGS]      |  +-------------------+  +------------------+  +---------------------+ |
+| [API CATALOG]   |  | TOTAL FINDINGS    |  | MEAN RISK SCORE  |  | RUNTIME CONFIRMED   | |
+| [INFRASTRUCTURE]|  |      413          |  |       6.8        |  |       12            | |
+| [CONSOLE LOGS]  |  +-------------------+  +------------------+  +---------------------+ |
+| [SETTINGS]      |                                                                       |
+|                 |  Severity Breakdown (Bar Chart)                                       |
+|                 |  CRITICAL [██████████████████ 81]                                     |
+|                 |  HIGH     [████████████ 45]                                           |
+|                 |  MEDIUM   [████████████████████████ 112]                              |
+|                 |  LOW      [███████████████████████████████████ 175]                   |
++-----------------+-----------------------------------------------------------------------+
+|  Active Directory: /Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output     |
++-----------------------------------------------------------------------------------------+
 ```
 
 ---

@@ -4,7 +4,7 @@
 [![Test Coverage](https://img.shields.io/badge/coverage-95%25-green.svg)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Una piattaforma unificata per l'analisi statica e dinamica della sicurezza delle API cloud e dell'infrastruttura (IaC). Lo strumento automatizza il rilevamento delle vulnerabilità a livello infrastrutturale e applicativo, correla i findings statici con prove empiriche di runtime, calcola un punteggio di rischio pesato e genera report dettagliati completi di dashboard interattiva.
+Una piattaforma unificata per l'analisi statica e dinamica della sicurezza delle API cloud e dell'infrastruttura (IaC). Lo strumento automatizza il rilevamento delle vulnerabilità a livello infrastrutturale e applicativo, correla i findings statici con prove empiriche di runtime, calcola un punteggio di rischio pesato, fornisce raccomandazioni di remediation immediate (offline e con AI locale) e offre una ricca interfaccia desktop (GUI PySide6) per la visualizzazione delle problematiche riscontrate e il catalogo degli endpoint.
 
 ---
 
@@ -91,10 +91,17 @@ make iac-analysis
 ```
 
 ### Fase 3: Esecuzione Pipeline di API Security & D-AST
-Esegue il linter dei contratti OpenAPI, analizza i sorgenti con Semgrep, esegue gli attacchi dinamici contro le rotte per convalidare BOLA e Broken Auth, esegue il risk rating e genera il report e la dashboard:
+Esegue il linter dei contratti OpenAPI, analizza i sorgenti con Semgrep, esegue gli attacchi dinamici contro le rotte per convalidare BOLA e Broken Auth, esegue il risk rating e genera il report unificato e l'inventario API:
 ```bash
 make api-security
 ```
+
+### Fase 4: Avvio Dashboard Interattiva (Desktop App PySide6)
+Dopo aver completato l'analisi, è possibile avviare l'interfaccia desktop GUI per esplorare in modo interattivo i risultati (findings Checkov, violazioni OpenAPI, rotte BOLA/D-AST) ed esaminare le raccomandazioni di remediation del motore intelligente:
+```bash
+python3 cloud_security_analyzer/launcher.py
+```
+
 
 ### Pulizia dell'ambiente
 Per spegnere i container ed eliminare i file di stato temporanei:
@@ -116,6 +123,13 @@ Per lanciare i test unitari di validazione dell'event bus, del normalizzatore de
 ## Struttura delle Cartelle
 
 ```
+├── cloud_security_analyzer/   # Dashboard desktop (PySide6) basata su pattern MVC
+│   ├── controllers/           # Controller MVC per la gestione delle schermate
+│   ├── gui/                   # Viste ed elementi grafici di interfaccia
+│   ├── models/                # Modelli dei dati per findings ed endpoint
+│   ├── services/              # Logica di business e integrazione pipeline
+│   ├── widgets/               # Componenti e grafici custom riutilizzabili
+│   └── launcher.py            # Entrypoint per l'avvio della dashboard desktop GUI
 ├── config/
 │   ├── environments/          # Contiene le variabili d'ambiente generate (.target_env)
 │   └── scanner_configs/       # Contiene le configurazioni degli scanner (rulesets)
@@ -124,6 +138,11 @@ Per lanciare i test unitari di validazione dell'event bus, del normalizzatore de
 │   └── generic_vulns/         # Codice sorgente della Lambda AWS vulnerabile
 ├── problema_misconfiguration/  # File infrastrutturali di test
 │   └── terraform/             # Configurazioni Terraform (vulnerable_infra.tf, main.tf)
+├── remediation/               # Modulo offline di Remediation Intelligence
+│   ├── knowledge_base/        # Database locale delle remediation e cache locale
+│   ├── models/                # Modelli dei dati del modulo di remediation
+│   ├── llm_provider.py        # Integrazione offline con LLM locale (Ollama)
+│   └── remediation_engine.py  # Motore di raccomandazione ed elaborazione fallback
 ├── scripts/                   # Script bash di orchestrazione della pipeline
 │   ├── 1_setup_environment.sh
 │   ├── 2_iac_analysis.sh
@@ -135,9 +154,9 @@ Per lanciare i test unitari di validazione dell'event bus, del normalizzatore de
 │   ├── infrastructure/        # Adattatori infrastrutturali per gli scanner esterni
 │   ├── normalization/         # Modulo di normalizzazione URL delle API
 │   ├── plugins/               # Plugin detector (bola_detector, shadow_api_detector)
-│   └── presentation/          # Esposizione API (FastAPI) e CLI di comando
+│   └── presentation/          # Esposizione API (FastAPI) e CLI di comando (cli.py)
 ├── tests/                     # Test unitari
-├── output/                    # Destinazione di report e dashboard (generata a runtime)
+├── output/                    # Destinazione dei report JSON (generati a runtime)
 ├── docker-compose.yml         # Servizi Docker (ZAP, Keycloak, Mitmproxy)
 ├── Makefile                   # Target per il workflow locale
 └── requirements.txt           # Dipendenze Python del progetto
@@ -212,8 +231,18 @@ Per lanciare i test unitari di validazione dell'event bus, del normalizzatore de
 ]
 ```
 
-### Dashboard HTML Generata (`output/dashboard.html`)
-Il file `output/dashboard.html` contiene una visualizzazione premium ed interattiva a 3 sezioni per l'analisi statica (IaC/AST), conformità OpenAPI (Spectral linting) ed analisi dinamica BOLA/D-AST, completa di filtri di severità e grafici di riepilogo.
+### Dashboard Desktop GUI & Remediation Intelligence
+L'applicazione desktop basata su PySide6 fornisce una visualizzazione ricca e interattiva delle metriche del progetto e supporta le seguenti sezioni:
+1. **Overview Dashboard**: Statistiche generali, conteggio findings per severità (con grafici) e percentuale di confidenza runtime.
+2. **Findings Viewer**: Elenco dettagliato di tutte le vulnerabilità con filtri per categoria e severità. Integra il motore di **Remediation Intelligence** che estrae raccomandazioni da un database offline locale o genera risposte intelligenti interfacciandosi localmente con modelli AI (es. Ollama / Llama3).
+3. **API Catalog**: Mappa in tempo reale le rotte documentate e individua le **Shadow API** scoperte analizzando il traffico di rete a runtime.
+4. **Infrastructure (IaC)**: Dettaglio delle violazioni statiche rilevate da Checkov sui file Terraform.
+5. **Console Logs**: Log dettagliati della esecuzione della pipeline CLI.
+
+Per lanciare la Dashboard Desktop:
+```bash
+python3 cloud_security_analyzer/launcher.py
+```
 
 ---
 

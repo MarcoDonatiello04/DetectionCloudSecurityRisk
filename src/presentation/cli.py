@@ -1,7 +1,8 @@
 import os
 import argparse
 import logging
-from typing import List
+import yaml
+from typing import List, Dict, Any
 
 from src.domain.entities import Finding
 from src.application.orchestrator import ScanPipelineOrchestrator
@@ -11,8 +12,8 @@ from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
 from src.infrastructure.adapters.zap_adapter import ZapClientAdapter
 from src.infrastructure.adapters.mitmproxy_adapter import MitmproxyClientAdapter
 from src.infrastructure.persistence.report_repository import ReportRepository
-from src.presentation.dashboard_generator import APIDashboardGenerator
 from src.core.bola.dynamic_orchestrator import DynamicOrchestrator
+from src.normalization.normalizer import APIEndpointNormalizer
 
 
 # Configurazione logger
@@ -34,7 +35,6 @@ DEFAULT_KEYCLOAK_URL = "http://localhost:8080"
 DEFAULT_OPENAPI_SPEC_PATH = "problema_api/openapi.yaml"
 REPORT_FINDINGS_FILENAME = "unified_security_report.json"
 REPORT_INVENTORY_FILENAME = "unified_api_inventory.json"
-DASHBOARD_FILENAME = "dashboard.html"
 
 
 def parse_args() -> argparse.Namespace:
@@ -205,19 +205,160 @@ def main() -> None:
     report_repo = ReportRepository(args.output_dir)
     report_repo.save_findings(correlated_findings, REPORT_FINDINGS_FILENAME)
 
-    # 7. Generazione Dashboard interattiva con dati completi
-    dashboard_path = os.path.join(args.output_dir, DASHBOARD_FILENAME)
-    dash_gen = APIDashboardGenerator(correlated_findings)
-    dash_gen.generate(dashboard_path)
-
-    # Salviamo l'inventario finale delle API correlate strutturato per la GUI
-    final_api_inventory = dash_gen._build_endpoint_catalog(correlated_findings)
+    # 7. Salviamo l'inventario finale delle API correlate strutturato per la GUI
+    final_api_inventory = _build_endpoint_catalog(correlated_findings)
     report_repo.save_inventory(final_api_inventory, REPORT_INVENTORY_FILENAME)
 
     logger.info("================================================================================")
     logger.info(f"🏆 PIPELINE COMPLETATA. Report salvato in '{args.output_dir}/'")
-    logger.info(f"🖥️  Dashboard interattiva premium: {dashboard_path}")
+    logger.info("🖥️  Avvia la dashboard desktop GUI con: python3 cloud_security_analyzer/launcher.py")
     logger.info("================================================================================")
+
+
+def _parse_openapi_spec() -> List[Dict[str, Any]]:
+    """Carica ed estrae le rotte definite nel file openapi.yaml."""
+    spec_paths = [
+        "problema_api/openapi.yaml",
+        "../problema_api/openapi.yaml",
+        "./openapi.yaml"
+    ]
+    for p in spec_paths:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    spec = yaml.safe_load(f)
+                    paths = spec.get("paths", {})
+                    endpoints = []
+                    for path, path_item in paths.items():
+                        if not path_item:
+                            continue
+                        for method in ["get", "post", "put", "delete", "patch", "options", "head"]:
+                            if method in path_item:
+                                endpoints.append({
+                                    "path": path,
+                                    "method": method.upper(),
+                                    "summary": path_item[method].get("summary", ""),
+                                    "description": path_item[method].get("description", ""),
+                                    "documented": True
+                                })
+                    return endpoints
+            except Exception as e:
+                logger.error(f"Errore caricamento spec OpenAPI da {p}: {e}")
+    return []
+
+
+def _build_endpoint_catalog(findings: List[Finding]) -> List[Dict[str, Any]]:
+    """Costruisce il catalogo completo degli endpoint incrociando specifiche e findings."""
+    # 1. Carica endpoint documentati in OpenAPI
+    documented_endpoints = _parse_openapi_spec()
+
+    catalog = {}
+    for ep in documented_endpoints:
+        key = f"{ep['method']} {ep['path']}"
+        catalog[key] = {
+            "method": ep["method"],
+            "path": ep["path"],
+            "summary": ep["summary"],
+            "description": ep["description"],
+            "documented": True,
+            "shadow": False,
+            "violations": [],
+            "bola_status": "UNTESTED",  # UNTESTED, SAFE, VULNERABLE, POTENTIAL
+            "bola_findings": []
+        }
+
+    # 2. Analizza i findings per popolare violazioni, shadow api e bola
+    for f in findings:
+        if not f.api or not f.api.endpoint:
+            continue
+
+        method = (f.api.method or "GET").upper()
+        norm_path = APIEndpointNormalizer.normalize_path(f.api.endpoint)
+        key = f"{method} {norm_path}"
+
+        matched_key = None
+        if key in catalog:
+            matched_key = key
+        else:
+            for cat_key, cat_ep in catalog.items():
+                if cat_ep["method"] == method:
+                    if APIEndpointNormalizer.normalize_path(cat_ep["path"]) == norm_path:
+                        matched_key = cat_key
+                        break
+
+        if not matched_key:
+            # È un endpoint non documentato (Shadow API)
+            matched_key = key
+            catalog[matched_key] = {
+                "method": method,
+                "path": norm_path,
+                "summary": f.title if f.source.value == "SHADOW_API" else "Endpoint Rilevato",
+                "description": f.description,
+                "documented": False,
+                "shadow": True,
+                "violations": [],
+                "bola_status": "UNTESTED",
+                "bola_findings": []
+            }
+
+        ep_entry = catalog[matched_key]
+
+        # Spectral violations
+        if f.source.value == "SPECTRAL":
+            ep_entry["violations"].append({
+                "rule_id": f.rule_id,
+                "title": f.title,
+                "description": f.description,
+                "severity": f.severity.value,
+                "line": f.location.start_line if f.location else None
+            })
+
+        # BOLA / D-AST
+        is_bola = (
+            f.category.value == "AUTHORIZATION" or 
+            f.category.value == "AUTHENTICATION" or
+            "bola" in f.title.lower() or 
+            "idor" in f.title.lower() or
+            f.source.value in ("ZAP_DAST", "RUNTIME_VALIDATOR")
+        )
+        if is_bola:
+            ep_entry["bola_findings"].append(f.to_dict())
+            if f.rule_id == "dynamic-test-secure":
+                if ep_entry["bola_status"] not in ("VULNERABLE", "POTENTIAL"):
+                    ep_entry["bola_status"] = "SAFE"
+            else:
+                if f.validation_status.value == "CONFIRMED":
+                    ep_entry["bola_status"] = "VULNERABLE"
+                elif ep_entry["bola_status"] not in ("VULNERABLE", "SAFE"):
+                    ep_entry["bola_status"] = "POTENTIAL"
+
+    # 3. Imposta stato test BOLA per gli endpoint dinamici
+    for ep_entry in catalog.values():
+        path = ep_entry["path"]
+        is_dynamic = "{" in path or "<" in path or ":" in path or "id" in path.lower()
+        ep_entry["is_dynamic"] = is_dynamic
+        
+        # Controlla se abbiamo ricevuto evidenza di sbarramento (status 401 o 403) o se l'assertion engine lo ritiene sicuro
+        has_blocking_evidence = False
+        for f in ep_entry["bola_findings"]:
+            if f.get("rule_id") == "dynamic-test-secure":
+                has_blocking_evidence = True
+                break
+            re = f.get("runtime_evidence")
+            if re:
+                status = re.get("http_status")
+                if status in (401, 403):
+                    has_blocking_evidence = True
+                    break
+        
+        if is_dynamic:
+            if ep_entry["bola_status"] in ("UNTESTED", "SAFE"):
+                if ep_entry["bola_status"] == "SAFE" or has_blocking_evidence:
+                    ep_entry["bola_status"] = "SAFE"
+                else:
+                    ep_entry["bola_status"] = "UNTESTED"
+
+    return sorted(list(catalog.values()), key=lambda x: (x["path"], x["method"]))
 
 
 if __name__ == "__main__":
