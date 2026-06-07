@@ -1,0 +1,36 @@
+{
+  "CKV_AWS_20": {
+    "title": "Ensure S3 bucket public access block is enabled",
+    "severity": "HIGH",
+    "description": "Checks that the S3 Public Access Block configuration is applied to the bucket.",
+    "impact": "S3 buckets without public access block policies can be exposed through misconfigured ACLs or bucket policies, leading to unauthorized data disclosure or modification.",
+    "remediation_steps": [
+      "Create an aws_s3_bucket_public_access_block resource in your Terraform configuration.",
+      "Associate the public access block resource with the S3 bucket via the bucket ID.",
+      "Set block_public_acls, block_public_policy, ignore_public_acls, and restrict_public_buckets to true."
+    ],
+    "example": "resource \"aws_s3_bucket_public_access_block\" \"block_public\" {\n  bucket = aws_s3_bucket.my_bucket.id\n\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "CKV_AWS_21": {
+    "title": "Ensure S3 bucket has versioning enabled",
+    "severity": "MEDIUM",
+    "description": "Checks that versioning is enabled on S3 buckets.",
+    "impact": "Without versioning, objects can be permanently deleted or overwritten accidentally, making recovery from data corruption or malicious destruction difficult.",
+    "remediation_steps": [
+      "Add a versioning block or resource to the S3 bucket configuration.",
+      "Set the versioning status to Enabled."
+    ],
+    "example": "resource \"aws_s3_bucket_versioning\" \"versioning\" {\n  bucket = aws_s3_bucket.my_bucket.id\n  versioning_configuration {\n    status = \"Enabled\"\n  }\n}"
+  },
+  "CKV_AWS_53": {
+    "title": "Ensure S3 bucket has public policies blocked",
+    "severity": "HIGH",
+    "description": "Checks if the S3 bucket restricts bucket policies from allowing public access.",
+    "impact": "Allowing public policies can expose private assets inside the S3 bucket to anonymous internet users.",
+    "remediation_steps": [
+      "Ensure block_public_policy is set to true on the public access block resource.",
+      "Audit bucket policies to remove statements containing Principal: * or wildcard permissions."
+    ],
+    "example": "resource \"aws_s3_bucket_public_access_block\" \"block_policy\" {\n  bucket = aws_s3_bucket.my_bucket.id\n  block_public_policy     = true\n  restrict_public_buckets = true\n}"
+  }
+}

@@ -14,11 +14,26 @@ class ReportRepository:
     """
 
     def __init__(self, output_dir: str):
+        """
+        Inizializza il ReportRepository creando la directory di destinazione se non esiste.
+
+        Args:
+            output_dir (str): Percorso della directory in cui salvare i report.
+        """
         self.output_dir = os.path.abspath(output_dir)
         os.makedirs(self.output_dir, exist_ok=True)
 
     def save_findings(self, findings: List[Finding], filename: str = "findings_report.json") -> str:
-        """Salva una lista di Finding in un file JSON. Ritorna il path assoluto."""
+        """
+        Salva una lista di Finding in un file JSON. Ritorna il path assoluto.
+
+        Args:
+            findings (List[Finding]): Lista di Finding da salvare.
+            filename (str): Nome del file JSON di destinazione.
+
+        Returns:
+            str: Il percorso assoluto del file salvato, o una stringa vuota in caso di errore.
+        """
         filepath = os.path.join(self.output_dir, filename)
         try:
             data = [f.to_dict() for f in findings]
@@ -31,7 +46,16 @@ class ReportRepository:
             return ""
 
     def save_inventory(self, inventory: List[Dict[str, Any]], filename: str = "unified_api_inventory.json") -> str:
-        """Salva l'inventario API unificato in formato JSON."""
+        """
+        Salva l'inventario API unificato in formato JSON.
+
+        Args:
+            inventory (List[Dict[str, Any]]): L'inventario strutturato delle API.
+            filename (str): Nome del file JSON di destinazione.
+
+        Returns:
+            str: Il percorso assoluto del file salvato, o una stringa vuota in caso di errore.
+        """
         filepath = os.path.join(self.output_dir, filename)
         try:
             with open(filepath, "w", encoding="utf-8") as f:

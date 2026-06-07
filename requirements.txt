@@ -5,3 +5,9 @@ checkov
 semgrep
 pyyaml
 zaproxy
+fastapi
+uvicorn
+pyjwt
+requests
+cryptography
+PySide6

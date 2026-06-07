@@ -1,14 +1,16 @@
-import json
-import urllib.request
-import urllib.parse
-import urllib.error
 import time
+import urllib.parse
 import logging
 from typing import List, Dict, Any
+from zapv2 import ZAPv2
 from src.domain.interfaces import IScanner
 from src.domain.entities import Finding, FindingSource, FindingCategory, Severity, APIContext, RiskContext
 
 logger = logging.getLogger("SecurityPlatform.ZapAdapter")
+
+# Configurazione default di esecuzione per ZAP Daemon
+DEFAULT_ZAP_URL = "http://localhost:8090"
+SPIDER_POLL_INTERVAL_SECONDS = 1
 
 
 class ZapClientAdapter(IScanner):
@@ -18,113 +20,124 @@ class ZapClientAdapter(IScanner):
     trasformandoli nel modello di Finding del Dominio.
     """
 
-    def __init__(self, zap_url: str = "http://localhost:8090", api_key: str = ""):
+    def __init__(self, zap_url: str = DEFAULT_ZAP_URL, api_key: str = ""):
+        """
+        Inizializza l'adattatore ZapClientAdapter con l'URL del demone e la chiave API.
+
+        Args:
+            zap_url (str): L'URL completo del demone ZAP.
+            api_key (str): Chiave API opzionale per l'autenticazione su ZAP.
+        """
         self.zap_url = zap_url.rstrip("/")
         self.api_key = api_key
-
-    def _call_api(self, endpoint: str, params: Dict[str, str] = {}) -> Dict[str, Any]:
-        try:
-            url = f"{self.zap_url}/JSON/{endpoint}"
-            query_parts = []
-            if self.api_key:
-                query_parts.append(f"apikey={self.api_key}")
-            for k, v in params.items():
-                query_parts.append(f"{k}={urllib.parse.quote(str(v))}")
-                
-            if query_parts:
-                url += "?" + "&".join(query_parts)
-                
-            req = urllib.request.Request(url)
-            with urllib.request.urlopen(req, timeout=10) as response:
-                return json.loads(response.read().decode('utf-8'))
-        except Exception as e:
-            logger.debug(f"Chiamata API ZAP fallita ({endpoint}): {e}")
-            return {}
+        # Configura ZAPv2 per usare il proxy
+        self.zap = ZAPv2(proxies={"http": self.zap_url, "https": self.zap_url}, apikey=api_key)
 
     def is_alive(self) -> bool:
-        resp = self._call_api("core/view/version/")
-        return "version" in resp
+        """
+        Controlla se il demone OWASP ZAP è attivo e raggiungibile.
+
+        Returns:
+            bool: True se ZAP risponde correttamente, altrimenti False.
+        """
+        try:
+            version = self.zap.core.version
+            return version is not None
+        except Exception as e:
+            logger.debug(f"Connessione ZAP fallita: {e}")
+            return False
 
     def scan(self, target_url: str) -> List[Finding]:
         """
         Esegue lo spidering su target_url per stimolare le API 
         e raccoglie i findings/alert generati da ZAP.
+
+        Args:
+            target_url (str): L'URL completo dell'applicazione target da scansionare.
+
+        Returns:
+            List[Finding]: Lista di Finding generati dagli alert di sicurezza di ZAP.
         """
         logger.info(f"🚀 Avvio scansione attiva DAST tramite ZAP su: {target_url}")
         if not self.is_alive():
-            logger.warning("OWASP ZAP Daemon non raggiungibile su localhost:8090. DAST saltato.")
+            logger.warning(f"OWASP ZAP Daemon non raggiungibile su {self.zap_url}. DAST saltato.")
             return []
 
         # 1. Avvia Spidering
-        resp = self._call_api("spider/action/scan/", {"url": target_url})
-        scan_id = resp.get("scan")
-        if scan_id is not None:
-            logger.info("🕸️ Avviato ZAP Spider...")
-            while True:
-                status_resp = self._call_api("spider/view/status/", {"scanId": scan_id})
-                status = int(status_resp.get("status", 100))
-                if status >= 100:
-                    break
-                time.sleep(1)
+        try:
+            resp = self.zap.spider.scan(url=target_url)
+            # Gestiamo sia dizionari che stringhe di risposta
+            scan_id = resp.get("scan") if isinstance(resp, dict) else resp
+            if scan_id is not None:
+                logger.info("🕸️ Avviato ZAP Spider...")
+                while True:
+                    status = int(self.zap.spider.status(scanid=scan_id))
+                    if status >= 100:
+                        break
+                    time.sleep(SPIDER_POLL_INTERVAL_SECONDS)
+        except Exception as e:
+            logger.warning(f"Spidering ZAP fallito o saltato: {e}")
         
         # 2. Recupero degli Alert registrati da ZAP
         findings: List[Finding] = []
-        alerts_resp = self._call_api("core/view/alerts/", {"baseurl": target_url})
-        alerts = alerts_resp.get("alerts", [])
-        
-        logger.info(f"Rilevati {len(alerts)} alert grezzi da ZAP.")
-        for alert in alerts:
-            alert_id = alert.get("id", "zap-alert")
-            alert_name = alert.get("alert", "Vulnerabilità DAST")
-            description = alert.get("description", "")
-            url = alert.get("url", "")
-            method = alert.get("method", "GET")
-            param = alert.get("param", "")
-            evidence = alert.get("evidence", "")
+        try:
+            alerts = self.zap.core.alerts(baseurl=target_url)
+            logger.info(f"Rilevati {len(alerts)} alert grezzi da ZAP per target {target_url}.")
             
-            # Mappatura della severità ZAP (High, Medium, Low, Informational)
-            risk = alert.get("risk", "Informational")
-            severity = Severity.INFO
-            if risk == "High":
-                severity = Severity.HIGH
-            elif risk == "Medium":
-                severity = Severity.MEDIUM
-            elif risk == "Low":
-                severity = Severity.LOW
+            for alert in alerts:
+                alert_id = alert.get("id", "zap-alert")
+                alert_name = alert.get("alert", "Vulnerabilità DAST")
+                description = alert.get("description", "")
+                url = alert.get("url", "")
+                method = alert.get("method", "GET")
+                param = alert.get("param", "")
+                evidence = alert.get("evidence", "")
+                
+                # Mappatura della severità ZAP (High, Medium, Low, Informational)
+                risk = alert.get("risk", "Informational")
+                severity = Severity.INFO
+                if risk == "High":
+                    severity = Severity.HIGH
+                elif risk == "Medium":
+                    severity = Severity.MEDIUM
+                elif risk == "Low":
+                    severity = Severity.LOW
 
-            # Mappatura categoria
-            category = FindingCategory.RUNTIME_EXPOSURE
-            alert_name_lower = alert_name.lower()
-            if "sql" in alert_name_lower or "injection" in alert_name_lower:
-                category = FindingCategory.INJECTION
-            elif "xss" in alert_name_lower or "cross-site scripting" in alert_name_lower:
-                category = FindingCategory.INPUT_VALIDATION
-            elif "auth" in alert_name_lower or "session" in alert_name_lower:
-                category = FindingCategory.AUTHENTICATION
-            elif "header" in alert_name_lower:
-                category = FindingCategory.SECURITY_HEADERS
+                # Mappatura categoria
+                category = FindingCategory.RUNTIME_EXPOSURE
+                alert_name_lower = alert_name.lower()
+                if "sql" in alert_name_lower or "injection" in alert_name_lower:
+                    category = FindingCategory.INJECTION
+                elif "xss" in alert_name_lower or "cross-site scripting" in alert_name_lower:
+                    category = FindingCategory.INPUT_VALIDATION
+                elif "auth" in alert_name_lower or "session" in alert_name_lower:
+                    category = FindingCategory.AUTHENTICATION
+                elif "header" in alert_name_lower:
+                    category = FindingCategory.SECURITY_HEADERS
 
-            path = urllib.parse.urlparse(url).path
-            api_ctx = APIContext(
-                endpoint=path,
-                method=method,
-                base_url=target_url
-            )
-            
-            finding = Finding.create(
-                source=FindingSource.ZAP_DAST,
-                category=category,
-                title=alert_name,
-                description=f"{description}\nParametro affetto: {param}\nEvidenza: {evidence}",
-                severity=severity,
-                confidence=0.9,
-                rule_id=alert.get("pluginId", alert_id),
-                target_identifier=f"{method}:{path}:{alert_name}",
-                rule_name=alert_name,
-                api=api_ctx,
-                risk_context=RiskContext(exploitable=True, internet_exposed=True),
-                raw_data=alert
-            )
-            findings.append(finding)
+                path = urllib.parse.urlparse(url).path
+                api_ctx = APIContext(
+                    endpoint=path,
+                    method=method,
+                    base_url=target_url
+                )
+                
+                finding = Finding.create(
+                    source=FindingSource.ZAP_DAST,
+                    category=category,
+                    title=alert_name,
+                    description=f"{description}\nParametro affetto: {param}\nEvidenza: {evidence}",
+                    severity=severity,
+                    confidence=0.9,
+                    rule_id=alert.get("pluginId", alert_id),
+                    target_identifier=f"{method}:{path}:{alert_name}",
+                    rule_name=alert_name,
+                    api=api_ctx,
+                    risk_context=RiskContext(exploitable=True, internet_exposed=True),
+                    raw_data=alert
+                )
+                findings.append(finding)
+        except Exception as e:
+            logger.error(f"Errore recupero alert da ZAP: {e}", exc_info=True)
 
         return findings

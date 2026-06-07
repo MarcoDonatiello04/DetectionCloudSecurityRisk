@@ -1,0 +1,37 @@
+{
+  "AUTHORIZATION": {
+    "title": "Broken Object Level Authorization (BOLA / IDOR)",
+    "severity": "CRITICAL",
+    "description": "API endpoints expose resources by ID but fail to validate if the current authenticated user has permission to access that specific object.",
+    "impact": "Attackers can manipulate resource IDs in API requests (e.g. GET /api/orders/101 vs GET /api/orders/102) to read, update or delete private data belonging to other accounts.",
+    "remediation_steps": [
+      "Implement a server-side ownership validation check before loading resources.",
+      "Never trust the resource ID provided in the HTTP request without querying permissions.",
+      "Use random, non-sequential UUIDs (v4) instead of auto-incrementing integer IDs to make resource harvesting difficult."
+    ],
+    "example": "@app.route('/api/orders/<order_id>')\n@jwt_required()\ndef get_order(order_id):\n    user_id = get_jwt_identity()\n    order = db.query(Order).filter_by(id=order_id).first()\n    if not order:\n        return jsonify({\"error\": \"Not Found\"}), 404\n    # Validazione autorizzazione\n    if order.user_id != user_id:\n        return jsonify({\"error\": \"Forbidden\"}), 403\n    return jsonify(order.to_dict())"
+  },
+  "AUTHENTICATION": {
+    "title": "Broken User Authentication",
+    "severity": "HIGH",
+    "description": "API routes or endpoints are exposed without proper authentication checks or fail to validate security tokens (JWT) correctly.",
+    "impact": "Unauthenticated or malicious clients can invoke private endpoints directly to retrieve sensitive lists or invoke business logic without logs or authorization.",
+    "remediation_steps": [
+      "Secure all internal API endpoints using standard authentication middleware (e.g., JWT Validator).",
+      "Verify JWT signatures on the backend server, and assert expiration (exp) and scopes (scp).",
+      "Disable debugging routes and sandbox endpoints in production configurations."
+    ],
+    "example": "# Proteggere l'applicazione Flask caricando un decorator di validazione token\n@app.route('/api/profile')\n@jwt_required()\ndef get_profile():\n    # Identità del possessore del token confermata dall'Header Authorization Bearer\n    current_user = get_jwt_identity()\n    return jsonify(db.get_user(current_user))"
+  },
+  "RATE_LIMITING": {
+    "title": "Lack of Resources & Rate Limiting",
+    "severity": "MEDIUM",
+    "description": "API fails to restrict the number of requests a client can execute in a short period.",
+    "impact": "Clients can execute brute-force attacks or trigger high-volume queries, leading to denial of service (DoS), server resource exhaustion, or high cloud billing.",
+    "remediation_steps": [
+      "Implement client rate-limiting rules based on IP address, API key, or JWT identity.",
+      "Define standard rate limits (e.g., 60 requests per minute) on sensitive endpoints."
+    ],
+    "example": "from flask_limiter import Limiter\nfrom flask_limiter.util import get_remote_address\n\nlimiter = Limiter(key_func=get_remote_address)\n\n@app.route(\"/api/sensitive\")\n@limiter.limit(\"5 per minute\")\ndef sensitive_route():\n    return \"Success\""
+  }
+}

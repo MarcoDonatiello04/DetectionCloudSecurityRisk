@@ -8,6 +8,12 @@ from src.domain.entities import Finding, FindingSource, FindingCategory, Severit
 
 logger = logging.getLogger("SecurityPlatform.SpectralAdapter")
 
+# Configurazione default di esecuzione per Spectral CLI
+DEFAULT_SPECTRAL_RULESET_PATH = "config/scanner_configs/spectral-owasp.yaml"
+DEFAULT_SPECTRAL_REPORT_FILE = "spectral_report_temp.json"
+SPECTRAL_TIMEOUT_SECONDS = 30
+OPENAPI_PREVIEW_SIZE_BYTES = 2048
+
 
 class SpectralScannerAdapter(IScanner):
     """
@@ -17,6 +23,15 @@ class SpectralScannerAdapter(IScanner):
     """
 
     def scan(self, target_file_or_dir: str) -> List[Finding]:
+        """
+        Esegue l'analisi di conformità con Spectral sull'OpenAPI contract.
+
+        Args:
+            target_file_or_dir (str): Percorso del file o della directory contenente il contratto OpenAPI.
+
+        Returns:
+            List[Finding]: Lista di Finding generati durante l'analisi.
+        """
         logger.info(f"🚀 Esecuzione Spectral API Contract Scanner su: {target_file_or_dir}")
         openapi_file = None
         
@@ -41,17 +56,17 @@ class SpectralScannerAdapter(IScanner):
 
         logger.info(f"📄 Trovato contratto OpenAPI da scansionare: {openapi_file}")
         
-        ruleset_path = "config/scanner_configs/spectral-owasp.yaml"
+        ruleset_path = DEFAULT_SPECTRAL_RULESET_PATH
         if not os.path.exists(ruleset_path):
             ruleset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../config/scanner_configs/spectral-owasp.yaml"))
 
-        report_file = "spectral_report_temp.json"
+        report_file = DEFAULT_SPECTRAL_REPORT_FILE
         cmd = ["npx", "-y", "@stoplight/spectral-cli", "lint", openapi_file, 
                "--ruleset", ruleset_path, "--format", "json", "-o", report_file]
                
         try:
-            subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-        except Exception as e:
+            subprocess.run(cmd, capture_output=True, text=True, timeout=SPECTRAL_TIMEOUT_SECONDS)
+        except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
             logger.warning(f"Salto scansione Spectral (npx o comando fallito): {e}")
             return []
         
@@ -97,8 +112,10 @@ class SpectralScannerAdapter(IScanner):
                             method=str(path_list[2]).upper()
                         )
                         target_ident += f"|{api_ctx.endpoint}|{api_ctx.method}"
-                    
-                    corr_key = source_file.split("/")[-1] if "/" in source_file else source_file
+                    corr_key = None
+                    if not api_ctx:
+                        filename = source_file.split("/")[-1] if "/" in source_file else source_file
+                        corr_key = f"openapi:{filename}:{rule_code}"
 
                     finding = Finding.create(
                         source=FindingSource.SPECTRAL,
@@ -116,7 +133,7 @@ class SpectralScannerAdapter(IScanner):
                         raw_data=issue
                     )
                     findings.append(finding)
-            except Exception as e:
+            except (json.JSONDecodeError, OSError) as e:
                 logger.error(f"Errore parsing report di Spectral: {e}", exc_info=True)
             finally:
                 if os.path.exists(report_file):
@@ -126,9 +143,18 @@ class SpectralScannerAdapter(IScanner):
         return findings
 
     def _is_openapi_file(self, filepath: str) -> bool:
+        """
+        Verifica preliminarmente se il file all'indirizzo fornito contiene firme del formato OpenAPI.
+
+        Args:
+            filepath (str): Percorso del file da controllare.
+
+        Returns:
+            bool: True se contiene firme OpenAPI, altrimenti False.
+        """
         try:
             with open(filepath, "r", encoding="utf-8") as f:
-                content = f.read(2048) # Legge i primi KB per efficienza
+                content = f.read(OPENAPI_PREVIEW_SIZE_BYTES)  # Legge i primi KB per efficienza
                 if "openapi:" in content or "swagger:" in content:
                     return True
         except Exception:

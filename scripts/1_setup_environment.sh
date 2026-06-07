@@ -80,5 +80,18 @@ else
     echo -e "${BLUE}[~] Utente 'user_b' già esistente. Password ripristinata.${NC}"
 fi
 
+# Crea l'utente 'admin_user' se non esiste
+if ! docker exec -t tesi-keycloak /opt/keycloak/bin/kcadm.sh get users -r myrealm | grep -q "admin_user"; then
+    docker exec -t tesi-keycloak /opt/keycloak/bin/kcadm.sh create users -r myrealm -s username=admin_user -s enabled=true -s email=admin_user@example.com -s firstName=Admin -s lastName=User -s emailVerified=true
+    docker exec -t tesi-keycloak /opt/keycloak/bin/kcadm.sh set-password -r myrealm --username admin_user --new-password Password123!
+    # Crea il ruolo 'admin' se non esiste e assegnalo all'utente
+    docker exec -t tesi-keycloak /opt/keycloak/bin/kcadm.sh create roles -r myrealm -s name=admin || true
+    docker exec -t tesi-keycloak /opt/keycloak/bin/kcadm.sh add-roles -r myrealm --uusername admin_user --rolename admin || true
+    echo -e "${GREEN}[+] Utente 'admin_user' (Admin) configurato.${NC}"
+else
+    docker exec -t tesi-keycloak /opt/keycloak/bin/kcadm.sh set-password -r myrealm --username admin_user --new-password Password123!
+    echo -e "${BLUE}[~] Utente 'admin_user' già esistente. Password ripristinata.${NC}"
+fi
+
 echo -e "\n${GREEN}[+] CONFIGURAZIONE AMBIENTE COMPLETATA CON SUCCESSO!${NC}"
 echo -e "${BLUE}=========================================================${NC}"

@@ -1,0 +1,134 @@
+{
+  "CKV_AWS_237": {
+    "title": "Misconfiguration Infrastrutturale IaC: CKV_AWS_237",
+    "description": "Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola CKV_AWS_237. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
+    "impact": "Accesso non autorizzato alle risorse cloud, furto di dati riservati, potenziale manomissione dell'infrastruttura di produzione.",
+    "remediation_steps": [
+      "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
+      "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
+      "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+    ],
+    "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "10036": {
+    "title": "Vulnerabilità Rilevata: Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+    "description": "L'analisi statica/dinamica ha identificato un potenziale rischio: 'The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.\nParametro affetto: \nEvidenza: Werkzeug/3.1.8 Python/3.11.15'. È necessaria una revisione per allinearsi alle best practice di sicurezza.",
+    "impact": "Aumento della superficie d'attacco ed esposizione ad exploit di gravità variabile a seconda dell'ambiente di deployment.",
+    "remediation_steps": [
+      "Rivedere la configurazione della risorsa interessata.",
+      "Applicare le patch o gli aggiornamenti di sicurezza raccomandati.",
+      "Isolare la risorsa sensibile limitando l'esposizione sulla rete pubblica."
+    ],
+    "example": "# Configurazione Sicura Consigliata\n{\n  \"status\": \"secure_configuration_applied\",\n  \"verification\": \"required\"\n}"
+  },
+  "CKV_SECRET_2": {
+    "title": "Misconfiguration Infrastrutturale IaC: CKV_SECRET_2",
+    "description": "Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola CKV_SECRET_2. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
+    "impact": "Accesso non autorizzato alle risorse cloud, furto di dati riservati, potenziale manomissione dell'infrastruttura di produzione.",
+    "remediation_steps": [
+      "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
+      "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
+      "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+    ],
+    "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "CKV_AWS_50": {
+    "title": "Misconfiguration Infrastrutturale IaC: CKV_AWS_50",
+    "description": "Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola CKV_AWS_50. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
+    "impact": "Accesso non autorizzato alle risorse cloud, furto di dati riservati, potenziale manomissione dell'infrastruttura di produzione.",
+    "remediation_steps": [
+      "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
+      "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
+      "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+    ],
+    "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "shadow-api-detected": {
+    "title": "Vulnerabilità Rilevata: Shadow API (Endpoint non documentato rilevato a runtime)",
+    "description": "L'analisi statica/dinamica ha identificato un potenziale rischio: 'Rilevata chiamata HTTP verso 'GET /.zap5275561499632233557' nel traffico di runtime, ma nessun endpoint corrispondente è stato trovato nel codice sorgente analizzato. Questo indica la presenza di una Shadow API non tracciata o di una potenziale backdoor.'. È necessaria una revisione per allinearsi alle best practice di sicurezza.",
+    "impact": "Aumento della superficie d'attacco ed esposizione ad exploit di gravità variabile a seconda dell'ambiente di deployment.",
+    "remediation_steps": [
+      "Rivedere la configurazione della risorsa interessata.",
+      "Applicare le patch o gli aggiornamenti di sicurezza raccomandati.",
+      "Isolare la risorsa sensibile limitando l'esposizione sulla rete pubblica."
+    ],
+    "example": "# Configurazione Sicura Consigliata\n{\n  \"status\": \"secure_configuration_applied\",\n  \"verification\": \"required\"\n}"
+  },
+  "api-route-discovery": {
+    "title": "Vulnerabilità Rilevata: API Endpoint Rilevato",
+    "description": "L'analisi statica/dinamica ha identificato un potenziale rischio: 'Identificato endpoint API [fastapi, python-semgrep]: POST /scan protetto da autenticazione.'. È necessaria una revisione per allinearsi alle best practice di sicurezza.",
+    "impact": "Aumento della superficie d'attacco ed esposizione ad exploit di gravità variabile a seconda dell'ambiente di deployment.",
+    "remediation_steps": [
+      "Rivedere la configurazione della risorsa interessata.",
+      "Applicare le patch o gli aggiornamenti di sicurezza raccomandati.",
+      "Isolare la risorsa sensibile limitando l'esposizione sulla rete pubblica."
+    ],
+    "example": "# Configurazione Sicura Consigliata\n{\n  \"status\": \"secure_configuration_applied\",\n  \"verification\": \"required\"\n}"
+  },
+  "CKV_AWS_70": {
+    "title": "Misconfiguration Infrastrutturale IaC: CKV_AWS_70",
+    "description": "Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola CKV_AWS_70. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
+    "impact": "Accesso non autorizzato alle risorse cloud, furto di dati riservati, potenziale manomissione dell'infrastruttura di produzione.",
+    "remediation_steps": [
+      "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
+      "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
+      "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+    ],
+    "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "CKV_AWS_59": {
+    "title": "Misconfiguration Infrastrutturale IaC: CKV_AWS_59",
+    "description": "Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola CKV_AWS_59. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
+    "impact": "Accesso non autorizzato alle risorse cloud, furto di dati riservati, potenziale manomissione dell'infrastruttura di produzione.",
+    "remediation_steps": [
+      "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
+      "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
+      "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+    ],
+    "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "CKV_AWS_28": {
+    "title": "Misconfiguration Infrastrutturale IaC: CKV_AWS_28",
+    "description": "Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola CKV_AWS_28. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
+    "impact": "Accesso non autorizzato alle risorse cloud, furto di dati riservati, potenziale manomissione dell'infrastruttura di produzione.",
+    "remediation_steps": [
+      "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
+      "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
+      "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+    ],
+    "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "CKV_AWS_26": {
+    "title": "Misconfiguration Infrastrutturale IaC: CKV_AWS_26",
+    "description": "Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola CKV_AWS_26. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
+    "impact": "Accesso non autorizzato alle risorse cloud, furto di dati riservati, potenziale manomissione dell'infrastruttura di produzione.",
+    "remediation_steps": [
+      "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
+      "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
+      "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+    ],
+    "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "CKV_AWS_169": {
+    "title": "Misconfiguration Infrastrutturale IaC: CKV_AWS_169",
+    "description": "Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola CKV_AWS_169. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
+    "impact": "Accesso non autorizzato alle risorse cloud, furto di dati riservati, potenziale manomissione dell'infrastruttura di produzione.",
+    "remediation_steps": [
+      "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
+      "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
+      "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+    ],
+    "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "CKV_AWS_288": {
+    "title": "Misconfiguration Infrastrutturale IaC: CKV_AWS_288",
+    "description": "Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola CKV_AWS_288. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
+    "impact": "Accesso non autorizzato alle risorse cloud, furto di dati riservati, potenziale manomissione dell'infrastruttura di produzione.",
+    "remediation_steps": [
+      "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
+      "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
+      "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+    ],
+    "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  }
+}

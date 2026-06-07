@@ -10,6 +10,15 @@ from src.normalization.normalizer import APIEndpointNormalizer
 
 logger = logging.getLogger("SecurityPlatform.SemgrepAdapter")
 
+# Configurazione default di esecuzione per Semgrep
+DEFAULT_SEMGREP_RULESET_PATH = "config/scanner_configs/route-detect.yaml"
+DEFAULT_SEMGREP_OUTPUT_FILE = "semgrep_routes_discovered.json"
+SEMGREP_TIMEOUT_SECONDS = 30
+
+# Parametri di parsing euristico del codice
+SUB_CONTENT_LOOKAHEAD_LIMIT = 300
+SUB_CONTENT_LOOKAHEAD_SHORT = 150
+
 
 class SemgrepScannerAdapter(IScanner):
     """
@@ -18,9 +27,21 @@ class SemgrepScannerAdapter(IScanner):
     """
 
     def __init__(self):
+        """
+        Inizializza il SemgrepScannerAdapter con una lista vuota di endpoint.
+        """
         self.endpoints: List[Dict[str, Any]] = []
 
     def scan(self, target_dir: str) -> List[Finding]:
+        """
+        Esegue la scansione statica della directory target tramite euristiche e Semgrep.
+
+        Args:
+            target_dir (str): Percorso della directory da scansionare.
+
+        Returns:
+            List[Finding]: Lista di Finding generati durante la scansione.
+        """
         logger.info(f"🚀 Esecuzione Semgrep & Heuristic AST Scanner su: {target_dir}")
         self.endpoints = []
         
@@ -92,6 +113,13 @@ class SemgrepScannerAdapter(IScanner):
         return findings
 
     def _deduplicate_endpoints(self) -> List[Dict[str, Any]]:
+        """
+        Deduplica la lista degli endpoint estratti in base a metodo e percorso,
+        fondendo i flag di autenticazione e le definizioni di framework.
+
+        Returns:
+            List[Dict[str, Any]]: Lista di endpoint deduplicati.
+        """
         registry = {}
         for ep in self.endpoints:
             key = f"{ep['method']}:{ep['path']}"
@@ -105,25 +133,31 @@ class SemgrepScannerAdapter(IScanner):
                     existing["framework"] = f"{existing['framework']}, {ep['framework']}"
         return list(registry.values())
 
-    def _run_semgrep_discovery(self, target_dir: str):
+    def _run_semgrep_discovery(self, target_dir: str) -> None:
+        """
+        Esegue Semgrep per rilevare rotte API basandosi su un ruleset statico predefinito.
+
+        Args:
+            target_dir (str): Directory target da scansionare con Semgrep.
+        """
         semgrep_bin = "semgrep"
         if os.path.exists("./.venv/bin/semgrep"):
             semgrep_bin = "./.venv/bin/semgrep"
 
-        ruleset_path = "config/scanner_configs/route-detect.yaml"
+        ruleset_path = DEFAULT_SEMGREP_RULESET_PATH
         if not os.path.exists(ruleset_path):
             # Fallback path per testing
             ruleset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../config/scanner_configs/route-detect.yaml"))
 
         if not os.path.exists(ruleset_path):
-            logger.warning("File config/scanner_configs/route-detect.yaml non trovato. Semgrep saltato.")
+            logger.warning(f"File {DEFAULT_SEMGREP_RULESET_PATH} non trovato. Semgrep saltato.")
             return
 
-        output_file = "semgrep_routes_discovered.json"
+        output_file = DEFAULT_SEMGREP_OUTPUT_FILE
         cmd = [semgrep_bin, "scan", f"--config={ruleset_path}", "--json", "-o", output_file, target_dir]
         
         try:
-            subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+            subprocess.run(cmd, capture_output=True, text=True, timeout=SEMGREP_TIMEOUT_SECONDS)
             if os.path.exists(output_file):
                 with open(output_file, 'r', encoding='utf-8') as f:
                     data = json.load(f)
@@ -157,10 +191,17 @@ class SemgrepScannerAdapter(IScanner):
                             })
                 if os.path.exists(output_file):
                     os.remove(output_file)
-        except Exception as e:
+        except (subprocess.SubprocessError, subprocess.TimeoutExpired, OSError, json.JSONDecodeError) as e:
             logger.debug(f"Esecuzione Semgrep fallita: {e}")
 
-    def _parse_python_file(self, filepath: str, rel_path: str):
+    def _parse_python_file(self, filepath: str, rel_path: str) -> None:
+        """
+        Esegue il parsing euristico di un file Python alla ricerca di rotte FastAPI o Flask.
+
+        Args:
+            filepath (str): Percorso completo del file Python.
+            rel_path (str): Percorso relativo del file rispetto alla cartella target.
+        """
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
             
@@ -174,7 +215,7 @@ class SemgrepScannerAdapter(IScanner):
                 path = match.group(2)
                 
                 decorator_end = match.end()
-                sub_content = content[decorator_end:decorator_end + 300]
+                sub_content = content[decorator_end:decorator_end + SUB_CONTENT_LOOKAHEAD_LIMIT]
                 auth_detected = "Depends(" in sub_content or "verify_" in sub_content or "auth" in sub_content.lower()
                 
                 self.endpoints.append({
@@ -198,7 +239,7 @@ class SemgrepScannerAdapter(IScanner):
                 openapi_path = re.sub(r'<[^>:]*:?([^>]+)>', r'{\1}', path)
                 
                 decorator_end = match.end()
-                sub_content = content[decorator_end:decorator_end + 300]
+                sub_content = content[decorator_end:decorator_end + SUB_CONTENT_LOOKAHEAD_LIMIT]
                 auth_detected = any(dec in sub_content for dec in ["@login_required", "@jwt_required", "@token_required"])
                 
                 for method in methods:
@@ -210,7 +251,14 @@ class SemgrepScannerAdapter(IScanner):
                         "framework": "flask"
                     })
 
-    def _parse_javascript_file(self, filepath: str, rel_path: str):
+    def _parse_javascript_file(self, filepath: str, rel_path: str) -> None:
+        """
+        Esegue il parsing euristico di un file JS/TS alla ricerca di rotte Express.
+
+        Args:
+            filepath (str): Percorso completo del file JavaScript/TypeScript.
+            rel_path (str): Percorso relativo del file rispetto alla cartella target.
+        """
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
         express_pattern = r'(?:app|router)\.(get|post|put|delete|patch)\(\s*[\'"]([^\'"]+)[\'"]\s*,'
@@ -219,7 +267,7 @@ class SemgrepScannerAdapter(IScanner):
             path = match.group(2)
             openapi_path = re.sub(r':([^/]+)', r'{\1}', path)
             
-            sub_content = content[match.end():match.end() + 150]
+            sub_content = content[match.end():match.end() + SUB_CONTENT_LOOKAHEAD_SHORT]
             auth_detected = any(term in sub_content for term in ["auth", "verify", "protect", "jwt"])
             
             self.endpoints.append({
@@ -230,7 +278,14 @@ class SemgrepScannerAdapter(IScanner):
                 "framework": "express"
             })
 
-    def _parse_java_file(self, filepath: str, rel_path: str):
+    def _parse_java_file(self, filepath: str, rel_path: str) -> None:
+        """
+        Esegue il parsing euristico di un file Java alla ricerca di annotazioni di Spring Boot.
+
+        Args:
+            filepath (str): Percorso completo del file Java.
+            rel_path (str): Percorso relativo del file rispetto alla cartella target.
+        """
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
         spring_pattern = r'@(GetMapping|PostMapping|PutMapping|DeleteMapping)\s*\(\s*(?:value\s*=\s*)?[\'"]([^\'"]+)[\'"]'

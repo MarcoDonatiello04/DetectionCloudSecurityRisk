@@ -2,11 +2,21 @@ import json
 import os
 from mitmproxy import http
 
+# Percorso di log di default per il container mitmproxy
+DEFAULT_TRAFFIC_LOG_PATH = "/home/mitmproxy/output/raw_traffic.json"
+
+
 class TrafficLogger:
-    """Mitmproxy addon to capture and log API requests/responses for dynamic security testing."""
+    """
+    Componente Addon di Mitmproxy per intercettare e registrare richieste e risposte HTTP.
+    Filtra le chiamate dirette all'ambiente lab per l'analisi dinamica (D-AST).
+    """
     
     def __init__(self):
-        self.output_path = "/home/mitmproxy/output/raw_traffic.json"
+        """
+        Inizializza il TrafficLogger caricando lo storico del traffico esistente se presente.
+        """
+        self.output_path = DEFAULT_TRAFFIC_LOG_PATH
         self.requests = []
         os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
         
@@ -19,6 +29,13 @@ class TrafficLogger:
                 self.requests = []
 
     def response(self, flow: http.HTTPFlow) -> None:
+        """
+        Callback invocata da Mitmproxy alla ricezione di una risposta HTTP.
+        Estrae informazioni utili come metodo, url, status, headers e corpo se diretti al lab.
+
+        Args:
+            flow (http.HTTPFlow): Rappresentazione della transazione HTTP catturata.
+        """
         request = flow.request
         response = flow.response
         host = request.pretty_host
@@ -52,6 +69,7 @@ class TrafficLogger:
                     json.dump(self.requests, f, indent=2, ensure_ascii=False)
             except Exception:
                 pass
+
 
 addons = [
     TrafficLogger()

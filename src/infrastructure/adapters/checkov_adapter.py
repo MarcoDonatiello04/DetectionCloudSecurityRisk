@@ -8,6 +8,10 @@ from src.domain.entities import Finding, FindingSource, FindingCategory, Severit
 
 logger = logging.getLogger("SecurityPlatform.CheckovAdapter")
 
+# Configurazione default di esecuzione per Checkov
+DEFAULT_TIMEOUT_SECONDS = 60
+DEFAULT_CHECKOV_CONFIG = ".checkov.yaml"
+
 
 class CheckovScannerAdapter(IScanner):
     """
@@ -17,21 +21,30 @@ class CheckovScannerAdapter(IScanner):
     """
 
     def scan(self, target_dir: str) -> List[Finding]:
+        """
+        Esegue l'analisi statica con Checkov sulla cartella target.
+
+        Args:
+            target_dir (str): Percorso della directory target da scansionare.
+
+        Returns:
+            List[Finding]: Lista di Finding di sicurezza IaC rilevati da Checkov.
+        """
         logger.info(f"🚀 Esecuzione Checkov Scanner su: {target_dir}")
         checkov_bin = "checkov"
         if os.path.exists("./.venv/bin/checkov"):
             checkov_bin = "./.venv/bin/checkov"
             
         cmd = [checkov_bin, "--skip-download", "--no-cert-verify", "-o", "json"]
-        if os.path.exists(".checkov.yaml"):
-            cmd.extend(["--config-file", ".checkov.yaml"])
+        if os.path.exists(DEFAULT_CHECKOV_CONFIG):
+            cmd.extend(["--config-file", DEFAULT_CHECKOV_CONFIG])
         else:
             cmd.extend(["-d", target_dir])
             
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=DEFAULT_TIMEOUT_SECONDS)
             output_str = result.stdout
-        except Exception as e:
+        except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
             logger.error(f"Errore durante l'esecuzione del comando checkov: {e}")
             return []
             

@@ -1,6 +1,12 @@
 import re
 from typing import List, Dict, Any
 
+# Parole chiave escluse dalla normalizzazione degli hash per evitare falsi positivi
+EXCLUDED_HEX_KEYWORDS = {
+    "login", "admin", "debug", "notes", "users",
+    "items", "views", "posts", "lists"
+}
+
 
 class APIEndpointNormalizer:
     """
@@ -20,6 +26,12 @@ class APIEndpointNormalizer:
         """
         Normalizza un percorso URL trasformando i segmenti dinamici in '{id}'.
         Esempio: /api/v1/users/123/profile?debug=true -> /api/v1/users/{id}/profile
+
+        Args:
+            path (str): Il percorso HTTP da normalizzare.
+
+        Returns:
+            str: Il percorso normalizzato con placeholder conformi a OpenAPI.
         """
         if not path:
             return "/"
@@ -58,7 +70,7 @@ class APIEndpointNormalizer:
             # Controlla se corrisponde ad un hash esadecimale (es: identificatori MongoDB o sessioni)
             elif cls.HEX_HASH_REGEX.match(segment):
                 # Escludiamo parole note corte per evitare falsi positivi
-                if segment.lower() not in ("login", "admin", "debug", "notes", "users", "notes", "items", "views", "posts", "lists"):
+                if segment.lower() not in EXCLUDED_HEX_KEYWORDS:
                     normalized_segments.append("{id}")
                 else:
                     normalized_segments.append(segment)
