@@ -119,7 +119,27 @@ class LlmProvider:
             if response.status_code == 200:
                 res_data = response.json()
                 response_text = res_data.get("response", "").strip()
-                parsed_remediation = json.loads(response_text)
+                
+                # Robust extraction of JSON from response (handling markdown code blocks or wrapper text)
+                clean_text = response_text
+                if clean_text.startswith("```json"):
+                    clean_text = clean_text[7:]
+                elif clean_text.startswith("```"):
+                    clean_text = clean_text[3:]
+                if clean_text.endswith("```"):
+                    clean_text = clean_text[:-3]
+                clean_text = clean_text.strip()
+                
+                try:
+                    parsed_remediation = json.loads(clean_text)
+                except json.JSONDecodeError:
+                    start_idx = clean_text.find("{")
+                    end_idx = clean_text.rfind("}")
+                    if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                        parsed_remediation = json.loads(clean_text[start_idx:end_idx + 1])
+                    else:
+                        raise
+                
                 logger.info("Remediation generata con successo da LLM locale.")
                 return parsed_remediation
             else:
@@ -210,6 +230,68 @@ limiter = Limiter(key_func=get_remote_address)
 def login():
     # Logica di autenticazione sicura
     return jsonify({"status": "success"}), 200"""
+            }
+
+        elif "INPUT_VALIDATION" in category_upper or "VALIDATE" in category_upper or "SCHEMA" in category_upper:
+            return {
+                "title": "Mancata Validazione Input o Schema dell'API",
+                "description": "I parametri di input dell'endpoint non sono soggetti a controlli di tipo, lunghezza, formato o espressioni regolari (regex). Questo consente l'invio di dati malformati o attacchi di injection.",
+                "impact": "Rischio di SQL Injection, Cross-Site Scripting (XSS), crash dell'applicazione dovuto a errori di parsing o deserializzazione.",
+                "remediation_steps": [
+                    "Definire esplicitamente lo schema di validazione dell'input nel contratto OpenAPI.",
+                    "Implementare librerie di validazione dei dati a runtime (es: Pydantic per Python, Joi per Node.js, Express-validator).",
+                    "Rigettare immediatamente con HTTP 400 Bad Request qualsiasi input non conforme prima di elaborarlo."
+                ],
+                "example": """# Esempio Schema OpenAPI sicuro (YAML)
+components:
+  schemas:
+    UserRequest:
+      type: object
+      required: [username, email]
+      properties:
+        username:
+          type: string
+          pattern: '^[a-zA-Z0-9_]{3,30}$'
+        email:
+          type: string
+          format: email"""
+            }
+
+        elif "SECURITY_HEADERS" in category_upper or "CORS" in category_upper or "HEADER" in category_upper:
+            return {
+                "title": "Assenza di Security Headers o Configurazione CORS Permissiva",
+                "description": "L'API non invia gli header di sicurezza HTTP raccomandati o espone una configurazione CORS eccessivamente aperta (es. Access-Control-Allow-Origin: *).",
+                "impact": "Attacchi di tipo Cross-Origin Resource Sharing (CORS) exploit, clickjacking, o furto di token di sessione da siti esterni.",
+                "remediation_steps": [
+                    "Configurare intestazioni CORS ristrette specificando gli origini consentiti invece di usare l'asterisco (*).",
+                    "Inviare intestazioni come Content-Security-Policy (CSP), Strict-Transport-Security (HSTS) e X-Frame-Options."
+                ],
+                "example": """# Python Flask CORS Sicuro
+from flask_cors import CORS
+
+app = Flask(__name__)
+
+# Restringere CORS solo a domini fidati
+CORS(app, origins=["https://dashboard.miodominio.it"])"""
+            }
+
+        elif "API_EXPOSURE" in category_upper or "DATA_EXPOSURE" in category_upper or "SHADOW" in title.upper():
+            return {
+                "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+                "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
+                "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
+                "remediation_steps": [
+                    "Filtrare i payload di risposta escludendo campi sensibili o riservati (Data Filtering/DTO).",
+                    "Rimuovere gli endpoint non documentati o proteggerli adeguatamente dietro gateway."
+                ],
+                "example": """# Filtro dei campi sensibili (DTO)
+def clean_user_response(user_db):
+    return {
+        "id": user_db.id,
+        "username": user_db.username,
+        "email": user_db.email
+        # password_hash e token vengono eslcusi
+    }"""
             }
 
         elif source_upper == "CHECKOV" or "IAC" in category_upper or "MISCONFIGURATION" in category_upper:

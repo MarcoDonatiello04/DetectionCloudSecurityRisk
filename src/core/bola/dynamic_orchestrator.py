@@ -133,8 +133,8 @@ from src.core.identity_context import IdentityManager, DatabaseSeeder
 from src.core.bola.state_manager import APIStateEngine
 from src.core.bola.attack_vector import ContextAwareAttackGenerator
 from src.core.bola.assertion_engine import APIAssertionEngine
-from src.core.bola.ownership_inference import OwnershipInferenceEngine
-from src.core.bola.object_discovery import ObjectReferenceDiscoveryEngine
+from src.core.bola.discovery.ownership_inference import OwnershipInferenceEngine
+from src.core.bola.discovery.object_discovery import ObjectReferenceDiscoveryEngine
 
 
 class ZapController:

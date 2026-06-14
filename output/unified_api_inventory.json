@@ -1203,7 +1203,7 @@
           },
           "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-07T13:14:20.692117"
+        "detected_at": "2026-06-14T19:46:43.822330"
       }
     ],
     "is_dynamic": false
@@ -1803,7 +1803,7 @@
           "framework": "flask",
           "correlated_risk_score": 5.5
         },
-        "detected_at": "2026-06-07T13:14:20.692093"
+        "detected_at": "2026-06-14T19:46:43.822271"
       }
     ],
     "is_dynamic": false
@@ -2864,7 +2864,7 @@
           },
           "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-07T13:14:20.692128"
+        "detected_at": "2026-06-14T19:46:43.822357"
       }
     ],
     "is_dynamic": false
@@ -2960,7 +2960,7 @@
           "framework": "fastapi, python-semgrep",
           "correlated_risk_score": 5.5
         },
-        "detected_at": "2026-06-07T13:14:20.692100"
+        "detected_at": "2026-06-14T19:46:43.822290"
       }
     ],
     "is_dynamic": false
@@ -3253,7 +3253,7 @@
           },
           "correlated_risk_score": 7.4
         },
-        "detected_at": "2026-06-07T13:14:22.671067"
+        "detected_at": "2026-06-14T19:46:47.455555"
       }
     ],
     "is_dynamic": false
@@ -3474,7 +3474,7 @@
           },
           "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-07T13:14:20.692113"
+        "detected_at": "2026-06-14T19:46:43.822320"
       }
     ],
     "is_dynamic": false
@@ -3707,7 +3707,7 @@
           },
           "correlated_risk_score": 7.4
         },
-        "detected_at": "2026-06-07T13:14:22.671742"
+        "detected_at": "2026-06-14T19:46:47.456014"
       }
     ],
     "is_dynamic": false
@@ -3928,7 +3928,7 @@
           },
           "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-07T13:14:20.692132"
+        "detected_at": "2026-06-14T19:46:43.822366"
       }
     ],
     "is_dynamic": false
@@ -4125,11 +4125,11 @@
         "rule_id": "owasp-api2-operation-security",
         "title": "owasp-api2-operation-security",
         "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
-        "severity": "HIGH",
+        "severity": "CRITICAL",
         "line": 105
       }
     ],
-    "bola_status": "POTENTIAL",
+    "bola_status": "VULNERABLE",
     "bola_findings": [
       {
         "finding_id": "spectral-e78555a678cf",
@@ -4137,7 +4137,7 @@
         "category": "AUTHENTICATION",
         "title": "owasp-api2-operation-security",
         "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
-        "severity": "HIGH",
+        "severity": "CRITICAL",
         "confidence": 1.0,
         "rule_id": "owasp-api2-operation-security",
         "rule_name": "owasp-api2-operation-security",
@@ -4157,7 +4157,7 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
+        "validation_status": "CONFIRMED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": null,
@@ -4167,7 +4167,9 @@
           "spectral-5e6ca9024bb5",
           "spectral-c055610f04dc",
           "spectral-99268ae9aabf",
-          "spectral-a343bcd6593a"
+          "spectral-a343bcd6593a",
+          "zap_dast-8c543dff2d97",
+          "zap_dast-7dcc2264a50b"
         ],
         "owasp_api_category": null,
         "cwe_id": null,
@@ -4327,9 +4329,78 @@
             },
             "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
           },
-          "correlated_risk_score": 7.4
+          "correlated_risk_score": 8.6,
+          "runtime_verification_zap_dast-8c543dff2d97": {
+            "nodeName": "http://api-server:5000/robots.txt",
+            "sourceid": "3",
+            "other": "",
+            "method": "GET",
+            "evidence": "",
+            "pluginId": "10038",
+            "cweid": "693",
+            "confidence": "High",
+            "sourceMessageId": 554,
+            "wascid": "15",
+            "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+            "messageId": "554",
+            "inputVector": "",
+            "url": "http://api-server:5000/robots.txt",
+            "tags": {
+              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+              "POLICY_QA_STD": "",
+              "POLICY_PENTEST": "",
+              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+              "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+            },
+            "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
+            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
+            "alert": "Content Security Policy (CSP) Header Not Set",
+            "param": "",
+            "attack": "",
+            "name": "Content Security Policy (CSP) Header Not Set",
+            "risk": "Medium",
+            "id": "868",
+            "alertRef": "10038-1"
+          },
+          "runtime_verification_zap_dast-7dcc2264a50b": {
+            "nodeName": "http://api-server:5000/robots.txt",
+            "sourceid": "3",
+            "other": "",
+            "method": "GET",
+            "evidence": "Werkzeug/3.1.8 Python/3.11.15",
+            "pluginId": "10036",
+            "cweid": "497",
+            "confidence": "High",
+            "sourceMessageId": 554,
+            "wascid": "13",
+            "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
+            "messageId": "554",
+            "inputVector": "",
+            "url": "http://api-server:5000/robots.txt",
+            "tags": {
+              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+              "POLICY_QA_STD": "",
+              "POLICY_PENTEST": "",
+              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+              "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
+              "CWE-497": "https://cwe.mitre.org/data/definitions/497.html",
+              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+            },
+            "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
+            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
+            "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+            "param": "",
+            "attack": "",
+            "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+            "risk": "Low",
+            "id": "869",
+            "alertRef": "10036-2"
+          }
         },
-        "detected_at": "2026-06-07T13:14:22.672014"
+        "detected_at": "2026-06-14T19:46:47.456148"
       }
     ],
     "is_dynamic": false
@@ -4562,7 +4633,7 @@
           },
           "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-07T13:14:20.692125"
+        "detected_at": "2026-06-14T19:46:43.822348"
       }
     ],
     "is_dynamic": false
@@ -4639,11 +4710,11 @@
         "rule_id": "owasp-api2-operation-security",
         "title": "owasp-api2-operation-security",
         "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
-        "severity": "HIGH",
+        "severity": "CRITICAL",
         "line": 113
       }
     ],
-    "bola_status": "POTENTIAL",
+    "bola_status": "VULNERABLE",
     "bola_findings": [
       {
         "finding_id": "spectral-f63c40bf9cdb",
@@ -4651,7 +4722,7 @@
         "category": "AUTHENTICATION",
         "title": "owasp-api2-operation-security",
         "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
-        "severity": "HIGH",
+        "severity": "CRITICAL",
         "confidence": 1.0,
         "rule_id": "owasp-api2-operation-security",
         "rule_name": "owasp-api2-operation-security",
@@ -4671,7 +4742,7 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
+        "validation_status": "CONFIRMED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": null,
@@ -4681,7 +4752,9 @@
           "spectral-b611c7b5db19",
           "spectral-d365a7cc48e5",
           "spectral-244072081a98",
-          "spectral-dea2755c65ff"
+          "spectral-dea2755c65ff",
+          "zap_dast-5ed2d03a8795",
+          "zap_dast-c811702cf033"
         ],
         "owasp_api_category": null,
         "cwe_id": null,
@@ -4841,9 +4914,78 @@
             },
             "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
           },
-          "correlated_risk_score": 7.4
+          "correlated_risk_score": 8.6,
+          "runtime_verification_zap_dast-5ed2d03a8795": {
+            "nodeName": "http://api-server:5000/sitemap.xml",
+            "sourceid": "3",
+            "other": "",
+            "method": "GET",
+            "evidence": "",
+            "pluginId": "10038",
+            "cweid": "693",
+            "confidence": "High",
+            "sourceMessageId": 546,
+            "wascid": "15",
+            "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+            "messageId": "546",
+            "inputVector": "",
+            "url": "http://api-server:5000/sitemap.xml",
+            "tags": {
+              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+              "POLICY_QA_STD": "",
+              "POLICY_PENTEST": "",
+              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+              "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+            },
+            "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
+            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
+            "alert": "Content Security Policy (CSP) Header Not Set",
+            "param": "",
+            "attack": "",
+            "name": "Content Security Policy (CSP) Header Not Set",
+            "risk": "Medium",
+            "id": "857",
+            "alertRef": "10038-1"
+          },
+          "runtime_verification_zap_dast-c811702cf033": {
+            "nodeName": "http://api-server:5000/sitemap.xml",
+            "sourceid": "3",
+            "other": "",
+            "method": "GET",
+            "evidence": "Werkzeug/3.1.8 Python/3.11.15",
+            "pluginId": "10036",
+            "cweid": "497",
+            "confidence": "High",
+            "sourceMessageId": 546,
+            "wascid": "13",
+            "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
+            "messageId": "546",
+            "inputVector": "",
+            "url": "http://api-server:5000/sitemap.xml",
+            "tags": {
+              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+              "POLICY_QA_STD": "",
+              "POLICY_PENTEST": "",
+              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+              "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
+              "CWE-497": "https://cwe.mitre.org/data/definitions/497.html",
+              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+            },
+            "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
+            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
+            "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+            "param": "",
+            "attack": "",
+            "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+            "risk": "Low",
+            "id": "859",
+            "alertRef": "10036-2"
+          }
         },
-        "detected_at": "2026-06-07T13:14:22.672148"
+        "detected_at": "2026-06-14T19:46:47.456469"
       }
     ],
     "is_dynamic": false
@@ -5172,7 +5314,7 @@
           },
           "correlated_risk_score": 7.4
         },
-        "detected_at": "2026-06-07T13:14:22.671352"
+        "detected_at": "2026-06-14T19:46:47.455742"
       }
     ],
     "is_dynamic": false
@@ -5393,7 +5535,7 @@
           },
           "correlated_risk_score": 7.0
         },
-        "detected_at": "2026-06-07T13:14:20.692121"
+        "detected_at": "2026-06-14T19:46:43.822339"
       }
     ],
     "is_dynamic": false
@@ -5406,7 +5548,7 @@
     "documented": true,
     "shadow": false,
     "violations": [],
-    "bola_status": "POTENTIAL",
+    "bola_status": "VULNERABLE",
     "bola_findings": [
       {
         "finding_id": "semgrep-5ec9712ae07d",
@@ -5414,8 +5556,8 @@
         "category": "AUTHENTICATION",
         "title": "Endpoint API non protetto rilevato (Statico)",
         "description": "L'endpoint API [python-semgrep]: GET /users non sembra richiedere controlli di autenticazione a livello statico.",
-        "severity": "HIGH",
-        "confidence": 0.8,
+        "severity": "CRITICAL",
+        "confidence": 1.0,
         "rule_id": "unauthenticated-api-route",
         "rule_name": "API Route Detection",
         "resource_type": null,
@@ -5434,7 +5576,7 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
+        "validation_status": "CONFIRMED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/users",
@@ -5445,7 +5587,9 @@
           "spectral-2785183b6306",
           "spectral-ff8ef11b83c6",
           "spectral-c2fde37902dc",
-          "spectral-f2055a4b32f2"
+          "spectral-f2055a4b32f2",
+          "zap_dast-398bc93d0e41",
+          "zap_dast-cf7ddd81d36f"
         ],
         "owasp_api_category": null,
         "cwe_id": null,
@@ -5612,9 +5756,78 @@
             },
             "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
           },
-          "correlated_risk_score": 7.0
+          "correlated_risk_score": 8.6,
+          "runtime_verification_zap_dast-398bc93d0e41": {
+            "nodeName": "http://api-server:5000/users",
+            "sourceid": "3",
+            "other": "",
+            "method": "GET",
+            "evidence": "",
+            "pluginId": "10038",
+            "cweid": "693",
+            "confidence": "High",
+            "sourceMessageId": 577,
+            "wascid": "15",
+            "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+            "messageId": "577",
+            "inputVector": "",
+            "url": "http://api-server:5000/users",
+            "tags": {
+              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+              "POLICY_QA_STD": "",
+              "POLICY_PENTEST": "",
+              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+              "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+            },
+            "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
+            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
+            "alert": "Content Security Policy (CSP) Header Not Set",
+            "param": "",
+            "attack": "",
+            "name": "Content Security Policy (CSP) Header Not Set",
+            "risk": "Medium",
+            "id": "905",
+            "alertRef": "10038-1"
+          },
+          "runtime_verification_zap_dast-cf7ddd81d36f": {
+            "nodeName": "http://api-server:5000/users",
+            "sourceid": "3",
+            "other": "",
+            "method": "GET",
+            "evidence": "Werkzeug/3.1.8 Python/3.11.15",
+            "pluginId": "10036",
+            "cweid": "497",
+            "confidence": "High",
+            "sourceMessageId": 577,
+            "wascid": "13",
+            "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
+            "messageId": "577",
+            "inputVector": "",
+            "url": "http://api-server:5000/users",
+            "tags": {
+              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+              "POLICY_QA_STD": "",
+              "POLICY_PENTEST": "",
+              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+              "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
+              "CWE-497": "https://cwe.mitre.org/data/definitions/497.html",
+              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+            },
+            "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
+            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
+            "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+            "param": "",
+            "attack": "",
+            "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+            "risk": "Low",
+            "id": "913",
+            "alertRef": "10036-2"
+          }
         },
-        "detected_at": "2026-06-07T13:14:20.692109"
+        "detected_at": "2026-06-14T19:46:43.822311"
       }
     ],
     "is_dynamic": false
@@ -5703,11 +5916,11 @@
         "rule_id": "owasp-api2-operation-security",
         "title": "owasp-api2-operation-security",
         "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
-        "severity": "HIGH",
+        "severity": "CRITICAL",
         "line": 11
       }
     ],
-    "bola_status": "POTENTIAL",
+    "bola_status": "VULNERABLE",
     "bola_findings": [
       {
         "finding_id": "spectral-179b1804bfe2",
@@ -5715,7 +5928,7 @@
         "category": "AUTHENTICATION",
         "title": "owasp-api2-operation-security",
         "description": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
-        "severity": "HIGH",
+        "severity": "CRITICAL",
         "confidence": 1.0,
         "rule_id": "owasp-api2-operation-security",
         "rule_name": "owasp-api2-operation-security",
@@ -5735,8 +5948,16 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
-        "runtime_evidence": null,
+        "validation_status": "CONFIRMED",
+        "runtime_evidence": {
+          "tested_url": "http://localhost:5000/users/30c2dd90-e854-401f-919d-64c444390047",
+          "http_status": 404,
+          "response_time_ms": null,
+          "response_headers": {},
+          "response_snippet": "Asserzioni di Sicurezza BOLA:\n  - http_status_assertion: True\n  - content_keyword_assertion: True\n  - structural_similarity_assertion: True\nVerdetto finale: SAFE\n\nPayload di Bob:\n<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n",
+          "accessible_without_auth": null,
+          "rate_limit_detected": null
+        },
         "risk_context": null,
         "correlation_key": null,
         "related_findings": [
@@ -5747,7 +5968,13 @@
           "spectral-b688a45cc039",
           "spectral-f1e55a8e3091",
           "spectral-61817a02b231",
-          "spectral-2775b3e5271a"
+          "spectral-2775b3e5271a",
+          "zap_dast-a5347b62df8e",
+          "zap_dast-e12d50318151",
+          "runtime_validator-b02a513840f0",
+          "runtime_validator-e4bf1837a452",
+          "runtime_validator-a301051e8d7c",
+          "runtime_validator-d40bc30b42b8"
         ],
         "owasp_api_category": null,
         "cwe_id": null,
@@ -5955,9 +6182,82 @@
             },
             "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/output/openapi_runtime.yaml"
           },
-          "correlated_risk_score": 7.4
+          "correlated_risk_score": 8.6,
+          "runtime_verification_zap_dast-a5347b62df8e": {
+            "nodeName": "http://api-server:5000/users/30c2dd90-e854-401f-919d-64c444390047",
+            "sourceid": "3",
+            "other": "",
+            "method": "GET",
+            "evidence": "",
+            "pluginId": "10038",
+            "cweid": "693",
+            "confidence": "High",
+            "sourceMessageId": 50,
+            "wascid": "15",
+            "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+            "messageId": "50",
+            "inputVector": "",
+            "url": "http://api-server:5000/users/30c2dd90-e854-401f-919d-64c444390047",
+            "tags": {
+              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+              "POLICY_QA_STD": "",
+              "POLICY_PENTEST": "",
+              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+              "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+            },
+            "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
+            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
+            "alert": "Content Security Policy (CSP) Header Not Set",
+            "param": "",
+            "attack": "",
+            "name": "Content Security Policy (CSP) Header Not Set",
+            "risk": "Medium",
+            "id": "90",
+            "alertRef": "10038-1"
+          },
+          "runtime_verification_zap_dast-e12d50318151": {
+            "nodeName": "http://api-server:5000/users/30c2dd90-e854-401f-919d-64c444390047",
+            "sourceid": "3",
+            "other": "",
+            "method": "GET",
+            "evidence": "Werkzeug/3.1.8 Python/3.11.15",
+            "pluginId": "10036",
+            "cweid": "497",
+            "confidence": "High",
+            "sourceMessageId": 50,
+            "wascid": "13",
+            "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
+            "messageId": "50",
+            "inputVector": "",
+            "url": "http://api-server:5000/users/30c2dd90-e854-401f-919d-64c444390047",
+            "tags": {
+              "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+              "POLICY_QA_STD": "",
+              "POLICY_PENTEST": "",
+              "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+              "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+              "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
+              "CWE-497": "https://cwe.mitre.org/data/definitions/497.html",
+              "OWASP_2025_A02": "https://owasp.org/Top10/2025/A02_2025-Security_Misconfiguration/"
+            },
+            "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
+            "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
+            "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+            "param": "",
+            "attack": "",
+            "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+            "risk": "Low",
+            "id": "91",
+            "alertRef": "10036-2"
+          },
+          "runtime_verification_runtime_validator-b02a513840f0": {},
+          "runtime_verification_runtime_validator-e4bf1837a452": {},
+          "runtime_verification_runtime_validator-a301051e8d7c": {},
+          "runtime_verification_runtime_validator-d40bc30b42b8": {}
         },
-        "detected_at": "2026-06-07T13:14:22.670802"
+        "detected_at": "2026-06-14T19:46:47.455393"
       }
     ],
     "is_dynamic": true

@@ -1,6 +1,6 @@
 import pytest
 import jwt
-from src.core.bola.ownership_inference import OwnershipInferenceEngine
+from src.core.bola.discovery.ownership_inference import OwnershipInferenceEngine
 
 def test_ownership_inference_flow():
     # Helper to generate a token with a specific sub
