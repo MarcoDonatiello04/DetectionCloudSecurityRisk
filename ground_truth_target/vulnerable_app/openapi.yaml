@@ -1,0 +1,110 @@
+openapi: "3.0.3"
+info:
+  title: Vulnerable Auth API (Ground-Truth Target)
+  version: "1.0.0"
+  description: >
+    Deliberately vulnerable Flask API for blind security scanner validation.
+    Do NOT share this spec with the scanner agent before the test.
+
+servers:
+  - url: http://localhost:5001
+
+paths:
+  /api/login:
+    post:
+      summary: Authenticate and obtain a JWT
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  example: testuser
+                password:
+                  type: string
+                  example: testpass123
+      responses:
+        "200":
+          description: Successful login – returns a JWT
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:    { type: string }
+                  username: { type: string }
+                  role:     { type: string }
+        "401":
+          description: Invalid password
+        "404":
+          description: User not found
+
+  /api/profile:
+    get:
+      summary: Return the authenticated user's profile
+      operationId: getProfile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Profile data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username: { type: string }
+                  role:     { type: string }
+                  profile:  { type: string }
+        "401":
+          description: Missing or invalid token
+        "404":
+          description: User not found
+
+  /api/refresh:
+    post:
+      summary: Refresh the JWT token
+      operationId: refreshToken
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: New JWT token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+        "401":
+          description: Missing or invalid token
+
+  /api/logout:
+    post:
+      summary: Invalidate the current session
+      operationId: logout
+      responses:
+        "200":
+          description: Logged out
+
+  /api/admin:
+    get:
+      summary: Admin-only endpoint (cookie-session protected)
+      operationId: adminArea
+      responses:
+        "200":
+          description: Admin welcome message
+        "403":
+          description: Forbidden
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

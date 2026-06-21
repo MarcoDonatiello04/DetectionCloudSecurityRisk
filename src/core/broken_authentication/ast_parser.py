@@ -5,6 +5,7 @@ and ranks files according to an authentication-related score.
 """
 
 import sys
+import re
 import importlib
 import subprocess
 from pathlib import Path
@@ -32,6 +33,10 @@ class FileScore(BaseModel):
     env_vars_auth: List[str]
     chiamate_auth: List[str]
     score: int
+    auth_functions: List[str] = []
+    jwt_claims: List[str] = []
+    auth_decorators: Dict[str, str] = {}
+    auth_middlewares: List[str] = []
 
 # --- Constants & Mapping ---
 GRAMMAR_MAP = {
@@ -149,6 +154,12 @@ class ASTSignalCollector:
         self.env_vars_auth: Set[str] = set()
         self.chiamate_auth: Set[str] = set()
 
+        # New Authentication Intelligence Engine signals
+        self.auth_functions: Set[str] = set()
+        self.jwt_claims: Set[str] = set()
+        self.auth_decorators: Dict[str, str] = {}
+        self.auth_middlewares: Set[str] = set()
+
     def collect(self, node: Node):
         """Recursively traverses the nodes and extracts security signals."""
         node_type = node.type
@@ -245,6 +256,108 @@ class ASTSignalCollector:
                         logger.debug(f"[AST Signal: Call] {node_text}")
                         break
 
+            # 5. Advanced AST: Auth Functions
+            is_func_def = node_type in (
+                "function_definition", "function_declaration",
+                "method_definition", "method_declaration", "def_statement"
+            )
+            is_call = node_type in ("call", "call_expression", "method_invocation")
+            
+            if is_func_def or is_call:
+                func_part = node_text.split("(")[0].strip()
+                for prefix in ["def ", "function ", "func "]:
+                    if func_part.startswith(prefix):
+                        func_part = func_part[len(prefix):].strip()
+                func_clean_name = func_part.split(".")[-1].split(" ")[0].strip()
+                
+                auth_fn_keywords = {"login", "signin", "authenticate", "verify_token", "decode_token", "refresh_token", "logout"}
+                if any(kw in func_clean_name.lower() for kw in auth_fn_keywords):
+                    self.auth_functions.add(func_clean_name)
+                    logger.debug(f"[AST Signal: Auth Fn] {func_clean_name}")
+
+            # 6. Advanced AST: JWT Claims
+            is_literal = node_type in ("string", "string_literal", "identifier", "property_identifier", "shorthand_property_identifier")
+            if is_literal:
+                clean_literal = node_text.strip("'\"` ")
+                jwt_claim_keywords = {"sub", "id", "user_id", "role", "roles", "groups", "permissions", "scope", "email"}
+                if clean_literal in jwt_claim_keywords:
+                    self.jwt_claims.add(clean_literal)
+                    logger.debug(f"[AST Signal: JWT Claim] {clean_literal}")
+
+            # 7. Advanced AST: Authorization Decorators & Annotations
+            is_decorator = False
+            decorator_text = ""
+            if node_type in ("decorator", "annotation"):
+                is_decorator = True
+                decorator_text = node_text
+            elif node_text.startswith("@") and node_type in ("identifier", "call_expression"):
+                is_decorator = True
+                decorator_text = node_text
+
+            if is_decorator:
+                dec_lower = decorator_text.lower()
+                decorator_keywords = ["roles_required", "require_role", "permission_required", "secured", "preauthorize"]
+                matched_keyword = None
+                for kw in decorator_keywords:
+                    if kw.lower() in dec_lower:
+                        matched_keyword = kw
+                        break
+                        
+                if matched_keyword:
+                    role_matches = re.findall(r'["\']([^"\']+)["\']', decorator_text)
+                    role_val = ""
+                    if role_matches:
+                        role_val = role_matches[0]
+                    else:
+                        paren_match = re.search(r'\(([^)]+)\)', decorator_text)
+                        if paren_match:
+                            role_val = paren_match.group(1).strip()
+                    
+                    func_name = ""
+                    parent = node.parent
+                    if parent:
+                        for child in parent.children:
+                            if child.type in ("function_definition", "function_declaration", "method_declaration", "method_definition") or "function" in child.type or "method" in child.type:
+                                for subchild in child.children:
+                                    if subchild.type == "identifier":
+                                        func_name = subchild.text.decode("utf-8", errors="replace").strip()
+                                        break
+                                if func_name:
+                                    break
+                    if not func_name and parent:
+                        try:
+                            idx = parent.children.index(node)
+                            for i in range(idx + 1, len(parent.children)):
+                                sibling = parent.children[i]
+                                if sibling.type in ("function_definition", "function_declaration", "method_declaration", "method_definition") or "function" in sibling.type or "method" in sibling.type:
+                                    for subchild in sibling.children:
+                                        if subchild.type == "identifier":
+                                            func_name = subchild.text.decode("utf-8", errors="replace").strip()
+                                            break
+                                    if func_name:
+                                        break
+                        except ValueError:
+                            pass
+                    
+                    if not func_name:
+                        func_name = "decorated_route"
+                        
+                    self.auth_decorators[func_name] = role_val
+                    logger.debug(f"[AST Signal: Decorator] {func_name} -> {role_val}")
+
+            # 8. Advanced AST: Middleware
+            middleware_keywords = {"jwtmiddleware", "authenticationmiddleware", "bearertokenmiddleware", "keycloakmiddleware"}
+            node_lower = node_text.lower()
+            for kw in middleware_keywords:
+                if kw in node_lower:
+                    words = re.findall(r'\b\w+' + kw[len(kw)-10:] + r'\w*\b', node_text, re.IGNORECASE)
+                    if words:
+                        self.auth_middlewares.add(words[0])
+                    else:
+                        self.auth_middlewares.add(node_text)
+                    logger.debug(f"[AST Signal: Middleware] {node_text}")
+                    break
+
         # Recurse down children
         for child in node.children:
             self.collect(child)
@@ -328,7 +441,11 @@ async def run(
                     route_auth=sorted(list(collector.route_auth)),
                     env_vars_auth=sorted(list(collector.env_vars_auth)),
                     chiamate_auth=sorted(list(collector.chiamate_auth)),
-                    score=score
+                    score=score,
+                    auth_functions=sorted(list(collector.auth_functions)),
+                    jwt_claims=sorted(list(collector.jwt_claims)),
+                    auth_decorators=collector.auth_decorators,
+                    auth_middlewares=sorted(list(collector.auth_middlewares))
                 )
                 scored_files.append(file_score)
                 logger.info(f"File {rel_path} analizzato. Score: {score}/4")

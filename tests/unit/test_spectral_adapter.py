@@ -3,6 +3,9 @@ from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
 from src.domain.entities import FindingSource
 
 def test_spectral_scanner_adapter_execution():
+    import json
+    from unittest.mock import patch, MagicMock
+
     # Inizializza l'adapter
     adapter = SpectralScannerAdapter()
     
@@ -10,8 +13,41 @@ def test_spectral_scanner_adapter_execution():
     target_openapi = "problema_api/openapi.yaml"
     assert os.path.exists(target_openapi), "Il file openapi.yaml di test non esiste"
     
-    # Esegue lo scan
-    findings = adapter.scan(target_openapi)
+    mock_data = [
+        {
+            "code": "owasp:api3:2019-no-numeric-ids",
+            "message": "Use uuids instead of numeric ids",
+            "severity": 1,
+            "source": target_openapi,
+            "range": {
+                "start": { "line": 10 }
+            },
+            "path": ["paths", "/users/{id}", "get"]
+        },
+        {
+            "code": "owasp:api3:2019-no-numeric-ids",
+            "message": "Use uuids instead of numeric ids",
+            "severity": 0,
+            "source": target_openapi,
+            "range": {
+                "start": { "line": 20 }
+            },
+            "path": ["info", "version"]
+        }
+    ]
+
+    def mock_subprocess_run(cmd, **kwargs):
+        report_file = "spectral_report_temp.json"
+        if "-o" in cmd:
+            idx = cmd.index("-o")
+            report_file = cmd[idx+1]
+        with open(report_file, "w", encoding="utf-8") as f:
+            json.dump(mock_data, f)
+        return MagicMock(returncode=0)
+
+    # Esegue lo scan con il mock di subprocess.run
+    with patch("subprocess.run", side_effect=mock_subprocess_run):
+        findings = adapter.scan(target_openapi)
     
     # Verifica che la scansione abbia prodotto findings e che siano di tipo SPECTRAL
     assert len(findings) > 0, "Spectral non ha prodotto alcuna segnalazione"

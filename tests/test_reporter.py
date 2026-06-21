@@ -88,7 +88,7 @@ def test_generate_markdown():
     assert "Vulnerabilità LOW: 0" in md
     assert "Test PASS: 1" in md
     assert "Test FAIL: 1" in md
-    assert "Test SKIP: 1" in md
+    assert "Test SKIPPED: 1" in md
     
     assert "### CRITICAL - CWE-345" in md
     assert "- File: auth.py (riga 45)" in md
