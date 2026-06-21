@@ -1,0 +1,6 @@
+{
+  "timestamp": "20260621_161625",
+  "vulnerable_url": "http://localhost:5001",
+  "secure_url": "http://localhost:5002",
+  "note": "Scanner run in BLIND mode. answer_key.md was NOT read by this script or the scanner. Compare results with answer_key.md manually after the test."
+}

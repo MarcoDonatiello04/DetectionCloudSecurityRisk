@@ -1,0 +1,127 @@
+{
+  "timestamp": "2026-06-21 13:41:16",
+  "repository": "DetectionCloudSecurityRisk",
+  "stack": {
+    "linguaggio": "python",
+    "framework": "FastAPI",
+    "librerie_auth": [
+      "jwt"
+    ],
+    "identity_provider": null,
+    "file_configurazione_rilevanti": [
+      "requirements.txt"
+    ]
+  },
+  "vulnerabilita_statiche": [],
+  "test_dinamici": [
+    {
+      "test_id": "T01",
+      "test_nome": "Manipolazione JWT",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Token non presente o non JWT, test ignorato.",
+      "raccomandazione": "Verificare la configurazione di sicurezza."
+    },
+    {
+      "test_id": "T02",
+      "test_nome": "Token scaduto",
+      "risultato": "PASS",
+      "dettaglio": "Il token scaduto è stato correttamente rifiutato.",
+      "raccomandazione": "Verificare la configurazione di sicurezza."
+    },
+    {
+      "test_id": "T03",
+      "test_nome": "Brute Force e Rate Limiting",
+      "risultato": "FAIL",
+      "dettaglio": "Nessun meccanismo di rate limiting rilevato (10 tentativi falliti con status 401).",
+      "raccomandazione": "Verificare la configurazione di sicurezza."
+    },
+    {
+      "test_id": "T04",
+      "test_nome": "Enumerazione Utenti",
+      "risultato": "PASS",
+      "dettaglio": "Nessuna differenza strutturale o di messaggio rilevata tra utente inesistente ed esistente.",
+      "raccomandazione": "Verificare la configurazione di sicurezza."
+    },
+    {
+      "test_id": "T05",
+      "test_nome": "Riuso Token Post-Logout",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Endpoint logout non rilevato, impossibile eseguire il test.",
+      "raccomandazione": "Verificare la configurazione di sicurezza."
+    },
+    {
+      "test_id": "T06",
+      "test_nome": "Token Refresh",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Endpoint refresh non rilevato.",
+      "raccomandazione": "Verificare la configurazione di sicurezza."
+    },
+    {
+      "test_id": "T07",
+      "test_nome": "Password Reset Debole",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Endpoint reset non rilevato.",
+      "raccomandazione": "Verificare la configurazione di sicurezza."
+    },
+    {
+      "test_id": "T08",
+      "test_nome": "Privilege Escalation via Token",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Token non presente o non JWT.",
+      "raccomandazione": "Verificare la configurazione di sicurezza."
+    },
+    {
+      "test_id": "T09",
+      "test_nome": "Cookie Flag di Sicurezza",
+      "risultato": "PASS",
+      "dettaglio": "Tutti i cookie impostati contengono i flag HttpOnly e Secure.",
+      "raccomandazione": "Verificare la configurazione di sicurezza."
+    },
+    {
+      "test_id": "T10",
+      "test_nome": "Informazioni Sensibili nelle Risposte",
+      "risultato": "PASS",
+      "dettaglio": "Nessun dettaglio sensibile o stack trace esposto nei messaggi di errore.",
+      "raccomandazione": "Verificare la configurazione di sicurezza."
+    }
+  ],
+  "auth_intel": {
+    "authentication_type": "JWT",
+    "identity_provider": null,
+    "login_endpoint": "/login",
+    "refresh_endpoint": null,
+    "logout_endpoint": null,
+    "jwt_claims": [
+      "email",
+      "exp",
+      "groups",
+      "id",
+      "permissions",
+      "role",
+      "roles",
+      "scope",
+      "sub",
+      "user_id"
+    ],
+    "roles": [
+      "admin"
+    ],
+    "permissions": [],
+    "auth_middlewares": [
+      "auth_middlewares",
+      "authenticationmiddleware",
+      "bearertokenmiddleware",
+      "jwtmiddleware",
+      "keycloakmiddleware"
+    ],
+    "protected_endpoints": {
+      "/api/orders/{order_id}": {
+        "source": "OpenAPI",
+        "required_roles": []
+      }
+    },
+    "auth_functions": [],
+    "confidence_score": 1.0,
+    "idp_metadata": {}
+  }
+}
