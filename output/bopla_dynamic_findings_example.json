@@ -1,0 +1,84 @@
+[
+    {
+        "test_id": "T01",
+        "endpoint": "/api/users/user_a_uuid",
+        "method": "GET",
+        "property_name": "email",
+        "evidence": [
+            "Propriet\u00e0 identificata come protetta nell'AST o Inference Engine.",
+            "Propriet\u00e0 'email' restituita nella risposta GET per l'utente standard userA.",
+            "Contesti autorizzativi noti: []"
+        ],
+        "request": "GET /api/users/user_a_uuid \nHeaders: {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiAidXNlcl9hX3V1aWQiLCAicm9sZXMiOiBbInVzZXIiXX0.signature'}",
+        "response": "{\"id\": 101, \"email\": \"alice@example.com\", \"salary\": 9000, \"role\": \"user\", \"isAdmin\": false}",
+        "response_code": 200,
+        "verified": true,
+        "confidence": 0.7
+    },
+    {
+        "test_id": "T01",
+        "endpoint": "/api/users/user_a_uuid",
+        "method": "GET",
+        "property_name": "id",
+        "evidence": [
+            "Propriet\u00e0 identificata come protetta nell'AST o Inference Engine.",
+            "Propriet\u00e0 'id' restituita nella risposta GET per l'utente standard userA.",
+            "Contesti autorizzativi noti: []"
+        ],
+        "request": "GET /api/users/user_a_uuid \nHeaders: {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiAidXNlcl9hX3V1aWQiLCAicm9sZXMiOiBbInVzZXIiXX0.signature'}",
+        "response": "{\"id\": 101, \"email\": \"alice@example.com\", \"salary\": 9000, \"role\": \"user\", \"isAdmin\": false}",
+        "response_code": 200,
+        "verified": true,
+        "confidence": 0.5
+    },
+    {
+        "test_id": "T01",
+        "endpoint": "/api/users/user_a_uuid",
+        "method": "GET",
+        "property_name": "salary",
+        "evidence": [
+            "Propriet\u00e0 identificata come protetta nell'AST o Inference Engine.",
+            "Propriet\u00e0 'salary' restituita nella risposta GET per l'utente standard userA.",
+            "Contesti autorizzativi noti: ['@roles_required(admin)']"
+        ],
+        "request": "GET /api/users/user_a_uuid \nHeaders: {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiAidXNlcl9hX3V1aWQiLCAicm9sZXMiOiBbInVzZXIiXX0.signature'}",
+        "response": "{\"id\": 101, \"email\": \"alice@example.com\", \"salary\": 9000, \"role\": \"user\", \"isAdmin\": false}",
+        "response_code": 200,
+        "verified": true,
+        "confidence": 0.8
+    },
+    {
+        "test_id": "T04",
+        "endpoint": "/api/users/user_a_uuid",
+        "method": "PUT",
+        "property_name": "salary",
+        "evidence": [
+            "Iniezione di propriet\u00e0 nascosta 'salary' tentata via PUT.",
+            "Propriet\u00e0 assente nella documentazione OpenAPI ma presente nel codice sorgente/AST.",
+            "Server ha accettato la richiesta (status 200).",
+            "Propriet\u00e0 osservata persistita nella risposta GET."
+        ],
+        "request": "PUT /api/users/user_a_uuid \nPayload: {'id': 101, 'email': 'alice@example.com', 'salary': 88888}",
+        "response": "{\"status\": \"success\", \"modified_keys\": [\"salary\", \"role\"]}",
+        "response_code": 200,
+        "verified": true,
+        "confidence": 0.8
+    },
+    {
+        "test_id": "T07",
+        "endpoint": "/api/users/user_a_uuid",
+        "method": "PUT",
+        "property_name": "salary",
+        "evidence": [
+            "Analisi differenziale di scrittura completata per PUT /api/users/user_a_uuid su propriet\u00e0 'salary'.",
+            "L'amministratore risponde con codice 200.",
+            "L'utente standard userA risponde con codice 200 (modifica accettata).",
+            "Mancanza di controlli autorizzativi differenziali sul livello di scrittura della propriet\u00e0."
+        ],
+        "request": "Payload Admin: {'id': 101, 'email': 'alice@example.com', 'salary': 'admin_update_t07'}\nPayload User: {'id': 101, 'email': 'alice@example.com', 'salary': 'user_update_t07'}",
+        "response": "Admin Status: 200, User Status: 200",
+        "response_code": 200,
+        "verified": true,
+        "confidence": 0.8
+    }
+]

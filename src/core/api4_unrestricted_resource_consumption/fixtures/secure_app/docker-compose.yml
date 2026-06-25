@@ -1,0 +1,39 @@
+# docker-compose.yml — SECURE
+# Tutti i servizi hanno deploy.resources.limits (RC-007 OK)
+
+version: "3.8"
+
+services:
+  api:
+    image: myapp:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/mydb
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 512M
+        reservations:
+          memory: 128M
+
+  worker:
+    image: myapp:latest
+    command: celery -A app worker
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 256M
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: pass
+    deploy:
+      resources:
+        limits:
+          memory: 1G

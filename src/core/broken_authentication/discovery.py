@@ -8,11 +8,19 @@ import re
 import json
 import httpx
 import yaml
+from enum import Enum
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 from loguru import logger
+
+# --- Categorie di Vulnerabilità ---
+class VulnerabilityCategory(str, Enum):
+    AUTHENTICATION = "Authentication"
+    AUTHORIZATION = "Authorization"
+    SECURITY_MISCONFIGURATION = "Security Misconfiguration"
+    INFORMATION_DISCLOSURE = "Information Disclosure"
 
 # --- Custom Exceptions ---
 class ManifestNotFoundException(Exception):

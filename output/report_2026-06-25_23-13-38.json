@@ -1,0 +1,323 @@
+{
+  "timestamp": "2026-06-25 23:13:38",
+  "repository": "DetectionCloudSecurityRisk",
+  "stack": {
+    "linguaggio": "Python",
+    "framework": "FastAPI",
+    "librerie_auth": [
+      "PyJWT",
+      "cryptography"
+    ],
+    "identity_provider": "Keycloak",
+    "file_configurazione_rilevanti": [
+      "docker-compose.yml",
+      "requirements.txt",
+      "crapi_repo/deploy/k8s/base/workshop/config.yaml",
+      "crapi_repo/deploy/k8s/base/identity/config.yaml",
+      "crapi_repo/deploy/k8s/base/chromadb/config.yaml",
+      "crapi_repo/deploy/k8s/base/chatbot/config.yaml",
+      "crapi_repo/deploy/k8s/base/gateway-service/config.yaml",
+      "crapi_repo/deploy/k8s/base/mongodb/config.yaml",
+      "crapi_repo/deploy/k8s/base/postgres/config.yaml",
+      "crapi_repo/deploy/k8s/base/mailhog/config.yaml",
+      "crapi_repo/deploy/k8s/base/community/config.yaml",
+      "crapi_repo/deploy/helm/templates/workshop/config.yaml",
+      "crapi_repo/deploy/helm/templates/identity/config.yaml",
+      "crapi_repo/deploy/helm/templates/chromadb/config.yaml",
+      "crapi_repo/deploy/helm/templates/chatbot/config.yaml",
+      "crapi_repo/deploy/helm/templates/api-gateway-service/config.yaml",
+      "crapi_repo/deploy/helm/templates/mongodb/config.yaml",
+      "crapi_repo/deploy/helm/templates/postgres/config.yaml",
+      "crapi_repo/deploy/helm/templates/mailhog/config.yaml",
+      "crapi_repo/deploy/helm/templates/community/config.yaml",
+      "crapi_repo/services/workshop/crapi_site/settings.py",
+      "crapi_repo/services/identity/src/main/resources/application.properties"
+    ],
+    "discovery_methods": {
+      "linguaggio": "heuristic",
+      "framework": "heuristic",
+      "librerie_auth": "heuristic",
+      "identity_provider": "heuristic"
+    },
+    "non_jwt_mechanisms": [
+      "API Key"
+    ],
+    "crawled_routes": {}
+  },
+  "vulnerabilita_statiche": [],
+  "test_dinamici": [
+    {
+      "test_id": "T01",
+      "test_nome": "Manipolazione JWT",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Token non presente o non JWT, test ignorato.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T02",
+      "test_nome": "Token scaduto",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Impossibile costruire un token scaduto con firma valida: login fallito e segreto JWT non disponibile. Il test non è attendibile con una firma invalida — il server rifiuterebbe per firma errata prima di controllare exp.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T03",
+      "test_nome": "Brute Force e Rate Limiting",
+      "risultato": "FAIL",
+      "dettaglio": "Nessun meccanismo di rate limiting rilevato dopo 50 tentativi falliti.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T04",
+      "test_nome": "Token Replay su endpoint diversi",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Token non presente o non JWT, test ignorato.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T05",
+      "test_nome": "Riuso Token Post-Logout",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Endpoint logout non rilevato, impossibile eseguire il test.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T06",
+      "test_nome": "Session Fixation",
+      "risultato": "PASS",
+      "dettaglio": "L'identificativo di sessione viene correttamente rigenerato al login.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T07",
+      "test_nome": "Key Confusion (RS256 -> HS256)",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Token non presente o non JWT, test ignorato.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T08",
+      "test_nome": "Privilege Escalation via Token",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Token non presente o non JWT.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T09",
+      "test_nome": "Cookie Flag di Sicurezza",
+      "risultato": "PASS",
+      "dettaglio": "Tutti i cookie impostati contengono i flag HttpOnly e Secure.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T10",
+      "test_nome": "Informazioni Sensibili nelle Risposte",
+      "risultato": "PASS",
+      "dettaglio": "Nessun dettaglio sensibile o stack trace esposto nei messaggi di errore.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T11",
+      "test_nome": "Enumerazione Utenti",
+      "risultato": "PASS",
+      "dettaglio": "Nessuna differenza strutturale o di messaggio rilevata tra utente inesistente ed esistente.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T12",
+      "test_nome": "Refresh Token Reuse",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Endpoint refresh non disponibile.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T13",
+      "test_nome": "Refresh Token Rotation Validation",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Endpoint refresh non disponibile.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T14",
+      "test_nome": "Infinite Lifetime Refresh Token",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Nessun refresh token ottenuto dopo il login.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T15",
+      "test_nome": "Parallel Refresh Abuse",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Endpoint refresh non disponibile.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T16",
+      "test_nome": "Password Reset Debole",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Endpoint reset non rilevato.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T17",
+      "test_nome": "Validazione JWKS (Header Injection)",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Token non presente o non JWT, test ignorato.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T18",
+      "test_nome": "Sicurezza Flussi OAuth2/OIDC",
+      "risultato": "FAIL",
+      "dettaglio": "Rilevati problemi di sicurezza OIDC: Mancanza parametro 'state' per prevenzione CSRF, Mancanza PKCE (code_challenge) per client pubblici",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T19",
+      "test_nome": "Sicurezza Credenziali Non-JWT",
+      "risultato": "PASS",
+      "dettaglio": "Credenziali non-JWT (Basic Auth / API Key) configurate in modo sicuro.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T20",
+      "test_nome": "Bypass Rate Limiting via Spoofing Header IP",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Rate limit non attivato durante il test preliminare (nessun 429 ricevuto dopo 8 tentativi). Impossibile verificare il bypass.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T21",
+      "test_nome": "MFA Testing (Bypass e OTP Debole)",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Nessun endpoint o meccanismo MFA (Multi-Factor Authentication) rilevato nell'applicazione.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    },
+    {
+      "test_id": "T22",
+      "test_nome": "SAML/SSO Security Checks",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "L'uso di SAML non è rilevato per questa applicazione. Test saltato.",
+      "raccomandazione": "Verificare la configurazione di sicurezza.",
+      "category": null,
+      "dettagli_quantitativi": null
+    }
+  ],
+  "auth_intel": {
+    "authentication_type": "JWT",
+    "identity_provider": "Keycloak",
+    "login_endpoint": "/login",
+    "refresh_endpoint": null,
+    "logout_endpoint": null,
+    "jwt_claims": [
+      "exp",
+      "role",
+      "sub"
+    ],
+    "roles": [
+      "admin",
+      "offline_access",
+      "uma_authorization",
+      "user"
+    ],
+    "permissions": [],
+    "auth_middlewares": [],
+    "protected_endpoints": {
+      "/api/orders/{order_id}": {
+        "source": "OpenAPI",
+        "required_roles": []
+      }
+    },
+    "auth_functions": [],
+    "confidence_score": 1.0,
+    "idp_metadata": {
+      "realm": "master",
+      "clients": [
+        "security-admin-console",
+        "admin-cli",
+        "account"
+      ],
+      "grant_types": [
+        "authorization_code",
+        "client_credentials",
+        "password",
+        "refresh_token"
+      ],
+      "issuer": "http://localhost:8080/realms/master",
+      "jwks_uri": "http://localhost:8080/realms/master/protocol/openid-connect/certs",
+      "roles": [
+        "admin",
+        "user",
+        "offline_access",
+        "uma_authorization"
+      ]
+    },
+    "jwks_validation_enabled": false,
+    "oauth_flows_metadata": {
+      "redirect_uri_checked": false,
+      "state_checked": false,
+      "pkce_checked": false
+    },
+    "non_jwt_mechanisms": [
+      "API Key"
+    ],
+    "refresh_token_rotation": false,
+    "saml_detected": false,
+    "jwt_secret": null,
+    "refresh_token_supported": false,
+    "mfa_detected": true,
+    "mfa_type": "IdP-Managed",
+    "mfa_confidence": 0.5,
+    "rate_limiting_detected": false,
+    "rate_limit_threshold": null,
+    "authentication_score": {
+      "score": 90,
+      "grade": "A",
+      "risk": "Low"
+    }
+  },
+  "request_audit_log": [],
+  "auth_strategy": null
+}

@@ -544,32 +544,237 @@ async def test_t05_token_reuse_post_logout():
     assert result.stato == "PASS"
 
 @pytest.mark.asyncio
-async def test_t12_token_refresh():
+async def test_t12_refresh_token_reuse_pass():
     config = Config()
     tester = DynamicTester(config)
+    tester.endpoint_auth = "/login"
     tester.endpoint_refresh = "/refresh"
     
-    resp = MagicMock(status_code=400)
-    resp.text = "Bad Request"
-    mock_client = create_mock_client(post_responses={"/refresh": resp})
+    async def mock_login(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc123", "refresh_token": "ref123"}
+        return resp
+        
+    refresh_calls = 0
+    async def mock_refresh(json_body, headers):
+        nonlocal refresh_calls
+        refresh_calls += 1
+        if refresh_calls == 1:
+            resp = MagicMock(status_code=200)
+            resp.json = lambda: {"access_token": "acc456", "refresh_token": "ref456"}
+            return resp
+        else:
+            resp = MagicMock(status_code=400)
+            resp.text = "Token already used"
+            return resp
+            
+    mock_client = create_mock_client(
+        post_responses={"/login": mock_login, "/refresh": mock_refresh}
+    )
     tester._client = mock_client
     
-    result = await tester._test_t12_token_refresh()
+    result = await tester._test_t12_refresh_token_reuse()
     assert result.stato == "PASS"
 
 @pytest.mark.asyncio
-async def test_t13_weak_password_reset():
+async def test_t12_refresh_token_reuse_fail():
+    config = Config()
+    tester = DynamicTester(config)
+    tester.endpoint_auth = "/login"
+    tester.endpoint_refresh = "/refresh"
+    
+    async def mock_login(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc123", "refresh_token": "ref123"}
+        return resp
+        
+    async def mock_refresh(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc456", "refresh_token": "ref456"}
+        return resp
+            
+    mock_client = create_mock_client(
+        post_responses={"/login": mock_login, "/refresh": mock_refresh}
+    )
+    tester._client = mock_client
+    
+    result = await tester._test_t12_refresh_token_reuse()
+    assert result.stato == "FAIL"
+
+@pytest.mark.asyncio
+async def test_t13_refresh_token_rotation_pass():
+    config = Config()
+    tester = DynamicTester(config)
+    tester.endpoint_auth = "/login"
+    tester.endpoint_refresh = "/refresh"
+    
+    async def mock_login(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc123", "refresh_token": "ref123"}
+        return resp
+        
+    used_tokens = set()
+    async def mock_refresh(json_body, headers):
+        tok = json_body.get("refresh_token")
+        if tok == "ref123" and tok not in used_tokens:
+            used_tokens.add(tok)
+            resp = MagicMock(status_code=200)
+            resp.json = lambda: {"access_token": "acc456", "refresh_token": "ref456"}
+            return resp
+        resp = MagicMock(status_code=400)
+        resp.text = "Invalid refresh token"
+        return resp
+            
+    mock_client = create_mock_client(
+        post_responses={"/login": mock_login, "/refresh": mock_refresh}
+    )
+    tester._client = mock_client
+    
+    result = await tester._test_t13_refresh_token_rotation()
+    assert result.stato == "PASS"
+
+@pytest.mark.asyncio
+async def test_t13_refresh_token_rotation_fail():
+    config = Config()
+    tester = DynamicTester(config)
+    tester.endpoint_auth = "/login"
+    tester.endpoint_refresh = "/refresh"
+    
+    async def mock_login(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc123", "refresh_token": "ref123"}
+        return resp
+        
+    async def mock_refresh(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc456", "refresh_token": "ref123"}
+        return resp
+            
+    mock_client = create_mock_client(
+        post_responses={"/login": mock_login, "/refresh": mock_refresh}
+    )
+    tester._client = mock_client
+    
+    result = await tester._test_t13_refresh_token_rotation()
+    assert result.stato == "FAIL"
+
+@pytest.mark.asyncio
+async def test_t14_infinite_lifetime_refresh_token_pass():
+    config = Config()
+    tester = DynamicTester(config)
+    tester.endpoint_auth = "/login"
+    
+    import time
+    from src.core.broken_authentication.dynamic_tester import base64url_encode
+    hdr = base64url_encode({"alg": "HS256"})
+    now = int(time.time())
+    pld = base64url_encode({"sub": "user", "iat": now, "exp": now + 864000})
+    valid_jwt = f"{hdr}.{pld}.sig"
+    
+    async def mock_login(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc", "refresh_token": valid_jwt}
+        return resp
+        
+    mock_client = create_mock_client(post_responses={"/login": mock_login})
+    tester._client = mock_client
+    
+    result = await tester._test_t14_infinite_lifetime_refresh_token()
+    assert result.stato == "PASS"
+
+@pytest.mark.asyncio
+async def test_t14_infinite_lifetime_refresh_token_fail():
+    config = Config()
+    tester = DynamicTester(config)
+    tester.endpoint_auth = "/login"
+    
+    import time
+    from src.core.broken_authentication.dynamic_tester import base64url_encode
+    hdr = base64url_encode({"alg": "HS256"})
+    now = int(time.time())
+    pld = base64url_encode({"sub": "user", "iat": now, "exp": now + 40 * 86400})
+    invalid_jwt = f"{hdr}.{pld}.sig"
+    
+    async def mock_login(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc", "refresh_token": invalid_jwt}
+        return resp
+        
+    mock_client = create_mock_client(post_responses={"/login": mock_login})
+    tester._client = mock_client
+    
+    result = await tester._test_t14_infinite_lifetime_refresh_token()
+    assert result.stato == "FAIL"
+
+@pytest.mark.asyncio
+async def test_t15_parallel_refresh_abuse_pass():
+    config = Config()
+    tester = DynamicTester(config)
+    tester.endpoint_auth = "/login"
+    tester.endpoint_refresh = "/refresh"
+    
+    async def mock_login(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc", "refresh_token": "ref123"}
+        return resp
+        
+    refresh_calls = 0
+    async def mock_refresh(json_body, headers):
+        nonlocal refresh_calls
+        refresh_calls += 1
+        if refresh_calls == 1:
+            resp = MagicMock(status_code=200)
+            resp.json = lambda: {"access_token": "acc2", "refresh_token": "ref2"}
+            return resp
+        else:
+            resp = MagicMock(status_code=400)
+            return resp
+            
+    mock_client = create_mock_client(
+        post_responses={"/login": mock_login, "/refresh": mock_refresh}
+    )
+    tester._client = mock_client
+    
+    result = await tester._test_t15_parallel_refresh_abuse()
+    assert result.stato == "PASS"
+
+@pytest.mark.asyncio
+async def test_t15_parallel_refresh_abuse_fail():
+    config = Config()
+    tester = DynamicTester(config)
+    tester.endpoint_auth = "/login"
+    tester.endpoint_refresh = "/refresh"
+    
+    async def mock_login(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc", "refresh_token": "ref123"}
+        return resp
+        
+    async def mock_refresh(json_body, headers):
+        resp = MagicMock(status_code=200)
+        resp.json = lambda: {"access_token": "acc2", "refresh_token": "ref2"}
+        return resp
+            
+    mock_client = create_mock_client(
+        post_responses={"/login": mock_login, "/refresh": mock_refresh}
+    )
+    tester._client = mock_client
+    
+    result = await tester._test_t15_parallel_refresh_abuse()
+    assert result.stato == "FAIL"
+
+@pytest.mark.asyncio
+async def test_t16_weak_password_reset():
     config = Config()
     tester = DynamicTester(config)
     tester.endpoint_reset = "/reset"
     
-    # Reset password returns token leaks (vulnerable)
     resp = MagicMock(status_code=200)
     resp.text = '{"status":"ok", "token":"leak123"}'
     mock_client = create_mock_client(post_responses={"/reset": resp})
     tester._client = mock_client
     
-    result = await tester._test_t13_weak_password_reset()
+    result = await tester._test_t16_weak_password_reset()
     assert result.stato == "FAIL"
 
 @pytest.mark.asyncio
@@ -718,7 +923,7 @@ async def test_run_function():
     with patch("src.core.broken_authentication.dynamic_tester.DynamicTester._get_client", return_value=mock_client):
         results = await run(stack, [], config)
         
-        assert len(results) == 20
+        assert len(results) == 22
         assert all(isinstance(r, RisultatoTest) for r in results)
 
 from src.core.broken_authentication.authentication_intelligence import AuthenticationKnowledgeGraph
@@ -763,7 +968,7 @@ async def test_confidence_gating():
     assert res_t08.stato == "SKIPPED"
 
 @pytest.mark.asyncio
-async def test_t14_jwks_validation():
+async def test_t17_jwks_validation():
     config = Config()
     tester = DynamicTester(config)
     tester.endpoint_auth = "/login"
@@ -780,35 +985,23 @@ async def test_t14_jwks_validation():
     )
     tester._client = mock_client
     
-    result = await tester._test_t14_jwks_validation()
+    result = await tester._test_t17_jwks_validation()
     assert result.stato == "FAIL"
 
 @pytest.mark.asyncio
-async def test_t15_oauth2_oidc_security():
+async def test_t18_oauth2_oidc_security():
     config = Config()
     auth_intel = AuthenticationKnowledgeGraph(
         identity_provider="Keycloak",
         oauth_flows_metadata={"state_checked": False, "pkce_checked": False}
     )
     tester = DynamicTester(config, auth_intel=auth_intel)
-    result = await tester._test_t15_oauth2_oidc_security()
+    result = await tester._test_t18_oauth2_oidc_security()
     assert result.stato == "FAIL"
     assert "Mancanza parametro 'state'" in result.dettagli
 
 @pytest.mark.asyncio
-async def test_t16_refresh_token_rotation():
-    config = Config()
-    tester = DynamicTester(config)
-    tester.endpoint_refresh = "/refresh"
-    
-    mock_client = create_mock_client(post_responses={"/refresh": MagicMock(status_code=200)})
-    tester._client = mock_client
-    
-    result = await tester._test_t16_refresh_token_rotation()
-    assert result.stato == "FAIL"
-
-@pytest.mark.asyncio
-async def test_t17_non_jwt_credentials():
+async def test_t19_non_jwt_credentials():
     config = Config()
     auth_intel = AuthenticationKnowledgeGraph(
         non_jwt_mechanisms=["API Key", "Basic Auth"]
@@ -818,7 +1011,7 @@ async def test_t17_non_jwt_credentials():
     mock_client = create_mock_client(get_responses={"/api/data": MagicMock(status_code=200)})
     tester = DynamicTester(config, client=mock_client, auth_intel=auth_intel)
     
-    result = await tester._test_t17_non_jwt_credentials()
+    result = await tester._test_t19_non_jwt_credentials()
     assert result.stato == "FAIL"
     assert "Basic Auth trasmesso in chiaro" in result.dettagli
 
@@ -1009,18 +1202,18 @@ async def test_t08_privilege_escalation_fail():
     assert result.stato == "FAIL"
 
 
-# --- Tests for T18 (Rate Limiting Bypass) ---
+# --- Tests for T20 (Rate Limiting Bypass) ---
 
 @pytest.mark.asyncio
-async def test_t18_rate_limiting_bypass_skipped():
+async def test_t20_rate_limiting_bypass_skipped():
     config = Config()
     tester = DynamicTester(config, target_environment="production", allow_destructive_tests=False)
-    result = await tester._test_t18_rate_limiting_bypass()
+    result = await tester._test_t20_rate_limiting_bypass()
     assert result.stato == "SKIPPED"
 
 
 @pytest.mark.asyncio
-async def test_t18_rate_limiting_bypass_inconclusive():
+async def test_t20_rate_limiting_bypass_inconclusive():
     config = Config()
     tester = DynamicTester(config, target_environment="staging", allow_destructive_tests=True)
     tester.endpoint_auth = "/login"
@@ -1028,12 +1221,12 @@ async def test_t18_rate_limiting_bypass_inconclusive():
     mock_client = create_mock_client(post_responses={"/login": MagicMock(status_code=401)})
     tester._client = mock_client
     
-    result = await tester._test_t18_rate_limiting_bypass()
+    result = await tester._test_t20_rate_limiting_bypass()
     assert result.stato == "INCONCLUSIVE"
 
 
 @pytest.mark.asyncio
-async def test_t18_rate_limiting_bypass_fail():
+async def test_t20_rate_limiting_bypass_fail():
     config = Config()
     tester = DynamicTester(config, target_environment="staging", allow_destructive_tests=True)
     tester.endpoint_auth = "/login"
@@ -1051,13 +1244,13 @@ async def test_t18_rate_limiting_bypass_fail():
     mock_client = create_mock_client(post_responses={"/login": mock_login})
     tester._client = mock_client
     
-    result = await tester._test_t18_rate_limiting_bypass()
+    result = await tester._test_t20_rate_limiting_bypass()
     assert result.stato == "FAIL"
     assert "X-Forwarded-For" in result.dettagli
 
 
 @pytest.mark.asyncio
-async def test_t18_rate_limiting_bypass_pass():
+async def test_t20_rate_limiting_bypass_pass():
     config = Config()
     tester = DynamicTester(config, target_environment="staging", allow_destructive_tests=True)
     tester.endpoint_auth = "/login"
@@ -1073,22 +1266,22 @@ async def test_t18_rate_limiting_bypass_pass():
     mock_client = create_mock_client(post_responses={"/login": mock_login})
     tester._client = mock_client
     
-    result = await tester._test_t18_rate_limiting_bypass()
+    result = await tester._test_t20_rate_limiting_bypass()
     assert result.stato == "PASS"
 
 
-# --- Tests for T19 (MFA Testing) ---
+# --- Tests for T21 (MFA Testing) ---
 
 @pytest.mark.asyncio
-async def test_t19_mfa_testing_inconclusive():
+async def test_t21_mfa_testing_inconclusive():
     config = Config()
     tester = DynamicTester(config)
-    result = await tester._test_t19_mfa_testing()
+    result = await tester._test_t21_mfa_testing()
     assert result.stato == "INCONCLUSIVE"
 
 
 @pytest.mark.asyncio
-async def test_t19_mfa_testing_logical_bypass():
+async def test_t21_mfa_testing_logical_bypass():
     config = Config()
     tester = DynamicTester(config)
     tester.endpoint_mfa = "/mfa"
@@ -1101,13 +1294,13 @@ async def test_t19_mfa_testing_logical_bypass():
     mock_client = create_mock_client(post_responses={"/mfa": mock_mfa})
     tester._client = mock_client
     
-    result = await tester._test_t19_mfa_testing()
+    result = await tester._test_t21_mfa_testing()
     assert result.stato == "FAIL"
     assert result.severita == "CRITICAL"
 
 
 @pytest.mark.asyncio
-async def test_t19_mfa_testing_brute_force_skipped_prod():
+async def test_t21_mfa_testing_brute_force_skipped_prod():
     config = Config()
     tester = DynamicTester(config, target_environment="production", allow_destructive_tests=False)
     tester.endpoint_mfa = "/mfa"
@@ -1115,12 +1308,12 @@ async def test_t19_mfa_testing_brute_force_skipped_prod():
     mock_client = create_mock_client(post_responses={"/mfa": MagicMock(status_code=401)})
     tester._client = mock_client
     
-    result = await tester._test_t19_mfa_testing()
+    result = await tester._test_t21_mfa_testing()
     assert result.stato == "PASS"
 
 
 @pytest.mark.asyncio
-async def test_t19_mfa_testing_brute_force_fail():
+async def test_t21_mfa_testing_brute_force_fail():
     config = Config()
     tester = DynamicTester(config, target_environment="staging", allow_destructive_tests=True)
     tester.endpoint_mfa = "/mfa"
@@ -1128,13 +1321,13 @@ async def test_t19_mfa_testing_brute_force_fail():
     mock_client = create_mock_client(post_responses={"/mfa": MagicMock(status_code=401)})
     tester._client = mock_client
     
-    result = await tester._test_t19_mfa_testing()
+    result = await tester._test_t21_mfa_testing()
     assert result.stato == "FAIL"
     assert "Nessun rate limiting rilevato sull'endpoint MFA" in result.dettagli
 
 
 @pytest.mark.asyncio
-async def test_t19_mfa_testing_brute_force_pass():
+async def test_t21_mfa_testing_brute_force_pass():
     config = Config()
     tester = DynamicTester(config, target_environment="staging", allow_destructive_tests=True)
     tester.endpoint_mfa = "/mfa"
@@ -1150,22 +1343,22 @@ async def test_t19_mfa_testing_brute_force_pass():
     mock_client = create_mock_client(post_responses={"/mfa": mock_mfa})
     tester._client = mock_client
     
-    result = await tester._test_t19_mfa_testing()
+    result = await tester._test_t21_mfa_testing()
     assert result.stato == "PASS"
 
 
-# --- Tests for T20 (SAML Security) ---
+# --- Tests for T22 (SAML Security) ---
 
 @pytest.mark.asyncio
-async def test_t20_saml_security_skipped():
+async def test_t22_saml_security_skipped():
     config = Config()
     tester = DynamicTester(config)
-    result = await tester._test_t20_saml_security()
+    result = await tester._test_t22_saml_security()
     assert result.stato == "INCONCLUSIVE"
 
 
 @pytest.mark.asyncio
-async def test_t20_saml_security_fail_xsw():
+async def test_t22_saml_security_fail_xsw():
     config = Config()
     auth_intel = AuthenticationKnowledgeGraph(saml_detected=True)
     tester = DynamicTester(config, auth_intel=auth_intel)
@@ -1173,13 +1366,13 @@ async def test_t20_saml_security_fail_xsw():
     mock_client = create_mock_client(post_responses={"/saml/acs": MagicMock(status_code=200, text="")})
     tester._client = mock_client
     
-    result = await tester._test_t20_saml_security()
+    result = await tester._test_t22_saml_security()
     assert result.stato == "FAIL"
     assert "XML Signature Wrapping" in result.dettagli
 
 
 @pytest.mark.asyncio
-async def test_t20_saml_security_fail_xxe():
+async def test_t22_saml_security_fail_xxe():
     config = Config()
     auth_intel = AuthenticationKnowledgeGraph(saml_detected=True)
     tester = DynamicTester(config, auth_intel=auth_intel)
@@ -1192,13 +1385,13 @@ async def test_t20_saml_security_fail_xxe():
     mock_client = create_mock_client(post_responses={"/saml/acs": mock_acs})
     tester._client = mock_client
     
-    result = await tester._test_t20_saml_security()
+    result = await tester._test_t22_saml_security()
     assert result.stato == "FAIL"
     assert "XXE" in result.dettagli
 
 
 @pytest.mark.asyncio
-async def test_t20_saml_security_pass():
+async def test_t22_saml_security_pass():
     config = Config()
     auth_intel = AuthenticationKnowledgeGraph(saml_detected=True)
     tester = DynamicTester(config, auth_intel=auth_intel)
@@ -1206,7 +1399,7 @@ async def test_t20_saml_security_pass():
     mock_client = create_mock_client(post_responses={"/saml/acs": MagicMock(status_code=400, text="Bad Request")})
     tester._client = mock_client
     
-    result = await tester._test_t20_saml_security()
+    result = await tester._test_t22_saml_security()
     assert result.stato == "PASS"
 
 

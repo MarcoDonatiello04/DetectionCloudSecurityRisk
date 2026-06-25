@@ -70,12 +70,14 @@ IGNORE_DIRS = {
 # Keywords to match in signals
 ROUTE_KEYWORDS = {
     "login", "logout", "token", "oauth", "refresh", "signin",
-    "signout", "auth", "password", "reset", "verify"
+    "signout", "auth", "password", "reset", "verify",
+    "mfa", "2fa", "otp", "totp"
 }
 
 ENV_KEYWORDS = {
     "SECRET", "TOKEN", "AUTH", "KEY", "JWT", "PASSWORD",
-    "CREDENTIAL", "CERT", "PRIVATE", "KEYCLOAK", "OAUTH"
+    "CREDENTIAL", "CERT", "PRIVATE", "KEYCLOAK", "OAUTH",
+    "SAMESITE", "MFA", "REFRESH"
 }
 
 # --- Grammar Loader ---
@@ -270,7 +272,11 @@ class ASTSignalCollector:
                         func_part = func_part[len(prefix):].strip()
                 func_clean_name = func_part.split(".")[-1].split(" ")[0].strip()
                 
-                auth_fn_keywords = {"login", "signin", "authenticate", "verify_token", "decode_token", "refresh_token", "logout"}
+                auth_fn_keywords = {
+                    "login", "signin", "authenticate", "verify_token", "decode_token",
+                    "refresh_token", "logout", "verify_mfa", "mfa", "otp", "totp",
+                    "two_factor", "twofactor"
+                }
                 if any(kw in func_clean_name.lower() for kw in auth_fn_keywords):
                     self.auth_functions.add(func_clean_name)
                     logger.debug(f"[AST Signal: Auth Fn] {func_clean_name}")
@@ -279,7 +285,10 @@ class ASTSignalCollector:
             is_literal = node_type in ("string", "string_literal", "identifier", "property_identifier", "shorthand_property_identifier")
             if is_literal:
                 clean_literal = node_text.strip("'\"` ")
-                jwt_claim_keywords = {"sub", "id", "user_id", "role", "roles", "groups", "permissions", "scope", "email"}
+                jwt_claim_keywords = {
+                    "sub", "id", "user_id", "role", "roles", "groups", "permissions",
+                    "scope", "email", "samesite", "httponly", "secure", "mfa", "amr", "acr"
+                }
                 if clean_literal in jwt_claim_keywords:
                     self.jwt_claims.add(clean_literal)
                     logger.debug(f"[AST Signal: JWT Claim] {clean_literal}")
@@ -346,7 +355,11 @@ class ASTSignalCollector:
                     logger.debug(f"[AST Signal: Decorator] {func_name} -> {role_val}")
 
             # 8. Advanced AST: Middleware
-            middleware_keywords = {"jwtmiddleware", "authenticationmiddleware", "bearertokenmiddleware", "keycloakmiddleware"}
+            middleware_keywords = {
+                "jwtmiddleware", "authenticationmiddleware", "bearertokenmiddleware",
+                "keycloakmiddleware", "mfamiddleware", "ratelimitmiddleware", "limiter",
+                "samesitemiddleware", "samesite"
+            }
             node_lower = node_text.lower()
             for kw in middleware_keywords:
                 if kw in node_lower:

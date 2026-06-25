@@ -37,6 +37,15 @@ class AuthenticationKnowledgeGraph(BaseModel):
     # Optional: JWT secret extracted by the AST parser from the source code.
     # When present, T02 uses it to produce a validly-signed expired token.
     jwt_secret: Optional[str] = None
+    
+    # Extended fields
+    refresh_token_supported: bool = False
+    mfa_detected: Optional[bool] = None
+    mfa_type: Optional[str] = None
+    mfa_confidence: float = 0.0
+    rate_limiting_detected: bool = False
+    rate_limit_threshold: Optional[int] = None
+    authentication_score: Optional[Dict[str, Any]] = None
 
 
 def base64url_decode(payload: str) -> dict:
@@ -475,6 +484,93 @@ class AuthenticationIntelligenceEngine:
         
         confidence_score = min(1.0, round(confidence_score, 2))
 
+        # 7. Refresh Token, MFA and Rate Limiting details correlation
+        # Refresh token support
+        refresh_token_supported = False
+        if refresh_endpoint is not None or refresh_rotation_signals:
+            refresh_token_supported = True
+        else:
+            if any("refresh" in lib.lower() for lib in discovery_output.librerie_auth):
+                refresh_token_supported = True
+            elif any("refresh" in func.lower() for func in auth_functions_set):
+                refresh_token_supported = True
+
+        # MFA Detection
+        mfa_detected = None
+        mfa_type = None
+        mfa_confidence = 0.0
+
+        known_idps = ["keycloak", "auth0", "cognito", "azure", "okta"]
+        has_known_idp = identity_provider and any(idp in identity_provider.lower() for idp in known_idps)
+
+        mfa_signals = []
+        for file_score in ast_output:
+            mfa_signals.append(" ".join(file_score.imports_auth).lower())
+            mfa_signals.append(" ".join(file_score.route_auth).lower())
+            mfa_signals.append(" ".join(file_score.chiamate_auth).lower())
+            mfa_signals.append(" ".join(file_score.auth_functions).lower())
+            mfa_signals.append(" ".join(file_score.auth_middlewares).lower())
+            mfa_signals.append(" ".join(file_score.env_vars_auth).lower())
+
+        if openapi_spec:
+            mfa_signals.append(json.dumps(openapi_spec).lower())
+
+        for rel_file in discovery_output.file_configurazione_rilevanti:
+            mfa_signals.append(rel_file.lower())
+
+        mfa_text_combined = " ".join(mfa_signals)
+
+        mfa_keywords = ["mfa", "totp", "2fa", "otp", "twofactor", "two_factor", "google_auth", "duo", "authenticator"]
+        has_mfa_keywords = any(kw in mfa_text_combined for kw in mfa_keywords)
+
+        if has_known_idp or has_mfa_keywords:
+            mfa_detected = True
+            if any(kw in mfa_text_combined for kw in ["totp", "google_auth", "authenticator"]):
+                mfa_type = "TOTP"
+            elif "sms" in mfa_text_combined or "phone" in mfa_text_combined:
+                mfa_type = "SMS"
+            elif "email" in mfa_text_combined:
+                mfa_type = "Email"
+            elif any(kw in mfa_text_combined for kw in ["webauthn", "fido", "yubikey"]):
+                mfa_type = "WebAuthn"
+            elif has_known_idp:
+                mfa_type = "IdP-Managed"
+            else:
+                mfa_type = "Custom"
+
+            mfa_confidence = 0.5 if has_known_idp else 0.3
+            if any(kw in mfa_text_combined for kw in ["mfa", "2fa", "totp"]):
+                mfa_confidence += 0.2
+            if "/mfa" in mfa_text_combined or "/2fa" in mfa_text_combined or "/otp" in mfa_text_combined:
+                mfa_confidence += 0.2
+            if any(kw in mfa_text_combined for kw in ["verify_mfa", "mfa_verify", "check_mfa"]):
+                mfa_confidence += 0.1
+            mfa_confidence = min(1.0, round(mfa_confidence, 2))
+
+        # Rate Limiting detection
+        rate_limiting_detected = False
+        rate_limit_threshold = None
+
+        rate_limit_libs = ["limiter", "slowapi", "express-rate-limit", "tollbooth", "rate_limit", "throttle"]
+        rate_limit_text_signals = []
+        for file_score in ast_output:
+            rate_limit_text_signals.append(" ".join(file_score.imports_auth).lower())
+            rate_limit_text_signals.append(" ".join(file_score.chiamate_auth).lower())
+            rate_limit_text_signals.append(" ".join(file_score.auth_middlewares).lower())
+            rate_limit_text_signals.append(" ".join(file_score.route_auth).lower())
+        
+        rate_limit_combined = " ".join(rate_limit_text_signals)
+        if any(lib in rate_limit_combined for lib in rate_limit_libs) or "rate" in rate_limit_combined or "limit" in rate_limit_combined:
+            rate_limiting_detected = True
+            
+            limit_matches = re.findall(r'(\d+)\s*/\s*(?:minute|hour|day|min|sec)', rate_limit_combined)
+            if limit_matches:
+                rate_limit_threshold = int(limit_matches[0])
+            else:
+                num_matches = re.findall(r'limit.*?(?:count|max|threshold|value)?.*?(\d+)', rate_limit_combined)
+                if num_matches:
+                    rate_limit_threshold = int(num_matches[0])
+
         # Build output model
         graph = AuthenticationKnowledgeGraph(
             authentication_type=auth_type,
@@ -498,7 +594,13 @@ class AuthenticationIntelligenceEngine:
             },
             non_jwt_mechanisms=sorted(list(non_jwt_detected)),
             refresh_token_rotation=refresh_rotation_signals,
-            saml_detected=is_saml_detected
+            saml_detected=is_saml_detected,
+            refresh_token_supported=refresh_token_supported,
+            mfa_detected=mfa_detected,
+            mfa_type=mfa_type,
+            mfa_confidence=mfa_confidence,
+            rate_limiting_detected=rate_limiting_detected,
+            rate_limit_threshold=rate_limit_threshold
         )
 
         logger.info(f"Consolidamento completato. Confidence score: {confidence_score}")

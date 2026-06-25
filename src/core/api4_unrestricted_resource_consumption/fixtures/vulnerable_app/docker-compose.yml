@@ -1,0 +1,23 @@
+# docker-compose.yml — VULNERABLE
+# RC-007: nessun deploy.resources.limits (memory/cpus) su nessun servizio
+
+version: "3.8"
+
+services:
+  api:
+    image: myapp:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://user:pass@db:5432/mydb
+    depends_on:
+      - db
+
+  worker:
+    image: myapp:latest
+    command: celery -A app worker
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_PASSWORD: pass

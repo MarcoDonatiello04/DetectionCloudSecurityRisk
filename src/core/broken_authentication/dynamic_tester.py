@@ -8,11 +8,11 @@ import json
 import base64
 import httpx
 import asyncio
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from pydantic import BaseModel
 from loguru import logger
 
-from src.core.broken_authentication.discovery import StackInfo, Config
+from src.core.broken_authentication.discovery import StackInfo, Config, VulnerabilityCategory
 from src.core.broken_authentication.authentication_intelligence import AuthenticationKnowledgeGraph
 
 # --- Custom Exceptions ---
@@ -32,6 +32,7 @@ class Vulnerabilita(BaseModel):
     file: str
     linea: int
     route_auth: List[str] = []
+    category: Optional[VulnerabilityCategory] = None
     dettagli: Optional[Dict[str, Any]] = None
 
 class RisultatoTest(BaseModel):
@@ -40,6 +41,8 @@ class RisultatoTest(BaseModel):
     stato: str  # "PASS" | "FAIL"
     severita: str  # "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "INFO"
     dettagli: str
+    category: Optional[VulnerabilityCategory] = None
+    dettagli_quantitativi: Optional[Dict[str, Any]] = None
 
 # --- JWT Base64 Helpers ---
 def base64url_decode(payload: str) -> dict:
@@ -326,6 +329,95 @@ class DynamicTester:
         if cookie:
             return cookie.split(";")[0].strip()
         return None
+
+    def _extract_refresh_token_from_response(self, res: httpx.Response) -> Optional[str]:
+        try:
+            data = res.json()
+            for key in ["refresh_token", "refreshToken"]:
+                if key in data:
+                    return data[key]
+        except Exception:
+            pass
+        cookie = res.headers.get("Set-Cookie")
+        if cookie and "refresh" in cookie.lower():
+            return cookie.split(";")[0].strip()
+        return None
+
+    async def _login_and_get_tokens(self, client: httpx.AsyncClient) -> Tuple[Optional[str], Optional[str]]:
+        """Helper to login and retrieve both access and refresh tokens."""
+        if not self.endpoint_auth:
+            return None, None
+
+        # Try schema-driven first
+        username_key = None
+        password_key = None
+        schema_found = False
+
+        if self.openapi_spec:
+            try:
+                paths = self.openapi_spec.get("paths", {})
+                path_info = paths.get(self.endpoint_auth)
+                if not path_info:
+                    for p, info in paths.items():
+                        if p.lower().rstrip('/') == self.endpoint_auth.lower().rstrip('/'):
+                            path_info = info
+                            break
+                if path_info:
+                    post_op = path_info.get("post") or path_info.get("POST")
+                    if post_op:
+                        request_body = post_op.get("requestBody", {})
+                        content = request_body.get("content", {})
+                        json_content = content.get("application/json", {})
+                        schema = json_content.get("schema", {})
+                        resolved = self._resolve_schema(schema)
+                        properties = resolved.get("properties", {})
+                        if properties:
+                            schema_found = True
+                            for key in properties.keys():
+                                k_low = key.lower()
+                                if any(alias in k_low for alias in ["email", "username", "user", "login"]):
+                                    if not username_key or "email" in k_low or "username" in k_low:
+                                        username_key = key
+                                if "password" in k_low or "passwd" in k_low:
+                                    password_key = key
+            except Exception as e:
+                logger.debug(f"Errore durante l'analisi dello schema OpenAPI per il login: {e}")
+
+        # If schema-derived fields found, use them
+        if schema_found and username_key and password_key:
+            payload = {
+                username_key: self.config.target.username,
+                password_key: self.config.target.password
+            }
+            try:
+                res = await client.post(self.endpoint_auth, json=payload)
+                if res.status_code in (200, 201):
+                    self.auth_strategy = "schema-derived"
+                    return self._extract_token_from_response(res), self._extract_refresh_token_from_response(res)
+            except Exception as e:
+                logger.debug(f"Errore login schema-derived: {e}")
+
+        # Fallback sequence of aliases
+        username_aliases = ["username", "email", "user", "login"]
+        password_aliases = ["password", "passwd"]
+
+        attempt = 0
+        for u_alias in username_aliases:
+            for p_alias in password_aliases:
+                attempt += 1
+                payload = {
+                    u_alias: self.config.target.username,
+                    p_alias: self.config.target.password
+                }
+                try:
+                    res = await client.post(self.endpoint_auth, json=payload)
+                    if res.status_code in (200, 201):
+                        self.auth_strategy = f"alias-fallback-{attempt}"
+                        return self._extract_token_from_response(res), self._extract_refresh_token_from_response(res)
+                except Exception as e:
+                    logger.debug(f"Errore login alias-fallback: {e}")
+
+        return None, None
 
     async def _login_and_get_token(self, client: httpx.AsyncClient) -> Optional[str]:
         """Helper to login and retrieve token using adaptive credentials resolution (A.2)."""
@@ -631,7 +723,8 @@ class DynamicTester:
                 nome="Brute Force e Rate Limiting",
                 stato="SKIPPED",
                 severita="INFO",
-                dettagli="Test bruteforce disabilitato in ambiente di produzione per sicurezza."
+                dettagli="Test bruteforce disabilitato in ambiente di produzione per sicurezza.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         client = self._get_client()
         if not self.endpoint_auth:
@@ -640,31 +733,96 @@ class DynamicTester:
                 nome="Brute Force e Rate Limiting",
                 stato="INCONCLUSIVE",
                 severita="INFO",
-                dettagli="Endpoint auth non disponibile."
+                dettagli="Endpoint auth non disponibile.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         try:
             payload = {"username": "wronguser", "password": "wrongpassword"}
-            responses = []
-            for _ in range(10):
+            attempts_before_block = 0
+            block_duration_seconds = 0
+            ip_spoof_bypass = False
+            triggered_429 = False
+
+            # Invia richieste iterative fino a un massimo di 50 per misurare la soglia
+            for i in range(1, 51):
                 res = await client.post(self.endpoint_auth, json=payload)
-                responses.append(res.status_code)
+                if res.status_code == 429:
+                    triggered_429 = True
+                    attempts_before_block = i - 1
+                    
+                    # Cerca l'header Retry-After
+                    retry_after = res.headers.get("Retry-After")
+                    if retry_after:
+                        try:
+                            block_duration_seconds = int(retry_after)
+                        except ValueError:
+                            # Se non è intero (es. data), impostiamo a 60 secondi
+                            block_duration_seconds = 60
+                    else:
+                        block_duration_seconds = 60 # Valore stimato di default
+                    
+                    # Test bypass via IP Spoofing
+                    spoofed_headers = {"X-Forwarded-For": f"198.51.100.{i + 10}"}
+                    res_spoof = await client.post(self.endpoint_auth, json=payload, headers=spoofed_headers)
+                    if res_spoof.status_code != 429:
+                        ip_spoof_bypass = True
+                    break
             
-            if 429 in responses:
-                return RisultatoTest(
-                    test_id="T03",
-                    nome="Brute Force e Rate Limiting",
-                    stato="PASS",
-                    severita="INFO",
-                    dettagli="Rilevato blocco di sicurezza (status 429) dopo tentativi multipli falliti."
+            # Se è stato rilevato il blocco 429
+            if triggered_429:
+                if self.auth_intel:
+                    self.auth_intel.rate_limiting_detected = True
+                    self.auth_intel.rate_limit_threshold = attempts_before_block
+                
+                details_quant = {
+                    "attempts_before_block": attempts_before_block,
+                    "block_duration_seconds": block_duration_seconds,
+                    "ip_spoof_bypass": ip_spoof_bypass
+                }
+                
+                dettagli_msg = (
+                    f"Rilevato blocco di sicurezza (status 429) dopo {attempts_before_block} tentativi falliti. "
+                    f"Durata blocco: {block_duration_seconds}s. Bypass via IP spoofing: {ip_spoof_bypass}."
                 )
+                
+                if ip_spoof_bypass:
+                    return RisultatoTest(
+                        test_id="T03",
+                        nome="Brute Force e Rate Limiting",
+                        stato="FAIL",
+                        severita="HIGH",
+                        dettagli=dettagli_msg + " Rischio di bypass del rate limit.",
+                        category=VulnerabilityCategory.AUTHENTICATION,
+                        dettagli_quantitativi=details_quant
+                    )
+                else:
+                    return RisultatoTest(
+                        test_id="T03",
+                        nome="Brute Force e Rate Limiting",
+                        stato="PASS",
+                        severita="INFO",
+                        dettagli=dettagli_msg,
+                        category=VulnerabilityCategory.AUTHENTICATION,
+                        dettagli_quantitativi=details_quant
+                    )
             
-            # If all were 401/400 without rate limit block
+            # Se non c'è stato alcun blocco dopo 50 richieste
+            if self.auth_intel:
+                self.auth_intel.rate_limiting_detected = False
+                
+            details_quant = {
+                "attempts_before_block": 50,
+                "block_duration_seconds": None,
+                "ip_spoof_bypass": False
+            }
             return RisultatoTest(
                 test_id="T03",
                 nome="Brute Force e Rate Limiting",
                 stato="FAIL",
                 severita="MEDIUM",
-                dettagli="Nessun meccanismo di rate limiting rilevato (10 tentativi falliti con status 401)."
+                dettagli="Nessun meccanismo di rate limiting rilevato dopo 50 tentativi falliti.",
+                category=VulnerabilityCategory.AUTHENTICATION,
+                dettagli_quantitativi=details_quant
             )
         except Exception as e:
             return RisultatoTest(
@@ -672,7 +830,8 @@ class DynamicTester:
                 nome="Brute Force e Rate Limiting",
                 stato="FAIL",
                 severita="HIGH",
-                dettagli=f"Eccezione inattesa durante il test: {e}"
+                dettagli=f"Eccezione inattesa durante il test: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
 
     # --- T04 - Token Replay su endpoint diversi ---
@@ -1222,57 +1381,303 @@ class DynamicTester:
                 nome="Enumerazione Utenti",
                 stato="FAIL",
                 severita="HIGH",
-                dettagli=f"Eccezione inattesa: {e}"
+                dettagli=f"Eccezione inattesa: {str(e)}"
             )
 
-    # --- T12 - Token Refresh ---
-    async def _test_t12_token_refresh(self) -> RisultatoTest:
+    # --- T12 - Refresh Token Reuse ---
+    async def _test_t12_refresh_token_reuse(self) -> RisultatoTest:
         client = self._get_client()
         if not self.endpoint_refresh:
             return RisultatoTest(
                 test_id="T12",
-                nome="Token Refresh",
+                nome="Refresh Token Reuse",
                 stato="INCONCLUSIVE",
                 severita="INFO",
-                dettagli="Endpoint refresh non rilevato."
+                dettagli="Endpoint refresh non disponibile.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         try:
-            payload = {"refresh_token": "invalid_refresh_token_xyz"}
-            res = await client.post(self.endpoint_refresh, json=payload)
-            if res.status_code == 200:
+            access_token, refresh_token = await self._login_and_get_tokens(client)
+            if not refresh_token:
                 return RisultatoTest(
                     test_id="T12",
-                    nome="Token Refresh",
+                    nome="Refresh Token Reuse",
+                    stato="INCONCLUSIVE",
+                    severita="INFO",
+                    dettagli="Nessun refresh token ottenuto dopo il login. Test ignorato.",
+                    category=VulnerabilityCategory.AUTHENTICATION
+                )
+                
+            payload = {"refresh_token": refresh_token}
+            res1 = await client.post(self.endpoint_refresh, json=payload)
+            
+            if res1.status_code not in (200, 201):
+                return RisultatoTest(
+                    test_id="T12",
+                    nome="Refresh Token Reuse",
+                    stato="INCONCLUSIVE",
+                    severita="INFO",
+                    dettagli=f"Il primo tentativo di refresh ha fallito con status {res1.status_code}.",
+                    category=VulnerabilityCategory.AUTHENTICATION
+                )
+                
+            res2 = await client.post(self.endpoint_refresh, json=payload)
+            if res2.status_code in (200, 201):
+                return RisultatoTest(
+                    test_id="T12",
+                    nome="Refresh Token Reuse",
                     stato="FAIL",
                     severita="HIGH",
-                    dettagli="L'endpoint di refresh accetta refresh token non validi."
+                    dettagli="Vulnerabilità rilevata: il server consente il riutilizzo dello stesso refresh token più volte.",
+                    category=VulnerabilityCategory.AUTHENTICATION,
+                    raccomandazione="Implementare la revoca del refresh token a seguito del primo utilizzo o l'invalidazione dell'intera famiglia di token in caso di tentato riuso."
                 )
+            
             return RisultatoTest(
                 test_id="T12",
-                nome="Token Refresh",
+                nome="Refresh Token Reuse",
                 stato="PASS",
                 severita="INFO",
-                dettagli="Refresh token non validi vengono correttamente respinti."
+                dettagli="Il riutilizzo del refresh token è stato correttamente bloccato dal server.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         except Exception as e:
             return RisultatoTest(
                 test_id="T12",
-                nome="Token Refresh",
+                nome="Refresh Token Reuse",
                 stato="FAIL",
                 severita="HIGH",
-                dettagli=f"Eccezione inattesa: {e}"
+                dettagli=f"Errore durante il test di reuse del refresh token: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
 
-    # --- T13 - Password Reset Debole ---
-    async def _test_t13_weak_password_reset(self) -> RisultatoTest:
+    # --- T13 - Refresh Token Rotation Validation ---
+    async def _test_t13_refresh_token_rotation(self) -> RisultatoTest:
+        client = self._get_client()
+        if not self.endpoint_refresh:
+            return RisultatoTest(
+                test_id="T13",
+                nome="Refresh Token Rotation Validation",
+                stato="INCONCLUSIVE",
+                severita="INFO",
+                dettagli="Endpoint refresh non disponibile.",
+                category=VulnerabilityCategory.AUTHENTICATION
+            )
+        try:
+            access_token, refresh_token = await self._login_and_get_tokens(client)
+            if not refresh_token:
+                return RisultatoTest(
+                    test_id="T13",
+                    nome="Refresh Token Rotation Validation",
+                    stato="INCONCLUSIVE",
+                    severita="INFO",
+                    dettagli="Nessun refresh token ottenuto dopo il login.",
+                    category=VulnerabilityCategory.AUTHENTICATION
+                )
+                
+            payload = {"refresh_token": refresh_token}
+            res = await client.post(self.endpoint_refresh, json=payload)
+            
+            if res.status_code not in (200, 201):
+                return RisultatoTest(
+                    test_id="T13",
+                    nome="Refresh Token Rotation Validation",
+                    stato="INCONCLUSIVE",
+                    severita="INFO",
+                    dettagli=f"Il refresh ha fallito con status {res.status_code}.",
+                    category=VulnerabilityCategory.AUTHENTICATION
+                )
+            
+            new_refresh_token = self._extract_refresh_token_from_response(res)
+            if not new_refresh_token or new_refresh_token == refresh_token:
+                return RisultatoTest(
+                    test_id="T13",
+                    nome="Refresh Token Rotation Validation",
+                    stato="FAIL",
+                    severita="HIGH",
+                    dettagli="Rotazione assente: il server non ha emesso un nuovo refresh token o ha restituito lo stesso.",
+                    category=VulnerabilityCategory.AUTHENTICATION,
+                    raccomandazione="Implementare la Refresh Token Rotation (RTR) in cui ogni richiesta di refresh emette un nuovo refresh token invalidando il precedente."
+                )
+                
+            res_reuse = await client.post(self.endpoint_refresh, json={"refresh_token": refresh_token})
+            if res_reuse.status_code in (200, 201):
+                return RisultatoTest(
+                    test_id="T13",
+                    nome="Refresh Token Rotation Validation",
+                    stato="FAIL",
+                    severita="HIGH",
+                    dettagli="Rotazione parziale: un nuovo refresh token è stato emesso, ma quello precedente è ancora valido.",
+                    category=VulnerabilityCategory.AUTHENTICATION,
+                    raccomandazione="Garantire che, all'emissione di un nuovo refresh token, il vecchio refresh token sia marcato come invalidato."
+                )
+                
+            return RisultatoTest(
+                test_id="T13",
+                nome="Refresh Token Rotation Validation",
+                stato="PASS",
+                severita="INFO",
+                dettagli="Refresh Token Rotation attiva: viene emesso un nuovo refresh token e il precedente viene invalidato.",
+                category=VulnerabilityCategory.AUTHENTICATION
+            )
+        except Exception as e:
+            return RisultatoTest(
+                test_id="T13",
+                nome="Refresh Token Rotation Validation",
+                stato="FAIL",
+                severita="HIGH",
+                dettagli=f"Errore durante la convalida della rotazione del refresh token: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
+            )
+
+    # --- T14 - Infinite Lifetime Refresh Token ---
+    async def _test_t14_infinite_lifetime_refresh_token(self) -> RisultatoTest:
+        client = self._get_client()
+        try:
+            access_token, refresh_token = await self._login_and_get_tokens(client)
+            if not refresh_token:
+                return RisultatoTest(
+                    test_id="T14",
+                    nome="Infinite Lifetime Refresh Token",
+                    stato="INCONCLUSIVE",
+                    severita="INFO",
+                    dettagli="Nessun refresh token ottenuto dopo il login.",
+                    category=VulnerabilityCategory.AUTHENTICATION
+                )
+            
+            parts = refresh_token.split(".")
+            if len(parts) == 3:
+                payload = base64url_decode(parts[1])
+                exp = payload.get("exp")
+                iat = payload.get("iat")
+                if not exp:
+                    return RisultatoTest(
+                        test_id="T14",
+                        nome="Infinite Lifetime Refresh Token",
+                        stato="FAIL",
+                        severita="HIGH",
+                        dettagli="Vulnerabilità rilevata: il refresh token JWT non ha un claim di scadenza ('exp').",
+                        category=VulnerabilityCategory.AUTHENTICATION,
+                        raccomandazione="Configurare sempre una scadenza ('exp') per tutti i token emessi."
+                    )
+                if iat:
+                    ttl_days = (exp - iat) / 86400
+                    if ttl_days > 30:
+                        return RisultatoTest(
+                            test_id="T14",
+                            nome="Infinite Lifetime Refresh Token",
+                            stato="FAIL",
+                            severita="MEDIUM",
+                            dettagli=f"Refresh token con durata eccessiva: {ttl_days:.1f} giorni (maggiore di 30 giorni).",
+                            category=VulnerabilityCategory.AUTHENTICATION,
+                            raccomandazione="Ridurre la durata massima dei refresh token a valori ragionevoli (es. max 7-30 giorni)."
+                        )
+                return RisultatoTest(
+                    test_id="T14",
+                    nome="Infinite Lifetime Refresh Token",
+                    stato="PASS",
+                    severita="INFO",
+                    dettagli="Il refresh token ha una scadenza definita e una durata entro i limiti di sicurezza.",
+                    category=VulnerabilityCategory.AUTHENTICATION
+                )
+            else:
+                return RisultatoTest(
+                    test_id="T14",
+                    nome="Infinite Lifetime Refresh Token",
+                    stato="INCONCLUSIVE",
+                    severita="INFO",
+                    dettagli="Il refresh token non è un JWT. Impossibile analizzare i claims di scadenza staticamente.",
+                    category=VulnerabilityCategory.AUTHENTICATION
+                )
+        except Exception as e:
+            return RisultatoTest(
+                test_id="T14",
+                nome="Infinite Lifetime Refresh Token",
+                stato="FAIL",
+                severita="HIGH",
+                dettagli=f"Errore durante l'analisi della durata del refresh token: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
+            )
+
+    # --- T15 - Parallel Refresh Abuse ---
+    async def _test_t15_parallel_refresh_abuse(self) -> RisultatoTest:
+        client = self._get_client()
+        if not self.endpoint_refresh:
+            return RisultatoTest(
+                test_id="T15",
+                nome="Parallel Refresh Abuse",
+                stato="INCONCLUSIVE",
+                severita="INFO",
+                dettagli="Endpoint refresh non disponibile.",
+                category=VulnerabilityCategory.AUTHENTICATION
+            )
+        try:
+            access_token, refresh_token = await self._login_and_get_tokens(client)
+            if not refresh_token:
+                return RisultatoTest(
+                    test_id="T15",
+                    nome="Parallel Refresh Abuse",
+                    stato="INCONCLUSIVE",
+                    severita="INFO",
+                    dettagli="Nessun refresh token ottenuto dopo il login.",
+                    category=VulnerabilityCategory.AUTHENTICATION
+                )
+            
+            payload = {"refresh_token": refresh_token}
+            
+            tasks = [
+                client.post(self.endpoint_refresh, json=payload),
+                client.post(self.endpoint_refresh, json=payload),
+                client.post(self.endpoint_refresh, json=payload)
+            ]
+            
+            responses = await asyncio.gather(*tasks, return_exceptions=True)
+            
+            success_count = 0
+            for r in responses:
+                if not isinstance(r, Exception) and r.status_code in (200, 201):
+                    success_count += 1
+                      
+            if success_count > 1:
+                return RisultatoTest(
+                    test_id="T15",
+                    nome="Parallel Refresh Abuse",
+                    stato="FAIL",
+                    severita="HIGH",
+                    dettagli=f"Race condition rilevata: inviate 3 richieste concorrenti, {success_count} hanno avuto successo emettendo nuovi token.",
+                    category=VulnerabilityCategory.AUTHENTICATION,
+                    raccomandazione="Implementare il locking distribuito o il controllo transazionale per impedire che più richieste parallele con lo stesso refresh token vadano a buon fine contemporaneamente."
+                )
+                  
+            return RisultatoTest(
+                test_id="T15",
+                nome="Parallel Refresh Abuse",
+                stato="PASS",
+                severita="INFO",
+                dettagli="Solo una richiesta concorrente di refresh ha avuto successo. Nessun abuso parallelo rilevato.",
+                category=VulnerabilityCategory.AUTHENTICATION
+            )
+        except Exception as e:
+            return RisultatoTest(
+                test_id="T15",
+                nome="Parallel Refresh Abuse",
+                stato="FAIL",
+                severita="HIGH",
+                dettagli=f"Errore durante il test di parallel refresh abuse: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
+            )
+
+    # --- T16 - Password Reset Debole ---
+    async def _test_t16_weak_password_reset(self) -> RisultatoTest:
         client = self._get_client()
         if not self.endpoint_reset:
             return RisultatoTest(
-                test_id="T13",
+                test_id="T16",
                 nome="Password Reset Debole",
                 stato="INCONCLUSIVE",
                 severita="INFO",
-                dettagli="Endpoint reset non rilevato."
+                dettagli="Endpoint reset non rilevato.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         try:
             payload = {"email": ""}
@@ -1282,39 +1687,43 @@ class DynamicTester:
                 for key in ["token", "password", "secret"]:
                     if key in text_lower and len(text_lower) < 200:
                         return RisultatoTest(
-                            test_id="T13",
+                            test_id="T16",
                             nome="Password Reset Debole",
                             stato="FAIL",
                             severita="HIGH",
-                            dettagli=f"L'endpoint risponde con successo e leaks informazioni sensibili: {res.text}"
+                            dettagli=f"L'endpoint risponde con successo e leaks informazioni sensibili: {res.text}",
+                            category=VulnerabilityCategory.AUTHENTICATION
                         )
             return RisultatoTest(
-                test_id="T13",
+                test_id="T16",
                 nome="Password Reset Debole",
                 stato="PASS",
                 severita="INFO",
-                dettagli="Nessuna debolezza immediata rilevata sull'endpoint di password reset."
+                dettagli="Nessuna debolezza immediata rilevata sull'endpoint di password reset.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         except Exception as e:
             return RisultatoTest(
-                test_id="T13",
+                test_id="T16",
                 nome="Password Reset Debole",
                 stato="FAIL",
                 severita="HIGH",
-                dettagli=f"Eccezione inattesa: {e}"
+                dettagli=f"Eccezione inattesa: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
 
-    # --- T14 - Validazione JWKS Header Injection ---
-    async def _test_t14_jwks_validation(self) -> RisultatoTest:
+    # --- T17 - Validazione JWKS Header Injection ---
+    async def _test_t17_jwks_validation(self) -> RisultatoTest:
         client = self._get_client()
         token = await self._login_and_get_token(client)
         if not token or self.tipo_token != "jwt":
             return RisultatoTest(
-                test_id="T14",
+                test_id="T17",
                 nome="Validazione JWKS (Header Injection)",
                 stato="INCONCLUSIVE",
                 severita="INFO",
-                dettagli="Token non presente o non JWT, test ignorato."
+                dettagli="Token non presente o non JWT, test ignorato.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         try:
             parts = token.split(".")
@@ -1336,38 +1745,42 @@ class DynamicTester:
                 res = await client.get(test_path, headers=headers)
                 if res.status_code == 200:
                     return RisultatoTest(
-                        test_id="T14",
+                        test_id="T17",
                         nome="Validazione JWKS (Header Injection)",
                         stato="FAIL",
                         severita="CRITICAL",
-                        dettagli="L'applicazione accetta token firmati con una chiave jwk auto-dichiarata nell'header."
+                        dettagli="L'applicazione accetta token firmati con una chiave jwk auto-dichiarata nell'header.",
+                        category=VulnerabilityCategory.AUTHENTICATION
                     )
             return RisultatoTest(
-                test_id="T14",
+                test_id="T17",
                 nome="Validazione JWKS (Header Injection)",
                 stato="PASS",
                 severita="INFO",
-                dettagli="JWK/x5u header injection rifiutata correttamente."
+                dettagli="JWK/x5u header injection rifiutata correttamente.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         except Exception as e:
             return RisultatoTest(
-                test_id="T14",
+                test_id="T17",
                 nome="Validazione JWKS (Header Injection)",
                 stato="FAIL",
                 severita="HIGH",
-                dettagli=f"Eccezione: {e}"
+                dettagli=f"Eccezione: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
 
-    # --- T15 - Sicurezza Flussi OAuth2/OIDC ---
-    async def _test_t15_oauth2_oidc_security(self) -> RisultatoTest:
+    # --- T18 - Sicurezza Flussi OAuth2/OIDC ---
+    async def _test_t18_oauth2_oidc_security(self) -> RisultatoTest:
         client = self._get_client()
         if not self.auth_intel or not self.auth_intel.identity_provider:
             return RisultatoTest(
-                test_id="T15",
+                test_id="T18",
                 nome="Sicurezza Flussi OAuth2/OIDC",
                 stato="INCONCLUSIVE",
                 severita="INFO",
-                dettagli="Nessun Identity Provider OIDC configurato."
+                dettagli="Nessun Identity Provider OIDC configurato.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         try:
             metadata = self.auth_intel.oauth_flows_metadata
@@ -1380,90 +1793,55 @@ class DynamicTester:
                 
                 if issues:
                     return RisultatoTest(
-                        test_id="T15",
+                        test_id="T18",
                         nome="Sicurezza Flussi OAuth2/OIDC",
                         stato="FAIL",
                         severita="HIGH",
-                        dettagli=f"Rilevati problemi di sicurezza OIDC: {', '.join(issues)}"
+                        dettagli=f"Rilevati problemi di sicurezza OIDC: {', '.join(issues)}",
+                        category=VulnerabilityCategory.AUTHENTICATION
                     )
             
             if self.endpoint_auth:
                 res = await client.get(f"{self.endpoint_auth}?redirect_uri=http://attacker-url.com")
                 if res.status_code in (301, 302) and "attacker-url.com" in res.headers.get("Location", ""):
                     return RisultatoTest(
-                        test_id="T15",
+                        test_id="T18",
                         nome="Sicurezza Flussi OAuth2/OIDC",
                         stato="FAIL",
                         severita="HIGH",
-                        dettagli="L'endpoint di login/auth soffre di Open Redirect (accetta redirect_uri non validato)."
+                        dettagli="L'endpoint di login/auth soffre di Open Redirect (accetta redirect_uri non validato).",
+                        category=VulnerabilityCategory.AUTHENTICATION
                     )
             
             return RisultatoTest(
-                test_id="T15",
+                test_id="T18",
                 nome="Sicurezza Flussi OAuth2/OIDC",
                 stato="PASS",
                 severita="INFO",
-                dettagli="Nessun problema rilevato sui parametri OAuth2/OIDC (redirect_uri, state, PKCE)."
+                dettagli="Nessun problema rilevato sui parametri OAuth2/OIDC (redirect_uri, state, PKCE).",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         except Exception as e:
             return RisultatoTest(
-                test_id="T15",
+                test_id="T18",
                 nome="Sicurezza Flussi OAuth2/OIDC",
                 stato="FAIL",
                 severita="HIGH",
-                dettagli=f"Eccezione: {e}"
+                dettagli=f"Eccezione: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
 
-    # --- T16 - Rotazione Refresh Token ---
-    async def _test_t16_refresh_token_rotation(self) -> RisultatoTest:
-        client = self._get_client()
-        if not self.endpoint_refresh:
-            return RisultatoTest(
-                test_id="T16",
-                nome="Rotazione Refresh Token",
-                stato="INCONCLUSIVE",
-                severita="INFO",
-                dettagli="Endpoint refresh non rilevato."
-            )
-        try:
-            payload = {"refresh_token": "valid_refresh_token_simulation_123"}
-            res1 = await client.post(self.endpoint_refresh, json=payload)
-            res2 = await client.post(self.endpoint_refresh, json=payload)
-            if res1.status_code == 200 and res2.status_code == 200:
-                return RisultatoTest(
-                    test_id="T16",
-                    nome="Rotazione Refresh Token",
-                    stato="FAIL",
-                    severita="HIGH",
-                    dettagli="Riuso di refresh token consentito: il token non viene invalidato dopo il primo utilizzo."
-                )
-            
-            return RisultatoTest(
-                test_id="T16",
-                nome="Rotazione Refresh Token",
-                stato="PASS",
-                severita="INFO",
-                dettagli="Il riuso del refresh token viene correttamente intercettato o impedito."
-            )
-        except Exception as e:
-            return RisultatoTest(
-                test_id="T16",
-                nome="Rotazione Refresh Token",
-                stato="FAIL",
-                severita="HIGH",
-                dettagli=f"Eccezione: {e}"
-            )
-
-    # --- T17 - Sicurezza Credenziali Non-JWT ---
-    async def _test_t17_non_jwt_credentials(self) -> RisultatoTest:
+    # --- T19 - Sicurezza Credenziali Non-JWT ---
+    async def _test_t19_non_jwt_credentials(self) -> RisultatoTest:
         client = self._get_client()
         if not self.auth_intel or not self.auth_intel.non_jwt_mechanisms:
             return RisultatoTest(
-                test_id="T17",
+                test_id="T19",
                 nome="Sicurezza Credenziali Non-JWT",
                 stato="INCONCLUSIVE",
                 severita="INFO",
-                dettagli="Nessun meccanismo di autenticazione non-JWT rilevato."
+                dettagli="Nessun meccanismo di autenticazione non-JWT rilevato.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         try:
             issues = []
@@ -1479,39 +1857,43 @@ class DynamicTester:
                     
             if issues:
                 return RisultatoTest(
-                    test_id="T17",
+                    test_id="T19",
                     nome="Sicurezza Credenziali Non-JWT",
                     stato="FAIL",
                     severita="MEDIUM",
-                    dettagli=f"Identificate vulnerabilità non-JWT: {', '.join(issues)}"
+                    dettagli=f"Identificate vulnerabilità non-JWT: {', '.join(issues)}",
+                    category=VulnerabilityCategory.AUTHENTICATION
                 )
                 
             return RisultatoTest(
-                test_id="T17",
+                test_id="T19",
                 nome="Sicurezza Credenziali Non-JWT",
                 stato="PASS",
                 severita="INFO",
-                dettagli="Credenziali non-JWT (Basic Auth / API Key) configurate in modo sicuro."
+                dettagli="Credenziali non-JWT (Basic Auth / API Key) configurate in modo sicuro.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         except Exception as e:
             return RisultatoTest(
-                test_id="T17",
+                test_id="T19",
                 nome="Sicurezza Credenziali Non-JWT",
                 stato="FAIL",
                 severita="HIGH",
-                dettagli=f"Eccezione: {e}"
+                dettagli=f"Eccezione: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
 
-    # --- T18 - Bypass Rate Limiting via Spoofing Header IP ---
-    async def _test_t18_rate_limiting_bypass(self) -> RisultatoTest:
+    # --- T20 - Bypass Rate Limiting via Spoofing Header IP ---
+    async def _test_t20_rate_limiting_bypass(self) -> RisultatoTest:
         if self.target_environment == "production" and not self.allow_destructive_tests:
-            logger.warning("Test T18 (rate-limiting-bypass) saltato per target in ambiente di produzione.")
+            logger.warning("Test T20 (rate-limiting-bypass) saltato per target in ambiente di produzione.")
             return RisultatoTest(
-                test_id="T18",
+                test_id="T20",
                 nome="Bypass Rate Limiting via Spoofing Header IP",
                 stato="SKIPPED",
                 severita="INFO",
-                dettagli="Test di evasione disabilitato in ambiente di produzione per sicurezza. Nota: Questo test richiede scoping/autorizzazione esplicita quando usato in pipeline CI/CD non supervisionate."
+                dettagli="Test di evasione disabilitato in ambiente di produzione per sicurezza.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
         client = self._get_client()
         target_path = self.endpoint_auth or "/"
@@ -1539,11 +1921,12 @@ class DynamicTester:
             
             if not triggered_429:
                 return RisultatoTest(
-                    test_id="T18",
+                    test_id="T20",
                     nome="Bypass Rate Limiting via Spoofing Header IP",
                     stato="INCONCLUSIVE",
                     severita="INFO",
-                    dettagli="Rate limit non attivato durante il test preliminare (nessun 429 ricevuto dopo 8 tentativi). Impossibile verificare il bypass."
+                    dettagli="Rate limit non attivato durante il test preliminare (nessun 429 ricevuto dopo 8 tentativi). Impossibile verificare il bypass.",
+                    category=VulnerabilityCategory.AUTHENTICATION
                 )
             
             for header in headers_to_test:
@@ -1554,33 +1937,35 @@ class DynamicTester:
             
             if successful_bypass_headers:
                 return RisultatoTest(
-                    test_id="T18",
+                    test_id="T20",
                     nome="Bypass Rate Limiting via Spoofing Header IP",
                     stato="FAIL",
                     severita="HIGH",
-                    dettagli=f"Rate limiting bypassato con successo tramite spoofing degli IP client nei seguenti header: {', '.join(successful_bypass_headers)}. Raccomandazione: Configurare il rate limiter per utilizzare l'indirizzo IP del socket reale o validare rigorosamente gli header di proxy inversi autorizzati.",
-                    raccomandazione=f"Configurare il rate limiter per ignorare o validare rigorosamente gli header {', '.join(successful_bypass_headers)} da proxy non fidati."
+                    dettagli=f"Rate limiting bypassato con successo tramite spoofing degli IP client nei seguenti header: {', '.join(successful_bypass_headers)}.",
+                    category=VulnerabilityCategory.AUTHENTICATION
                 )
             
             return RisultatoTest(
-                test_id="T18",
+                test_id="T20",
                 nome="Bypass Rate Limiting via Spoofing Header IP",
                 stato="PASS",
                 severita="INFO",
-                dettagli="Il rate limiting è attivo e non è stato possibile bypassarlo tramite header spoofing (X-Forwarded-For, X-Real-IP, CF-Connecting-IP)."
+                dettagli="Il rate limiting è attivo e non è stato possibile bypassarlo tramite header spoofing (X-Forwarded-For, X-Real-IP, CF-Connecting-IP).",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
             
         except Exception as e:
             return RisultatoTest(
-                test_id="T18",
+                test_id="T20",
                 nome="Bypass Rate Limiting via Spoofing Header IP",
                 stato="FAIL",
                 severita="HIGH",
-                dettagli=f"Eccezione durante il test: {e}"
+                dettagli=f"Eccezione durante il test: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
 
-    # --- T19 - MFA Testing (Bypass / OTP debole) ---
-    async def _test_t19_mfa_testing(self) -> RisultatoTest:
+    # --- T21 - MFA Testing (Bypass e OTP Debole) ---
+    async def _test_t21_mfa_testing(self) -> RisultatoTest:
         is_prod = (self.target_environment == "production")
         client = self._get_client()
         target_mfa = self.endpoint_mfa or "/api/v1/auth/mfa"
@@ -1594,11 +1979,12 @@ class DynamicTester:
         
         if not self.endpoint_mfa and not has_mfa_indicator:
             return RisultatoTest(
-                test_id="T19",
+                test_id="T21",
                 nome="MFA Testing (Bypass e OTP Debole)",
                 stato="INCONCLUSIVE",
                 dettagli="Nessun endpoint o meccanismo MFA (Multi-Factor Authentication) rilevato nell'applicazione.",
-                severita="INFO"
+                severita="INFO",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
             
         try:
@@ -1607,21 +1993,22 @@ class DynamicTester:
             
             if res_empty.status_code in (200, 201):
                 return RisultatoTest(
-                    test_id="T19",
+                    test_id="T21",
                     nome="MFA Testing (Bypass e OTP Debole)",
                     stato="FAIL",
                     severita="CRITICAL",
                     dettagli="Bypass logico MFA rilevato: l'applicazione accetta richieste di verifica MFA con codice vuoto o mancante.",
-                    raccomandazione="Assicurarsi che l'endpoint di verifica MFA validi rigorosamente la presenza e correttezza del codice monouso (OTP)."
+                    category=VulnerabilityCategory.AUTHENTICATION
                 )
                 
             if is_prod and not self.allow_destructive_tests:
                 return RisultatoTest(
-                    test_id="T19",
+                    test_id="T21",
                     nome="MFA Testing (Bypass e OTP Debole)",
                     stato="PASS",
                     severita="INFO",
-                    dettagli="Meccanismo MFA rilevato. Eseguito solo test logico (passato). Il brute-force di OTP è stato saltato in produzione come da guardrail."
+                    dettagli="Meccanismo MFA rilevato. Eseguito solo test logico (passato). Il brute-force di OTP è stato saltato in produzione come da guardrail.",
+                    category=VulnerabilityCategory.AUTHENTICATION
                 )
             
             triggered_limit = False
@@ -1633,33 +2020,35 @@ class DynamicTester:
                     
             if triggered_limit:
                 return RisultatoTest(
-                    test_id="T19",
+                    test_id="T21",
                     nome="MFA Testing (Bypass e OTP Debole)",
                     stato="PASS",
                     severita="INFO",
-                    dettagli="Il brute-force di OTP è stato correttamente bloccato o limitato dal server (status 429)."
+                    dettagli="Il brute-force di OTP è stato correttamente bloccato o limitato dal server (status 429).",
+                    category=VulnerabilityCategory.AUTHENTICATION
                 )
             else:
                 return RisultatoTest(
-                    test_id="T19",
+                    test_id="T21",
                     nome="MFA Testing (Bypass e OTP Debole)",
                     stato="FAIL",
                     severita="HIGH",
                     dettagli="Nessun rate limiting rilevato sull'endpoint MFA: inviati 10 codici OTP errati consecutivi senza ricevere blocchi o limitazioni (status 429).",
-                    raccomandazione="Implementare il rate limiting o il blocco dell'account dopo un numero ridotto di tentativi falliti di inserimento dell'OTP (es. max 3 o 5 tentativi)."
+                    category=VulnerabilityCategory.AUTHENTICATION
                 )
                 
         except Exception as e:
             return RisultatoTest(
-                test_id="T19",
+                test_id="T21",
                 nome="MFA Testing (Bypass e OTP Debole)",
                 stato="FAIL",
                 severita="HIGH",
-                dettagli=f"Eccezione durante il test MFA: {e}"
+                dettagli=f"Eccezione durante il test MFA: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
 
-    # --- T20 - SAML/SSO Security Checks ---
-    async def _test_t20_saml_security(self) -> RisultatoTest:
+    # --- T22 - SAML/SSO Security Checks ---
+    async def _test_t22_saml_security(self) -> RisultatoTest:
         client = self._get_client()
         is_saml_detected = False
         if self.auth_intel and getattr(self.auth_intel, "saml_detected", False):
@@ -1671,11 +2060,12 @@ class DynamicTester:
             
         if not is_saml_detected:
             return RisultatoTest(
-                test_id="T20",
+                test_id="T22",
                 nome="SAML/SSO Security Checks",
                 stato="INCONCLUSIVE",
                 dettagli="L'uso di SAML non è rilevato per questa applicazione. Test saltato.",
-                severita="INFO"
+                severita="INFO",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
             
         try:
@@ -1739,30 +2129,84 @@ class DynamicTester:
                 
             if issues:
                 return RisultatoTest(
-                    test_id="T20",
+                    test_id="T22",
                     nome="SAML/SSO Security Checks",
                     stato="FAIL",
                     severita="HIGH",
                     dettagli=f"Rilevate vulnerabilità SAML: {', '.join(issues)}",
-                    raccomandazione="Configurare il validatore SAML per disabilitare la risoluzione di entità esterne (XXE) e garantire che la firma copra l'intero documento e tutte le asserzioni elaborate (prevenzione XSW)."
+                    category=VulnerabilityCategory.AUTHENTICATION
                 )
                 
             return RisultatoTest(
-                test_id="T20",
+                test_id="T22",
                 nome="SAML/SSO Security Checks",
                 stato="PASS",
                 severita="INFO",
-                dettagli="L'applicazione valida correttamente le asserzioni SAML, bloccando attacchi XSW e XXE."
+                dettagli="L'applicazione valida correttamente le asserzioni SAML, bloccando attacchi XSW e XXE.",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
             
         except Exception as e:
             return RisultatoTest(
-                test_id="T20",
+                test_id="T22",
                 nome="SAML/SSO Security Checks",
                 stato="FAIL",
                 severita="HIGH",
-                dettagli=f"Eccezione durante i controlli SAML: {e}"
+                dettagli=f"Eccezione durante i controlli SAML: {e}",
+                category=VulnerabilityCategory.AUTHENTICATION
             )
+
+    def _calculate_resilience_score(self, results: List[RisultatoTest]) -> Dict[str, Any]:
+        score = 100
+        
+        deductions = {
+            "T01": 15,  # JWT manipulation
+            "T02": 10,  # Expired token
+            "T03": 10,  # Brute force / Rate limiting
+            "T05": 10,  # Logout token reuse
+            "T06": 10,  # Session fixation
+            "T07": 10,  # Key confusion
+            "T08": 10,  # Privilege escalation
+            "T09": 10,  # Cookie flags
+            "T12": 10,  # Refresh Token Reuse
+            "T13": 10,  # Refresh Token Rotation Validation
+            "T14": 5,   # Infinite Lifetime Refresh Token
+            "T15": 5,   # Parallel Refresh Abuse
+            "T17": 10,  # JWKS Validation
+            "T20": 5,   # Bypass Rate Limiting
+            "T21": 10   # MFA Testing
+        }
+        
+        for res in results:
+            if res.stato == "FAIL" and res.test_id in deductions:
+                score -= deductions[res.test_id]
+                
+        if self.auth_intel and not self.auth_intel.mfa_detected:
+            score -= 10
+            
+        score = max(0, min(100, score))
+        
+        if score >= 90:
+            grade = "A"
+            risk = "Low"
+        elif score >= 80:
+            grade = "B"
+            risk = "Medium"
+        elif score >= 70:
+            grade = "C"
+            risk = "Medium"
+        elif score >= 60:
+            grade = "D"
+            risk = "High"
+        else:
+            grade = "F"
+            risk = "Critical"
+            
+        return {
+            "score": score,
+            "grade": grade,
+            "risk": risk
+        }
 
     async def run_all(self, stack: StackInfo, vulnerabilities: List[Vulnerabilita]) -> List[RisultatoTest]:
         """Runs all checks in sequence."""
@@ -1787,20 +2231,48 @@ class DynamicTester:
             self._test_t09_cookie_security_flags,
             self._test_t10_sensitive_info_disclosure,
             self._test_t11_user_enumeration,
-            self._test_t12_token_refresh,
-            self._test_t13_weak_password_reset,
-            self._test_t14_jwks_validation,
-            self._test_t15_oauth2_oidc_security,
-            self._test_t16_refresh_token_rotation,
-            self._test_t17_non_jwt_credentials,
-            self._test_t18_rate_limiting_bypass,
-            self._test_t19_mfa_testing,
-            self._test_t20_saml_security
+            self._test_t12_refresh_token_reuse,
+            self._test_t13_refresh_token_rotation,
+            self._test_t14_infinite_lifetime_refresh_token,
+            self._test_t15_parallel_refresh_abuse,
+            self._test_t16_weak_password_reset,
+            self._test_t17_jwks_validation,
+            self._test_t18_oauth2_oidc_security,
+            self._test_t19_non_jwt_credentials,
+            self._test_t20_rate_limiting_bypass,
+            self._test_t21_mfa_testing,
+            self._test_t22_saml_security
         ]
+
+        TEST_CATEGORY_MAP = {
+            "T01": VulnerabilityCategory.AUTHENTICATION,
+            "T02": VulnerabilityCategory.AUTHENTICATION,
+            "T03": VulnerabilityCategory.AUTHENTICATION,
+            "T04": VulnerabilityCategory.AUTHORIZATION,
+            "T05": VulnerabilityCategory.AUTHENTICATION,
+            "T06": VulnerabilityCategory.AUTHENTICATION,
+            "T07": VulnerabilityCategory.AUTHENTICATION,
+            "T08": VulnerabilityCategory.AUTHORIZATION,
+            "T09": VulnerabilityCategory.SECURITY_MISCONFIGURATION,
+            "T10": VulnerabilityCategory.INFORMATION_DISCLOSURE,
+            "T11": VulnerabilityCategory.AUTHENTICATION,
+            "T12": VulnerabilityCategory.AUTHENTICATION,
+            "T13": VulnerabilityCategory.AUTHENTICATION,
+            "T14": VulnerabilityCategory.AUTHENTICATION,
+            "T15": VulnerabilityCategory.AUTHENTICATION,
+            "T16": VulnerabilityCategory.AUTHENTICATION,
+            "T17": VulnerabilityCategory.AUTHENTICATION,
+            "T18": VulnerabilityCategory.AUTHENTICATION,
+            "T19": VulnerabilityCategory.AUTHENTICATION,
+            "T20": VulnerabilityCategory.AUTHENTICATION,
+            "T21": VulnerabilityCategory.AUTHENTICATION,
+            "T22": VulnerabilityCategory.AUTHENTICATION
+        }
 
         for method in test_methods:
             try:
                 test_res = await method()
+                test_res.category = TEST_CATEGORY_MAP.get(test_res.test_id, VulnerabilityCategory.AUTHENTICATION)
                 results.append(test_res)
             except Exception as e:
                 test_id = method.__name__.split("_test_")[-1].split("_")[0].upper()
@@ -1810,8 +2282,13 @@ class DynamicTester:
                     nome=test_name,
                     stato="FAIL",
                     severita="HIGH",
-                    dettagli=f"Eccezione imprevista durante l'esecuzione: {e}"
+                    dettagli=f"Eccezione imprevista durante l'esecuzione: {e}",
+                    category=TEST_CATEGORY_MAP.get(test_id, VulnerabilityCategory.AUTHENTICATION)
                 ))
+
+        resilience_score = self._calculate_resilience_score(results)
+        if self.auth_intel:
+            self.auth_intel.authentication_score = resilience_score
 
         return results
 
