@@ -1,0 +1,152 @@
+rules:
+  # SS-001 / SS-002 — Python: URL da input utente passato a requests/urllib
+  # Fonte: semgrep registry python.lang.security.audit.ssrf
+  - id: ssrf-python-requests-url-from-input
+    patterns:
+      - pattern: requests.$METHOD($URL, ...)
+      - pattern-either:
+          - pattern-inside: |
+              $URL = request.args.get(...)
+              ...
+          - pattern-inside: |
+              $URL = request.json.get(...)
+              ...
+          - pattern-inside: |
+              $URL = request.form.get(...)
+              ...
+          - pattern-inside: |
+              $URL = request.headers.get(...)
+              ...
+      - pattern-not-inside: |
+          if $VALIDATE($URL):
+              ...
+      - pattern-not-inside: |
+          if not $VALIDATE($URL):
+              ...
+          ...
+          requests.$METHOD($URL, ...)
+    message: "SSRF: URL da input utente passato a requests.$METHOD senza validazione"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      rule_id_internal: "SS-001"
+      cwe: "CWE-918"
+      category: "direct_url_from_input"
+
+  - id: ssrf-python-urllib-url-from-input
+    patterns:
+      - pattern-either:
+          - pattern: urllib.request.urlopen($URL, ...)
+          - pattern: urllib.request.urlretrieve($URL, ...)
+      - pattern-either:
+          - pattern-inside: |
+              $URL = request.args.get(...)
+              ...
+          - pattern-inside: |
+              $URL = request.json.get(...)
+              ...
+      - pattern-not-inside: |
+          if $VALIDATE($URL):
+              ...
+      - pattern-not-inside: |
+          if not $VALIDATE($URL):
+              ...
+          ...
+          urllib.request.urlopen($URL, ...)
+      - pattern-not-inside: |
+          if not $VALIDATE($URL):
+              ...
+          ...
+          urllib.request.urlretrieve($URL, ...)
+    message: "SSRF: URL da input utente passato a urllib senza validazione"
+    languages: [python]
+    severity: ERROR
+    metadata:
+      rule_id_internal: "SS-002"
+      cwe: "CWE-918"
+      category: "direct_url_from_input"
+
+  # SS-003 — JavaScript/TypeScript: URL da input utente in fetch/axios
+  - id: ssrf-js-fetch-url-from-input
+    patterns:
+      - pattern-either:
+          - pattern: fetch($URL, ...)
+          - pattern: axios.get($URL, ...)
+          - pattern: axios.post($URL, ...)
+          - pattern: axios.$METHOD($URL, ...)
+      - pattern-either:
+          - pattern-inside: |
+              const $URL = req.query.$PARAM
+              ...
+          - pattern-inside: |
+              const $URL = req.body.$PARAM
+              ...
+          - pattern-inside: |
+              let $URL = req.query.$PARAM
+              ...
+      - pattern-not-inside: |
+          if ($VALIDATE($URL)) {
+              ...
+          }
+      - pattern-not-inside: |
+          if (!$VALIDATE($URL)) {
+              ...
+          }
+    message: "SSRF: URL da input utente passato a fetch/axios senza validazione"
+    languages: [javascript, typescript]
+    severity: ERROR
+    metadata:
+      rule_id_internal: "SS-003"
+      cwe: "CWE-918"
+      category: "direct_url_from_input"
+
+  # SS-004 — Python: requests con allow_redirects=True e URL da input
+  - id: ssrf-python-requests-redirect-following
+    patterns:
+      - pattern: requests.$METHOD($URL, ..., allow_redirects=True, ...)
+      - pattern-either:
+          - pattern-inside: |
+              $URL = request.args.get(...)
+              ...
+          - pattern-inside: |
+              $URL = request.json.get(...)
+              ...
+      - pattern-not-inside: |
+          if $VALIDATE($URL):
+              ...
+      - pattern-not-inside: |
+          if not $VALIDATE($URL):
+              ...
+          ...
+          requests.$METHOD($URL, ...)
+    message: |
+      SSRF con redirect following: allow_redirects=True permette bypass
+      di allowlist via redirect da host autorizzato a host interno
+    languages: [python]
+    severity: WARNING
+    metadata:
+      rule_id_internal: "SS-004"
+      cwe: "CWE-918"
+      category: "redirect_following"
+
+  # SS-005 — Cloud metadata endpoint hardcoded o raggiungibile
+  - id: ssrf-cloud-metadata-endpoint
+    patterns:
+      - pattern-either:
+          - pattern: requests.$METHOD($URL, ...)
+          - pattern: urllib.request.urlopen($URL, ...)
+          - pattern: urllib.request.urlretrieve($URL, ...)
+          - pattern: fetch($URL, ...)
+          - pattern: axios.$METHOD($URL, ...)
+      - metavariable-regex:
+          metavariable: $URL
+          regex: ".*(169\\.254\\.169\\.254|metadata\\.google\\.internal|100\\.100\\.100\\.200).*"
+    message: |
+      SSRF critico: chiamata HTTP diretta a cloud metadata endpoint.
+      Permette credential theft tramite instance metadata service.
+    languages: [python, javascript, typescript]
+    severity: ERROR
+    metadata:
+      rule_id_internal: "SS-005"
+      cwe: "CWE-918"
+      category: "cloud_metadata_access"

@@ -237,6 +237,43 @@ def _analyze_javascript(root: Node, file_path: str) -> list[ResourceConsumptionF
     return findings
 
 
+CLIENT_SIDE_INDICATORS = {
+    # Redux Saga — generator functions con yield
+    "function*",
+    "yield call(",
+    "yield put(",
+    "takeEvery(",
+    "takeLatest(",
+    "createSlice(",
+    # React hooks — impossibili in un backend handler
+    "useState(",
+    "useEffect(",
+    "useSelector(",
+    "useDispatch(",
+    # Import React esplicito
+    "from 'react'",
+    'from "react"',
+    "import React",
+    "require('react')",
+    # Service Worker — codice browser, non server
+    "self.addEventListener(",
+    "self.skipWaiting(",
+    "self.clients.claim(",
+    "caches.open(",
+    "ServiceWorkerGlobalScope",
+    '"Service-Worker"',
+    "'Service-Worker'",
+}
+
+
+def is_client_side_file(content: str) -> bool:
+    """
+    Ritorna True se il file contiene pattern inequivocabili di codice client-side.
+    In questo caso RC-003 non si applica.
+    """
+    return any(indicator in content for indicator in CLIENT_SIDE_INDICATORS)
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -249,8 +286,14 @@ class TimeoutRule:
 
     @staticmethod
     def analyze_python(root: Node, file_path: str) -> list[ResourceConsumptionFinding]:
+        content = _node_text(root)
+        if is_client_side_file(content):
+            return []
         return _analyze_python(root, file_path)
 
     @staticmethod
     def analyze_javascript(root: Node, file_path: str) -> list[ResourceConsumptionFinding]:
+        content = _node_text(root)
+        if is_client_side_file(content):
+            return []
         return _analyze_javascript(root, file_path)

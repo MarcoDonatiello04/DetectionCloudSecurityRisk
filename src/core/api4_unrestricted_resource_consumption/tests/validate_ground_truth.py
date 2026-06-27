@@ -32,8 +32,6 @@ from src.core.api4_unrestricted_resource_consumption import detector  # noqa: E4
 
 FIXTURES_DIR = Path(__file__).resolve().parent.parent / "fixtures"
 
-# RC-004 is intentionally absent from vulnerable_app: the fixture uses
-# FastAPI/Flask (no GraphQL), so absence is "not applicable" not FN.
 # RC-006 is tracked as a known false-negative due to a tree-sitter 0.25
 # API issue (redis substring match) — documented in the skip reason.
 GROUND_TRUTH: dict[str, dict[str, Any]] = {
@@ -42,7 +40,7 @@ GROUND_TRUTH: dict[str, dict[str, Any]] = {
             {"rule_id": "RC-001", "must_find": True,  "note": "Unbounded pagination param"},
             {"rule_id": "RC-002", "must_find": True,  "note": "Upload without size check"},
             {"rule_id": "RC-003", "must_find": True,  "note": "HTTP call without timeout"},
-            {"rule_id": "RC-004", "must_find": False, "note": "No GraphQL in fixture — N/A"},
+            {"rule_id": "RC-004", "must_find": True,  "note": "GraphQL schema without limiter"},
             {"rule_id": "RC-005", "must_find": True,  "note": "For-loop on user input"},
             {"rule_id": "RC-006", "must_find": True,  "note": "Twilio client call without throttle"},
             {"rule_id": "RC-007", "must_find": True,  "note": "docker-compose: no memory limits"},

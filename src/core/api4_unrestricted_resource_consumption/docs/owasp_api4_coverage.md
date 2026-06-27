@@ -20,7 +20,7 @@
 | RC-001 | CWE-400 | Unbounded pagination | AST | ✅ | ✅ | ✅ | **YES** |
 | RC-002 | CWE-770 | Missing upload size limit | AST | ✅ | ✅ | ✅ | **YES** |
 | RC-003 | CWE-400 | Missing HTTP timeout | AST | ✅ | ✅ | ✅ | **YES** |
-| RC-004 | CWE-799 | GraphQL batching unlimited | AST | ✅ | N/A¹ | ✅ | **N/A** |
+| RC-004 | CWE-799 | GraphQL batching unlimited | AST | ✅ | ✅ | ✅ | **YES** |
 | RC-005 | CWE-400 | Loop on user input | AST | ✅ | ✅ | ✅ | **YES** |
 | RC-006 | CWE-799 | Third-party without throttle | AST | ✅ | ✅ | ✅ | **YES** |
 | RC-007 | CWE-770 | Config: no memory limit | Config | ✅ | ✅ | ✅ | **YES** |
@@ -45,7 +45,7 @@
 | **1. Unbounded Pagination & Loops** | CWE-400 | 25% | Implementata | YES (RC-001, RC-005, RC-010) | **25.0%** |
 | **2. Size Limits & Upload Restrictions** | CWE-770 | 25% | Implementata | YES (RC-002, RC-008, RC-011) | **25.0%** |
 | **3. HTTP & Connection Timeouts** | CWE-400 | 20% | Implementata | YES (RC-003, RC-009) | **20.0%** |
-| **4. Throttling & GraphQL Limits** | CWE-799 | 20% | Implementata | YES (RC-006, RC-012; RC-004 N/A) | **20.0%** |
+| **4. Throttling & GraphQL Limits** | CWE-799 | 20% | Implementata | YES (RC-004, RC-006, RC-012) | **20.0%** |
 | **5. Config Resource Limits** | CWE-770 | 10% | Implementata | YES (RC-007) | **10.0%** |
 | **Totale** | | **100%** | | | **100.0%** |
 
@@ -53,12 +53,9 @@
 
 ## Gap noti e accettabili
 
-### RC-004 — GraphQL Batching (N/A su fixture)
-**Causa**: Le fixture `vulnerable_app` e `secure_app` usano FastAPI/Flask, non GraphQL.
-I test unitari inline coprono `strawberry.Schema`, `graphene.Schema`, e `ApolloServer` (JS).
+### RC-004 — GraphQL Batching (Verificato su fixture)
+**Stato**: Completamente implementato e verificato empiricamente con le fixture `graphql_app.py` in `vulnerable_app` e `secure_app`.
 
-**Accettabilità**: Il prompt 05 documenta esplicitamente RC-004 come "non applicabile se il
-codebase non usa GraphQL". Nessun FN.
 
 ### JS rule coverage (axios/ApolloServer)
 **Causa**: 3 test skippati relativi a JS (`member_expression` usa `property_identifier` non
@@ -73,6 +70,7 @@ codebase non usa GraphQL". Nessun FN.
 | Data | Target | TP | TN | FP | FN | TPR | FPR | Note |
 |------|--------|:--:|:--:|:--:|:--:|----:|----:|------|
 | 2026-06-26 | vulnerable_app + secure_app | 8 | 1 | 0 | 0 | **100%** | **0%** | RC-006 risolto tramite gating SDK e tracciamento delle call |
+| 2026-06-26 | vulnerable_app + secure_app (GraphQL update) | 9 | 1 | 0 | 0 | **100%** | **0%** | RC-003 FP su userSaga.ts risolto; RC-004 verificato con fixture GraphQL |
 
 ---
 
