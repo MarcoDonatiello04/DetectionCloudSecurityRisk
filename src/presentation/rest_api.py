@@ -29,6 +29,20 @@ def serve_dashboard() -> HTMLResponse:
     return HTMLResponse(content=html_content)
 
 
+@app.get("/results", response_class=HTMLResponse, tags=["UI"])
+def serve_results() -> HTMLResponse:
+    """
+    Ritorna la pagina dei risultati in stile glassmorphism per Checkov.
+    """
+    template_path = "src/presentation/templates/results.html"
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+    else:
+        html_content = "<h1>Results Template Not Found</h1>"
+    return HTMLResponse(content=html_content)
+
+
 
 # Dependency Injection per gli scanner
 def get_static_scanners() -> List[Any]:

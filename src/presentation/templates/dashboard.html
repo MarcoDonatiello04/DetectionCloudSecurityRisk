@@ -841,15 +841,6 @@
                     </svg>
                     <span>Run Security Scan</span>
                 </button>
-                
-                <div class="scan-operator">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Scansione Operatore">
-                    <span>Agent: Active</span>
-                </div>
-            </div>
-
-            <div class="console-output" id="console-log">
-                [info] Starting static code scan...
             </div>
         </section>
 
@@ -966,23 +957,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Dynamic Scan Results Table (hidden by default) -->
-        <section class="results-panel" id="results-area">
-            <div class="results-header">
-                <h3 class="results-title">Scansione Completata — Risultati Correlati</h3>
-                <div class="severity-badges">
-                    <span class="badge badge-critical" id="badge-crit-val">0 Critical</span>
-                    <span class="badge badge-high" id="badge-high-val">0 High</span>
-                    <span class="badge badge-medium" id="badge-med-val">0 Medium</span>
-                    <span class="badge badge-low" id="badge-low-val">0 Low</span>
-                </div>
-            </div>
-            
-            <div class="findings-list" id="findings-container">
-                <!-- Aggiunti dinamicamente via JS -->
-            </div>
-        </section>
     </main>
 
     <footer>
@@ -1033,128 +1007,9 @@
 
         let allFindings = [];
 
-        btnScan.addEventListener('click', async () => {
-            btnScan.disabled = true;
-            btnScan.querySelector('span').textContent = 'Scanning...';
-            consoleLog.style.display = 'block';
-            consoleLog.innerHTML = '[info] Inicializing security pipeline engines...';
-            
-            // Console visual progression
-            const logs = [
-                '[info] Activating Checkov Scanner for Infrastructure checks...',
-                '[info] Triggering Semgrep Static Application Security Analysis...',
-                '[info] Querying keycloak identities for Auth context...',
-                '[info] Performing risk correlation and calculation engine...',
-                '[info] Mapping attack path vectors...'
-            ];
-            
-            let i = 0;
-            const logInterval = setInterval(() => {
-                if (i < logs.length) {
-                    consoleLog.innerHTML += `<br>${logs[i]}`;
-                    i++;
-                } else {
-                    clearInterval(logInterval);
-                }
-            }, 600);
-
-            try {
-                // Esecuzione reale della chiamata all'API /scan
-                const response = await fetch('/scan', { method: 'POST' });
-                const data = await response.json();
-                
-                clearInterval(logInterval);
-                consoleLog.innerHTML += '<br>[success] Scan completed successfully!';
-                
-                // Mappatura e conteggio gravità
-                allFindings = data;
-                renderFindings(data);
-                
-            } catch (err) {
-                console.error(err);
-                clearInterval(logInterval);
-                consoleLog.innerHTML += '<br>[warning] Failed to contact local backend. Using offline demo data...';
-                
-                // Fallback Mock Data se il backend non risponde
-                setTimeout(() => {
-                    const mockFindings = [
-                        {
-                            id: "SEC-01",
-                            title: "Hardcoded keycloak credentials in IaC configuration",
-                            severity: "CRITICAL",
-                            source: "CHECKOV",
-                            location: { file: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", line: 12 }
-                        },
-                        {
-                            id: "SEC-02",
-                            title: "BOLA - Unrestricted user ID modifications on /users/{id}",
-                            severity: "HIGH",
-                            source: "ZAP",
-                            location: { file: "src/core/object_level_authorization/assertion_engine.py", line: 42 }
-                        },
-                        {
-                            id: "SEC-03",
-                            title: "Debug mode enabled inside local uvicorn runner profile",
-                            severity: "MEDIUM",
-                            source: "SEMGREP",
-                            location: { file: "fixtures/api_vulnerabilities/bola/app.py", line: 110 }
-                        },
-                        {
-                            id: "SEC-04",
-                            title: "Missing Content-Security-Policy custom headers",
-                            severity: "LOW",
-                            source: "SEMGREP",
-                            location: { file: "fixtures/api_vulnerabilities/generic_vulnerabilities/app.py", line: 32 }
-                        }
-                    ];
-                    allFindings = mockFindings;
-                    renderFindings(mockFindings);
-                }, 1000);
-            }
+        btnScan.addEventListener('click', () => {
+            window.location.href = '/results';
         });
-
-        function renderFindings(findings) {
-            btnScan.disabled = false;
-            btnScan.querySelector('span').textContent = 'Run Security Scan';
-            resultsArea.style.display = 'block';
-            findingsContainer.innerHTML = '';
-            
-            let crit = 0, high = 0, med = 0, low = 0;
-            
-            findings.forEach(f => {
-                const sev = (f.severity || 'medium').toUpperCase();
-                let badgeClass = 'badge-medium';
-                if (sev === 'CRITICAL') { badgeClass = 'badge-critical'; crit++; }
-                else if (sev === 'HIGH') { badgeClass = 'badge-high'; high++; }
-                else if (sev === 'MEDIUM') { badgeClass = 'badge-medium'; med++; }
-                else { badgeClass = 'badge-low'; low++; }
-                
-                const file = f.location && f.location.file ? f.location.file : 'unknown';
-                const line = f.location && f.location.line ? `L${f.location.line}` : '';
-                
-                const item = document.createElement('div');
-                item.className = 'finding-item';
-                item.innerHTML = `
-                    <div class="finding-meta">
-                        <span class="finding-title">${f.title}</span>
-                        <span class="finding-path">${file} ${line}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span class="finding-source">${f.source || 'SCAN'}</span>
-                        <span class="badge ${badgeClass}">${sev}</span>
-                    </div>
-                `;
-                findingsContainer.appendChild(item);
-            });
-            
-            document.getElementById('badge-crit-val').textContent = `${crit} Critical`;
-            document.getElementById('badge-high-val').textContent = `${high} High`;
-            document.getElementById('badge-med-val').textContent = `${med} Medium`;
-            document.getElementById('badge-low-val').textContent = `${low} Low`;
-            
-            // Auto scroll a risultati
-            resultsArea.scrollIntoView({ behavior: 'smooth' });
-        }
 
         // Live Search Input filter
         const searchInput = document.getElementById('search-vulnerabilities');

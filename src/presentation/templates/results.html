@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkov Scan Report - Security Control Center</title>
+    <meta name="description" content="Report dettagliato della scansione IaC generato da Checkov per l'analisi delle misconfiguration cloud.">
+    <!-- Google Fonts: Inter per testo e Outfit per titoli -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Tema Scuro (Default) */
+            --bg-color: #060609;
+            --card-bg: rgba(12, 12, 20, 0.45);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --card-border-hover: rgba(120, 80, 255, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #8c8ca3;
+            --accent-purple: #7042ff;
+            --accent-blue: #00d2ff;
+            --accent-glow: rgba(112, 66, 255, 0.25);
+            --btn-bg: linear-gradient(135deg, #6236ff 0%, #9036ff 100%);
+            --btn-shadow: rgba(112, 66, 255, 0.4);
+            --dot-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-theme="light"] {
+            /* Tema Chiaro */
+            --bg-color: #f5f6fa;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(0, 0, 0, 0.06);
+            --card-border-hover: rgba(98, 54, 255, 0.3);
+            --text-primary: #0f0f14;
+            --text-secondary: #65657b;
+            --accent-purple: #6236ff;
+            --accent-blue: #00a3ff;
+            --accent-glow: rgba(98, 54, 255, 0.12);
+            --btn-bg: linear-gradient(135deg, #6236ff 0%, #481ae6 100%);
+            --btn-shadow: rgba(98, 54, 255, 0.25);
+            --dot-color: rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(var(--dot-color) 1px, transparent 1px),
+                radial-gradient(var(--dot-color) 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            padding: 40px 20px;
+        }
+
+        /* Ambient Glows */
+        .glow-bg {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(80px);
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        .glow-top-left { top: -200px; left: -200px; }
+        .glow-bottom-right { bottom: -200px; right: -200px; }
+
+        header {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--btn-bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px var(--btn-shadow);
+        }
+
+        .brand-logo svg {
+            width: 22px;
+            height: 22px;
+            fill: #ffffff;
+        }
+
+        .brand-info h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--text-primary) 30%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-toggle-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(12px);
+        }
+
+        main {
+            width: 100%;
+            max-width: 900px;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            padding: 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-title svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Glassmorphic Loader */
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+            gap: 20px;
+        }
+
+        .scan-radar {
+            width: 100px;
+            height: 100px;
+            border: 2px dashed var(--accent-purple);
+            border-radius: 50%;
+            animation: rotate-radar 10s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        @keyframes rotate-radar {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .radar-pulse {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border: 1px solid rgba(112, 66, 255, 0.2);
+            border-radius: 50%;
+            animation: pulse-radar 2.5s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+        }
+
+        @keyframes pulse-radar {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+
+        .console-output {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 14px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #00d2ff;
+            text-align: left;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        /* Results Elements */
+        .results-view {
+            display: none;
+        }
+
+        .severity-summary {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-critical { background: rgba(255, 59, 48, 0.15); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3); }
+        .badge-high { background: rgba(255, 149, 0, 0.15); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.3); }
+        .badge-medium { background: rgba(255, 204, 0, 0.15); color: #ffcc00; border: 1px solid rgba(255, 204, 0, 0.3); }
+        .badge-low { background: rgba(0, 122, 255, 0.15); color: #007aff; border: 1px solid rgba(0, 122, 255, 0.3); }
+
+        .findings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 30px;
+            padding-right: 8px;
+        }
+
+        .finding-item {
+            background: rgba(255,255,255,0.01);
+            border: 1px solid rgba(255,255,255,0.04);
+            padding: 20px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .finding-item:hover {
+            background: rgba(255,255,255,0.03);
+            border-color: rgba(255,255,255,0.08);
+        }
+
+        .finding-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 75%;
+        }
+
+        .finding-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .finding-path {
+            font-family: monospace;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-bg glow-top-left"></div>
+    <div class="glow-bg glow-bottom-right"></div>
+
+    <header>
+        <div class="brand">
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                </svg>
+            </div>
+            <div class="brand-info">
+                <h1>Cloud Risk Assessment Platform</h1>
+            </div>
+        </div>
+        
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Cambia tema chiaro/scuro">
+            <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <span id="theme-text">Tema Chiaro</span>
+        </button>
+    </header>
+
+    <main>
+        <div class="card">
+            <!-- Header della Card -->
+            <div class="card-header">
+                <div class="card-title">
+                    <svg viewBox="0 0 100 100">
+                        <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="#FF5A09"/>
+                        <path d="M35,45 L47,57 L68,33" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Checkov IaC Scan Report</span>
+                </div>
+                <a href="/" class="back-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Torna Indietro
+                </a>
+            </div>
+
+            <!-- Loader durante la scansione -->
+            <div class="loader-container" id="loader-area">
+                <div class="scan-radar">
+                    <div class="radar-pulse"></div>
+                </div>
+                <p style="font-weight: 500;">Scansione infrastruttura con Checkov in corso...</p>
+                <div class="console-output" id="console-log">
+                    [info] Avvio scanner Checkov...
+                </div>
+            </div>
+
+            <!-- Visualizzazione dei risultati della scansione -->
+            <div class="results-view" id="results-area">
+                <div class="severity-summary">
+                    <span class="badge badge-critical" id="badge-crit">0 Critical</span>
+                    <span class="badge badge-high" id="badge-high">0 High</span>
+                    <span class="badge badge-medium" id="badge-med">0 Medium</span>
+                    <span class="badge badge-low" id="badge-low">0 Low</span>
+                </div>
+
+                <div class="findings-list" id="findings-container">
+                    <!-- I findings di Checkov verranno mostrati qui -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Cloud Risk Assessment Platform | Scansione IaC Checkov</p>
+    </footer>
+
+    <script>
+        // Tema Chiaro / Scuro Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeText = document.getElementById('theme-text');
+        const themeIcon = document.getElementById('theme-icon');
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.documentElement.removeAttribute('data-theme');
+                themeText.textContent = 'Tema Chiaro';
+                themeIcon.innerHTML = `
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                `;
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeText.textContent = 'Tema Scuro';
+                themeIcon.innerHTML = `
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                `;
+            }
+        });
+
+        // Trigger automatico della scansione all'apertura
+        window.addEventListener('DOMContentLoaded', async () => {
+            const consoleLog = document.getElementById('console-log');
+            const loaderArea = document.getElementById('loader-area');
+            const resultsArea = document.getElementById('results-area');
+            const findingsContainer = document.getElementById('findings-container');
+
+            const steps = [
+                '[info] Caricamento configurazioni da .checkov.yaml...',
+                '[info] Esecuzione scansione statica della cartella fixtures/infrastructure_misconfiguration...',
+                '[info] Parsing dei risultati grezzi di Checkov...'
+            ];
+
+            let i = 0;
+            const logInterval = setInterval(() => {
+                if (i < steps.length) {
+                    consoleLog.innerHTML += `<br>${steps[i]}`;
+                    i++;
+                } else {
+                    clearInterval(logInterval);
+                }
+            }, 600);
+
+            try {
+                const response = await fetch('/scan', { method: 'POST' });
+                const data = await response.json();
+                
+                clearInterval(logInterval);
+                
+                // Filtriamo ESCLUSIVAMENTE i findings generati da Checkov
+                const checkovFindings = data.filter(f => f.source === 'CHECKOV');
+                
+                loaderArea.style.display = 'none';
+                resultsArea.style.display = 'block';
+                
+                renderCheckovReport(checkovFindings);
+
+            } catch (err) {
+                console.error(err);
+                clearInterval(logInterval);
+                consoleLog.innerHTML += '<br>[warning] Impossibile contattare il backend locale. Mostro dati di fallback...';
+                
+                // Fallback Mock Data se il backend offline
+                setTimeout(() => {
+                    const mockCheckovFindings = [
+                        {
+                            id: "CKV_AWS_20",
+                            title: "AWS S3 Bucket has publicly accessible read permissions enabled",
+                            severity: "CRITICAL",
+                            location: { file: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", line: 12 }
+                        },
+                        {
+                            id: "CKV_AWS_111",
+                            title: "IAM Policy allows full wildcard administrative privileges (*)",
+                            severity: "HIGH",
+                            location: { file: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", line: 45 }
+                        },
+                        {
+                            id: "CKV_AWS_19",
+                            title: "S3 Bucket SSE encryption is not enabled by default",
+                            severity: "MEDIUM",
+                            location: { file: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", line: 68 }
+                        },
+                        {
+                            id: "CKV_AWS_21",
+                            title: "AWS S3 Bucket logging is not enabled in configure profile",
+                            severity: "LOW",
+                            location: { file: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", line: 92 }
+                        }
+                    ];
+                    loaderArea.style.display = 'none';
+                    resultsArea.style.display = 'block';
+                    renderCheckovReport(mockCheckovFindings);
+                }, 1000);
+            }
+        });
+
+        function renderCheckovReport(findings) {
+            const findingsContainer = document.getElementById('findings-container');
+            findingsContainer.innerHTML = '';
+            
+            if (findings.length === 0) {
+                findingsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                        <p>Nessuna misconfiguration IaC rilevata da Checkov!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let crit = 0, high = 0, med = 0, low = 0;
+
+            findings.forEach(f => {
+                const sev = (f.severity || 'medium').toUpperCase();
+                let badgeClass = 'badge-medium';
+                if (sev === 'CRITICAL') { badgeClass = 'badge-critical'; crit++; }
+                else if (sev === 'HIGH') { badgeClass = 'badge-high'; high++; }
+                else if (sev === 'MEDIUM') { badgeClass = 'badge-medium'; med++; }
+                else { badgeClass = 'badge-low'; low++; }
+
+                const file = f.location && f.location.file ? f.location.file : 'unknown';
+                const line = f.location && f.location.line ? `L${f.location.line}` : '';
+
+                const item = document.createElement('div');
+                item.className = 'finding-item';
+                item.innerHTML = `
+                    <div class="finding-meta">
+                        <span class="finding-title" style="color: var(--text-primary); font-weight:600;">${f.title}</span>
+                        <span class="finding-path">${file} ${line}</span>
+                    </div>
+                    <span class="badge ${badgeClass}">${sev}</span>
+                `;
+                findingsContainer.appendChild(item);
+            });
+
+            document.getElementById('badge-crit').textContent = `${crit} Critical`;
+            document.getElementById('badge-high').textContent = `${high} High`;
+            document.getElementById('badge-med').textContent = `${med} Medium`;
+            document.getElementById('badge-low').textContent = `${low} Low`;
+        }
+    </script>
+</body>
+</html>
