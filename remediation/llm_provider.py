@@ -114,7 +114,7 @@ class LlmProvider:
         try:
             url = f"{self.base_url}/api/generate"
             logger.info(f"Invio prompt a Ollama utilizzando modello '{model}'...")
-            response = requests.post(url, json=payload, timeout=20.0)
+            response = requests.post(url, json=payload, timeout=60.0)
             
             if response.status_code == 200:
                 res_data = response.json()
