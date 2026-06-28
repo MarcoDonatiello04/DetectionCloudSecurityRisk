@@ -82,7 +82,7 @@ curl -H "Authorization: Bearer $TOKEN" http://localhost:5001/api/profile
 ## Struttura del progetto
 
 ```
-ground_truth_target/
+tests/ground_truth/
 ├── vulnerable_app/
 │   ├── app.py           # 5 vulnerabilità marchiate VULN-01…VULN-05
 │   ├── requirements.txt
