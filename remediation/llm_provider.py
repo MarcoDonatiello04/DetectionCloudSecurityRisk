@@ -77,7 +77,7 @@ class LlmProvider:
             logger.info("Ollama offline. Generazione della remediation tramite Simulatore Locale Llama 3.1...")
             return self._simulate_generation(finding_id, title, category, source, description)
 
-        # Costruisce il prompt strutturato per Ollama reale
+        # Costruisce il prompt strutturato per Ollama reale (ottimizzato per essere sintetico e veloce)
         prompt = f"""
         Sei un esperto Senior di Cybersecurity ed Cloud Security Architect.
         Genera le linee guida di remediation in italiano per la seguente vulnerabilità di sicurezza:
@@ -87,6 +87,8 @@ class LlmProvider:
         - Categoria: {category}
         - Sorgente Scanner: {source}
         - Descrizione originale: {description}
+
+        IMPORTANTE: Sii estremamente sintetico e conciso per minimizzare i tempi di generazione. Le descrizioni e l'impatto devono essere brevi (massimo 2 frasi). L'esempio di codice deve essere essenziale (massimo 10 righe).
 
         Devi restituire esclusivamente un oggetto JSON valido avente i seguenti campi:
         {{
@@ -114,7 +116,7 @@ class LlmProvider:
         try:
             url = f"{self.base_url}/api/generate"
             logger.info(f"Invio prompt a Ollama utilizzando modello '{model}'...")
-            response = requests.post(url, json=payload, timeout=60.0)
+            response = requests.post(url, json=payload, timeout=90.0)
             
             if response.status_code == 200:
                 res_data = response.json()

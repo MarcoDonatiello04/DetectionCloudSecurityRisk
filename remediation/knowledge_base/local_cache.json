@@ -262,5 +262,26 @@
       "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
     ],
     "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "CKV_OPENAPI_5": {
+    "title": "Assicurarsi che le operazioni di sicurezza non siano vuote",
+    "description": "La vulnerabilità CKV_OPENAPI_5 indica che le operazioni di sicurezza sono state configurate in modo errato. Questo può esporre l'applicazione a rischi di sicurezza e compromettere la protezione dei dati sensibili.",
+    "impact": "Se non si corregge questa vulnerabilità, un attaccante potrebbe sfruttare le operazioni di sicurezza per accedere a informazioni confidenziali o alterare i dati dell'applicazione. Ciò può portare a violazioni della privacy e perdita di credibilità dell'azienda.",
+    "remediation_steps": [
+      "Verificare la configurazione delle operazioni di sicurezza nella risorsa security e assicurarsi che siano state specificate le azioni corrette per gestire i dati sensibili. Se necessario, aggiornare la configurazione per includere le operazioni di sicurezza complete.",
+      "Testare la configurazione delle operazioni di sicurezza per garantire che funzioni come previsto e non crei nuove vulnerabilità."
+    ],
+    "example": "Esempio di codice corretto:\n\nsecurity:\n  operations:\n    - name: 'Get User Data'\n      security:\n        - oauth2:\n            scopes:\n              - read:user\n    - name: 'Update User Data'\n      security:\n        - oauth2:\n            scopes:\n              - write:user"
+  },
+  "CKV_OPENAPI_21": {
+    "title": "Misconfiguration Infrastrutturale IaC: CKV_OPENAPI_21",
+    "description": "Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola CKV_OPENAPI_21. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
+    "impact": "Accesso non autorizzato alle risorse cloud, furto di dati riservati, potenziale manomissione dell'infrastruttura di produzione.",
+    "remediation_steps": [
+      "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
+      "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
+      "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+    ],
+    "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
   }
 }
