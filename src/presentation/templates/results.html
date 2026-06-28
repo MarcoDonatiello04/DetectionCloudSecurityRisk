@@ -719,19 +719,6 @@
             }
         });
 
-        function renderCheckovReport(findings) {
-            const findingsContainer = document.getElementById('findings-container');
-            findingsContainer.innerHTML = '';
-            
-            if (findings.length === 0) {
-                findingsContainer.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-                        <p>Nessuna misconfiguration IaC rilevata da Checkov!</p>
-                    </div>
-                `;
-                return;
-            }
-
         function escapeHtml(text) {
             if (typeof text !== 'string') return '';
             return text
