@@ -322,6 +322,30 @@
             border-top: 1px solid rgba(255, 255, 255, 0.06);
         }
 
+        /* Spinner per caricamento on-demand */
+        .remediation-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            gap: 12px;
+            color: var(--text-secondary);
+        }
+
+        .remediation-spinner {
+            width: 22px;
+            height: 22px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: inline-spin 1s linear infinite;
+        }
+
+        @keyframes inline-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .remediation-section {
             margin-bottom: 20px;
         }
@@ -748,98 +772,17 @@
 
                     const item = document.createElement('div');
                     item.className = 'finding-item';
+                    item.dataset.loaded = "false";
                     
-                    // Creiamo la struttura a tendina
-                    let remediationHtml = '';
-                    if (f.remediation) {
-                        let steps = f.remediation.steps || f.remediation.remediation_steps || [];
-                        if (typeof steps === 'string') {
-                            steps = [steps];
-                        }
-                        const stepsList = Array.isArray(steps)
-                            ? steps.map(step => `<li>${step}</li>`).join('')
-                            : `<li>${steps}</li>`;
-                        
-                        let exampleStr = '';
-                        if (f.remediation.example) {
-                            if (typeof f.remediation.example === 'object') {
-                                if (f.remediation.example.codice) {
-                                    exampleStr = Array.isArray(f.remediation.example.codice)
-                                        ? f.remediation.example.codice.join('\n')
-                                        : f.remediation.example.codice;
-                                } else {
-                                    exampleStr = JSON.stringify(f.remediation.example, null, 2);
-                                }
-                            } else {
-                                exampleStr = f.remediation.example;
-                            }
-                        }
-
-                        const codeExample = exampleStr 
-                            ? `<pre class="remediation-code"><code>${escapeHtml(exampleStr)}</code></pre>` 
-                            : '<p class="remediation-text" style="font-style: italic;">Nessun esempio di codice disponibile.</p>';
-                        
-                        let sourceLabel = '';
-                        let warningHtml = '';
-                        if (f.remediation.source === 'offline_simulator') {
-                            sourceLabel = 'Simulatore Locale Llama 3.1';
-                            warningHtml = `
-                                <div class="remediation-warning-banner" style="background: rgba(255, 149, 0, 0.1); border: 1px solid rgba(255, 149, 0, 0.3); color: #ff9500; padding: 10px 14px; border-radius: 8px; font-size: 0.78rem; margin-top: 5px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                                    <span><strong>Avviso:</strong> Il server Ollama locale è offline o non risponde. È stato attivato il simulatore locale Llama 3.1 ad alta fedeltà.</span>
-                                </div>
-                            `;
-                        } else if (f.remediation.source === 'llm') {
-                            sourceLabel = `Generato da Ollama AI (Confidenza: ${Math.round((f.remediation.confidence || 0.8) * 100)}%)`;
-                        } else {
-                            sourceLabel = `Knowledge Base Locale (${f.remediation.source})`;
-                        }
-
-                        remediationHtml = `
-                            <div class="finding-details">
-                                ${warningHtml}
-                                <div class="remediation-section">
-                                    <div class="remediation-section-title">
-                                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                                        Descrizione Vulnerabilità
-                                    </div>
-                                    <p class="remediation-text">${f.remediation.description || f.description || 'Nessuna descrizione specificata.'}</p>
-                                </div>
-                                <div class="remediation-section">
-                                    <div class="remediation-section-title">
-                                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                                        Impatto Potenziale
-                                    </div>
-                                    <p class="remediation-text">${f.remediation.impact || 'L\'impatto non è stato specificato.'}</p>
-                                </div>
-                                <div class="remediation-section">
-                                    <div class="remediation-section-title">
-                                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-                                        Procedura di Mitigazione
-                                    </div>
-                                    <ul class="remediation-steps">
-                                        ${stepsList || '<li>Nessuno step specificato.</li>'}
-                                    </ul>
-                                </div>
-                                <div class="remediation-section">
-                                    <div class="remediation-section-title">
-                                        <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
-                                        Codice di Esempio (Terraform Fix)
-                                    </div>
-                                    ${codeExample}
-                                </div>
-                                <div class="remediation-section">
-                                    <span class="remediation-meta-tag">Origine: ${sourceLabel}</span>
-                                </div>
+                    // Inizialmente mostriamo uno spinner di caricamento on-demand all'interno delle details
+                    const detailsHtml = `
+                        <div class="finding-details">
+                            <div class="remediation-loader">
+                                <div class="remediation-spinner"></div>
+                                <span style="font-size: 0.82rem;">Generazione remediation IA in corso...</span>
                             </div>
-                        `;
-                    } else {
-                        remediationHtml = `
-                            <div class="finding-details">
-                                <p style="padding: 10px 0;">Dettagli di remediation non disponibili per questo finding.</p>
-                            </div>
-                        `;
-                    }
+                        </div>
+                    `;
 
                     item.innerHTML = `
                         <div class="finding-row">
@@ -856,19 +799,126 @@
                                 </div>
                             </div>
                         </div>
-                        ${remediationHtml}
+                        ${detailsHtml}
                     `;
 
-                    // Listener per aprire/chiudere a tendina
-                    item.addEventListener('click', (e) => {
+                    // Click handler per aprire l'accordion e caricare i dati on-demand
+                    item.addEventListener('click', async (e) => {
                         if (e.target.closest('.remediation-code')) return;
                         
+                        // Chiudiamo gli altri aperti
                         const allItems = findingsContainer.querySelectorAll('.finding-item');
                         allItems.forEach(other => {
                             if (other !== item) other.classList.remove('active');
                         });
                         
+                        const wasActive = item.classList.contains('active');
                         item.classList.toggle('active');
+                        
+                        // Se stiamo aprendo la tab e non è ancora stata caricata
+                        if (!wasActive && item.dataset.loaded === "false") {
+                            item.dataset.loaded = "loading";
+                            try {
+                                const response = await fetch('/remediation', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(f)
+                                });
+                                if (!response.ok) throw new Error("Errore API");
+                                
+                                const rem = await response.json();
+                                
+                                // Costruiamo il contenuto reale della remediation
+                                let steps = rem.steps || [];
+                                if (typeof steps === 'string') steps = [steps];
+                                const stepsList = Array.isArray(steps)
+                                    ? steps.map(step => `<li>${step}</li>`).join('')
+                                    : `<li>${steps}</li>`;
+                                
+                                let exampleStr = '';
+                                if (rem.example) {
+                                    if (typeof rem.example === 'object') {
+                                        if (rem.example.codice) {
+                                            exampleStr = Array.isArray(rem.example.codice)
+                                                ? rem.example.codice.join('\n')
+                                                : rem.example.codice;
+                                        } else {
+                                            exampleStr = JSON.stringify(rem.example, null, 2);
+                                        }
+                                    } else {
+                                        exampleStr = rem.example;
+                                    }
+                                }
+
+                                const codeExample = exampleStr 
+                                    ? `<pre class="remediation-code"><code>${escapeHtml(exampleStr)}</code></pre>` 
+                                    : '<p class="remediation-text" style="font-style: italic;">Nessun esempio di codice disponibile.</p>';
+                                
+                                let sourceLabel = '';
+                                let warningHtml = '';
+                                if (rem.source === 'offline_simulator') {
+                                    sourceLabel = 'Simulatore Locale Llama 3.1';
+                                    warningHtml = `
+                                        <div class="remediation-warning-banner" style="background: rgba(255, 149, 0, 0.1); border: 1px solid rgba(255, 149, 0, 0.3); color: #ff9500; padding: 10px 14px; border-radius: 8px; font-size: 0.78rem; margin-top: 5px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                                            <span><strong>Avviso:</strong> Il server Ollama locale è offline o non risponde. È stato attivato il simulatore locale Llama 3.1 ad alta fedeltà.</span>
+                                        </div>
+                                    `;
+                                } else if (rem.source === 'llm') {
+                                    sourceLabel = `Generato da Ollama AI (Confidenza: ${Math.round((rem.confidence || 0.8) * 100)}%)`;
+                                } else {
+                                    sourceLabel = `Knowledge Base Locale (${rem.source})`;
+                                }
+
+                                const detailsDiv = item.querySelector('.finding-details');
+                                detailsDiv.innerHTML = `
+                                    ${warningHtml}
+                                    <div class="remediation-section">
+                                        <div class="remediation-section-title">
+                                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                            Descrizione Vulnerabilità
+                                        </div>
+                                        <p class="remediation-text">${rem.description || 'Nessuna descrizione specificata.'}</p>
+                                    </div>
+                                    <div class="remediation-section">
+                                        <div class="remediation-section-title">
+                                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                            Impatto Potenziale
+                                        </div>
+                                        <p class="remediation-text">${rem.impact || 'L\'impatto non è stato specificato.'}</p>
+                                    </div>
+                                    <div class="remediation-section">
+                                        <div class="remediation-section-title">
+                                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                            Procedura di Mitigazione
+                                        </div>
+                                        <ul class="remediation-steps">
+                                            ${stepsList || '<li>Nessuno step specificato.</li>'}
+                                        </ul>
+                                    </div>
+                                    <div class="remediation-section">
+                                        <div class="remediation-section-title">
+                                            <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                                            Codice di Esempio (Terraform Fix)
+                                        </div>
+                                        ${codeExample}
+                                    </div>
+                                    <div class="remediation-section">
+                                        <span class="remediation-meta-tag">Origine: ${sourceLabel}</span>
+                                    </div>
+                                `;
+                                item.dataset.loaded = "true";
+                            } catch (err) {
+                                console.error("Errore caricamento remediation:", err);
+                                const detailsDiv = item.querySelector('.finding-details');
+                                detailsDiv.innerHTML = `
+                                    <div style="padding: 10px; color: #ff4a4a;">
+                                        Impossibile caricare i dati della remediation. Riprova più tardi.
+                                    </div>
+                                `;
+                                item.dataset.loaded = "false";
+                            }
+                        }
                     });
 
                     findingsContainer.appendChild(item);

@@ -127,23 +127,47 @@ def trigger_scan(
     report_repo = ReportRepository("output")
     report_repo.save_findings(correlated_findings)
     
-    findings_list = []
-    for f in correlated_findings:
-        f_dict = f.to_dict()
-        try:
-            rem = remediation_engine.get_remediation(f)
-            f_dict["remediation"] = {
-                "title": rem.title,
-                "description": rem.description,
-                "impact": rem.impact,
-                "steps": rem.remediation_steps,
-                "example": rem.example,
-                "source": rem.source,
-                "confidence": rem.confidence
-            }
-        except Exception as e:
-            logger.error(f"Errore generazione remediation per {f.finding_id}: {e}")
-            f_dict["remediation"] = None
-        findings_list.append(f_dict)
-        
-    return findings_list
+    return [f.to_dict() for f in correlated_findings]
+
+
+@app.post("/remediation", tags=["Remediation"])
+def get_remediation_on_demand(finding_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Recupera la remediation per un singolo finding on-demand.
+    """
+    try:
+        # Ricostruiamo un oggetto Finding minimale per il motore
+        class TempFinding:
+            def __init__(self, d):
+                self.id = d.get("finding_id", "")
+                self.finding_id = d.get("finding_id", "")
+                self.rule_id = d.get("rule_id", "N/A")
+                self.title = d.get("title", "")
+                self.description = d.get("description", "")
+                self.severity = d.get("severity", "INFO")
+                self.category = d.get("category", "MISCONFIGURATION")
+                self.source = d.get("source", "CHECKOV")
+                self.remediation = d.get("remediation", "")
+                
+        f = TempFinding(finding_data)
+        rem = remediation_engine.get_remediation(f)
+        return {
+            "title": rem.title,
+            "description": rem.description,
+            "impact": rem.impact,
+            "steps": rem.remediation_steps,
+            "example": rem.example,
+            "source": rem.source,
+            "confidence": rem.confidence
+        }
+    except Exception as e:
+        logger.error(f"Errore caricamento remediation on-demand: {e}")
+        return {
+            "title": "Errore di caricamento",
+            "description": f"Impossibile generare la remediation: {str(e)}",
+            "impact": "N/A",
+            "steps": [],
+            "example": "",
+            "source": "error",
+            "confidence": 0.0
+        }
