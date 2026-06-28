@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkov Scan Report - Security Control Center</title>
     <meta name="description" content="Report dettagliato della scansione IaC generato da Checkov per l'analisi delle misconfiguration cloud.">
-    <!-- Google Fonts: Inter per testo e Outfit per titoli -->
+    <!-- Google Fonts: Inter per il testo e Outfit per i titoli -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -13,41 +13,52 @@
     <style>
         :root {
             /* Tema Scuro (Default) */
-            --bg-color: #060609;
-            --card-bg: rgba(12, 12, 20, 0.45);
-            --card-border: rgba(255, 255, 255, 0.06);
-            --card-border-hover: rgba(120, 80, 255, 0.3);
-            --text-primary: #ffffff;
-            --text-secondary: #8c8ca3;
-            --accent-purple: #7042ff;
-            --accent-blue: #00d2ff;
-            --accent-glow: rgba(112, 66, 255, 0.25);
-            --btn-bg: linear-gradient(135deg, #6236ff 0%, #9036ff 100%);
-            --btn-shadow: rgba(112, 66, 255, 0.4);
-            --dot-color: rgba(255, 255, 255, 0.1);
+            --bg-color: #09090b;
+            --card-bg: #18181b;
+            --card-border: #27272a;
+            --card-border-hover: #3f3f46;
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --accent-purple: #a855f7;
+            --accent-blue: #3b82f6;
+            --accent-glow: rgba(168, 85, 247, 0.15);
+            --btn-bg: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            --btn-shadow: rgba(168, 85, 247, 0.3);
+            --dot-color: rgba(255, 255, 255, 0.05);
+
+            /* Badges scuri */
+            --bg-crit: #450a0a; --text-crit: #fca5a5; --border-crit: #991b1b;
+            --bg-high: #431407; --text-high: #fdba74; --border-high: #c2410c;
+            --bg-med: #422006; --text-med: #fde047; --border-med: #a16207;
+            --bg-low: #0c4a6e; --text-low: #7dd3fc; --border-low: #0369a1;
         }
 
         [data-theme="light"] {
             /* Tema Chiaro */
-            --bg-color: #f5f6fa;
-            --card-bg: rgba(255, 255, 255, 0.7);
-            --card-border: rgba(0, 0, 0, 0.06);
-            --card-border-hover: rgba(98, 54, 255, 0.3);
-            --text-primary: #0f0f14;
-            --text-secondary: #65657b;
-            --accent-purple: #6236ff;
-            --accent-blue: #00a3ff;
-            --accent-glow: rgba(98, 54, 255, 0.12);
-            --btn-bg: linear-gradient(135deg, #6236ff 0%, #481ae6 100%);
-            --btn-shadow: rgba(98, 54, 255, 0.25);
-            --dot-color: rgba(0, 0, 0, 0.05);
+            --bg-color: #f4f4f5;
+            --card-bg: #ffffff;
+            --card-border: #e4e4e7;
+            --card-border-hover: #d4d4d8;
+            --text-primary: #09090b;
+            --text-secondary: #71717a;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #2563eb;
+            --accent-glow: rgba(139, 92, 246, 0.08);
+            --btn-bg: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            --btn-shadow: rgba(139, 92, 246, 0.2);
+            --dot-color: rgba(0, 0, 0, 0.03);
+
+            /* Badges chiari */
+            --bg-crit: #fef2f2; --text-crit: #991b1b; --border-crit: #fca5a5;
+            --bg-high: #fff7ed; --text-high: #c2410c; --border-high: #ffedd5;
+            --bg-med: #fefce8; --text-med: #a16207; --border-med: #fef08a;
+            --bg-low: #f0f9ff; --text-low: #0369a1; --border-low: #bae6fd;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
         }
 
         body {
@@ -63,9 +74,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            overflow-x: hidden;
             padding: 40px 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Ambient Glows */
@@ -117,7 +127,7 @@
 
         .brand-info h1 {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
             background: linear-gradient(90deg, var(--text-primary) 30%, var(--accent-blue) 100%);
             -webkit-background-clip: text;
@@ -137,6 +147,11 @@
             align-items: center;
             gap: 8px;
             backdrop-filter: blur(12px);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--card-border-hover);
         }
 
         main {
@@ -148,26 +163,25 @@
         .card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 24px;
-            backdrop-filter: blur(20px);
+            border-radius: 20px;
             padding: 32px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             position: relative;
-            overflow: hidden;
+            transition: border-color 0.3s ease;
         }
 
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid var(--card-border);
             padding-bottom: 20px;
             margin-bottom: 24px;
         }
 
         .card-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -177,6 +191,35 @@
         .card-title svg {
             width: 32px;
             height: 32px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="light"] .back-btn {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--card-border-hover);
+        }
+
+        [data-theme="light"] .back-btn:hover {
+            background: rgba(0, 0, 0, 0.06);
         }
 
         /* Glassmorphic Loader */
@@ -190,11 +233,11 @@
         }
 
         .scan-radar {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border: 2px dashed var(--accent-purple);
             border-radius: 50%;
-            animation: rotate-radar 10s linear infinite;
+            animation: rotate-radar 8s linear infinite;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -208,30 +251,30 @@
 
         .radar-pulse {
             position: absolute;
-            width: 140px;
-            height: 140px;
-            border: 1px solid rgba(112, 66, 255, 0.2);
+            width: 120px;
+            height: 120px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
             border-radius: 50%;
-            animation: pulse-radar 2.5s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+            animation: pulse-radar 2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
         }
 
         @keyframes pulse-radar {
-            0% { transform: scale(0.5); opacity: 1; }
-            100% { transform: scale(1.2); opacity: 0; }
+            0% { transform: scale(0.6); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
         }
 
         .console-output {
             width: 100%;
             max-width: 600px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--card-border);
             border-radius: 12px;
             padding: 14px;
-            font-family: monospace;
-            font-size: 0.75rem;
-            color: #00d2ff;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            color: #22d3ee;
             text-align: left;
-            max-height: 120px;
+            max-height: 150px;
             overflow-y: auto;
         }
 
@@ -242,126 +285,177 @@
 
         .severity-summary {
             display: flex;
-            gap: 16px;
+            gap: 12px;
             margin-bottom: 24px;
+            flex-wrap: wrap;
         }
 
-        .badge {
-            padding: 6px 14px;
-            border-radius: 12px;
-            font-size: 0.8rem;
+        .badge-stat {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
             font-weight: 600;
+            border: 1px solid transparent;
         }
 
-        .badge-critical { background: rgba(255, 59, 48, 0.15); color: #ff3b30; border: 1px solid rgba(255, 59, 48, 0.3); }
-        .badge-high { background: rgba(255, 149, 0, 0.15); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.3); }
-        .badge-medium { background: rgba(255, 204, 0, 0.15); color: #ffcc00; border: 1px solid rgba(255, 204, 0, 0.3); }
-        .badge-low { background: rgba(0, 122, 255, 0.15); color: #007aff; border: 1px solid rgba(0, 122, 255, 0.3); }
+        .badge-stat.critical { background: var(--bg-crit); color: var(--text-crit); border-color: var(--border-crit); }
+        .badge-stat.high { background: var(--bg-high); color: var(--text-high); border-color: var(--border-high); }
+        .badge-stat.medium { background: var(--bg-med); color: var(--text-med); border-color: var(--border-med); }
+        .badge-stat.low { background: var(--bg-low); color: var(--text-low); border-color: var(--border-low); }
 
         .findings-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            max-height: 65vh;
-            overflow-y: auto;
-            margin-bottom: 30px;
-            padding-right: 8px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
         .finding-item {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.10);
-            border-radius: 14px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
-            transition: all 0.25s ease;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
             overflow: hidden;
         }
 
         .finding-item:hover {
-            background: rgba(112, 66, 255, 0.08);
-            border-color: rgba(112, 66, 255, 0.35);
-            box-shadow: 0 0 0 1px rgba(112,66,255,0.15);
+            border-color: var(--card-border-hover);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .finding-row {
-            padding: 16px 20px;
+            padding: 18px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            min-height: 64px;
+            gap: 16px;
         }
 
-        .toggle-arrow {
+        .finding-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-grow: 1;
+        }
+
+        .finding-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .finding-path {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+        }
+
+        .finding-badge-container {
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+        }
+
+        .severity-badge.critical { background: var(--bg-crit); color: var(--text-crit); border-color: var(--border-crit); }
+        .severity-badge.high { background: var(--bg-high); color: var(--text-high); border-color: var(--border-high); }
+        .severity-badge.medium { background: var(--bg-med); color: var(--text-med); border-color: var(--border-med); }
+        .severity-badge.low { background: var(--bg-low); color: var(--text-low); border-color: var(--border-low); }
+
+        .toggle-arrow {
             color: var(--text-secondary);
-            transition: transform 0.3s ease;
-            margin-left: 15px;
+            transition: transform 0.25s ease;
+            display: flex;
+            align-items: center;
         }
 
         .finding-item.active .toggle-arrow {
             transform: rotate(180deg);
-            color: var(--accent-blue);
+            color: var(--accent-purple);
         }
 
+        /* Dettaglio Espanso (Remediation) */
         .finding-details {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
-            background: rgba(0, 0, 0, 0.15);
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            border-top: 0px solid transparent;
+            transition: max-height 0.3s ease-out;
+            background: rgba(0, 0, 0, 0.03);
+            border-top: 1px solid transparent;
+        }
+
+        [data-theme="dark"] .finding-details {
+            background: rgba(0, 0, 0, 0.2);
         }
 
         .finding-item.active .finding-details {
-            max-height: 1000px;
-            padding: 24px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            max-height: 2000px; /* Abbastanza alto per contenere il codice */
+            border-top: 1px solid var(--card-border);
         }
 
-        /* Spinner per caricamento on-demand */
+        .finding-details-content {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Spinner Remediation */
         .remediation-loader {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 30px;
             gap: 12px;
             color: var(--text-secondary);
         }
 
         .remediation-spinner {
-            width: 22px;
-            height: 22px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-top-color: var(--accent-blue);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-top-color: var(--accent-purple);
             border-radius: 50%;
             animation: inline-spin 1s linear infinite;
         }
 
+        [data-theme="dark"] .remediation-spinner {
+            border-color: rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent-purple);
+        }
+
         @keyframes inline-spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
         }
 
+        /* Sezioni della Remediation */
         .remediation-section {
-            margin-bottom: 20px;
-        }
-
-        .remediation-section:last-child {
-            margin-bottom: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
 
         .remediation-section-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -370,93 +464,83 @@
         .remediation-section-title svg {
             width: 16px;
             height: 16px;
-            fill: var(--accent-blue);
+            stroke: var(--accent-purple);
+            fill: none;
         }
 
         .remediation-text {
+            font-size: 0.88rem;
             line-height: 1.6;
-            margin-left: 24px;
+            color: var(--text-secondary);
+            padding-left: 24px;
         }
 
         .remediation-steps {
             list-style-type: decimal;
             margin-left: 44px;
+            font-size: 0.88rem;
             line-height: 1.6;
+            color: var(--text-secondary);
         }
 
         .remediation-steps li {
             margin-bottom: 6px;
         }
 
+        .remediation-code-container {
+            margin-left: 24px;
+            margin-top: 6px;
+        }
+
         .remediation-code {
             display: block;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #09090b;
+            border: 1px solid #27272a;
             border-radius: 8px;
-            padding: 12px 16px;
-            font-family: monospace;
-            font-size: 0.78rem;
-            color: #00d2ff;
+            padding: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            color: #38bdf8;
             overflow-x: auto;
-            margin-top: 10px;
-            margin-left: 24px;
             white-space: pre;
+        }
+
+        [data-theme="light"] .remediation-code {
+            background: #f4f4f5;
+            border-color: #e4e4e7;
+            color: #0369a1;
         }
 
         .remediation-meta-tag {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.72rem;
-            font-weight: 500;
-            background: rgba(112, 66, 255, 0.1);
-            border: 1px solid rgba(112, 66, 255, 0.2);
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.2);
             color: var(--accent-purple);
             padding: 4px 10px;
-            border-radius: 8px;
+            border-radius: 6px;
             margin-left: 24px;
-            margin-top: 8px;
         }
 
-        .finding-meta {
+        .remediation-warning-banner {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
             display: flex;
-            flex-direction: column;
-            gap: 6px;
-            width: 75%;
-        }
-
-        .finding-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            line-height: 1.4;
-        }
-
-        .finding-path {
-            font-family: monospace;
-            font-size: 0.72rem;
-            color: var(--text-secondary);
-            word-break: break-all;
-        }
-
-        .back-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-primary);
-            padding: 12px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            gap: 10px;
         }
 
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
+        [data-theme="light"] .remediation-warning-banner {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #991b1b;
         }
 
         footer {
@@ -465,18 +549,6 @@
             color: var(--text-secondary);
             text-align: center;
             z-index: 10;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
         }
     </style>
 </head>
@@ -488,7 +560,7 @@
         <div class="brand">
             <div class="brand-logo">
                 <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="#ffffff"/>
                 </svg>
             </div>
             <div class="brand-info">
@@ -517,6 +589,7 @@
             <!-- Header della Card -->
             <div class="card-header">
                 <div class="card-title">
+                    <!-- Esagono Checkov -->
                     <svg viewBox="0 0 100 100">
                         <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="#FF5A09"/>
                         <path d="M35,45 L47,57 L68,33" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
@@ -537,23 +610,23 @@
                 <div class="scan-radar">
                     <div class="radar-pulse"></div>
                 </div>
-                <p style="font-weight: 500;">Scansione infrastruttura con Checkov in corso...</p>
+                <p style="font-weight: 600;">Scansione infrastruttura con Checkov in corso...</p>
                 <div class="console-output" id="console-log">
-                    [info] Avvio scanner Checkov...
+                    [info] Inizializzazione scanner Checkov...
                 </div>
             </div>
 
-            <!-- Visualizzazione dei risultati della scansione -->
+            <!-- Risultati della Scansione -->
             <div class="results-view" id="results-area">
                 <div class="severity-summary">
-                    <span class="badge badge-critical" id="badge-crit">0 Critical</span>
-                    <span class="badge badge-high" id="badge-high">0 High</span>
-                    <span class="badge badge-medium" id="badge-med">0 Medium</span>
-                    <span class="badge badge-low" id="badge-low">0 Low</span>
+                    <span class="badge-stat critical" id="badge-crit">0 Critical</span>
+                    <span class="badge-stat high" id="badge-high">0 High</span>
+                    <span class="badge-stat medium" id="badge-med">0 Medium</span>
+                    <span class="badge-stat low" id="badge-low">0 Low</span>
                 </div>
 
                 <div class="findings-list" id="findings-container">
-                    <!-- I findings di Checkov verranno mostrati qui -->
+                    <!-- I findings verranno iniettati dinamicamente -->
                 </div>
             </div>
         </div>
@@ -599,12 +672,12 @@
             const consoleLog = document.getElementById('console-log');
             const loaderArea = document.getElementById('loader-area');
             const resultsArea = document.getElementById('results-area');
-            const findingsContainer = document.getElementById('findings-container');
 
             const steps = [
                 '[info] Caricamento configurazioni da .checkov.yaml...',
                 '[info] Esecuzione scansione statica della cartella fixtures/infrastructure_misconfiguration...',
-                '[info] Parsing dei risultati grezzi di Checkov...'
+                '[info] Elaborazione dei file Terraform (*.tf)...',
+                '[info] Generazione report in corso...'
             ];
 
             let i = 0;
@@ -615,7 +688,7 @@
                 } else {
                     clearInterval(logInterval);
                 }
-            }, 600);
+            }, 500);
 
             try {
                 const response = await fetch('/scan', { method: 'POST' });
@@ -632,91 +705,15 @@
                 renderCheckovReport(checkovFindings);
 
             } catch (err) {
-                console.error(err);
+                console.error("Errore durante la scansione:", err);
                 clearInterval(logInterval);
-                consoleLog.innerHTML += '<br>[warning] Impossibile contattare il backend locale. Mostro dati di fallback...';
+                consoleLog.innerHTML += '<br>[warning] Impossibile contattare il backend. Mostro dati di fallback...';
                 
-                // Fallback Mock Data se il backend offline
+                // Mock fallback in caso di offline
                 setTimeout(() => {
-                    const mockCheckovFindings = [
-                        {
-                            id: "CKV_AWS_20",
-                            title: "AWS S3 Bucket has publicly accessible read permissions enabled",
-                            severity: "CRITICAL",
-                            location: { file_path: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", start_line: 12 },
-                            remediation: {
-                                title: "Configurazione AWS S3 Bucket Public Access Block",
-                                description: "Il bucket S3 consente l'accesso pubblico di lettura, il che può esporre file riservati ad utenti esterni non autenticati.",
-                                impact: "Possibile perdita di riservatezza, esfiltrazione e divulgazione non autorizzata di dati aziendali sensibili.",
-                                steps: [
-                                    "Identificare il bucket vulnerabile nel file Terraform",
-                                    "Aggiungere una risorsa di tipo 'aws_s3_bucket_public_access_block'",
-                                    "Configurare block_public_acls = true e block_public_policy = true"
-                                ],
-                                example: "resource \"aws_s3_bucket_public_access_block\" \"restrict_access\" {\n  bucket = aws_s3_bucket.vulnerable_bucket.id\n\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}",
-                                source: "knowledge_base",
-                                confidence: 1.0
-                            }
-                        },
-                        {
-                            id: "CKV_AWS_111",
-                            title: "IAM Policy allows full wildcard administrative privileges (*)",
-                            severity: "HIGH",
-                            location: { file_path: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", start_line: 45 },
-                            remediation: {
-                                title: "Restringere i Privilegi delle Policy IAM",
-                                description: "La policy IAM contiene una direttiva con wildcard '*' sull'attributo Action o Resource, concedendo poteri di amministratore completo.",
-                                impact: "Un attaccante che compromettesse le chiavi di questo utente otterrebbe il pieno controllo amministrativo sulle risorse AWS.",
-                                steps: [
-                                    "Rimuovere la wildcard '*' dalle azioni consentite",
-                                    "Elencare esplicitamente solo le azioni necessarie (es: s3:GetObject, dynamodb:PutItem)",
-                                    "Specificare l'ARN esatto della risorsa target al posto di '*'"
-                                ],
-                                example: "statement {\n  actions   = [\n    \"s3:GetObject\",\n    \"s3:PutObject\"\n  ]\n  resources = [\"arn:aws:s3:::nome-bucket-aziendale/*\"]\n}",
-                                source: "knowledge_base",
-                                confidence: 1.0
-                            }
-                        },
-                        {
-                            id: "CKV_AWS_19",
-                            title: "S3 Bucket SSE encryption is not enabled by default",
-                            severity: "MEDIUM",
-                            location: { file_path: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", start_line: 68 },
-                            remediation: {
-                                title: "Abilitare la crittografia Server-Side (SSE)",
-                                description: "I dati archiviati nel bucket S3 non sono cifrati a riposo (at rest), violando le policy di conformità sulla protezione dei dati.",
-                                impact: "I dati potrebbero essere letti direttamente dai dischi fisici sottostanti o in caso di violazione degli accessi senza crittografia.",
-                                steps: [
-                                    "Configurare una regola di cifratura sul bucket S3",
-                                    "Utilizzare la cifratura gestita da AWS (AES256) o KMS"
-                                ],
-                                example: "resource \"aws_s3_bucket_server_side_encryption_configuration\" \"sse\" {\n  bucket = aws_s3_bucket.my_bucket.id\n\n  rule {\n    apply_server_side_encryption_by_default {\n      sse_algorithm     = \"AES256\"\n    }\n  }\n}",
-                                source: "knowledge_base",
-                                confidence: 1.0
-                            }
-                        },
-                        {
-                            id: "CKV_AWS_21",
-                            title: "AWS S3 Bucket logging is not enabled in configure profile",
-                            severity: "LOW",
-                            location: { file_path: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", start_line: 92 },
-                            remediation: {
-                                title: "Abilitare il Logging del Bucket S3",
-                                description: "Manca la configurazione del logging di tracciamento degli accessi (Server Access Logging), impedendo l'audit di sicurezza in caso di incidenti.",
-                                impact: "Impossibilità di tracciare e ricostruire chi ha effettuato l'accesso ai file sensibili a scopi forensi.",
-                                steps: [
-                                    "Creare un bucket S3 separato per l'archiviazione dei log",
-                                    "Associare la risorsa 'aws_s3_bucket_logging' al bucket target"
-                                ],
-                                example: "resource \"aws_s3_bucket_logging\" \"audit_log\" {\n  bucket = aws_s3_bucket.vulnerable_bucket.id\n\n  target_bucket = aws_s3_bucket.log_bucket.id\n  target_prefix = \"log/\"\n}",
-                                source: "knowledge_base",
-                                confidence: 1.0
-                            }
-                        }
-                    ];
                     loaderArea.style.display = 'none';
                     resultsArea.style.display = 'block';
-                    renderCheckovReport(mockCheckovFindings);
+                    renderCheckovReport([]);
                 }, 1000);
             }
         });
@@ -738,7 +735,7 @@
             if (findings.length === 0) {
                 findingsContainer.innerHTML = `
                     <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
-                        <p>Nessuna misconfiguration IaC rilevata da Checkov!</p>
+                        <p style="font-weight: 500;">Nessuna misconfiguration IaC rilevata da Checkov!</p>
                     </div>
                 `;
                 return;
@@ -748,12 +745,12 @@
 
             findings.forEach(f => {
                 try {
-                    const sev = (f.severity || 'medium').toUpperCase();
-                    let badgeClass = 'badge-medium';
-                    if (sev === 'CRITICAL') { badgeClass = 'badge-critical'; crit++; }
-                    else if (sev === 'HIGH') { badgeClass = 'badge-high'; high++; }
-                    else if (sev === 'MEDIUM') { badgeClass = 'badge-medium'; med++; }
-                    else { badgeClass = 'badge-low'; low++; }
+                    const sev = (f.severity || 'medium').toLowerCase();
+                    let badgeClass = 'medium';
+                    if (sev === 'critical') { badgeClass = 'critical'; crit++; }
+                    else if (sev === 'high') { badgeClass = 'high'; high++; }
+                    else if (sev === 'medium') { badgeClass = 'medium'; med++; }
+                    else { badgeClass = 'low'; low++; }
 
                     const file = f.location ? (f.location.file || f.location.file_path || 'unknown') : 'unknown';
                     const line = f.location ? (f.location.line || f.location.start_line || '') : '';
@@ -762,49 +759,49 @@
                     const item = document.createElement('div');
                     item.className = 'finding-item';
                     item.dataset.loaded = "false";
-                    
-                    // Inizialmente mostriamo uno spinner di caricamento on-demand all'interno delle details
-                    const detailsHtml = `
-                        <div class="finding-details">
-                            <div class="remediation-loader">
-                                <div class="remediation-spinner"></div>
-                                <span style="font-size: 0.82rem;">Generazione remediation IA in corso...</span>
-                            </div>
-                        </div>
-                    `;
 
+                    // Struttura visuale dell'elemento
                     item.innerHTML = `
                         <div class="finding-row">
                             <div class="finding-meta">
-                                <span class="finding-title" style="color: var(--text-primary); font-weight:600;">${f.title}</span>
+                                <span class="finding-title">${f.title}</span>
                                 <span class="finding-path">${file} ${lineStr}</span>
                             </div>
-                            <div style="display: flex; align-items: center;">
-                                <span class="badge ${badgeClass}">${sev}</span>
+                            <div class="finding-badge-container">
+                                <span class="severity-badge ${badgeClass}">${sev}</span>
                                 <div class="toggle-arrow">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </div>
                             </div>
                         </div>
-                        ${detailsHtml}
+                        <div class="finding-details">
+                            <div class="finding-details-content">
+                                <div class="remediation-loader">
+                                    <div class="remediation-spinner"></div>
+                                    <span style="font-size: 0.85rem;">Generazione remediation IA in corso...</span>
+                                </div>
+                            </div>
+                        </div>
                     `;
 
-                    // Click handler per aprire l'accordion e caricare i dati on-demand
+                    // Gestore dell'accordion e caricamento on-demand
                     item.addEventListener('click', async (e) => {
+                        // Impedisci la chiusura se clicchi all'interno della zona codice
                         if (e.target.closest('.remediation-code')) return;
-                        
-                        // Chiudiamo gli altri aperti
+
+                        const wasActive = item.classList.contains('active');
+
+                        // Chiudi tutti gli altri elementi per tenere pulito lo schermo
                         const allItems = findingsContainer.querySelectorAll('.finding-item');
                         allItems.forEach(other => {
                             if (other !== item) other.classList.remove('active');
                         });
-                        
-                        const wasActive = item.classList.contains('active');
+
                         item.classList.toggle('active');
-                        
-                        // Se stiamo aprendo la tab e non è ancora stata caricata
+
+                        // Carica i dati on-demand se non sono già stati caricati
                         if (!wasActive && item.dataset.loaded === "false") {
                             item.dataset.loaded = "loading";
                             try {
@@ -813,17 +810,18 @@
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify(f)
                                 });
-                                if (!response.ok) throw new Error("Errore API");
-                                
+                                if (!response.ok) throw new Error("Errore API Remediation");
+
                                 const rem = await response.json();
                                 
-                                // Costruiamo il contenuto reale della remediation
+                                // Formattazione steps
                                 let steps = rem.steps || [];
                                 if (typeof steps === 'string') steps = [steps];
-                                const stepsList = Array.isArray(steps)
+                                const stepsList = Array.isArray(steps) && steps.length > 0
                                     ? steps.map(step => `<li>${step}</li>`).join('')
-                                    : `<li>${steps}</li>`;
-                                
+                                    : `<li>Nessun passo di mitigazione specificato.</li>`;
+
+                                // Formattazione codice d'esempio
                                 let exampleStr = '';
                                 if (rem.example) {
                                     if (typeof rem.example === 'object') {
@@ -839,70 +837,97 @@
                                     }
                                 }
 
-                                const codeExample = exampleStr 
-                                    ? `<pre class="remediation-code"><code>${escapeHtml(exampleStr)}</code></pre>` 
-                                    : '<p class="remediation-text" style="font-style: italic;">Nessun esempio di codice disponibile.</p>';
-                                
-                                let sourceLabel = '';
+                                const codeExampleHtml = exampleStr
+                                    ? `<div class="remediation-code-container"><pre class="remediation-code"><code>${escapeHtml(exampleStr)}</code></pre></div>`
+                                    : '<p class="remediation-text" style="font-style: italic;">Nessun codice di esempio disponibile.</p>';
+
+                                // Tag di origine
+                                let sourceLabel = 'Knowledge Base Locale';
                                 let warningHtml = '';
+                                
                                 if (rem.source === 'offline_simulator') {
                                     sourceLabel = 'Simulatore Locale Llama 3.1';
                                     warningHtml = `
-                                        <div class="remediation-warning-banner" style="background: rgba(255, 149, 0, 0.1); border: 1px solid rgba(255, 149, 0, 0.3); color: #ff9500; padding: 10px 14px; border-radius: 8px; font-size: 0.78rem; margin-top: 5px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink: 0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                                            <span><strong>Avviso:</strong> Il server Ollama locale è offline o non risponde. È stato attivato il simulatore locale Llama 3.1 ad alta fedeltà.</span>
+                                        <div class="remediation-warning-banner">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                            </svg>
+                                            <span><strong>Avviso:</strong> Il server Ollama è offline. Remediation generata dal simulatore ad alta fedeltà.</span>
                                         </div>
                                     `;
                                 } else if (rem.source === 'llm') {
-                                    sourceLabel = `Generato da Ollama AI (Confidenza: ${Math.round((rem.confidence || 0.8) * 100)}%)`;
-                                } else {
+                                    sourceLabel = `Generato da Ollama AI (${Math.round((rem.confidence || 0.85) * 100)}% confidenza)`;
+                                } else if (rem.source) {
                                     sourceLabel = `Knowledge Base Locale (${rem.source})`;
                                 }
 
-                                const detailsDiv = item.querySelector('.finding-details');
-                                detailsDiv.innerHTML = `
+                                // Aggiorna il DOM del dettaglio
+                                const detailsContent = item.querySelector('.finding-details-content');
+                                detailsContent.innerHTML = `
                                     ${warningHtml}
                                     <div class="remediation-section">
                                         <div class="remediation-section-title">
-                                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                                            Descrizione Vulnerabilità
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                            </svg>
+                                            Descrizione della Vulnerabilità
                                         </div>
                                         <p class="remediation-text">${rem.description || 'Nessuna descrizione specificata.'}</p>
                                     </div>
+
                                     <div class="remediation-section">
                                         <div class="remediation-section-title">
-                                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                            </svg>
                                             Impatto Potenziale
                                         </div>
                                         <p class="remediation-text">${rem.impact || 'L\'impatto non è stato specificato.'}</p>
                                     </div>
+
                                     <div class="remediation-section">
                                         <div class="remediation-section-title">
-                                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
                                             Procedura di Mitigazione
                                         </div>
                                         <ul class="remediation-steps">
-                                            ${stepsList || '<li>Nessuno step specificato.</li>'}
+                                            ${stepsList}
                                         </ul>
                                     </div>
+
                                     <div class="remediation-section">
                                         <div class="remediation-section-title">
-                                            <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="16 18 22 12 16 6"></polyline>
+                                                <polyline points="8 6 2 12 8 18"></polyline>
+                                            </svg>
                                             Codice di Esempio (Terraform Fix)
                                         </div>
-                                        ${codeExample}
+                                        ${codeExampleHtml}
                                     </div>
-                                    <div class="remediation-section">
-                                        <span class="remediation-meta-tag">Origine: ${sourceLabel}</span>
+
+                                    <div class="remediation-section" style="margin-top: 10px;">
+                                        <div>
+                                            <span class="remediation-meta-tag">Origine: ${sourceLabel}</span>
+                                        </div>
                                     </div>
                                 `;
+
                                 item.dataset.loaded = "true";
                             } catch (err) {
                                 console.error("Errore caricamento remediation:", err);
-                                const detailsDiv = item.querySelector('.finding-details');
-                                detailsDiv.innerHTML = `
-                                    <div style="padding: 10px; color: #ff4a4a;">
-                                        Impossibile caricare i dati della remediation. Riprova più tardi.
+                                const detailsContent = item.querySelector('.finding-details-content');
+                                detailsContent.innerHTML = `
+                                    <div style="padding: 10px; color: #ef4444; font-size: 0.88rem; font-weight: 500;">
+                                        ⚠️ Impossibile caricare i dati della remediation. Clicca di nuovo per riprovare.
                                     </div>
                                 `;
                                 item.dataset.loaded = "false";
@@ -916,6 +941,7 @@
                 }
             });
 
+            // Aggiorna contatori badges
             document.getElementById('badge-crit').textContent = `${crit} Critical`;
             document.getElementById('badge-high').textContent = `${high} High`;
             document.getElementById('badge-med').textContent = `${med} Medium`;
