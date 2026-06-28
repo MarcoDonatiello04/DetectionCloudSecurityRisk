@@ -13,18 +13,24 @@
     <style>
         :root {
             /* Tema Scuro (Default) */
-            --bg-color: #09090b;
-            --card-bg: #18181b;
-            --card-border: #27272a;
-            --card-border-hover: #3f3f46;
+            --bg-color: #060609;
+            --card-bg: rgba(12, 12, 20, 0.45);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --card-border-hover: rgba(120, 80, 255, 0.3);
             --text-primary: #f4f4f5;
             --text-secondary: #a1a1aa;
-            --accent-purple: #a855f7;
-            --accent-blue: #3b82f6;
-            --accent-glow: rgba(168, 85, 247, 0.15);
-            --btn-bg: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-            --btn-shadow: rgba(168, 85, 247, 0.3);
-            --dot-color: rgba(255, 255, 255, 0.05);
+            --accent-purple: #7042ff;
+            --accent-blue: #00d2ff;
+            --accent-glow: rgba(112, 66, 255, 0.25);
+            --btn-bg: linear-gradient(135deg, #6236ff 0%, #9036ff 100%);
+            --btn-shadow: rgba(112, 66, 255, 0.4);
+            --dot-color: rgba(255, 255, 255, 0.08);
+
+            /* Elementi della lista */
+            --item-bg: rgba(255, 255, 255, 0.02);
+            --item-border: rgba(255, 255, 255, 0.06);
+            --item-bg-hover: rgba(255, 255, 255, 0.05);
+            --item-border-hover: rgba(255, 255, 255, 0.15);
 
             /* Badges scuri */
             --bg-crit: #450a0a; --text-crit: #fca5a5; --border-crit: #991b1b;
@@ -35,18 +41,24 @@
 
         [data-theme="light"] {
             /* Tema Chiaro */
-            --bg-color: #f4f4f5;
-            --card-bg: #ffffff;
-            --card-border: #e4e4e7;
-            --card-border-hover: #d4d4d8;
+            --bg-color: #f5f6fa;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(0, 0, 0, 0.06);
+            --card-border-hover: rgba(98, 54, 255, 0.3);
             --text-primary: #09090b;
             --text-secondary: #71717a;
-            --accent-purple: #8b5cf6;
-            --accent-blue: #2563eb;
-            --accent-glow: rgba(139, 92, 246, 0.08);
-            --btn-bg: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-            --btn-shadow: rgba(139, 92, 246, 0.2);
-            --dot-color: rgba(0, 0, 0, 0.03);
+            --accent-purple: #6236ff;
+            --accent-blue: #00a3ff;
+            --accent-glow: rgba(98, 54, 255, 0.12);
+            --btn-bg: linear-gradient(135deg, #6236ff 0%, #481ae6 100%);
+            --btn-shadow: rgba(98, 54, 255, 0.25);
+            --dot-color: rgba(0, 0, 0, 0.04);
+
+            /* Elementi della lista */
+            --item-bg: rgba(0, 0, 0, 0.02);
+            --item-border: rgba(0, 0, 0, 0.06);
+            --item-bg-hover: rgba(0, 0, 0, 0.04);
+            --item-border-hover: rgba(0, 0, 0, 0.12);
 
             /* Badges chiari */
             --bg-crit: #fef2f2; --text-crit: #991b1b; --border-crit: #fca5a5;
@@ -167,6 +179,7 @@
             padding: 32px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             position: relative;
+            backdrop-filter: blur(20px);
             transition: border-color 0.3s ease;
         }
 
@@ -311,18 +324,19 @@
         }
 
         .finding-item {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
+            background: var(--item-bg);
+            border: 1px solid var(--item-border);
             border-radius: 12px;
             display: flex;
             flex-direction: column;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.2s ease;
             cursor: pointer;
             overflow: hidden;
         }
 
         .finding-item:hover {
-            border-color: var(--card-border-hover);
+            background: var(--item-bg-hover);
+            border-color: var(--item-border-hover);
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
