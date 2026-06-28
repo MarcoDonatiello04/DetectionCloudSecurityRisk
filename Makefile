@@ -12,7 +12,7 @@ api-security:
 clean:
 	@echo "=> Cleaning up environment..."
 	@docker compose down -v
-	@rm -rf problema_misconfiguration/terraform/.terraform
-	@rm -f problema_misconfiguration/terraform/*.tfstate*
+	@rm -rf fixtures/infrastructure_misconfiguration/terraform/.terraform
+	@rm -f fixtures/infrastructure_misconfiguration/terraform/*.tfstate*
 	@rm -f config/environments/.target_env
 	@echo "=> Cleanup complete."
