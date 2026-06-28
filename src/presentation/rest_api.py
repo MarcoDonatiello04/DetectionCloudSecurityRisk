@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Depends, BackgroundTasks
+from fastapi.responses import HTMLResponse
 from typing import List, Dict, Any
+import os
 from src.domain.entities import Finding
 from src.application.orchestrator import ScanPipelineOrchestrator
 from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
@@ -11,6 +13,21 @@ app = FastAPI(
     description="Enterprise API and Infrastructure Risk Management Platform",
     version="1.0.0"
 )
+
+
+@app.get("/", response_class=HTMLResponse, tags=["UI"])
+def serve_dashboard() -> HTMLResponse:
+    """
+    Ritorna la dashboard iniziale in stile glassmorphism per il controllo sicurezza.
+    """
+    template_path = "src/presentation/templates/dashboard.html"
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+    else:
+        html_content = "<h1>Dashboard Template Not Found</h1>"
+    return HTMLResponse(content=html_content)
+
 
 
 # Dependency Injection per gli scanner

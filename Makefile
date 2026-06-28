@@ -1,4 +1,4 @@
-.PHONY: setup-env iac-analysis api-security clean
+.PHONY: setup-env iac-analysis api-security dashboard clean
 
 setup-env:
 	@bash entrypoints/operations/setup_environment.sh
@@ -8,6 +8,11 @@ iac-analysis:
 
 api-security:
 	@bash entrypoints/operations/run_api_security.sh
+
+dashboard:
+	@echo "🚀 starting Security Dashboard on http://localhost:8000"
+	@PYTHONPATH=. .venv/bin/uvicorn src.presentation.rest_api:app --host 0.0.0.0 --port 8000
+
 
 clean:
 	@echo "=> Cleaning up environment..."
