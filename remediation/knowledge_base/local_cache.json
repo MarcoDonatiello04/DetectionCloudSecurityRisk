@@ -283,5 +283,55 @@
       "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
     ],
     "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
+  },
+  "CKV_AWS_999": {
+    "title": "S3 Bucket senza politica di trasporto sicura abilitata",
+    "description": "La politica di trasporto sicuro per l'S3 Bucket non è stata configurata, il che significa che le connessioni non sono crittate e possono essere intercettate da attaccanti.",
+    "impact": "L'esposizione dei dati in transito può portare a violazioni della privacy e all'accesso non autorizzato ai dati.",
+    "remediation_steps": [
+      "Verificare la configurazione dell'S3 Bucket e abilitare la politica di trasporto sicuro (HTTPS) per tutte le operazioni.",
+      "Aggiornare la politica di bucket per includere la proprietà 'cors' con il protocollo HTTPS."
+    ],
+    "example": {
+      "codice": [
+        "resource \"aws_s3_bucket\" \"my-bucket\" {",
+        "  bucket = \"my-bucket\"",
+        "  cors_rule {",
+        "    allowed_headers = [\"*\"]",
+        "    allowed_methods = [\"PUT\", \"POST\", \"GET\", \"HEAD\"]",
+        "    allowed_origins = [\"https://example.com\"]",
+        "    expose_header = []",
+        "    max_age_seconds = 3000",
+        "  }",
+        "}",
+        "resource \"aws_s3_bucket_policy\" \"my-bucket-policy\" {",
+        "  bucket = aws_s3_bucket.my-bucket.name",
+        "  policy = jsonencode({",
+        "    Version = \"2012-10-17\"",
+        "    Statement = [",
+        "      {",
+        "        Sid       = \"AllowPublicReadAccess\"",
+        "        Effect    = \"allow\"",
+        "        Action    = [\"s3:GetObject\"]",
+        "        Resource  = aws_s3_bucket.my-bucket.arn",
+        "        Principal {",
+        "          Service = \"cloudfront.amazonaws.com\"",
+        "        }",
+        "      },",
+        "      {",
+        "        Sid       = \"AllowPublicReadAccess\"",
+        "        Effect    = \"allow\"",
+        "        Action    = [\"s3:GetObject\"]",
+        "        Resource  = aws_s3_bucket.my-bucket.arn",
+        "        Principal {",
+        "          Service = \"acm.amazonaws.com\"",
+        "        }",
+        "      },",
+        "    ]",
+        "  })",
+        "}"
+      ],
+      "note": "Nota: questo è un esempio di codice Terraform per abilitare la politica di trasporto sicuro e la cors. Assicurarsi di sostituire i valori con quelli specifici del proprio ambiente."
+    }
   }
 }
