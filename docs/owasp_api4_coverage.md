@@ -94,14 +94,14 @@ codebase non usa GraphQL". Nessun FN.
 
 ```bash
 # Dal root del progetto:
-python3 src/core/api4_unrestricted_resource_consumption/tests/validate_ground_truth.py
+python3 src/core/unrestricted_resource_consumption/tests/validate_ground_truth.py
 
 # Con analisi crAPI (supplementare, no ground truth esatta):
-python3 src/core/api4_unrestricted_resource_consumption/tests/validate_ground_truth.py \
+python3 src/core/unrestricted_resource_consumption/tests/validate_ground_truth.py \
     --crapi /path/to/crapi
 
 # Tutti i test unitari:
-python3 -m pytest src/core/api4_unrestricted_resource_consumption/tests/ -v
+python3 -m pytest src/core/unrestricted_resource_consumption/tests/ -v
 ```
 
 ---

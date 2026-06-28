@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.core.broken_authentication.discovery import Config
 from src.core.identity_context import IdentityManager
-from src.core.bopla.orchestrator import BOPLAOrchestrator
+from src.core.broken_object_property_level_access.orchestrator import BOPLAOrchestrator
 
 
 def main():

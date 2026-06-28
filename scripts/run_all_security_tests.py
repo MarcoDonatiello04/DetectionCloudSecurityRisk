@@ -4,8 +4,8 @@ scripts/run_all_security_tests.py
 ==================================
 Unified runner script to execute all three security scanner modules:
 1. Broken Authentication Scanner (src.core.broken_authentication)
-2. BOPLA (Broken Object Property Level Authorization) Scanner (src.core.bopla)
-3. BOLA (Broken Object Level Authorization) Scanner (src.core.bola)
+2. BOPLA (Broken Object Property Level Authorization) Scanner (src.core.broken_object_property_level_access)
+3. BOLA (Broken Object Level Authorization) Scanner (src.core.object_level_authorization)
 """
 
 import os
@@ -35,8 +35,8 @@ from src.core.broken_authentication import dynamic_tester as ba_dynamic_tester
 from src.core.broken_authentication import reporter as ba_reporter
 
 from src.core.identity_context import IdentityManager
-from src.core.bopla.orchestrator import BOPLAOrchestrator
-from src.core.bola.dynamic_orchestrator import DynamicOrchestrator
+from src.core.broken_object_property_level_access.orchestrator import BOPLAOrchestrator
+from src.core.object_level_authorization.dynamic_orchestrator import DynamicOrchestrator
 
 
 def parse_args():

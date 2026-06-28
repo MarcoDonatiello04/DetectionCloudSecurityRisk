@@ -12,7 +12,7 @@ from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
 from src.infrastructure.adapters.zap_adapter import ZapClientAdapter
 from src.infrastructure.adapters.mitmproxy_adapter import MitmproxyClientAdapter
 from src.infrastructure.persistence.report_repository import ReportRepository
-from src.core.bola.dynamic_orchestrator import DynamicOrchestrator
+from src.core.object_level_authorization.dynamic_orchestrator import DynamicOrchestrator
 from src.normalization.normalizer import APIEndpointNormalizer
 
 

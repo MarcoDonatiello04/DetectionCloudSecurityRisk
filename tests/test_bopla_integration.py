@@ -6,8 +6,8 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 from src.core.broken_authentication.discovery import Config
-from src.core.bopla.orchestrator import BOPLAOrchestrator
-from src.core.bopla.models import PropertyInventory
+from src.core.broken_object_property_level_access.orchestrator import BOPLAOrchestrator
+from src.core.broken_object_property_level_access.models import PropertyInventory
 
 
 @pytest.fixture

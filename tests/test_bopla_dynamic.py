@@ -3,8 +3,8 @@ import json
 import base64
 from unittest.mock import patch, MagicMock
 
-from src.core.bopla.models import PropertyInventory, PropertyEvidence, PropertyAuthorizationGraph
-from src.core.bopla.dynamic_tester import BOPLADynamicTester
+from src.core.broken_object_property_level_access.models import PropertyInventory, PropertyEvidence, PropertyAuthorizationGraph
+from src.core.broken_object_property_level_access.dynamic_tester import BOPLADynamicTester
 
 
 @pytest.fixture
@@ -60,7 +60,7 @@ def mock_evidences():
 @pytest.fixture
 def mock_graph(mock_evidences):
     # Construct graph from evidences
-    from src.core.bopla.property_inference import PropertyAuthorizationInferenceEngine
+    from src.core.broken_object_property_level_access.property_inference import PropertyAuthorizationInferenceEngine
     return PropertyAuthorizationInferenceEngine.build_authorization_graph(mock_evidences)
 
 

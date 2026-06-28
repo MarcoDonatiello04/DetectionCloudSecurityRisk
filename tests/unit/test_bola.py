@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from src.core.bola.assertion_engine import APIAssertionEngine
+from src.core.object_level_authorization.assertion_engine import APIAssertionEngine
 
 def test_evaluate_bola_assertion_identical_response():
     # Scenario dove la risposta di Bob è identica a quella di Alice (Delta = 0)

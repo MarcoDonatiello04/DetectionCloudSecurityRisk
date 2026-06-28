@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from src.core.bola.attack_vector import ContextAwareAttackGenerator
+from src.core.object_level_authorization.attack_vector import ContextAwareAttackGenerator
 
-@patch('src.core.bola.attack_vector.requests.request')
+@patch('src.core.object_level_authorization.attack_vector.requests.request')
 def test_execute_tampering_methods(mock_request):
     mock_response = MagicMock()
     mock_response.status_code = 200

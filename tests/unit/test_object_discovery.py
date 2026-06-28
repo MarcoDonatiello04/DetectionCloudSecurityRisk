@@ -1,5 +1,5 @@
 import pytest
-from src.core.bola.discovery.object_discovery import ObjectReferenceDiscoveryEngine
+from src.core.object_level_authorization.discovery.object_discovery import ObjectReferenceDiscoveryEngine
 
 def test_object_reference_discovery():
     request_data = {

@@ -2,8 +2,8 @@ import pytest
 import json
 from pathlib import Path
 
-from src.core.bopla.discovery import PropertyDiscoveryEngine
-from src.core.bopla.models import PropertyInventory
+from src.core.broken_object_property_level_access.discovery import PropertyDiscoveryEngine
+from src.core.broken_object_property_level_access.models import PropertyInventory
 
 
 def test_clean_object_name():

@@ -2,9 +2,9 @@ import pytest
 import json
 from pathlib import Path
 
-from src.core.bopla.models import PropertyInventory, PropertyEvidence, PropertyAuthorizationGraph
-from src.core.bopla.discovery import PropertyDiscoveryEngine
-from src.core.bopla.property_inference import PropertyAuthorizationInferenceEngine
+from src.core.broken_object_property_level_access.models import PropertyInventory, PropertyEvidence, PropertyAuthorizationGraph
+from src.core.broken_object_property_level_access.discovery import PropertyDiscoveryEngine
+from src.core.broken_object_property_level_access.property_inference import PropertyAuthorizationInferenceEngine
 
 
 def test_confidence_score_calculation():

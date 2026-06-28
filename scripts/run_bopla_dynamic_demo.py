@@ -8,10 +8,10 @@ from unittest.mock import patch, MagicMock
 # Add root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.core.bopla.models import PropertyInventory, PropertyEvidence, PropertyAuthorizationGraph
-from src.core.bopla.discovery import PropertyDiscoveryEngine
-from src.core.bopla.property_inference import PropertyAuthorizationInferenceEngine
-from src.core.bopla.dynamic_tester import BOPLADynamicTester
+from src.core.broken_object_property_level_access.models import PropertyInventory, PropertyEvidence, PropertyAuthorizationGraph
+from src.core.broken_object_property_level_access.discovery import PropertyDiscoveryEngine
+from src.core.broken_object_property_level_access.property_inference import PropertyAuthorizationInferenceEngine
+from src.core.broken_object_property_level_access.dynamic_tester import BOPLADynamicTester
 
 
 def mock_request_side_effect(method, url, **kwargs):

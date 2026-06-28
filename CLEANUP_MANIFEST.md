@@ -15,7 +15,7 @@ This manifest has been produced in accordance with the project cleanup instructi
 
 ## 1. Orphaned / Unused Files
 
-### FILE: `src/presentation/api.py`
+### FILE: `src/presentation/rest_api.py`
 * **CATEGORY**: orphaned
 * **EVIDENCE**: This file implements a FastAPI server endpoints for triggering scans. It is never imported, referenced, or run by `Makefile`, `cloud_security_analyzer/launcher.py` or the active CLI pipeline.
 * **SAFE_TO_DELETE**: NEEDS_REVIEW
@@ -254,7 +254,7 @@ No duplicate data models, utility functions, or classes were found. Structural f
 ---
 
 ## Needs Review Section
-* **`src/presentation/api.py`**
+* **`src/presentation/rest_api.py`**
   - **Reason**: Unused by current dashboard/CLI runs, but serves as alternative REST interface representation layer. Proposing to **KEEP** it unless deletion is requested.
 * **`cloud_security_analyzer/widgets/charts.py`**
   - **Reason**: QPainter-based bar/donut charts. Unused in current GUI layout (Dashboard/Findings views). Proposing to **KEEP** it as potential future metric template.
