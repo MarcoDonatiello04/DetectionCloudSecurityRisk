@@ -271,17 +271,125 @@
         .finding-item {
             background: rgba(255,255,255,0.01);
             border: 1px solid rgba(255,255,255,0.04);
-            padding: 20px;
             border-radius: 16px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s ease;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            overflow: hidden;
         }
 
         .finding-item:hover {
-            background: rgba(255,255,255,0.03);
+            background: rgba(255,255,255,0.02);
             border-color: rgba(255,255,255,0.08);
+        }
+
+        .finding-row {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .toggle-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: transform 0.3s ease;
+            margin-left: 15px;
+        }
+
+        .finding-item.active .toggle-arrow {
+            transform: rotate(180deg);
+            color: var(--accent-blue);
+        }
+
+        .finding-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+            background: rgba(0, 0, 0, 0.15);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            border-top: 0px solid transparent;
+        }
+
+        .finding-item.active .finding-details {
+            max-height: 1000px;
+            padding: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .remediation-section {
+            margin-bottom: 20px;
+        }
+
+        .remediation-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .remediation-section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .remediation-section-title svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--accent-blue);
+        }
+
+        .remediation-text {
+            line-height: 1.6;
+            margin-left: 24px;
+        }
+
+        .remediation-steps {
+            list-style-type: decimal;
+            margin-left: 44px;
+            line-height: 1.6;
+        }
+
+        .remediation-steps li {
+            margin-bottom: 6px;
+        }
+
+        .remediation-code {
+            display: block;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: #00d2ff;
+            overflow-x: auto;
+            margin-top: 10px;
+            margin-left: 24px;
+            white-space: pre;
+        }
+
+        .remediation-meta-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            background: rgba(112, 66, 255, 0.1);
+            border: 1px solid rgba(112, 66, 255, 0.2);
+            color: var(--accent-purple);
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-left: 24px;
+            margin-top: 8px;
         }
 
         .finding-meta {
@@ -509,25 +617,75 @@
                             id: "CKV_AWS_20",
                             title: "AWS S3 Bucket has publicly accessible read permissions enabled",
                             severity: "CRITICAL",
-                            location: { file: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", line: 12 }
+                            location: { file_path: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", start_line: 12 },
+                            remediation: {
+                                title: "Configurazione AWS S3 Bucket Public Access Block",
+                                description: "Il bucket S3 consente l'accesso pubblico di lettura, il che può esporre file riservati ad utenti esterni non autenticati.",
+                                impact: "Possibile perdita di riservatezza, esfiltrazione e divulgazione non autorizzata di dati aziendali sensibili.",
+                                steps: [
+                                    "Identificare il bucket vulnerabile nel file Terraform",
+                                    "Aggiungere una risorsa di tipo 'aws_s3_bucket_public_access_block'",
+                                    "Configurare block_public_acls = true e block_public_policy = true"
+                                ],
+                                example: "resource \"aws_s3_bucket_public_access_block\" \"restrict_access\" {\n  bucket = aws_s3_bucket.vulnerable_bucket.id\n\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}",
+                                source: "knowledge_base",
+                                confidence: 1.0
+                            }
                         },
                         {
                             id: "CKV_AWS_111",
                             title: "IAM Policy allows full wildcard administrative privileges (*)",
                             severity: "HIGH",
-                            location: { file: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", line: 45 }
+                            location: { file_path: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", start_line: 45 },
+                            remediation: {
+                                title: "Restringere i Privilegi delle Policy IAM",
+                                description: "La policy IAM contiene una direttiva con wildcard '*' sull'attributo Action o Resource, concedendo poteri di amministratore completo.",
+                                impact: "Un attaccante che compromettesse le chiavi di questo utente otterrebbe il pieno controllo amministrativo sulle risorse AWS.",
+                                steps: [
+                                    "Rimuovere la wildcard '*' dalle azioni consentite",
+                                    "Elencare esplicitamente solo le azioni necessarie (es: s3:GetObject, dynamodb:PutItem)",
+                                    "Specificare l'ARN esatto della risorsa target al posto di '*'"
+                                ],
+                                example: "statement {\n  actions   = [\n    \"s3:GetObject\",\n    \"s3:PutObject\"\n  ]\n  resources = [\"arn:aws:s3:::nome-bucket-aziendale/*\"]\n}",
+                                source: "knowledge_base",
+                                confidence: 1.0
+                            }
                         },
                         {
                             id: "CKV_AWS_19",
                             title: "S3 Bucket SSE encryption is not enabled by default",
                             severity: "MEDIUM",
-                            location: { file: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", line: 68 }
+                            location: { file_path: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", start_line: 68 },
+                            remediation: {
+                                title: "Abilitare la crittografia Server-Side (SSE)",
+                                description: "I dati archiviati nel bucket S3 non sono cifrati a riposo (at rest), violando le policy di conformità sulla protezione dei dati.",
+                                impact: "I dati potrebbero essere letti direttamente dai dischi fisici sottostanti o in caso di violazione degli accessi senza crittografia.",
+                                steps: [
+                                    "Configurare una regola di cifratura sul bucket S3",
+                                    "Utilizzare la cifratura gestita da AWS (AES256) o KMS"
+                                ],
+                                example: "resource \"aws_s3_bucket_server_side_encryption_configuration\" \"sse\" {\n  bucket = aws_s3_bucket.my_bucket.id\n\n  rule {\n    apply_server_side_encryption_by_default {\n      sse_algorithm     = \"AES256\"\n    }\n  }\n}",
+                                source: "knowledge_base",
+                                confidence: 1.0
+                            }
                         },
                         {
                             id: "CKV_AWS_21",
                             title: "AWS S3 Bucket logging is not enabled in configure profile",
                             severity: "LOW",
-                            location: { file: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", line: 92 }
+                            location: { file_path: "fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf", start_line: 92 },
+                            remediation: {
+                                title: "Abilitare il Logging del Bucket S3",
+                                description: "Manca la configurazione del logging di tracciamento degli accessi (Server Access Logging), impedendo l'audit di sicurezza in caso di incidenti.",
+                                impact: "Impossibilità di tracciare e ricostruire chi ha effettuato l'accesso ai file sensibili a scopi forensi.",
+                                steps: [
+                                    "Creare un bucket S3 separato per l'archiviazione dei log",
+                                    "Associare la risorsa 'aws_s3_bucket_logging' al bucket target"
+                                ],
+                                example: "resource \"aws_s3_bucket_logging\" \"audit_log\" {\n  bucket = aws_s3_bucket.vulnerable_bucket.id\n\n  target_bucket = aws_s3_bucket.log_bucket.id\n  target_prefix = \"log/\"\n}",
+                                source: "knowledge_base",
+                                confidence: 1.0
+                            }
                         }
                     ];
                     loaderArea.style.display = 'none';
@@ -560,18 +718,104 @@
                 else if (sev === 'MEDIUM') { badgeClass = 'badge-medium'; med++; }
                 else { badgeClass = 'badge-low'; low++; }
 
-                const file = f.location && f.location.file ? f.location.file : 'unknown';
-                const line = f.location && f.location.line ? `L${f.location.line}` : '';
+                const file = f.location ? (f.location.file || f.location.file_path || 'unknown') : 'unknown';
+                const line = f.location ? (f.location.line || f.location.start_line || '') : '';
+                const lineStr = line ? `L${line}` : '';
 
                 const item = document.createElement('div');
                 item.className = 'finding-item';
+                
+                // Creiamo la struttura a tendina
+                let remediationHtml = '';
+                if (f.remediation) {
+                    const stepsList = (f.remediation.steps || f.remediation.remediation_steps || [])
+                        .map(step => `<li>${step}</li>`).join('');
+                    
+                    const codeExample = f.remediation.example 
+                        ? `<pre class="remediation-code"><code>${f.remediation.example}</code></pre>` 
+                        : '<p class="remediation-text" style="font-style: italic;">Nessun esempio di codice disponibile.</p>';
+                    
+                    const sourceLabel = f.remediation.source === 'llm' 
+                        ? `Generato da Ollama AI (Confidenza: ${Math.round(f.remediation.confidence * 100)}%)` 
+                        : `Knowledge Base Locale (${f.remediation.source})`;
+
+                    remediationHtml = `
+                        <div class="finding-details">
+                            <div class="remediation-section">
+                                <div class="remediation-section-title">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                    Descrizione Vulnerabilità
+                                </div>
+                                <p class="remediation-text">${f.remediation.description || f.description || 'Nessuna descrizione specificata.'}</p>
+                            </div>
+                            <div class="remediation-section">
+                                <div class="remediation-section-title">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                    Impatto Potenziale
+                                </div>
+                                <p class="remediation-text">${f.remediation.impact || 'L\'impatto non è stato specificato.'}</p>
+                            </div>
+                            <div class="remediation-section">
+                                <div class="remediation-section-title">
+                                    <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                    Procedura di Mitigazione
+                                </div>
+                                <ul class="remediation-steps">
+                                    ${stepsList || '<li>Nessuno step specificato.</li>'}
+                                </ul>
+                            </div>
+                            <div class="remediation-section">
+                                <div class="remediation-section-title">
+                                    <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                                    Codice di Esempio (Terraform Fix)
+                                </div>
+                                ${codeExample}
+                            </div>
+                            <div class="remediation-section">
+                                <span class="remediation-meta-tag">Origine: ${sourceLabel}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    remediationHtml = `
+                        <div class="finding-details">
+                            <p style="padding: 10px 0;">Dettagli di remediation non disponibili per questo finding.</p>
+                        </div>
+                    `;
+                }
+
                 item.innerHTML = `
-                    <div class="finding-meta">
-                        <span class="finding-title" style="color: var(--text-primary); font-weight:600;">${f.title}</span>
-                        <span class="finding-path">${file} ${line}</span>
+                    <div class="finding-row">
+                        <div class="finding-meta">
+                            <span class="finding-title" style="color: var(--text-primary); font-weight:600;">${f.title}</span>
+                            <span class="finding-path">${file} ${lineStr}</span>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span class="badge ${badgeClass}">${sev}</span>
+                            <div class="toggle-arrow">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
-                    <span class="badge ${badgeClass}">${sev}</span>
+                    ${remediationHtml}
                 `;
+
+                // Listener per aprire/chiudere a tendina
+                item.addEventListener('click', (e) => {
+                    // Evita di chiudere se si clicca per copiare il codice
+                    if (e.target.closest('.remediation-code')) return;
+                    
+                    // Chiude gli altri eventualmente aperti per stile accordion
+                    const allItems = findingsContainer.querySelectorAll('.finding-item');
+                    allItems.forEach(other => {
+                        if (other !== item) other.classList.remove('active');
+                    });
+                    
+                    item.classList.toggle('active');
+                });
+
                 findingsContainer.appendChild(item);
             });
 

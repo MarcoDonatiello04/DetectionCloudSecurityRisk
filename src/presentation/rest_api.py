@@ -2,11 +2,17 @@ from fastapi import FastAPI, Depends, BackgroundTasks
 from fastapi.responses import HTMLResponse
 from typing import List, Dict, Any
 import os
+import logging
 from src.domain.entities import Finding
 from src.application.orchestrator import ScanPipelineOrchestrator
 from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
 from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
 from src.infrastructure.persistence.report_repository import ReportRepository
+from remediation.remediation_engine import RemediationEngine
+
+logger = logging.getLogger("SecurityPlatform.API")
+remediation_engine = RemediationEngine()
+
 
 app = FastAPI(
     title="Security Platform Core API",
@@ -121,4 +127,23 @@ def trigger_scan(
     report_repo = ReportRepository("output")
     report_repo.save_findings(correlated_findings)
     
-    return [f.to_dict() for f in correlated_findings]
+    findings_list = []
+    for f in correlated_findings:
+        f_dict = f.to_dict()
+        try:
+            rem = remediation_engine.get_remediation(f)
+            f_dict["remediation"] = {
+                "title": rem.title,
+                "description": rem.description,
+                "impact": rem.impact,
+                "steps": rem.remediation_steps,
+                "example": rem.example,
+                "source": rem.source,
+                "confidence": rem.confidence
+            }
+        except Exception as e:
+            logger.error(f"Errore generazione remediation per {f.finding_id}: {e}")
+            f_dict["remediation"] = None
+        findings_list.append(f_dict)
+        
+    return findings_list
