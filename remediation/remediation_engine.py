@@ -105,7 +105,9 @@ class RemediationEngine:
         if llm_data:
             # Salva in cache
             self._save_to_cache(search_key, llm_data)
-            return self._build_model_from_kb(finding_id, severity, llm_data, "llm", confidence=0.8)
+            model_name = self.llm_provider.get_available_model() or ""
+            source_label = "offline_simulator" if "Simulato" in model_name else "llm"
+            return self._build_model_from_kb(finding_id, severity, llm_data, source_label, confidence=0.8)
 
         # ─── FASE 4: FALLBACK DI EMERGENZA (OFFLINE SENZA LLM) ───
         logger.warning(f"Nessuna remediation trovata. Fallback standard per: {finding_id}")
