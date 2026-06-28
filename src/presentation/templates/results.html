@@ -766,7 +766,8 @@
                     else if (sev === 'medium') { badgeClass = 'medium'; med++; }
                     else { badgeClass = 'low'; low++; }
 
-                    const file = f.location ? (f.location.file || f.location.file_path || 'unknown') : 'unknown';
+                    const fullPath = f.location ? (f.location.file || f.location.file_path || 'unknown') : 'unknown';
+                    const filename = fullPath.split('/').pop();
                     const line = f.location ? (f.location.line || f.location.start_line || '') : '';
                     const lineStr = line ? `L${line}` : '';
                     const ruleCode = f.rule_id ? `${f.rule_id} • ` : '';
@@ -780,7 +781,7 @@
                         <div class="finding-row">
                             <div class="finding-meta">
                                 <span class="finding-title">${f.title}</span>
-                                <span class="finding-path">${ruleCode}${file} ${lineStr}</span>
+                                <span class="finding-path" title="${fullPath}">${ruleCode}${filename} ${lineStr}</span>
                             </div>
                             <div class="finding-badge-container">
                                 <span class="severity-badge ${badgeClass}">${sev}</span>
