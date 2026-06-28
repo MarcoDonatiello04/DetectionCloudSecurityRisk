@@ -211,7 +211,6 @@ def main() -> None:
 
     logger.info("================================================================================")
     logger.info(f"🏆 PIPELINE COMPLETATA. Report salvato in '{args.output_dir}/'")
-    logger.info("🖥️  Avvia la dashboard desktop GUI con: python3 cloud_security_analyzer/launcher.py")
     logger.info("================================================================================")
 
 
