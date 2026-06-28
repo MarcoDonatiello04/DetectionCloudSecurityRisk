@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-scripts/run_all_security_tests.py
+entrypoints/runners/run_all_security_tests.py
 ==================================
 Unified runner script to execute all three security scanner modules:
 1. Broken Authentication Scanner (src.core.broken_authentication)

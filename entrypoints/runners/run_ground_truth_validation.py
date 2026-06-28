@@ -1,5 +1,5 @@
 """
-scripts/run_ground_truth_validation.py
+entrypoints/runners/run_ground_truth_validation.py
 =======================================
 Blind validation runner for the ground_truth_target.
 
