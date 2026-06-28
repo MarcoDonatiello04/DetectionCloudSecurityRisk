@@ -30,6 +30,7 @@
 | Data | Fixtures testate | TPR | FPR | Note |
 |------|-------------------|:---:|:---:|------|
 | 2026-06-27 | vulnerable_app + secure_app + crAPI | 100.0% | 0.0% | Scaffold ed implementazione completa completati |
+| 2026-06-28 | vulnerable_app + secure_app + crAPI | 100.0% | 0.0% | E2E validation complete. Fixed SC-004 global target findings format and SC-005 placeholder exclusions. |
 
 ---
 

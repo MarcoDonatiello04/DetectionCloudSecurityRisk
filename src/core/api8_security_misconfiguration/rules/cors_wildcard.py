@@ -5,6 +5,12 @@ from typing import List
 from src.core.api8_security_misconfiguration.models import MisconfigFinding
 
 def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[MisconfigFinding]:
+    # Skip test/fixture files but allow our own validation fixtures
+    path_parts = {p.lower() for p in file_path.parts}
+    if path_parts & {"test", "tests", "testing", "fixtures", "mock"}:
+        if not ("vulnerable_app" in path_parts or "secure_app" in path_parts):
+            return []
+
     findings = []
     
     # Check if JS/TS

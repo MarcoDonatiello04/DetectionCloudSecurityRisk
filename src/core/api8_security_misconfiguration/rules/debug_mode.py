@@ -37,7 +37,7 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
                                 file_path=str(file_path),
                                 line_number=node.lineno,
                                 evidence=evidence_line.strip().splitlines()[0],
-                                missing_guard="Disable debug mode in production",
+                                missing_guard="Replace literal True with os.environ.get('DEBUG', 'false').lower() == 'true'",
                                 confidence=0.95,
                                 layer="ast"
                             ))
@@ -55,7 +55,7 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
                                 file_path=str(file_path),
                                 line_number=node.lineno,
                                 evidence=evidence_line.strip().splitlines()[0],
-                                missing_guard="Disable reload/debug mode in production",
+                                missing_guard="Replace literal True with os.environ.get('DEBUG', 'false').lower() == 'true'",
                                 confidence=0.95,
                                 layer="ast"
                             ))
@@ -75,7 +75,7 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
                                 file_path=str(file_path),
                                 line_number=node.lineno,
                                 evidence=evidence_line.strip(),
-                                missing_guard="Disable debug mode in production",
+                                missing_guard="Replace literal True with os.environ.get('DEBUG', 'false').lower() == 'true'",
                                 confidence=0.95,
                                 layer="ast"
                             ))
