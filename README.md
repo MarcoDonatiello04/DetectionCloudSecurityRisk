@@ -133,10 +133,10 @@ Per lanciare i test unitari di validazione dell'event bus, del normalizzatore de
 ├── config/
 │   ├── environments/          # Contiene le variabili d'ambiente generate (.target_env)
 │   └── scanner_configs/       # Contiene le configurazioni degli scanner (rulesets)
-├── problema_api/              # Microservizi API vulnerabili di test
+├── fixtures/api_vulnerabilities/              # Microservizi API vulnerabili di test
 │   ├── bola/                  # Microservizio Flask vulnerabile a BOLA
 │   └── generic_vulns/         # Codice sorgente della Lambda AWS vulnerabile
-├── problema_misconfiguration/  # File infrastrutturali di test
+├── fixtures/infrastructure_misconfiguration/  # File infrastrutturali di test
 │   └── terraform/             # Configurazioni Terraform (vulnerable_infra.tf, main.tf)
 ├── remediation/               # Modulo offline di Remediation Intelligence
 │   ├── knowledge_base/        # Database locale delle remediation e cache locale
@@ -180,7 +180,7 @@ Per lanciare i test unitari di validazione dell'event bus, del normalizzatore de
     "rule_id": "unauthenticated-api-route",
     "rule_name": "API Route Detection",
     "location": {
-      "file_path": "problema_api/bola/app.py",
+      "file_path": "fixtures/api_vulnerabilities/bola/app.py",
       "start_line": 112,
       "end_line": null,
       "code_snippet": null

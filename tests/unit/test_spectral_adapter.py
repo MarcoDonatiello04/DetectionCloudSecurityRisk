@@ -10,7 +10,7 @@ def test_spectral_scanner_adapter_execution():
     adapter = SpectralScannerAdapter()
     
     # Verifica che il file del contratto OpenAPI di test esista
-    target_openapi = "problema_api/openapi.yaml"
+    target_openapi = "fixtures/api_vulnerabilities/openapi.yaml"
     assert os.path.exists(target_openapi), "Il file openapi.yaml di test non esiste"
     
     mock_data = [

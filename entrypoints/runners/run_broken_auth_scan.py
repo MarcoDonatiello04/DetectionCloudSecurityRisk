@@ -46,7 +46,7 @@ async def main():
     print("\n=== FASE 3: Authentication Intelligence Engine ===")
     # Load openapi.yaml if available
     openapi_spec = None
-    openapi_paths = ["problema_api/openapi.yaml", "openapi.json", "swagger.json"]
+    openapi_paths = ["fixtures/api_vulnerabilities/openapi.yaml", "openapi.json", "swagger.json"]
     for path in openapi_paths:
         if os.path.exists(path):
             try:

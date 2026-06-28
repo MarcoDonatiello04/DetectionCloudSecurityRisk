@@ -14,7 +14,7 @@ echo -e "${BLUE}=========================================================${NC}"
 
 # 1. Provisioning con Terraform
 echo -e "${YELLOW}[2.1] Esecuzione Terraform su LocalStack...${NC}"
-cd problema_misconfiguration/terraform
+cd fixtures/infrastructure_misconfiguration/terraform
 
 terraform init
 terraform apply -auto-approve
@@ -40,9 +40,9 @@ fi
 # 2. Analisi IaC con Checkov
 echo -e "\n${YELLOW}[2.2] Esecuzione scansione IaC statica con Checkov...${NC}"
 if command -v checkov &> /dev/null; then
-    checkov -d problema_misconfiguration/terraform --framework terraform || true
+    checkov -d fixtures/infrastructure_misconfiguration/terraform --framework terraform || true
 elif [ -f "./.venv/bin/checkov" ]; then
-    ./.venv/bin/checkov -d problema_misconfiguration/terraform --framework terraform || true
+    ./.venv/bin/checkov -d fixtures/infrastructure_misconfiguration/terraform --framework terraform || true
 else
     echo -e "${RED}[-] Checkov non trovato nel sistema. Scansione IaC saltata.${NC}"
 fi
