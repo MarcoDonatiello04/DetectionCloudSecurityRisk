@@ -12,13 +12,27 @@ echo -e "${BLUE}=========================================================${NC}"
 echo -e "${BLUE}   [FASE 1] Setup Ambiente e Container Docker            ${NC}"
 echo -e "${BLUE}=========================================================${NC}"
 
-# 1. Verifica LocalStack
+# 1. Verifica/Avvio LocalStack
 echo -e "${YELLOW}[1.1] Controllo LocalStack...${NC}"
-if ! docker ps | grep -q "localstack-main"; then
-    echo -e "${RED}[-] ERRORE: Il container 'localstack-main' non è avviato.${NC}"
-    echo -e "Avvia LocalStack prima di procedere."
-    exit 1
+if ! docker ps --format '{{.Names}}' | grep -q "^localstack-main$"; then
+    echo -e "${BLUE}[~] Il container 'localstack-main' non è in esecuzione. Tento l'avvio...${NC}"
+    if docker ps -a --format '{{.Names}}' | grep -q "^localstack-main$"; then
+        docker start localstack-main
+        echo -e "${GREEN}[+] Container 'localstack-main' avviato.${NC}"
+    else
+        echo -e "${BLUE}[~] Creazione e avvio di un nuovo container LocalStack...${NC}"
+        docker run -d \
+          --name localstack-main \
+          -p 4566:4566 \
+          -p 4510-4559:4510-4559 \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          localstack/localstack:latest
+        echo -e "${GREEN}[+] Container 'localstack-main' creato e avviato.${NC}"
+    fi
+else
+    echo -e "${GREEN}[+] LocalStack è già in esecuzione.${NC}"
 fi
+
 
 until [ "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4566/_localstack/health || echo '000')" = "200" ]; do
     printf "."
