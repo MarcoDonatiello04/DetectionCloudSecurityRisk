@@ -261,35 +261,37 @@
         .findings-list {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            max-height: 500px;
+            gap: 10px;
+            max-height: 65vh;
             overflow-y: auto;
             margin-bottom: 30px;
             padding-right: 8px;
         }
 
         .finding-item {
-            background: rgba(255,255,255,0.01);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 14px;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
             cursor: pointer;
             overflow: hidden;
         }
 
         .finding-item:hover {
-            background: rgba(255,255,255,0.02);
-            border-color: rgba(255,255,255,0.08);
+            background: rgba(112, 66, 255, 0.08);
+            border-color: rgba(112, 66, 255, 0.35);
+            box-shadow: 0 0 0 1px rgba(112,66,255,0.15);
         }
 
         .finding-row {
-            padding: 20px;
+            padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
+            min-height: 64px;
         }
 
         .toggle-arrow {
