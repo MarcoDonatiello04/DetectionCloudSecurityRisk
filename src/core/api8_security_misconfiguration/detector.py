@@ -22,7 +22,6 @@ def analyze(target_path: str) -> MisconfigReport:
             continue
             
         tree = _parse(file_path, content)
-        # Process JS/TS text-based rules even if AST is None
         if tree is None and file_path.suffix not in (".js", ".ts"):
             continue
         
@@ -33,6 +32,9 @@ def analyze(target_path: str) -> MisconfigReport:
     
     # SC-004 è una rule globale — analizza il target nel suo insieme
     findings.extend(missing_security_headers.analyze_global(target_path))
+    
+    # Filtra findings a bassa confidenza (< 0.70)
+    findings = [f for f in findings if f.confidence >= 0.70]
     
     return MisconfigReport(
         target_path=target_path,

@@ -33,6 +33,9 @@ def _compute_confidence(var_name: str, value: str) -> float:
     if value.lower() in PLACEHOLDER_VALUES:
         return 0.40
     
+    if ' ' in value:
+        return 0.45
+        
     if entropy > 3.5:
         return 0.90
     if entropy > 2.5:
@@ -70,8 +73,6 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
                         if not val:
                             continue
                             
-                        # Only skip if the exact value is a simple placeholder to reduce FPs
-                        # but allow typical secrets
                         val_lower = val.lower()
                         if val_lower in {"", "todo", "fixme"}:
                             continue

@@ -27,16 +27,23 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
                 body_visitor = VerboseBodyVisitor(exc_var_name)
                 body_visitor.visit(node)
                 
-                if body_visitor.is_verbose:
-                    evidence_line = ast.get_source_segment(content, node) or f"def {node.name}({exc_var_name}):"
-                    evidence = evidence_line.strip().splitlines()[0]
+                if body_visitor.leaks:
+                    body_visitor.leaks.sort(key=lambda x: x[0])
+                    priority, leak_line, leak_node = body_visitor.leaks[0]
+                    
+                    content_lines = content.splitlines()
+                    if 1 <= leak_line <= len(content_lines):
+                        evidence = content_lines[leak_line - 1].strip()
+                    else:
+                        evidence = f"def {node.name}({exc_var_name}):"
+                        
                     self.findings.append(MisconfigFinding(
                         rule_id="SC-003",
                         cwe_id="CWE-209",
                         category="verbose_error_handler",
                         severity="HIGH",
                         file_path=str(file_path),
-                        line_number=node.lineno,
+                        line_number=leak_line,
                         evidence=evidence,
                         missing_guard="Sanitize error messages before returning to user",
                         confidence=0.90,
@@ -47,21 +54,21 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
     class VerboseBodyVisitor(ast.NodeVisitor):
         def __init__(self, exc_var: str):
             self.exc_var = exc_var
-            self.is_verbose = False
+            self.leaks = []
 
         def visit_Call(self, node: ast.Call):
             if isinstance(node.func, ast.Attribute):
                 if node.func.attr in ("format_exc", "print_exc"):
                     if isinstance(node.func.value, ast.Name) and node.func.value.id == "traceback":
-                        self.is_verbose = True
+                        self.leaks.append((1, node.lineno, node))
             
             if isinstance(node.func, ast.Name) and node.func.id == "repr":
                 if node.args and isinstance(node.args[0], ast.Name) and node.args[0].id == self.exc_var:
-                    self.is_verbose = True
+                    self.leaks.append((2, node.lineno, node))
 
             if isinstance(node.func, ast.Name) and node.func.id == "str":
                 if node.args and isinstance(node.args[0], ast.Name) and node.args[0].id == self.exc_var:
-                    self.is_verbose = True
+                    self.leaks.append((3, node.lineno, node))
 
             self.generic_visit(node)
 
@@ -69,7 +76,7 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
             for val in node.values:
                 if isinstance(val, ast.FormattedValue):
                     if isinstance(val.value, ast.Name) and val.value.id == self.exc_var:
-                        self.is_verbose = True
+                        self.leaks.append((3, node.lineno, node))
             self.generic_visit(node)
 
     visitor = ErrorHandlerVisitor()
