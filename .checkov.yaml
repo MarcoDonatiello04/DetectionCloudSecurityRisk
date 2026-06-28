@@ -4,6 +4,11 @@ skip-path:
   - .venv
   - .terraform
   - .git
+  - output
+  - reports
+  - remediation
+  - tests
+  - src
 soft-fail: false
 output:
   - cli
