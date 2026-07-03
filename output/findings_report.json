@@ -187,7 +187,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476689"
+    "detected_at": "2026-07-03T09:30:52.132461"
   },
   {
     "finding_id": "checkov-8df4e5c315f2",
@@ -377,7 +377,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476712"
+    "detected_at": "2026-07-03T09:30:52.132489"
   },
   {
     "finding_id": "checkov-f6ebc437764a",
@@ -449,7 +449,7 @@
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476728"
+    "detected_at": "2026-07-03T09:30:52.132507"
   },
   {
     "finding_id": "checkov-2ba17d4fbb8a",
@@ -588,7 +588,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476732"
+    "detected_at": "2026-07-03T09:30:52.132511"
   },
   {
     "finding_id": "checkov-2b743529ac7c",
@@ -778,7 +778,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476736"
+    "detected_at": "2026-07-03T09:30:52.132516"
   },
   {
     "finding_id": "checkov-43bb7ae57188",
@@ -850,7 +850,7 @@
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476750"
+    "detected_at": "2026-07-03T09:30:52.132530"
   },
   {
     "finding_id": "checkov-d34b1309e499",
@@ -963,7 +963,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476753"
+    "detected_at": "2026-07-03T09:30:52.132534"
   },
   {
     "finding_id": "checkov-f5a78925ce76",
@@ -1035,7 +1035,7 @@
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476760"
+    "detected_at": "2026-07-03T09:30:52.132541"
   },
   {
     "finding_id": "checkov-25e89a6c09ba",
@@ -1107,7 +1107,7 @@
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476763"
+    "detected_at": "2026-07-03T09:30:52.132546"
   },
   {
     "finding_id": "checkov-f7d2c8ef843f",
@@ -1488,8 +1488,8 @@
             }
           },
           "evaluated_keys": [
-            "policy/Statement[?(@/Effect == Allow)]/Action[*]",
             "statement[?(@/effect == Allow)]/actions[*]",
+            "policy/Statement[?(@/Effect == Allow)]/Action[*]",
             "inline_policy/Statement[?(@/Effect == Allow)]/Action[*]"
           ]
         },
@@ -1523,7 +1523,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476767"
+    "detected_at": "2026-07-03T09:30:52.132549"
   },
   {
     "finding_id": "checkov-2c6ad4fc9b68",
@@ -1900,7 +1900,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476791"
+    "detected_at": "2026-07-03T09:30:52.132576"
   },
   {
     "finding_id": "checkov-88dfc21d8818",
@@ -1972,7 +1972,7 @@
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476815"
+    "detected_at": "2026-07-03T09:30:52.132601"
   },
   {
     "finding_id": "checkov-202255267bc2",
@@ -2107,7 +2107,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476819"
+    "detected_at": "2026-07-03T09:30:52.132604"
   },
   {
     "finding_id": "checkov-8c6144efe32f",
@@ -2242,7 +2242,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476822"
+    "detected_at": "2026-07-03T09:30:52.132608"
   },
   {
     "finding_id": "checkov-062b0ce83893",
@@ -2314,7 +2314,7 @@
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476826"
+    "detected_at": "2026-07-03T09:30:52.132612"
   },
   {
     "finding_id": "checkov-79d3dbae86cf",
@@ -2491,9 +2491,9 @@
             }
           },
           "evaluated_keys": [
-            "resource_type",
+            "settings/logging_level",
             "settings/metrics_enabled",
-            "settings/logging_level"
+            "resource_type"
           ]
         },
         "code_block": null,
@@ -2549,9 +2549,9 @@
             }
           },
           "evaluated_keys": [
+            "client_certificate_id",
             "protocol_type",
-            "resource_type",
-            "client_certificate_id"
+            "resource_type"
           ]
         },
         "code_block": null,
@@ -2607,8 +2607,8 @@
             }
           },
           "evaluated_keys": [
-            "resource_type",
-            "endpoint_configuration/types"
+            "endpoint_configuration/types",
+            "resource_type"
           ]
         },
         "code_block": null,
@@ -2641,7 +2641,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476830"
+    "detected_at": "2026-07-03T09:30:52.132615"
   },
   {
     "finding_id": "checkov-a9803fd215ca",
@@ -2668,13 +2668,13 @@
     "risk_context": null,
     "correlation_key": "bucket_1_public_acl",
     "related_findings": [
-      "checkov-6767a7d9d0bd",
-      "checkov-e1b50e200316",
-      "checkov-63d8bf3422b2",
-      "checkov-1877e811becc",
-      "checkov-908828d2d9ff",
       "checkov-c361f3cdedcb",
-      "checkov-ab0ba202e864"
+      "checkov-6767a7d9d0bd",
+      "checkov-63d8bf3422b2",
+      "checkov-ab0ba202e864",
+      "checkov-1877e811becc",
+      "checkov-e1b50e200316",
+      "checkov-908828d2d9ff"
     ],
     "owasp_api_category": null,
     "cwe_id": null,
@@ -2732,272 +2732,6 @@
       "details": [],
       "check_len": null,
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-      "merged_checkov-6767a7d9d0bd": {
-        "check_id": "CKV_AWS_144",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_1_public_acl": {
-                "__end_line__": 25,
-                "__start_line__": 23,
-                "bucket": [
-                  "bucket-1-public-acl"
-                ],
-                "__address__": "aws_s3_bucket.bucket_1_public_acl",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "rule/*/status",
-            "resource_type",
-            "replication_configuration/rules/*/status"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          23,
-          25
-        ],
-        "resource": "aws_s3_bucket.bucket_1_public_acl",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-e1b50e200316": {
-        "check_id": "CKV_AWS_145",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 buckets are encrypted with KMS by default",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_1_public_acl": {
-                "__end_line__": 25,
-                "__start_line__": 23,
-                "bucket": [
-                  "bucket-1-public-acl"
-                ],
-                "__address__": "aws_s3_bucket.bucket_1_public_acl",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "server_side_encryption_configuration/rule/apply_server_side_encryption_by_default/sse_algorithm",
-            "resource_type",
-            "rule/apply_server_side_encryption_by_default/sse_algorithm"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          23,
-          25
-        ],
-        "resource": "aws_s3_bucket.bucket_1_public_acl",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-63d8bf3422b2": {
-        "check_id": "CKV_AWS_18",
-        "bc_check_id": null,
-        "check_name": "Ensure the S3 bucket has access logging enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_1_public_acl": {
-                "__end_line__": 25,
-                "__start_line__": 23,
-                "bucket": [
-                  "bucket-1-public-acl"
-                ],
-                "__address__": "aws_s3_bucket.bucket_1_public_acl",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "resource_type",
-            "logging"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          23,
-          25
-        ],
-        "resource": "aws_s3_bucket.bucket_1_public_acl",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-1877e811becc": {
-        "check_id": "CKV_AWS_20",
-        "bc_check_id": null,
-        "check_name": "S3 Bucket has an ACL defined which allows public READ access.",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_1_public_acl": {
-                "__end_line__": 25,
-                "__start_line__": 23,
-                "bucket": [
-                  "bucket-1-public-acl"
-                ],
-                "__address__": "aws_s3_bucket.bucket_1_public_acl",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "access_control_policy/grant/*/grantee/uri",
-            "access_control_policy",
-            "access_control_policy/grant",
-            "acl",
-            "resource_type"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          23,
-          25
-        ],
-        "resource": "aws_s3_bucket.bucket_1_public_acl",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-908828d2d9ff": {
-        "check_id": "CKV2_AWS_6",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 bucket has a Public Access block",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_1_public_acl": {
-                "__end_line__": 25,
-                "__start_line__": 23,
-                "bucket": [
-                  "bucket-1-public-acl"
-                ],
-                "__address__": "aws_s3_bucket.bucket_1_public_acl",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "block_public_acls",
-            "block_public_policy",
-            "resource_type"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          23,
-          25
-        ],
-        "resource": "aws_s3_bucket.bucket_1_public_acl",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
       "merged_checkov-c361f3cdedcb": {
         "check_id": "CKV2_AWS_61",
         "bc_check_id": null,
@@ -3050,6 +2784,111 @@
         "check_len": null,
         "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
       },
+      "merged_checkov-6767a7d9d0bd": {
+        "check_id": "CKV_AWS_144",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_1_public_acl": {
+                "__end_line__": 25,
+                "__start_line__": 23,
+                "bucket": [
+                  "bucket-1-public-acl"
+                ],
+                "__address__": "aws_s3_bucket.bucket_1_public_acl",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "rule/*/status",
+            "replication_configuration/rules/*/status",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          23,
+          25
+        ],
+        "resource": "aws_s3_bucket.bucket_1_public_acl",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-63d8bf3422b2": {
+        "check_id": "CKV_AWS_18",
+        "bc_check_id": null,
+        "check_name": "Ensure the S3 bucket has access logging enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_1_public_acl": {
+                "__end_line__": 25,
+                "__start_line__": 23,
+                "bucket": [
+                  "bucket-1-public-acl"
+                ],
+                "__address__": "aws_s3_bucket.bucket_1_public_acl",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "logging",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          23,
+          25
+        ],
+        "resource": "aws_s3_bucket.bucket_1_public_acl",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
       "merged_checkov-ab0ba202e864": {
         "check_id": "CKV_AWS_21",
         "bc_check_id": null,
@@ -3071,7 +2910,168 @@
           },
           "evaluated_keys": [
             "versioning_configuration/status",
-            "versioning/enabled",
+            "resource_type",
+            "versioning/enabled"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          23,
+          25
+        ],
+        "resource": "aws_s3_bucket.bucket_1_public_acl",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-1877e811becc": {
+        "check_id": "CKV_AWS_20",
+        "bc_check_id": null,
+        "check_name": "S3 Bucket has an ACL defined which allows public READ access.",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_1_public_acl": {
+                "__end_line__": 25,
+                "__start_line__": 23,
+                "bucket": [
+                  "bucket-1-public-acl"
+                ],
+                "__address__": "aws_s3_bucket.bucket_1_public_acl",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "acl",
+            "access_control_policy",
+            "access_control_policy/grant/*/grantee/uri",
+            "access_control_policy/grant",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          23,
+          25
+        ],
+        "resource": "aws_s3_bucket.bucket_1_public_acl",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-e1b50e200316": {
+        "check_id": "CKV_AWS_145",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 buckets are encrypted with KMS by default",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_1_public_acl": {
+                "__end_line__": 25,
+                "__start_line__": 23,
+                "bucket": [
+                  "bucket-1-public-acl"
+                ],
+                "__address__": "aws_s3_bucket.bucket_1_public_acl",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "server_side_encryption_configuration/rule/apply_server_side_encryption_by_default/sse_algorithm",
+            "rule/apply_server_side_encryption_by_default/sse_algorithm",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          23,
+          25
+        ],
+        "resource": "aws_s3_bucket.bucket_1_public_acl",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-908828d2d9ff": {
+        "check_id": "CKV2_AWS_6",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 bucket has a Public Access block",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_1_public_acl": {
+                "__end_line__": 25,
+                "__start_line__": 23,
+                "bucket": [
+                  "bucket-1-public-acl"
+                ],
+                "__address__": "aws_s3_bucket.bucket_1_public_acl",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "block_public_policy",
+            "block_public_acls",
             "resource_type"
           ]
         },
@@ -3105,7 +3105,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476844"
+    "detected_at": "2026-07-03T09:30:52.132630"
   },
   {
     "finding_id": "checkov-6847650d93ae",
@@ -3132,12 +3132,12 @@
     "risk_context": null,
     "correlation_key": "bucket_2_flawed_policy",
     "related_findings": [
-      "checkov-9231d4fed856",
-      "checkov-29af63874ef9",
-      "checkov-791469d8de7e",
-      "checkov-0e0ca34759c2",
       "checkov-a54c9eec360d",
-      "checkov-d87a5d76181f"
+      "checkov-9231d4fed856",
+      "checkov-791469d8de7e",
+      "checkov-d87a5d76181f",
+      "checkov-29af63874ef9",
+      "checkov-0e0ca34759c2"
     ],
     "owasp_api_category": null,
     "cwe_id": null,
@@ -3195,217 +3195,6 @@
       "details": [],
       "check_len": null,
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-      "merged_checkov-9231d4fed856": {
-        "check_id": "CKV_AWS_144",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_2_flawed_policy": {
-                "__end_line__": 56,
-                "__start_line__": 54,
-                "bucket": [
-                  "bucket-2-flawed-policy"
-                ],
-                "__address__": "aws_s3_bucket.bucket_2_flawed_policy",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "rule/*/status",
-            "resource_type",
-            "replication_configuration/rules/*/status"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          54,
-          56
-        ],
-        "resource": "aws_s3_bucket.bucket_2_flawed_policy",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-29af63874ef9": {
-        "check_id": "CKV_AWS_145",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 buckets are encrypted with KMS by default",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_2_flawed_policy": {
-                "__end_line__": 56,
-                "__start_line__": 54,
-                "bucket": [
-                  "bucket-2-flawed-policy"
-                ],
-                "__address__": "aws_s3_bucket.bucket_2_flawed_policy",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "server_side_encryption_configuration/rule/apply_server_side_encryption_by_default/sse_algorithm",
-            "resource_type",
-            "rule/apply_server_side_encryption_by_default/sse_algorithm"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          54,
-          56
-        ],
-        "resource": "aws_s3_bucket.bucket_2_flawed_policy",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-791469d8de7e": {
-        "check_id": "CKV_AWS_18",
-        "bc_check_id": null,
-        "check_name": "Ensure the S3 bucket has access logging enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_2_flawed_policy": {
-                "__end_line__": 56,
-                "__start_line__": 54,
-                "bucket": [
-                  "bucket-2-flawed-policy"
-                ],
-                "__address__": "aws_s3_bucket.bucket_2_flawed_policy",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "resource_type",
-            "logging"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          54,
-          56
-        ],
-        "resource": "aws_s3_bucket.bucket_2_flawed_policy",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-0e0ca34759c2": {
-        "check_id": "CKV2_AWS_6",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 bucket has a Public Access block",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_2_flawed_policy": {
-                "__end_line__": 56,
-                "__start_line__": 54,
-                "bucket": [
-                  "bucket-2-flawed-policy"
-                ],
-                "__address__": "aws_s3_bucket.bucket_2_flawed_policy",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "block_public_acls",
-            "block_public_policy",
-            "resource_type"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          54,
-          56
-        ],
-        "resource": "aws_s3_bucket.bucket_2_flawed_policy",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
       "merged_checkov-a54c9eec360d": {
         "check_id": "CKV2_AWS_61",
         "bc_check_id": null,
@@ -3458,6 +3247,111 @@
         "check_len": null,
         "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
       },
+      "merged_checkov-9231d4fed856": {
+        "check_id": "CKV_AWS_144",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_2_flawed_policy": {
+                "__end_line__": 56,
+                "__start_line__": 54,
+                "bucket": [
+                  "bucket-2-flawed-policy"
+                ],
+                "__address__": "aws_s3_bucket.bucket_2_flawed_policy",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "rule/*/status",
+            "replication_configuration/rules/*/status",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          54,
+          56
+        ],
+        "resource": "aws_s3_bucket.bucket_2_flawed_policy",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-791469d8de7e": {
+        "check_id": "CKV_AWS_18",
+        "bc_check_id": null,
+        "check_name": "Ensure the S3 bucket has access logging enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_2_flawed_policy": {
+                "__end_line__": 56,
+                "__start_line__": 54,
+                "bucket": [
+                  "bucket-2-flawed-policy"
+                ],
+                "__address__": "aws_s3_bucket.bucket_2_flawed_policy",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "logging",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          54,
+          56
+        ],
+        "resource": "aws_s3_bucket.bucket_2_flawed_policy",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
       "merged_checkov-d87a5d76181f": {
         "check_id": "CKV_AWS_21",
         "bc_check_id": null,
@@ -3479,7 +3373,113 @@
           },
           "evaluated_keys": [
             "versioning_configuration/status",
-            "versioning/enabled",
+            "resource_type",
+            "versioning/enabled"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          54,
+          56
+        ],
+        "resource": "aws_s3_bucket.bucket_2_flawed_policy",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-29af63874ef9": {
+        "check_id": "CKV_AWS_145",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 buckets are encrypted with KMS by default",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_2_flawed_policy": {
+                "__end_line__": 56,
+                "__start_line__": 54,
+                "bucket": [
+                  "bucket-2-flawed-policy"
+                ],
+                "__address__": "aws_s3_bucket.bucket_2_flawed_policy",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "server_side_encryption_configuration/rule/apply_server_side_encryption_by_default/sse_algorithm",
+            "rule/apply_server_side_encryption_by_default/sse_algorithm",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          54,
+          56
+        ],
+        "resource": "aws_s3_bucket.bucket_2_flawed_policy",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-0e0ca34759c2": {
+        "check_id": "CKV2_AWS_6",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 bucket has a Public Access block",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_2_flawed_policy": {
+                "__end_line__": 56,
+                "__start_line__": 54,
+                "bucket": [
+                  "bucket-2-flawed-policy"
+                ],
+                "__address__": "aws_s3_bucket.bucket_2_flawed_policy",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "block_public_policy",
+            "block_public_acls",
             "resource_type"
           ]
         },
@@ -3513,7 +3513,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476848"
+    "detected_at": "2026-07-03T09:30:52.132634"
   },
   {
     "finding_id": "checkov-abfa1e797718",
@@ -3540,11 +3540,11 @@
     "risk_context": null,
     "correlation_key": "bucket_3_minor_problem",
     "related_findings": [
+      "checkov-2b088204e866",
       "checkov-9efac2e3358a",
-      "checkov-dd51c32c9478",
       "checkov-988e24330653",
-      "checkov-317a39549f76",
-      "checkov-2b088204e866"
+      "checkov-dd51c32c9478",
+      "checkov-317a39549f76"
     ],
     "owasp_api_category": null,
     "cwe_id": null,
@@ -3602,217 +3602,6 @@
       "details": [],
       "check_len": null,
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-      "merged_checkov-9efac2e3358a": {
-        "check_id": "CKV_AWS_144",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_3_minor_problem": {
-                "__end_line__": 88,
-                "__start_line__": 86,
-                "bucket": [
-                  "bucket-3-minor-problem"
-                ],
-                "__address__": "aws_s3_bucket.bucket_3_minor_problem",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "rule/*/status",
-            "resource_type",
-            "replication_configuration/rules/*/status"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          86,
-          88
-        ],
-        "resource": "aws_s3_bucket.bucket_3_minor_problem",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-dd51c32c9478": {
-        "check_id": "CKV_AWS_145",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 buckets are encrypted with KMS by default",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_3_minor_problem": {
-                "__end_line__": 88,
-                "__start_line__": 86,
-                "bucket": [
-                  "bucket-3-minor-problem"
-                ],
-                "__address__": "aws_s3_bucket.bucket_3_minor_problem",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "server_side_encryption_configuration/rule/apply_server_side_encryption_by_default/sse_algorithm",
-            "resource_type",
-            "rule/apply_server_side_encryption_by_default/sse_algorithm"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          86,
-          88
-        ],
-        "resource": "aws_s3_bucket.bucket_3_minor_problem",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-988e24330653": {
-        "check_id": "CKV_AWS_18",
-        "bc_check_id": null,
-        "check_name": "Ensure the S3 bucket has access logging enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_3_minor_problem": {
-                "__end_line__": 88,
-                "__start_line__": 86,
-                "bucket": [
-                  "bucket-3-minor-problem"
-                ],
-                "__address__": "aws_s3_bucket.bucket_3_minor_problem",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "resource_type",
-            "logging"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          86,
-          88
-        ],
-        "resource": "aws_s3_bucket.bucket_3_minor_problem",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-317a39549f76": {
-        "check_id": "CKV2_AWS_6",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 bucket has a Public Access block",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_3_minor_problem": {
-                "__end_line__": 88,
-                "__start_line__": 86,
-                "bucket": [
-                  "bucket-3-minor-problem"
-                ],
-                "__address__": "aws_s3_bucket.bucket_3_minor_problem",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "block_public_acls",
-            "block_public_policy",
-            "resource_type"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          86,
-          88
-        ],
-        "resource": "aws_s3_bucket.bucket_3_minor_problem",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
       "merged_checkov-2b088204e866": {
         "check_id": "CKV2_AWS_61",
         "bc_check_id": null,
@@ -3865,9 +3654,220 @@
         "check_len": null,
         "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
       },
+      "merged_checkov-9efac2e3358a": {
+        "check_id": "CKV_AWS_144",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_3_minor_problem": {
+                "__end_line__": 88,
+                "__start_line__": 86,
+                "bucket": [
+                  "bucket-3-minor-problem"
+                ],
+                "__address__": "aws_s3_bucket.bucket_3_minor_problem",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "rule/*/status",
+            "replication_configuration/rules/*/status",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          86,
+          88
+        ],
+        "resource": "aws_s3_bucket.bucket_3_minor_problem",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-988e24330653": {
+        "check_id": "CKV_AWS_18",
+        "bc_check_id": null,
+        "check_name": "Ensure the S3 bucket has access logging enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_3_minor_problem": {
+                "__end_line__": 88,
+                "__start_line__": 86,
+                "bucket": [
+                  "bucket-3-minor-problem"
+                ],
+                "__address__": "aws_s3_bucket.bucket_3_minor_problem",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "logging",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          86,
+          88
+        ],
+        "resource": "aws_s3_bucket.bucket_3_minor_problem",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-dd51c32c9478": {
+        "check_id": "CKV_AWS_145",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 buckets are encrypted with KMS by default",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_3_minor_problem": {
+                "__end_line__": 88,
+                "__start_line__": 86,
+                "bucket": [
+                  "bucket-3-minor-problem"
+                ],
+                "__address__": "aws_s3_bucket.bucket_3_minor_problem",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "server_side_encryption_configuration/rule/apply_server_side_encryption_by_default/sse_algorithm",
+            "rule/apply_server_side_encryption_by_default/sse_algorithm",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          86,
+          88
+        ],
+        "resource": "aws_s3_bucket.bucket_3_minor_problem",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-317a39549f76": {
+        "check_id": "CKV2_AWS_6",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 bucket has a Public Access block",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_3_minor_problem": {
+                "__end_line__": 88,
+                "__start_line__": 86,
+                "bucket": [
+                  "bucket-3-minor-problem"
+                ],
+                "__address__": "aws_s3_bucket.bucket_3_minor_problem",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "block_public_policy",
+            "block_public_acls",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          86,
+          88
+        ],
+        "resource": "aws_s3_bucket.bucket_3_minor_problem",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476851"
+    "detected_at": "2026-07-03T09:30:52.132637"
   },
   {
     "finding_id": "checkov-0fe7b0a6d2d7",
@@ -3894,9 +3894,9 @@
     "risk_context": null,
     "correlation_key": "bucket_4_perfect",
     "related_findings": [
+      "checkov-01487a868604",
       "checkov-ee5d4acdfb2b",
-      "checkov-90c961ce8d28",
-      "checkov-01487a868604"
+      "checkov-90c961ce8d28"
     ],
     "owasp_api_category": null,
     "cwe_id": null,
@@ -3954,111 +3954,6 @@
       "details": [],
       "check_len": null,
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-      "merged_checkov-ee5d4acdfb2b": {
-        "check_id": "CKV_AWS_144",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_4_perfect": {
-                "__end_line__": 110,
-                "__start_line__": 108,
-                "bucket": [
-                  "bucket-4-perfect"
-                ],
-                "__address__": "aws_s3_bucket.bucket_4_perfect",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "rule/*/status",
-            "resource_type",
-            "replication_configuration/rules/*/status"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          108,
-          110
-        ],
-        "resource": "aws_s3_bucket.bucket_4_perfect",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-90c961ce8d28": {
-        "check_id": "CKV_AWS_18",
-        "bc_check_id": null,
-        "check_name": "Ensure the S3 bucket has access logging enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_4_perfect": {
-                "__end_line__": 110,
-                "__start_line__": 108,
-                "bucket": [
-                  "bucket-4-perfect"
-                ],
-                "__address__": "aws_s3_bucket.bucket_4_perfect",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "resource_type",
-            "logging"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          108,
-          110
-        ],
-        "resource": "aws_s3_bucket.bucket_4_perfect",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
       "merged_checkov-01487a868604": {
         "check_id": "CKV2_AWS_61",
         "bc_check_id": null,
@@ -4111,9 +4006,114 @@
         "check_len": null,
         "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
       },
+      "merged_checkov-ee5d4acdfb2b": {
+        "check_id": "CKV_AWS_144",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_4_perfect": {
+                "__end_line__": 110,
+                "__start_line__": 108,
+                "bucket": [
+                  "bucket-4-perfect"
+                ],
+                "__address__": "aws_s3_bucket.bucket_4_perfect",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "rule/*/status",
+            "replication_configuration/rules/*/status",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          108,
+          110
+        ],
+        "resource": "aws_s3_bucket.bucket_4_perfect",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-90c961ce8d28": {
+        "check_id": "CKV_AWS_18",
+        "bc_check_id": null,
+        "check_name": "Ensure the S3 bucket has access logging enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_4_perfect": {
+                "__end_line__": 110,
+                "__start_line__": 108,
+                "bucket": [
+                  "bucket-4-perfect"
+                ],
+                "__address__": "aws_s3_bucket.bucket_4_perfect",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "logging",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          108,
+          110
+        ],
+        "resource": "aws_s3_bucket.bucket_4_perfect",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476855"
+    "detected_at": "2026-07-03T09:30:52.132642"
   },
   {
     "finding_id": "checkov-ce44580bc17f",
@@ -4140,9 +4140,9 @@
     "risk_context": null,
     "correlation_key": "bucket_5_impenetrable",
     "related_findings": [
+      "checkov-878e17129375",
       "checkov-1631ceb8d319",
-      "checkov-651791a37697",
-      "checkov-878e17129375"
+      "checkov-651791a37697"
     ],
     "owasp_api_category": null,
     "cwe_id": null,
@@ -4203,117 +4203,6 @@
       "details": [],
       "check_len": null,
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-      "merged_checkov-1631ceb8d319": {
-        "check_id": "CKV_AWS_144",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_5_impenetrable": {
-                "__end_line__": 166,
-                "__start_line__": 163,
-                "bucket": [
-                  "bucket-5-impenetrable"
-                ],
-                "object_lock_enabled": [
-                  true
-                ],
-                "__address__": "aws_s3_bucket.bucket_5_impenetrable",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "rule/*/status",
-            "resource_type",
-            "replication_configuration/rules/*/status"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          163,
-          166
-        ],
-        "resource": "aws_s3_bucket.bucket_5_impenetrable",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
-      "merged_checkov-651791a37697": {
-        "check_id": "CKV_AWS_18",
-        "bc_check_id": null,
-        "check_name": "Ensure the S3 bucket has access logging enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "bucket_5_impenetrable": {
-                "__end_line__": 166,
-                "__start_line__": 163,
-                "bucket": [
-                  "bucket-5-impenetrable"
-                ],
-                "object_lock_enabled": [
-                  true
-                ],
-                "__address__": "aws_s3_bucket.bucket_5_impenetrable",
-                "__provider_address__": "aws.default"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "resource_type",
-            "logging"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
-        "file_line_range": [
-          163,
-          166
-        ],
-        "resource": "aws_s3_bucket.bucket_5_impenetrable",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
-      },
       "merged_checkov-878e17129375": {
         "check_id": "CKV2_AWS_61",
         "bc_check_id": null,
@@ -4369,9 +4258,120 @@
         "check_len": null,
         "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
       },
+      "merged_checkov-1631ceb8d319": {
+        "check_id": "CKV_AWS_144",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_5_impenetrable": {
+                "__end_line__": 166,
+                "__start_line__": 163,
+                "bucket": [
+                  "bucket-5-impenetrable"
+                ],
+                "object_lock_enabled": [
+                  true
+                ],
+                "__address__": "aws_s3_bucket.bucket_5_impenetrable",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "rule/*/status",
+            "replication_configuration/rules/*/status",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          163,
+          166
+        ],
+        "resource": "aws_s3_bucket.bucket_5_impenetrable",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
+      "merged_checkov-651791a37697": {
+        "check_id": "CKV_AWS_18",
+        "bc_check_id": null,
+        "check_name": "Ensure the S3 bucket has access logging enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "bucket_5_impenetrable": {
+                "__end_line__": 166,
+                "__start_line__": 163,
+                "bucket": [
+                  "bucket-5-impenetrable"
+                ],
+                "object_lock_enabled": [
+                  true
+                ],
+                "__address__": "aws_s3_bucket.bucket_5_impenetrable",
+                "__provider_address__": "aws.default"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "logging",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/main.tf",
+        "file_line_range": [
+          163,
+          166
+        ],
+        "resource": "aws_s3_bucket.bucket_5_impenetrable",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf"
+      },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476858"
+    "detected_at": "2026-07-03T09:30:52.132646"
   },
   {
     "finding_id": "checkov-2d1bcbae5a0d",
@@ -4398,12 +4398,12 @@
     "risk_context": null,
     "correlation_key": "public_uploads_bucket",
     "related_findings": [
-      "checkov-7658ce47bffb",
-      "checkov-4e0f58f3046e",
-      "checkov-a90e17305667",
-      "checkov-233b08e21eb3",
       "checkov-538d5f659bfb",
-      "checkov-8cef3cc47d39"
+      "checkov-7658ce47bffb",
+      "checkov-a90e17305667",
+      "checkov-8cef3cc47d39",
+      "checkov-4e0f58f3046e",
+      "checkov-233b08e21eb3"
     ],
     "owasp_api_category": null,
     "cwe_id": null,
@@ -4460,213 +4460,6 @@
       "details": [],
       "check_len": null,
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-      "merged_checkov-7658ce47bffb": {
-        "check_id": "CKV_AWS_144",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "public_uploads_bucket": {
-                "__end_line__": 8,
-                "__start_line__": 6,
-                "bucket": [
-                  "public-uploads-bucket"
-                ],
-                "__address__": "aws_s3_bucket.public_uploads_bucket"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "rule/*/status",
-            "resource_type",
-            "replication_configuration/rules/*/status"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "file_line_range": [
-          6,
-          8
-        ],
-        "resource": "aws_s3_bucket.public_uploads_bucket",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf"
-      },
-      "merged_checkov-4e0f58f3046e": {
-        "check_id": "CKV_AWS_145",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 buckets are encrypted with KMS by default",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "public_uploads_bucket": {
-                "__end_line__": 8,
-                "__start_line__": 6,
-                "bucket": [
-                  "public-uploads-bucket"
-                ],
-                "__address__": "aws_s3_bucket.public_uploads_bucket"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "server_side_encryption_configuration/rule/apply_server_side_encryption_by_default/sse_algorithm",
-            "resource_type",
-            "rule/apply_server_side_encryption_by_default/sse_algorithm"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "file_line_range": [
-          6,
-          8
-        ],
-        "resource": "aws_s3_bucket.public_uploads_bucket",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf"
-      },
-      "merged_checkov-a90e17305667": {
-        "check_id": "CKV_AWS_18",
-        "bc_check_id": null,
-        "check_name": "Ensure the S3 bucket has access logging enabled",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "public_uploads_bucket": {
-                "__end_line__": 8,
-                "__start_line__": 6,
-                "bucket": [
-                  "public-uploads-bucket"
-                ],
-                "__address__": "aws_s3_bucket.public_uploads_bucket"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "resource_type",
-            "logging"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "file_line_range": [
-          6,
-          8
-        ],
-        "resource": "aws_s3_bucket.public_uploads_bucket",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf"
-      },
-      "merged_checkov-233b08e21eb3": {
-        "check_id": "CKV2_AWS_6",
-        "bc_check_id": null,
-        "check_name": "Ensure that S3 bucket has a Public Access block",
-        "check_result": {
-          "result": "FAILED",
-          "entity": {
-            "aws_s3_bucket": {
-              "public_uploads_bucket": {
-                "__end_line__": 8,
-                "__start_line__": 6,
-                "bucket": [
-                  "public-uploads-bucket"
-                ],
-                "__address__": "aws_s3_bucket.public_uploads_bucket"
-              }
-            }
-          },
-          "evaluated_keys": [
-            "block_public_acls",
-            "block_public_policy",
-            "resource_type"
-          ]
-        },
-        "code_block": null,
-        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
-        "file_line_range": [
-          6,
-          8
-        ],
-        "resource": "aws_s3_bucket.public_uploads_bucket",
-        "evaluations": null,
-        "check_class": "checkov.common.graph.checks_infra.base_check",
-        "fixed_definition": null,
-        "entity_tags": {},
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": {},
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf"
-      },
       "merged_checkov-538d5f659bfb": {
         "check_id": "CKV2_AWS_61",
         "bc_check_id": null,
@@ -4718,6 +4511,109 @@
         "check_len": null,
         "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf"
       },
+      "merged_checkov-7658ce47bffb": {
+        "check_id": "CKV_AWS_144",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 bucket has cross-region replication enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "public_uploads_bucket": {
+                "__end_line__": 8,
+                "__start_line__": 6,
+                "bucket": [
+                  "public-uploads-bucket"
+                ],
+                "__address__": "aws_s3_bucket.public_uploads_bucket"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "rule/*/status",
+            "replication_configuration/rules/*/status",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "file_line_range": [
+          6,
+          8
+        ],
+        "resource": "aws_s3_bucket.public_uploads_bucket",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf"
+      },
+      "merged_checkov-a90e17305667": {
+        "check_id": "CKV_AWS_18",
+        "bc_check_id": null,
+        "check_name": "Ensure the S3 bucket has access logging enabled",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "public_uploads_bucket": {
+                "__end_line__": 8,
+                "__start_line__": 6,
+                "bucket": [
+                  "public-uploads-bucket"
+                ],
+                "__address__": "aws_s3_bucket.public_uploads_bucket"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "logging",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "file_line_range": [
+          6,
+          8
+        ],
+        "resource": "aws_s3_bucket.public_uploads_bucket",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf"
+      },
       "merged_checkov-8cef3cc47d39": {
         "check_id": "CKV_AWS_21",
         "bc_check_id": null,
@@ -4738,7 +4634,111 @@
           },
           "evaluated_keys": [
             "versioning_configuration/status",
-            "versioning/enabled",
+            "resource_type",
+            "versioning/enabled"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "file_line_range": [
+          6,
+          8
+        ],
+        "resource": "aws_s3_bucket.public_uploads_bucket",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf"
+      },
+      "merged_checkov-4e0f58f3046e": {
+        "check_id": "CKV_AWS_145",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 buckets are encrypted with KMS by default",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "public_uploads_bucket": {
+                "__end_line__": 8,
+                "__start_line__": 6,
+                "bucket": [
+                  "public-uploads-bucket"
+                ],
+                "__address__": "aws_s3_bucket.public_uploads_bucket"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "server_side_encryption_configuration/rule/apply_server_side_encryption_by_default/sse_algorithm",
+            "rule/apply_server_side_encryption_by_default/sse_algorithm",
+            "resource_type"
+          ]
+        },
+        "code_block": null,
+        "file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "repo_file_path": "/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf",
+        "file_line_range": [
+          6,
+          8
+        ],
+        "resource": "aws_s3_bucket.public_uploads_bucket",
+        "evaluations": null,
+        "check_class": "checkov.common.graph.checks_infra.base_check",
+        "fixed_definition": null,
+        "entity_tags": {},
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": {},
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/vulnerable_infra.tf"
+      },
+      "merged_checkov-233b08e21eb3": {
+        "check_id": "CKV2_AWS_6",
+        "bc_check_id": null,
+        "check_name": "Ensure that S3 bucket has a Public Access block",
+        "check_result": {
+          "result": "FAILED",
+          "entity": {
+            "aws_s3_bucket": {
+              "public_uploads_bucket": {
+                "__end_line__": 8,
+                "__start_line__": 6,
+                "bucket": [
+                  "public-uploads-bucket"
+                ],
+                "__address__": "aws_s3_bucket.public_uploads_bucket"
+              }
+            }
+          },
+          "evaluated_keys": [
+            "block_public_policy",
+            "block_public_acls",
             "resource_type"
           ]
         },
@@ -4772,7 +4772,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476862"
+    "detected_at": "2026-07-03T09:30:52.132650"
   },
   {
     "finding_id": "checkov-32df5c2e7678",
@@ -4864,7 +4864,7 @@
       "definition_context_file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/fixtures/infrastructure_misconfiguration/terraform/main.tf",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476869"
+    "detected_at": "2026-07-03T09:30:52.132657"
   },
   {
     "finding_id": "checkov-e2c880f44460",
@@ -5623,7 +5623,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476993"
+    "detected_at": "2026-07-03T09:30:52.132783"
   },
   {
     "finding_id": "checkov-379c726d947e",
@@ -6384,7 +6384,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.476997"
+    "detected_at": "2026-07-03T09:30:52.132786"
   },
   {
     "finding_id": "checkov-3b68dd8273e9",
@@ -6454,7 +6454,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477057"
+    "detected_at": "2026-07-03T09:30:52.132848"
   },
   {
     "finding_id": "checkov-c177a49fb7c6",
@@ -6524,7 +6524,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477064"
+    "detected_at": "2026-07-03T09:30:52.132855"
   },
   {
     "finding_id": "checkov-ddf6e727b58e",
@@ -7285,7 +7285,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477068"
+    "detected_at": "2026-07-03T09:30:52.132859"
   },
   {
     "finding_id": "checkov-d903653c5d5d",
@@ -7355,7 +7355,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477128"
+    "detected_at": "2026-07-03T09:30:52.132917"
   },
   {
     "finding_id": "checkov-648af375c4e2",
@@ -7425,7 +7425,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477134"
+    "detected_at": "2026-07-03T09:30:52.132924"
   },
   {
     "finding_id": "checkov-ea1aacd1f83b",
@@ -8265,7 +8265,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477138"
+    "detected_at": "2026-07-03T09:30:52.132927"
   },
   {
     "finding_id": "checkov-f6322805e948",
@@ -8987,7 +8987,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477206"
+    "detected_at": "2026-07-03T09:30:52.133001"
   },
   {
     "finding_id": "checkov-cf424a72ac0a",
@@ -9057,7 +9057,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477262"
+    "detected_at": "2026-07-03T09:30:52.133057"
   },
   {
     "finding_id": "checkov-b478222802ba",
@@ -9127,7 +9127,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477266"
+    "detected_at": "2026-07-03T09:30:52.133060"
   },
   {
     "finding_id": "checkov-2e99deba17f1",
@@ -9197,7 +9197,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477336"
+    "detected_at": "2026-07-03T09:30:52.133129"
   },
   {
     "finding_id": "checkov-b101ebdfdd2a",
@@ -9919,7 +9919,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477340"
+    "detected_at": "2026-07-03T09:30:52.133133"
   },
   {
     "finding_id": "checkov-f2ff522ba52c",
@@ -9989,7 +9989,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477398"
+    "detected_at": "2026-07-03T09:30:52.133193"
   },
   {
     "finding_id": "checkov-7453da4e86b4",
@@ -10059,7 +10059,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477405"
+    "detected_at": "2026-07-03T09:30:52.133200"
   },
   {
     "finding_id": "checkov-eeab0c2f1d9e",
@@ -10860,7 +10860,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477409"
+    "detected_at": "2026-07-03T09:30:52.133203"
   },
   {
     "finding_id": "checkov-d5c15f5e601f",
@@ -10930,7 +10930,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477474"
+    "detected_at": "2026-07-03T09:30:52.133268"
   },
   {
     "finding_id": "checkov-5972e79c76d1",
@@ -11731,7 +11731,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477477"
+    "detected_at": "2026-07-03T09:30:52.133271"
   },
   {
     "finding_id": "checkov-913457b76a7a",
@@ -12186,7 +12186,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477546"
+    "detected_at": "2026-07-03T09:30:52.133338"
   },
   {
     "finding_id": "checkov-f4525d14cfe0",
@@ -12256,7 +12256,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477581"
+    "detected_at": "2026-07-03T09:30:52.133376"
   },
   {
     "finding_id": "checkov-9f7b5b52d80b",
@@ -13056,7 +13056,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477584"
+    "detected_at": "2026-07-03T09:30:52.133380"
   },
   {
     "finding_id": "checkov-0e8efaf72f5b",
@@ -13126,7 +13126,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477647"
+    "detected_at": "2026-07-03T09:30:52.133442"
   },
   {
     "finding_id": "checkov-9f18139feb75",
@@ -13198,7 +13198,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477654"
+    "detected_at": "2026-07-03T09:30:52.133449"
   },
   {
     "finding_id": "checkov-bd07ed963cca",
@@ -13270,7 +13270,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477657"
+    "detected_at": "2026-07-03T09:30:52.133453"
   },
   {
     "finding_id": "checkov-964d7191f6cc",
@@ -13342,7 +13342,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477661"
+    "detected_at": "2026-07-03T09:30:52.133457"
   },
   {
     "finding_id": "checkov-7496a2e66de9",
@@ -13414,7 +13414,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477664"
+    "detected_at": "2026-07-03T09:30:52.133460"
   },
   {
     "finding_id": "checkov-7ebddef9eb0e",
@@ -13486,7 +13486,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477668"
+    "detected_at": "2026-07-03T09:30:52.133464"
   },
   {
     "finding_id": "checkov-7b3d78e9d418",
@@ -13558,7 +13558,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477672"
+    "detected_at": "2026-07-03T09:30:52.133468"
   },
   {
     "finding_id": "checkov-35493c00e5f9",
@@ -13630,7 +13630,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477675"
+    "detected_at": "2026-07-03T09:30:52.133471"
   },
   {
     "finding_id": "checkov-43a5d6f9106f",
@@ -13702,7 +13702,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477679"
+    "detected_at": "2026-07-03T09:30:52.133475"
   },
   {
     "finding_id": "checkov-d55a2ba63fd6",
@@ -13774,7 +13774,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477682"
+    "detected_at": "2026-07-03T09:30:52.133479"
   },
   {
     "finding_id": "checkov-bfbc5bbac369",
@@ -13846,25 +13846,25 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477686"
+    "detected_at": "2026-07-03T09:30:52.133482"
   },
   {
-    "finding_id": "checkov-14d6b8a790c4",
+    "finding_id": "checkov-5d97d92c229c",
     "source": "CHECKOV",
     "category": "MISCONFIGURATION",
     "title": "Ensure that HEALTHCHECK instructions have been added to container images",
-    "description": "Ensure that HEALTHCHECK instructions have been added to container images per la risorsa /crapi_repo/services/gateway-service/Dockerfile.",
+    "description": "Ensure that HEALTHCHECK instructions have been added to container images per la risorsa /crapi_repo/services/mailhog/Dockerfile.",
     "severity": "MEDIUM",
     "confidence": 1.0,
     "rule_id": "CKV_DOCKER_2",
     "rule_name": "Ensure that HEALTHCHECK instructions have been added to container images",
     "resource_type": null,
     "resource_name": null,
-    "resource_id": "/crapi_repo/services/gateway-service/Dockerfile.",
+    "resource_id": "/crapi_repo/services/mailhog/Dockerfile.",
     "location": {
-      "file_path": "/crapi_repo/services/gateway-service/Dockerfile",
+      "file_path": "/crapi_repo/services/mailhog/Dockerfile",
       "start_line": 1,
-      "end_line": 33,
+      "end_line": 28,
       "code_snippet": null
     },
     "api": null,
@@ -13872,9 +13872,7 @@
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "",
-    "related_findings": [
-      "checkov-f727388c6d94"
-    ],
+    "related_findings": [],
     "owasp_api_category": null,
     "cwe_id": null,
     "cve_id": null,
@@ -13890,14 +13888,14 @@
         "results_configuration": null
       },
       "code_block": null,
-      "file_path": "/crapi_repo/services/gateway-service/Dockerfile",
-      "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/gateway-service/Dockerfile",
-      "repo_file_path": "/crapi_repo/services/gateway-service/Dockerfile",
+      "file_path": "/crapi_repo/services/mailhog/Dockerfile",
+      "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/mailhog/Dockerfile",
+      "repo_file_path": "/crapi_repo/services/mailhog/Dockerfile",
       "file_line_range": [
         1,
-        33
+        28
       ],
-      "resource": "/crapi_repo/services/gateway-service/Dockerfile.",
+      "resource": "/crapi_repo/services/mailhog/Dockerfile.",
       "evaluations": null,
       "check_class": "checkov.dockerfile.checks.HealthcheckExists",
       "fixed_definition": null,
@@ -13916,369 +13914,9 @@
       "details": [],
       "check_len": null,
       "definition_context_file_path": null,
-      "merged_checkov-f727388c6d94": {
-        "check_id": "CKV_DOCKER_3",
-        "bc_check_id": null,
-        "check_name": "Ensure that a user for the container has been created",
-        "check_result": {
-          "result": "FAILED",
-          "results_configuration": null
-        },
-        "code_block": null,
-        "file_path": "/crapi_repo/services/gateway-service/Dockerfile",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/gateway-service/Dockerfile",
-        "repo_file_path": "/crapi_repo/services/gateway-service/Dockerfile",
-        "file_line_range": [
-          1,
-          33
-        ],
-        "resource": "/crapi_repo/services/gateway-service/Dockerfile.",
-        "evaluations": null,
-        "check_class": "checkov.dockerfile.checks.UserExists",
-        "fixed_definition": null,
-        "entity_tags": null,
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": null,
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": null
-      },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477690"
-  },
-  {
-    "finding_id": "checkov-ce0db9f66f0c",
-    "source": "CHECKOV",
-    "category": "MISCONFIGURATION",
-    "title": "Ensure that HEALTHCHECK instructions have been added to container images",
-    "description": "Ensure that HEALTHCHECK instructions have been added to container images per la risorsa /crapi_repo/services/web/Dockerfile.",
-    "severity": "MEDIUM",
-    "confidence": 1.0,
-    "rule_id": "CKV_DOCKER_2",
-    "rule_name": "Ensure that HEALTHCHECK instructions have been added to container images",
-    "resource_type": null,
-    "resource_name": null,
-    "resource_id": "/crapi_repo/services/web/Dockerfile.",
-    "location": {
-      "file_path": "/crapi_repo/services/web/Dockerfile",
-      "start_line": 1,
-      "end_line": 47,
-      "code_snippet": null
-    },
-    "api": null,
-    "validation_status": "NOT_VALIDATED",
-    "runtime_evidence": null,
-    "risk_context": null,
-    "correlation_key": "",
-    "related_findings": [
-      "checkov-8859df6ef4eb"
-    ],
-    "owasp_api_category": null,
-    "cwe_id": null,
-    "cve_id": null,
-    "remediation": null,
-    "tags": [],
-    "references": [],
-    "raw_data": {
-      "check_id": "CKV_DOCKER_2",
-      "bc_check_id": null,
-      "check_name": "Ensure that HEALTHCHECK instructions have been added to container images",
-      "check_result": {
-        "result": "FAILED",
-        "results_configuration": null
-      },
-      "code_block": null,
-      "file_path": "/crapi_repo/services/web/Dockerfile",
-      "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/web/Dockerfile",
-      "repo_file_path": "/crapi_repo/services/web/Dockerfile",
-      "file_line_range": [
-        1,
-        47
-      ],
-      "resource": "/crapi_repo/services/web/Dockerfile.",
-      "evaluations": null,
-      "check_class": "checkov.dockerfile.checks.HealthcheckExists",
-      "fixed_definition": null,
-      "entity_tags": null,
-      "caller_file_path": null,
-      "caller_file_line_range": null,
-      "resource_address": null,
-      "severity": null,
-      "bc_category": null,
-      "benchmarks": null,
-      "description": null,
-      "short_description": null,
-      "vulnerability_details": null,
-      "connected_node": null,
-      "guideline": null,
-      "details": [],
-      "check_len": null,
-      "definition_context_file_path": null,
-      "merged_checkov-8859df6ef4eb": {
-        "check_id": "CKV_DOCKER_3",
-        "bc_check_id": null,
-        "check_name": "Ensure that a user for the container has been created",
-        "check_result": {
-          "result": "FAILED",
-          "results_configuration": null
-        },
-        "code_block": null,
-        "file_path": "/crapi_repo/services/web/Dockerfile",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/web/Dockerfile",
-        "repo_file_path": "/crapi_repo/services/web/Dockerfile",
-        "file_line_range": [
-          1,
-          47
-        ],
-        "resource": "/crapi_repo/services/web/Dockerfile.",
-        "evaluations": null,
-        "check_class": "checkov.dockerfile.checks.UserExists",
-        "fixed_definition": null,
-        "entity_tags": null,
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": null,
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": null
-      },
-      "correlated_risk_score": 5.3
-    },
-    "detected_at": "2026-06-28T22:15:38.477698"
-  },
-  {
-    "finding_id": "checkov-b8f6c16d0f22",
-    "source": "CHECKOV",
-    "category": "MISCONFIGURATION",
-    "title": "Ensure that HEALTHCHECK instructions have been added to container images",
-    "description": "Ensure that HEALTHCHECK instructions have been added to container images per la risorsa /crapi_repo/services/community/Dockerfile.",
-    "severity": "MEDIUM",
-    "confidence": 1.0,
-    "rule_id": "CKV_DOCKER_2",
-    "rule_name": "Ensure that HEALTHCHECK instructions have been added to container images",
-    "resource_type": null,
-    "resource_name": null,
-    "resource_id": "/crapi_repo/services/community/Dockerfile.",
-    "location": {
-      "file_path": "/crapi_repo/services/community/Dockerfile",
-      "start_line": 1,
-      "end_line": 46,
-      "code_snippet": null
-    },
-    "api": null,
-    "validation_status": "NOT_VALIDATED",
-    "runtime_evidence": null,
-    "risk_context": null,
-    "correlation_key": "",
-    "related_findings": [
-      "checkov-2f5b0755110b"
-    ],
-    "owasp_api_category": null,
-    "cwe_id": null,
-    "cve_id": null,
-    "remediation": null,
-    "tags": [],
-    "references": [],
-    "raw_data": {
-      "check_id": "CKV_DOCKER_2",
-      "bc_check_id": null,
-      "check_name": "Ensure that HEALTHCHECK instructions have been added to container images",
-      "check_result": {
-        "result": "FAILED",
-        "results_configuration": null
-      },
-      "code_block": null,
-      "file_path": "/crapi_repo/services/community/Dockerfile",
-      "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/community/Dockerfile",
-      "repo_file_path": "/crapi_repo/services/community/Dockerfile",
-      "file_line_range": [
-        1,
-        46
-      ],
-      "resource": "/crapi_repo/services/community/Dockerfile.",
-      "evaluations": null,
-      "check_class": "checkov.dockerfile.checks.HealthcheckExists",
-      "fixed_definition": null,
-      "entity_tags": null,
-      "caller_file_path": null,
-      "caller_file_line_range": null,
-      "resource_address": null,
-      "severity": null,
-      "bc_category": null,
-      "benchmarks": null,
-      "description": null,
-      "short_description": null,
-      "vulnerability_details": null,
-      "connected_node": null,
-      "guideline": null,
-      "details": [],
-      "check_len": null,
-      "definition_context_file_path": null,
-      "merged_checkov-2f5b0755110b": {
-        "check_id": "CKV_DOCKER_3",
-        "bc_check_id": null,
-        "check_name": "Ensure that a user for the container has been created",
-        "check_result": {
-          "result": "FAILED",
-          "results_configuration": null
-        },
-        "code_block": null,
-        "file_path": "/crapi_repo/services/community/Dockerfile",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/community/Dockerfile",
-        "repo_file_path": "/crapi_repo/services/community/Dockerfile",
-        "file_line_range": [
-          1,
-          46
-        ],
-        "resource": "/crapi_repo/services/community/Dockerfile.",
-        "evaluations": null,
-        "check_class": "checkov.dockerfile.checks.UserExists",
-        "fixed_definition": null,
-        "entity_tags": null,
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": null,
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": null
-      },
-      "correlated_risk_score": 5.3
-    },
-    "detected_at": "2026-06-28T22:15:38.477705"
-  },
-  {
-    "finding_id": "checkov-e47c482085bd",
-    "source": "CHECKOV",
-    "category": "MISCONFIGURATION",
-    "title": "Ensure that HEALTHCHECK instructions have been added to container images",
-    "description": "Ensure that HEALTHCHECK instructions have been added to container images per la risorsa /crapi_repo/services/chatbot/Dockerfile.",
-    "severity": "MEDIUM",
-    "confidence": 1.0,
-    "rule_id": "CKV_DOCKER_2",
-    "rule_name": "Ensure that HEALTHCHECK instructions have been added to container images",
-    "resource_type": null,
-    "resource_name": null,
-    "resource_id": "/crapi_repo/services/chatbot/Dockerfile.",
-    "location": {
-      "file_path": "/crapi_repo/services/chatbot/Dockerfile",
-      "start_line": 1,
-      "end_line": 25,
-      "code_snippet": null
-    },
-    "api": null,
-    "validation_status": "NOT_VALIDATED",
-    "runtime_evidence": null,
-    "risk_context": null,
-    "correlation_key": "",
-    "related_findings": [
-      "checkov-7a3febc6cae1"
-    ],
-    "owasp_api_category": null,
-    "cwe_id": null,
-    "cve_id": null,
-    "remediation": null,
-    "tags": [],
-    "references": [],
-    "raw_data": {
-      "check_id": "CKV_DOCKER_2",
-      "bc_check_id": null,
-      "check_name": "Ensure that HEALTHCHECK instructions have been added to container images",
-      "check_result": {
-        "result": "FAILED",
-        "results_configuration": null
-      },
-      "code_block": null,
-      "file_path": "/crapi_repo/services/chatbot/Dockerfile",
-      "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/chatbot/Dockerfile",
-      "repo_file_path": "/crapi_repo/services/chatbot/Dockerfile",
-      "file_line_range": [
-        1,
-        25
-      ],
-      "resource": "/crapi_repo/services/chatbot/Dockerfile.",
-      "evaluations": null,
-      "check_class": "checkov.dockerfile.checks.HealthcheckExists",
-      "fixed_definition": null,
-      "entity_tags": null,
-      "caller_file_path": null,
-      "caller_file_line_range": null,
-      "resource_address": null,
-      "severity": null,
-      "bc_category": null,
-      "benchmarks": null,
-      "description": null,
-      "short_description": null,
-      "vulnerability_details": null,
-      "connected_node": null,
-      "guideline": null,
-      "details": [],
-      "check_len": null,
-      "definition_context_file_path": null,
-      "merged_checkov-7a3febc6cae1": {
-        "check_id": "CKV_DOCKER_3",
-        "bc_check_id": null,
-        "check_name": "Ensure that a user for the container has been created",
-        "check_result": {
-          "result": "FAILED",
-          "results_configuration": null
-        },
-        "code_block": null,
-        "file_path": "/crapi_repo/services/chatbot/Dockerfile",
-        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/chatbot/Dockerfile",
-        "repo_file_path": "/crapi_repo/services/chatbot/Dockerfile",
-        "file_line_range": [
-          1,
-          25
-        ],
-        "resource": "/crapi_repo/services/chatbot/Dockerfile.",
-        "evaluations": null,
-        "check_class": "checkov.dockerfile.checks.UserExists",
-        "fixed_definition": null,
-        "entity_tags": null,
-        "caller_file_path": null,
-        "caller_file_line_range": null,
-        "resource_address": null,
-        "severity": null,
-        "bc_category": null,
-        "benchmarks": null,
-        "description": null,
-        "short_description": null,
-        "vulnerability_details": null,
-        "connected_node": null,
-        "guideline": null,
-        "details": [],
-        "check_len": null,
-        "definition_context_file_path": null
-      },
-      "correlated_risk_score": 5.3
-    },
-    "detected_at": "2026-06-28T22:15:38.477712"
+    "detected_at": "2026-07-03T09:30:52.133487"
   },
   {
     "finding_id": "checkov-38492f3fe1b2",
@@ -14356,7 +13994,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477719"
+    "detected_at": "2026-07-03T09:30:52.133491"
   },
   {
     "finding_id": "checkov-d4e4e81f71f5",
@@ -14464,7 +14102,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477723"
+    "detected_at": "2026-07-03T09:30:52.133495"
   },
   {
     "finding_id": "checkov-dd8329baf074",
@@ -14572,25 +14210,25 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477730"
+    "detected_at": "2026-07-03T09:30:52.133503"
   },
   {
-    "finding_id": "checkov-5d97d92c229c",
+    "finding_id": "checkov-e47c482085bd",
     "source": "CHECKOV",
     "category": "MISCONFIGURATION",
     "title": "Ensure that HEALTHCHECK instructions have been added to container images",
-    "description": "Ensure that HEALTHCHECK instructions have been added to container images per la risorsa /crapi_repo/services/mailhog/Dockerfile.",
+    "description": "Ensure that HEALTHCHECK instructions have been added to container images per la risorsa /crapi_repo/services/chatbot/Dockerfile.",
     "severity": "MEDIUM",
     "confidence": 1.0,
     "rule_id": "CKV_DOCKER_2",
     "rule_name": "Ensure that HEALTHCHECK instructions have been added to container images",
     "resource_type": null,
     "resource_name": null,
-    "resource_id": "/crapi_repo/services/mailhog/Dockerfile.",
+    "resource_id": "/crapi_repo/services/chatbot/Dockerfile.",
     "location": {
-      "file_path": "/crapi_repo/services/mailhog/Dockerfile",
+      "file_path": "/crapi_repo/services/chatbot/Dockerfile",
       "start_line": 1,
-      "end_line": 28,
+      "end_line": 25,
       "code_snippet": null
     },
     "api": null,
@@ -14598,7 +14236,9 @@
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "",
-    "related_findings": [],
+    "related_findings": [
+      "checkov-7a3febc6cae1"
+    ],
     "owasp_api_category": null,
     "cwe_id": null,
     "cve_id": null,
@@ -14614,14 +14254,14 @@
         "results_configuration": null
       },
       "code_block": null,
-      "file_path": "/crapi_repo/services/mailhog/Dockerfile",
-      "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/mailhog/Dockerfile",
-      "repo_file_path": "/crapi_repo/services/mailhog/Dockerfile",
+      "file_path": "/crapi_repo/services/chatbot/Dockerfile",
+      "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/chatbot/Dockerfile",
+      "repo_file_path": "/crapi_repo/services/chatbot/Dockerfile",
       "file_line_range": [
         1,
-        28
+        25
       ],
-      "resource": "/crapi_repo/services/mailhog/Dockerfile.",
+      "resource": "/crapi_repo/services/chatbot/Dockerfile.",
       "evaluations": null,
       "check_class": "checkov.dockerfile.checks.HealthcheckExists",
       "fixed_definition": null,
@@ -14640,9 +14280,369 @@
       "details": [],
       "check_len": null,
       "definition_context_file_path": null,
+      "merged_checkov-7a3febc6cae1": {
+        "check_id": "CKV_DOCKER_3",
+        "bc_check_id": null,
+        "check_name": "Ensure that a user for the container has been created",
+        "check_result": {
+          "result": "FAILED",
+          "results_configuration": null
+        },
+        "code_block": null,
+        "file_path": "/crapi_repo/services/chatbot/Dockerfile",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/chatbot/Dockerfile",
+        "repo_file_path": "/crapi_repo/services/chatbot/Dockerfile",
+        "file_line_range": [
+          1,
+          25
+        ],
+        "resource": "/crapi_repo/services/chatbot/Dockerfile.",
+        "evaluations": null,
+        "check_class": "checkov.dockerfile.checks.UserExists",
+        "fixed_definition": null,
+        "entity_tags": null,
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": null,
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": null
+      },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477736"
+    "detected_at": "2026-07-03T09:30:52.133510"
+  },
+  {
+    "finding_id": "checkov-b8f6c16d0f22",
+    "source": "CHECKOV",
+    "category": "MISCONFIGURATION",
+    "title": "Ensure that HEALTHCHECK instructions have been added to container images",
+    "description": "Ensure that HEALTHCHECK instructions have been added to container images per la risorsa /crapi_repo/services/community/Dockerfile.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "CKV_DOCKER_2",
+    "rule_name": "Ensure that HEALTHCHECK instructions have been added to container images",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": "/crapi_repo/services/community/Dockerfile.",
+    "location": {
+      "file_path": "/crapi_repo/services/community/Dockerfile",
+      "start_line": 1,
+      "end_line": 46,
+      "code_snippet": null
+    },
+    "api": null,
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "",
+    "related_findings": [
+      "checkov-2f5b0755110b"
+    ],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "check_id": "CKV_DOCKER_2",
+      "bc_check_id": null,
+      "check_name": "Ensure that HEALTHCHECK instructions have been added to container images",
+      "check_result": {
+        "result": "FAILED",
+        "results_configuration": null
+      },
+      "code_block": null,
+      "file_path": "/crapi_repo/services/community/Dockerfile",
+      "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/community/Dockerfile",
+      "repo_file_path": "/crapi_repo/services/community/Dockerfile",
+      "file_line_range": [
+        1,
+        46
+      ],
+      "resource": "/crapi_repo/services/community/Dockerfile.",
+      "evaluations": null,
+      "check_class": "checkov.dockerfile.checks.HealthcheckExists",
+      "fixed_definition": null,
+      "entity_tags": null,
+      "caller_file_path": null,
+      "caller_file_line_range": null,
+      "resource_address": null,
+      "severity": null,
+      "bc_category": null,
+      "benchmarks": null,
+      "description": null,
+      "short_description": null,
+      "vulnerability_details": null,
+      "connected_node": null,
+      "guideline": null,
+      "details": [],
+      "check_len": null,
+      "definition_context_file_path": null,
+      "merged_checkov-2f5b0755110b": {
+        "check_id": "CKV_DOCKER_3",
+        "bc_check_id": null,
+        "check_name": "Ensure that a user for the container has been created",
+        "check_result": {
+          "result": "FAILED",
+          "results_configuration": null
+        },
+        "code_block": null,
+        "file_path": "/crapi_repo/services/community/Dockerfile",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/community/Dockerfile",
+        "repo_file_path": "/crapi_repo/services/community/Dockerfile",
+        "file_line_range": [
+          1,
+          46
+        ],
+        "resource": "/crapi_repo/services/community/Dockerfile.",
+        "evaluations": null,
+        "check_class": "checkov.dockerfile.checks.UserExists",
+        "fixed_definition": null,
+        "entity_tags": null,
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": null,
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": null
+      },
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-07-03T09:30:52.133517"
+  },
+  {
+    "finding_id": "checkov-ce0db9f66f0c",
+    "source": "CHECKOV",
+    "category": "MISCONFIGURATION",
+    "title": "Ensure that HEALTHCHECK instructions have been added to container images",
+    "description": "Ensure that HEALTHCHECK instructions have been added to container images per la risorsa /crapi_repo/services/web/Dockerfile.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "CKV_DOCKER_2",
+    "rule_name": "Ensure that HEALTHCHECK instructions have been added to container images",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": "/crapi_repo/services/web/Dockerfile.",
+    "location": {
+      "file_path": "/crapi_repo/services/web/Dockerfile",
+      "start_line": 1,
+      "end_line": 47,
+      "code_snippet": null
+    },
+    "api": null,
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "",
+    "related_findings": [
+      "checkov-8859df6ef4eb"
+    ],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "check_id": "CKV_DOCKER_2",
+      "bc_check_id": null,
+      "check_name": "Ensure that HEALTHCHECK instructions have been added to container images",
+      "check_result": {
+        "result": "FAILED",
+        "results_configuration": null
+      },
+      "code_block": null,
+      "file_path": "/crapi_repo/services/web/Dockerfile",
+      "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/web/Dockerfile",
+      "repo_file_path": "/crapi_repo/services/web/Dockerfile",
+      "file_line_range": [
+        1,
+        47
+      ],
+      "resource": "/crapi_repo/services/web/Dockerfile.",
+      "evaluations": null,
+      "check_class": "checkov.dockerfile.checks.HealthcheckExists",
+      "fixed_definition": null,
+      "entity_tags": null,
+      "caller_file_path": null,
+      "caller_file_line_range": null,
+      "resource_address": null,
+      "severity": null,
+      "bc_category": null,
+      "benchmarks": null,
+      "description": null,
+      "short_description": null,
+      "vulnerability_details": null,
+      "connected_node": null,
+      "guideline": null,
+      "details": [],
+      "check_len": null,
+      "definition_context_file_path": null,
+      "merged_checkov-8859df6ef4eb": {
+        "check_id": "CKV_DOCKER_3",
+        "bc_check_id": null,
+        "check_name": "Ensure that a user for the container has been created",
+        "check_result": {
+          "result": "FAILED",
+          "results_configuration": null
+        },
+        "code_block": null,
+        "file_path": "/crapi_repo/services/web/Dockerfile",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/web/Dockerfile",
+        "repo_file_path": "/crapi_repo/services/web/Dockerfile",
+        "file_line_range": [
+          1,
+          47
+        ],
+        "resource": "/crapi_repo/services/web/Dockerfile.",
+        "evaluations": null,
+        "check_class": "checkov.dockerfile.checks.UserExists",
+        "fixed_definition": null,
+        "entity_tags": null,
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": null,
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": null
+      },
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-07-03T09:30:52.133524"
+  },
+  {
+    "finding_id": "checkov-14d6b8a790c4",
+    "source": "CHECKOV",
+    "category": "MISCONFIGURATION",
+    "title": "Ensure that HEALTHCHECK instructions have been added to container images",
+    "description": "Ensure that HEALTHCHECK instructions have been added to container images per la risorsa /crapi_repo/services/gateway-service/Dockerfile.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "CKV_DOCKER_2",
+    "rule_name": "Ensure that HEALTHCHECK instructions have been added to container images",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": "/crapi_repo/services/gateway-service/Dockerfile.",
+    "location": {
+      "file_path": "/crapi_repo/services/gateway-service/Dockerfile",
+      "start_line": 1,
+      "end_line": 33,
+      "code_snippet": null
+    },
+    "api": null,
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "",
+    "related_findings": [
+      "checkov-f727388c6d94"
+    ],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "check_id": "CKV_DOCKER_2",
+      "bc_check_id": null,
+      "check_name": "Ensure that HEALTHCHECK instructions have been added to container images",
+      "check_result": {
+        "result": "FAILED",
+        "results_configuration": null
+      },
+      "code_block": null,
+      "file_path": "/crapi_repo/services/gateway-service/Dockerfile",
+      "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/gateway-service/Dockerfile",
+      "repo_file_path": "/crapi_repo/services/gateway-service/Dockerfile",
+      "file_line_range": [
+        1,
+        33
+      ],
+      "resource": "/crapi_repo/services/gateway-service/Dockerfile.",
+      "evaluations": null,
+      "check_class": "checkov.dockerfile.checks.HealthcheckExists",
+      "fixed_definition": null,
+      "entity_tags": null,
+      "caller_file_path": null,
+      "caller_file_line_range": null,
+      "resource_address": null,
+      "severity": null,
+      "bc_category": null,
+      "benchmarks": null,
+      "description": null,
+      "short_description": null,
+      "vulnerability_details": null,
+      "connected_node": null,
+      "guideline": null,
+      "details": [],
+      "check_len": null,
+      "definition_context_file_path": null,
+      "merged_checkov-f727388c6d94": {
+        "check_id": "CKV_DOCKER_3",
+        "bc_check_id": null,
+        "check_name": "Ensure that a user for the container has been created",
+        "check_result": {
+          "result": "FAILED",
+          "results_configuration": null
+        },
+        "code_block": null,
+        "file_path": "/crapi_repo/services/gateway-service/Dockerfile",
+        "file_abs_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/crapi_repo/services/gateway-service/Dockerfile",
+        "repo_file_path": "/crapi_repo/services/gateway-service/Dockerfile",
+        "file_line_range": [
+          1,
+          33
+        ],
+        "resource": "/crapi_repo/services/gateway-service/Dockerfile.",
+        "evaluations": null,
+        "check_class": "checkov.dockerfile.checks.UserExists",
+        "fixed_definition": null,
+        "entity_tags": null,
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": null,
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": null
+      },
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-07-03T09:30:52.133531"
   },
   {
     "finding_id": "checkov-be96d8cb55f5",
@@ -15054,7 +15054,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477740"
+    "detected_at": "2026-07-03T09:30:52.133538"
   },
   {
     "finding_id": "checkov-bbd8e7055141",
@@ -15129,7 +15129,7 @@
       "added_date": "",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477767"
+    "detected_at": "2026-07-03T09:30:52.133569"
   },
   {
     "finding_id": "checkov-2f90764d8313",
@@ -15204,7 +15204,7 @@
       "added_date": "",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477770"
+    "detected_at": "2026-07-03T09:30:52.133573"
   },
   {
     "finding_id": "checkov-5eb0df1ed512",
@@ -15322,7 +15322,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477773"
+    "detected_at": "2026-07-03T09:30:52.133576"
   },
   {
     "finding_id": "checkov-ad8c1897c7bf",
@@ -15397,7 +15397,7 @@
       "added_date": "",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477784"
+    "detected_at": "2026-07-03T09:30:52.133586"
   },
   {
     "finding_id": "checkov-82b4a9cfa520",
@@ -15472,7 +15472,7 @@
       "added_date": "",
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477787"
+    "detected_at": "2026-07-03T09:30:52.133589"
   },
   {
     "finding_id": "checkov-60a3f67a7e96",
@@ -24490,7 +24490,7 @@
       },
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477791"
+    "detected_at": "2026-07-03T09:30:52.133593"
   },
   {
     "finding_id": "checkov-edfcbe67d999",
@@ -24657,7 +24657,7 @@
       "definition_context_file_path": null,
       "correlated_risk_score": 5.3
     },
-    "detected_at": "2026-06-28T22:15:38.477798"
+    "detected_at": "2026-07-03T09:30:52.133600"
   },
   {
     "finding_id": "semgrep-ab089444377e",
@@ -24704,7 +24704,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494438"
+    "detected_at": "2026-07-03T09:30:53.247734"
   },
   {
     "finding_id": "semgrep-6611454b5429",
@@ -24751,7 +24751,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494452"
+    "detected_at": "2026-07-03T09:30:53.247746"
   },
   {
     "finding_id": "semgrep-73898c5f5332",
@@ -24798,7 +24798,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494461"
+    "detected_at": "2026-07-03T09:30:53.247753"
   },
   {
     "finding_id": "semgrep-e722c8e39eb8",
@@ -24845,7 +24845,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494468"
+    "detected_at": "2026-07-03T09:30:53.247759"
   },
   {
     "finding_id": "semgrep-068334d33836",
@@ -24892,7 +24892,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494476"
+    "detected_at": "2026-07-03T09:30:53.247765"
   },
   {
     "finding_id": "semgrep-5f095b9da364",
@@ -24939,7 +24939,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494483"
+    "detected_at": "2026-07-03T09:30:53.247771"
   },
   {
     "finding_id": "semgrep-3c75ef21733d",
@@ -24986,7 +24986,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494490"
+    "detected_at": "2026-07-03T09:30:53.247777"
   },
   {
     "finding_id": "semgrep-c83d14fff89f",
@@ -25033,7 +25033,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494496"
+    "detected_at": "2026-07-03T09:30:53.247782"
   },
   {
     "finding_id": "semgrep-1391930b285a",
@@ -25080,7 +25080,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494501"
+    "detected_at": "2026-07-03T09:30:53.247787"
   },
   {
     "finding_id": "semgrep-1495909f5dbb",
@@ -25127,7 +25127,7 @@
       "framework": "springboot, fastapi, python-semgrep",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494511"
+    "detected_at": "2026-07-03T09:30:53.247795"
   },
   {
     "finding_id": "semgrep-b20c1a919634",
@@ -25174,7 +25174,7 @@
       "framework": "springboot",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494516"
+    "detected_at": "2026-07-03T09:30:53.247800"
   },
   {
     "finding_id": "semgrep-7d16248f27d8",
@@ -25221,7 +25221,7 @@
       "framework": "springboot",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494520"
+    "detected_at": "2026-07-03T09:30:53.247805"
   },
   {
     "finding_id": "semgrep-e7608873559f",
@@ -25268,7 +25268,7 @@
       "framework": "springboot",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494524"
+    "detected_at": "2026-07-03T09:30:53.247809"
   },
   {
     "finding_id": "semgrep-de960f4d8be5",
@@ -25315,7 +25315,7 @@
       "framework": "springboot",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494528"
+    "detected_at": "2026-07-03T09:30:53.247813"
   },
   {
     "finding_id": "semgrep-0746b44ec02c",
@@ -25362,7 +25362,7 @@
       "framework": "springboot",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494532"
+    "detected_at": "2026-07-03T09:30:53.247818"
   },
   {
     "finding_id": "semgrep-2117919d1f8d",
@@ -25409,7 +25409,7 @@
       "framework": "springboot",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494536"
+    "detected_at": "2026-07-03T09:30:53.247822"
   },
   {
     "finding_id": "semgrep-0142f991548a",
@@ -25456,7 +25456,7 @@
       "framework": "springboot",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494541"
+    "detected_at": "2026-07-03T09:30:53.247828"
   },
   {
     "finding_id": "semgrep-71f8879064f4",
@@ -25503,7 +25503,7 @@
       "framework": "springboot",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494545"
+    "detected_at": "2026-07-03T09:30:53.247833"
   },
   {
     "finding_id": "semgrep-6131a59ab4ca",
@@ -25550,7 +25550,7 @@
       "framework": "springboot",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494549"
+    "detected_at": "2026-07-03T09:30:53.247838"
   },
   {
     "finding_id": "semgrep-98e5bcba0226",
@@ -25597,7 +25597,7 @@
       "framework": "springboot",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494553"
+    "detected_at": "2026-07-03T09:30:53.247842"
   },
   {
     "finding_id": "semgrep-724b582ecee9",
@@ -25644,7 +25644,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494557"
+    "detected_at": "2026-07-03T09:30:53.247847"
   },
   {
     "finding_id": "semgrep-f046e72894fd",
@@ -25691,7 +25691,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494562"
+    "detected_at": "2026-07-03T09:30:53.247852"
   },
   {
     "finding_id": "semgrep-e2d8bdc486dd",
@@ -25738,7 +25738,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494566"
+    "detected_at": "2026-07-03T09:30:53.247856"
   },
   {
     "finding_id": "semgrep-4c8a4124e8d6",
@@ -25785,7 +25785,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494570"
+    "detected_at": "2026-07-03T09:30:53.247861"
   },
   {
     "finding_id": "semgrep-9a1d3b8d0c8c",
@@ -25832,7 +25832,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494575"
+    "detected_at": "2026-07-03T09:30:53.247866"
   },
   {
     "finding_id": "semgrep-0f6fe27d4ad9",
@@ -25879,7 +25879,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494579"
+    "detected_at": "2026-07-03T09:30:53.247871"
   },
   {
     "finding_id": "semgrep-2100fdb47739",
@@ -25926,7 +25926,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494584"
+    "detected_at": "2026-07-03T09:30:53.247876"
   },
   {
     "finding_id": "semgrep-e6880c259735",
@@ -25973,7 +25973,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494588"
+    "detected_at": "2026-07-03T09:30:53.247881"
   },
   {
     "finding_id": "semgrep-b6db7e826306",
@@ -26020,7 +26020,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494592"
+    "detected_at": "2026-07-03T09:30:53.247885"
   },
   {
     "finding_id": "semgrep-f46b46606c12",
@@ -26067,7 +26067,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494596"
+    "detected_at": "2026-07-03T09:30:53.247889"
   },
   {
     "finding_id": "semgrep-823f0e9839b1",
@@ -26114,7 +26114,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494600"
+    "detected_at": "2026-07-03T09:30:53.247893"
   },
   {
     "finding_id": "semgrep-2426580b4cb8",
@@ -26161,7 +26161,7 @@
       "framework": "springboot",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494604"
+    "detected_at": "2026-07-03T09:30:53.247898"
   },
   {
     "finding_id": "semgrep-00409070547f",
@@ -26208,7 +26208,7 @@
       "framework": "fastapi, flask",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494609"
+    "detected_at": "2026-07-03T09:30:53.247905"
   },
   {
     "finding_id": "semgrep-0c0e4600b0a0",
@@ -26255,7 +26255,7 @@
       "framework": "fastapi",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494613"
+    "detected_at": "2026-07-03T09:30:53.247910"
   },
   {
     "finding_id": "semgrep-526552f0dfef",
@@ -26302,7 +26302,7 @@
       "framework": "fastapi",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494617"
+    "detected_at": "2026-07-03T09:30:53.247915"
   },
   {
     "finding_id": "semgrep-9365c19a8fb7",
@@ -26349,7 +26349,7 @@
       "framework": "fastapi",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494621"
+    "detected_at": "2026-07-03T09:30:53.247919"
   },
   {
     "finding_id": "semgrep-90d0c3ab8657",
@@ -26396,7 +26396,7 @@
       "framework": "fastapi",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494625"
+    "detected_at": "2026-07-03T09:30:53.247923"
   },
   {
     "finding_id": "semgrep-190d55ffe582",
@@ -26443,7 +26443,7 @@
       "framework": "flask",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494629"
+    "detected_at": "2026-07-03T09:30:53.247928"
   },
   {
     "finding_id": "semgrep-ba1ffc27f807",
@@ -26490,7 +26490,7 @@
       "framework": "flask",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494635"
+    "detected_at": "2026-07-03T09:30:53.247932"
   },
   {
     "finding_id": "semgrep-572991fd8784",
@@ -26537,7 +26537,7 @@
       "framework": "flask",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494639"
+    "detected_at": "2026-07-03T09:30:53.247937"
   },
   {
     "finding_id": "semgrep-4dbbaba7f057",
@@ -26584,7 +26584,7 @@
       "framework": "flask",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494643"
+    "detected_at": "2026-07-03T09:30:53.247942"
   },
   {
     "finding_id": "semgrep-1e949d0a8e92",
@@ -26631,7 +26631,7 @@
       "framework": "flask",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494648"
+    "detected_at": "2026-07-03T09:30:53.247947"
   },
   {
     "finding_id": "semgrep-aead474c4186",
@@ -26678,7 +26678,7 @@
       "framework": "flask",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494653"
+    "detected_at": "2026-07-03T09:30:53.247952"
   },
   {
     "finding_id": "semgrep-6090d1c92c9a",
@@ -26725,7 +26725,7 @@
       "framework": "flask",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494658"
+    "detected_at": "2026-07-03T09:30:53.247957"
   },
   {
     "finding_id": "semgrep-cd960db58458",
@@ -26772,7 +26772,7 @@
       "framework": "express, fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494662"
+    "detected_at": "2026-07-03T09:30:53.247962"
   },
   {
     "finding_id": "semgrep-2dd983a6016c",
@@ -26819,7 +26819,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494666"
+    "detected_at": "2026-07-03T09:30:53.247966"
   },
   {
     "finding_id": "semgrep-dba29657d828",
@@ -26866,7 +26866,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494670"
+    "detected_at": "2026-07-03T09:30:53.247970"
   },
   {
     "finding_id": "semgrep-6fd609ea450a",
@@ -26913,7 +26913,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494675"
+    "detected_at": "2026-07-03T09:30:53.247975"
   },
   {
     "finding_id": "semgrep-acdba5eeca29",
@@ -26960,7 +26960,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494679"
+    "detected_at": "2026-07-03T09:30:53.247979"
   },
   {
     "finding_id": "semgrep-7e5d109e051e",
@@ -27016,7 +27016,7 @@
       },
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494683"
+    "detected_at": "2026-07-03T09:30:53.247984"
   },
   {
     "finding_id": "semgrep-9031f0d85e83",
@@ -27063,7 +27063,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494687"
+    "detected_at": "2026-07-03T09:30:53.247989"
   },
   {
     "finding_id": "semgrep-aa5b800d084e",
@@ -27110,7 +27110,7 @@
       "framework": "flask",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494692"
+    "detected_at": "2026-07-03T09:30:53.247994"
   },
   {
     "finding_id": "semgrep-890d78e9790b",
@@ -27166,7 +27166,7 @@
       },
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494696"
+    "detected_at": "2026-07-03T09:30:53.247999"
   },
   {
     "finding_id": "semgrep-0c47c2af1cf7",
@@ -27213,7 +27213,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494701"
+    "detected_at": "2026-07-03T09:30:53.248004"
   },
   {
     "finding_id": "semgrep-af18dc6253b8",
@@ -27260,7 +27260,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494706"
+    "detected_at": "2026-07-03T09:30:53.248008"
   },
   {
     "finding_id": "semgrep-62ca20bdc743",
@@ -27307,7 +27307,7 @@
       "framework": "flask, python-semgrep",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494710"
+    "detected_at": "2026-07-03T09:30:53.248013"
   },
   {
     "finding_id": "semgrep-5da344e1ab05",
@@ -27354,7 +27354,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494715"
+    "detected_at": "2026-07-03T09:30:53.248017"
   },
   {
     "finding_id": "semgrep-c2060cd9812f",
@@ -27401,7 +27401,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494719"
+    "detected_at": "2026-07-03T09:30:53.248022"
   },
   {
     "finding_id": "semgrep-a7d708029753",
@@ -27448,7 +27448,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494723"
+    "detected_at": "2026-07-03T09:30:53.248026"
   },
   {
     "finding_id": "semgrep-95502d666afe",
@@ -27495,7 +27495,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494728"
+    "detected_at": "2026-07-03T09:30:53.248031"
   },
   {
     "finding_id": "semgrep-5ec9712ae07d",
@@ -27542,7 +27542,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494732"
+    "detected_at": "2026-07-03T09:30:53.248035"
   },
   {
     "finding_id": "semgrep-aa3f0650e8cb",
@@ -27589,7 +27589,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494736"
+    "detected_at": "2026-07-03T09:30:53.248039"
   },
   {
     "finding_id": "semgrep-7536485e0906",
@@ -27636,7 +27636,7 @@
       "framework": "flask, fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494740"
+    "detected_at": "2026-07-03T09:30:53.248043"
   },
   {
     "finding_id": "semgrep-26a8d62d94f7",
@@ -27683,7 +27683,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494744"
+    "detected_at": "2026-07-03T09:30:53.248047"
   },
   {
     "finding_id": "semgrep-f0c46f106877",
@@ -27730,7 +27730,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494748"
+    "detected_at": "2026-07-03T09:30:53.248052"
   },
   {
     "finding_id": "semgrep-f95fe25a0680",
@@ -27777,7 +27777,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494753"
+    "detected_at": "2026-07-03T09:30:53.248057"
   },
   {
     "finding_id": "semgrep-12ea4a74cb86",
@@ -27824,7 +27824,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494757"
+    "detected_at": "2026-07-03T09:30:53.248061"
   },
   {
     "finding_id": "semgrep-752919f746fe",
@@ -27871,7 +27871,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494761"
+    "detected_at": "2026-07-03T09:30:53.248065"
   },
   {
     "finding_id": "semgrep-7c19e0c75b37",
@@ -27918,7 +27918,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 2.2
     },
-    "detected_at": "2026-06-28T22:15:39.494766"
+    "detected_at": "2026-07-03T09:30:53.248069"
   },
   {
     "finding_id": "semgrep-fc589371b5b7",
@@ -27965,7 +27965,7 @@
       "framework": "fastapi, python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494770"
+    "detected_at": "2026-07-03T09:30:53.248073"
   },
   {
     "finding_id": "semgrep-1f59f971327f",
@@ -28012,7 +28012,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494775"
+    "detected_at": "2026-07-03T09:30:53.248079"
   },
   {
     "finding_id": "semgrep-9d7e14b9dc27",
@@ -28059,7 +28059,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494779"
+    "detected_at": "2026-07-03T09:30:53.248085"
   },
   {
     "finding_id": "semgrep-bef206ff1198",
@@ -28106,7 +28106,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494783"
+    "detected_at": "2026-07-03T09:30:53.248089"
   },
   {
     "finding_id": "semgrep-f2232d038bd3",
@@ -28153,7 +28153,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494787"
+    "detected_at": "2026-07-03T09:30:53.248093"
   },
   {
     "finding_id": "semgrep-432b0a0bf928",
@@ -28200,7 +28200,7 @@
       "framework": "python-semgrep",
       "correlated_risk_score": 5.5
     },
-    "detected_at": "2026-06-28T22:15:39.494791"
+    "detected_at": "2026-07-03T09:30:53.248097"
   },
   {
     "finding_id": "shadow_api-f50809c7e661",
@@ -28260,6 +28260,6 @@
       "body_params": {},
       "correlated_risk_score": 6.8
     },
-    "detected_at": "2026-06-28T22:15:39.495817"
+    "detected_at": "2026-07-03T09:30:53.249134"
   }
 ]
