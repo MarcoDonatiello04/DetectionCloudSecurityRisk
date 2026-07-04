@@ -256,7 +256,12 @@ class ZapController:
                             "test_name": f"{scenario_name} {method} Test",
                             "is_vulnerable": is_vulnerable,
                             "assertion_details": assertion_result,
-                            "response_text": res_bob.text
+                            "response_text": res_bob.text,
+                            "res_owner_status": res_alice.status_code,
+                            "res_owner_text": res_alice.text,
+                            "attacker_role": attacker_role,
+                            "owner_role": owner_role,
+                            "scenario_name": scenario_name
                         })
 
                         logger.info(
@@ -295,7 +300,12 @@ class ZapController:
                                 "content_keyword_assertion": True,
                                 "structural_similarity_assertion": True
                             },
-                            "response_text": res_anon.text
+                            "response_text": res_anon.text,
+                            "res_owner_status": res_alice.status_code if res_alice else 200,
+                            "res_owner_text": res_alice.text if res_alice else "",
+                            "attacker_role": "anonymous",
+                            "owner_role": owner_role,
+                            "scenario_name": f"Broken Auth {scenario_name}"
                         })
 
                         if is_anon_vulnerable:

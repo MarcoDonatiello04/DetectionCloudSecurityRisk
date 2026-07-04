@@ -68,6 +68,7 @@ class SemgrepScannerAdapter(IScanner):
         # 3. Trasformazione delle definizioni degli endpoint in entità Finding del Dominio
         findings: List[Finding] = []
         deduplicated = self._deduplicate_endpoints()
+        SemgrepScannerAdapter.discovered_endpoints_cache = deduplicated
         
         for ep in deduplicated:
             method = ep["method"]

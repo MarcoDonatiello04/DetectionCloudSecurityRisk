@@ -1,5 +1,5 @@
 # config/scanner_configs/spectral-owasp.yaml
-extends: ["https://unpkg.com/@stoplight/spectral-owasp-ruleset/dist/ruleset.mjs"]
+extends: ["spectral:oas"]
 
 rules:
   # 1. Verifica SecuritySchemes: l'OpenAPI deve avere un SecurityScheme definito

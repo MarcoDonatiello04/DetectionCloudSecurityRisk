@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Security & D-AST Report - Security Control Center</title>
+    <meta name="description" content="Report dettagliato della scansione di sicurezza delle API e delle vulnerabilità logiche BOLA generato a runtime.">
+    <!-- Google Fonts: Inter per il testo e Outfit per i titoli -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Tema Scuro (Default) */
+            --bg-color: #060609;
+            --card-bg: rgba(12, 12, 20, 0.45);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --card-border-hover: rgba(120, 80, 255, 0.3);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --accent-purple: #7042ff;
+            --accent-blue: #00d2ff;
+            --accent-glow: rgba(112, 66, 255, 0.25);
+            --btn-bg: linear-gradient(135deg, #6236ff 0%, #9036ff 100%);
+            --btn-shadow: rgba(112, 66, 255, 0.4);
+            --dot-color: rgba(255, 255, 255, 0.08);
+
+            /* Elementi della lista */
+            --item-bg: rgba(255, 255, 255, 0.02);
+            --item-border: rgba(255, 255, 255, 0.06);
+            --item-bg-hover: rgba(255, 255, 255, 0.05);
+            --item-border-hover: rgba(255, 255, 255, 0.15);
+
+            /* Badges scuri */
+            --bg-crit: #450a0a; --text-crit: #fca5a5; --border-crit: #991b1b;
+            --bg-high: #431407; --text-high: #fdba74; --border-high: #c2410c;
+            --bg-med: #422006; --text-med: #fde047; --border-med: #a16207;
+            --bg-low: #0c4a6e; --text-low: #7dd3fc; --border-low: #0369a1;
+        }
+
+        [data-theme="light"] {
+            /* Tema Chiaro */
+            --bg-color: #f5f6fa;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(0, 0, 0, 0.06);
+            --card-border-hover: rgba(98, 54, 255, 0.3);
+            --text-primary: #09090b;
+            --text-secondary: #71717a;
+            --accent-purple: #6236ff;
+            --accent-blue: #00a3ff;
+            --accent-glow: rgba(98, 54, 255, 0.12);
+            --btn-bg: linear-gradient(135deg, #6236ff 0%, #481ae6 100%);
+            --btn-shadow: rgba(98, 54, 255, 0.25);
+            --dot-color: rgba(0, 0, 0, 0.04);
+
+            /* Elementi della lista */
+            --item-bg: rgba(0, 0, 0, 0.02);
+            --item-border: rgba(0, 0, 0, 0.06);
+            --item-bg-hover: rgba(0, 0, 0, 0.04);
+            --item-border-hover: rgba(0, 0, 0, 0.12);
+
+            /* Badges chiari */
+            --bg-crit: #fef2f2; --text-crit: #991b1b; --border-crit: #fca5a5;
+            --bg-high: #fff7ed; --text-high: #c2410c; --border-high: #ffedd5;
+            --bg-med: #fefce8; --text-med: #a16207; --border-med: #fef08a;
+            --bg-low: #f0f9ff; --text-low: #0369a1; --border-low: #bae6fd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(var(--dot-color) 1px, transparent 1px),
+                radial-gradient(var(--dot-color) 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Ambient Glows */
+        .glow-bg {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(80px);
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        .glow-top-left { top: -200px; left: -200px; }
+        .glow-bottom-right { bottom: -200px; right: -200px; }
+
+        header {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--btn-bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px var(--btn-shadow);
+        }
+
+        .brand-logo svg {
+            width: 22px;
+            height: 22px;
+            fill: #ffffff;
+        }
+
+        .brand-info h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--text-primary) 30%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-toggle-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(12px);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--card-border-hover);
+        }
+
+        main {
+            width: 100%;
+            max-width: 900px;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+            backdrop-filter: blur(20px);
+            transition: border-color 0.3s ease;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-title svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="light"] .back-btn {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--card-border-hover);
+        }
+
+        [data-theme="light"] .back-btn:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
+
+        /* Glassmorphic Loader */
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 0;
+            gap: 20px;
+        }
+
+        .scan-radar {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed var(--accent-purple);
+            border-radius: 50%;
+            animation: rotate-radar 8s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        @keyframes rotate-radar {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .radar-pulse {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 50%;
+            animation: pulse-radar 2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+        }
+
+        @keyframes pulse-radar {
+            0% { transform: scale(0.6); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .console-output {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            color: #22d3ee;
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* Results Elements */
+        .results-view {
+            display: none;
+        }
+
+        .severity-summary {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .badge-stat {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            user-select: none;
+        }
+
+        .badge-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            filter: brightness(1.2);
+        }
+
+        .badge-stat.active-filter {
+            box-shadow: 0 0 0 2px var(--text-primary), 0 0 15px currentColor;
+            transform: scale(1.05);
+            filter: brightness(1.3);
+            border-color: var(--text-primary);
+        }
+        
+        .badge-stat.dimmed {
+            opacity: 0.35;
+            transform: scale(0.95);
+        }
+
+        .badge-stat.critical { background: var(--bg-crit); color: var(--text-crit); border-color: var(--border-crit); }
+        .badge-stat.high { background: var(--bg-high); color: var(--text-high); border-color: var(--border-high); }
+        .badge-stat.medium { background: var(--bg-med); color: var(--text-med); border-color: var(--border-med); }
+        .badge-stat.low { background: var(--bg-low); color: var(--text-low); border-color: var(--border-low); }
+
+        .findings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .finding-item {
+            background: var(--item-bg);
+            border: 1px solid var(--item-border);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .finding-item:hover {
+            background: var(--item-bg-hover);
+            border-color: var(--item-border-hover);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .finding-row {
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 16px;
+        }
+
+        .finding-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-grow: 1;
+        }
+
+        .finding-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .finding-path {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+        }
+
+        .finding-badge-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+        }
+
+        .severity-badge.critical { background: var(--bg-crit); color: var(--text-crit); border-color: var(--border-crit); }
+        .severity-badge.high { background: var(--bg-high); color: var(--text-high); border-color: var(--border-high); }
+        .severity-badge.medium { background: var(--bg-med); color: var(--text-med); border-color: var(--border-med); }
+        .severity-badge.low { background: var(--bg-low); color: var(--text-low); border-color: var(--border-low); }
+
+        .toggle-arrow {
+            color: var(--text-secondary);
+            transition: transform 0.25s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .finding-item.active .toggle-arrow {
+            transform: rotate(180deg);
+            color: var(--accent-purple);
+        }
+
+        /* Dettaglio Espanso (Remediation) */
+        .finding-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: rgba(0, 0, 0, 0.03);
+            border-top: 1px solid transparent;
+        }
+
+        [data-theme="dark"] .finding-details {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .finding-item.active .finding-details {
+            max-height: 2000px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .finding-details-content {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Spinner Remediation */
+        .remediation-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            gap: 12px;
+            color: var(--text-secondary);
+        }
+
+        .remediation-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-top-color: var(--accent-purple);
+            border-radius: 50%;
+            animation: inline-spin 1s linear infinite;
+        }
+
+        [data-theme="dark"] .remediation-spinner {
+            border-color: rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent-purple);
+        }
+
+        @keyframes inline-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Sezioni della Remediation */
+        .remediation-section {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .remediation-section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .remediation-section-title svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--accent-purple);
+            fill: none;
+        }
+
+        .remediation-text {
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            padding-left: 24px;
+        }
+
+        .remediation-steps {
+            list-style-type: decimal;
+            margin-left: 44px;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .remediation-steps li {
+            margin-bottom: 6px;
+        }
+
+        .remediation-code-container {
+            margin-left: 24px;
+            margin-top: 6px;
+        }
+
+        .remediation-code {
+            display: block;
+            background: #09090b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            color: #38bdf8;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        [data-theme="light"] .remediation-code {
+            background: #f4f4f5;
+            border-color: #e4e4e7;
+            color: #0369a1;
+        }
+
+        .remediation-meta-tag {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            color: var(--accent-purple);
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-left: 24px;
+        }
+
+        .remediation-warning-banner {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        [data-theme="light"] .remediation-warning-banner {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #991b1b;
+        }
+
+        /* Navigation tabs */
+        .card-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.02);
+            overflow-x: auto;
+        }
+
+        [data-theme="light"] .card-tabs {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .card-tab-btn {
+            text-decoration: none;
+            color: var(--text-secondary);
+            padding: 18px 24px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .card-tab-btn.active {
+            color: var(--text-primary);
+            border-bottom-color: var(--accent-blue);
+            background: rgba(0, 210, 255, 0.05);
+            font-weight: 700;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-bg glow-top-left"></div>
+    <div class="glow-bg glow-bottom-right"></div>
+
+    <header>
+        <div class="brand">
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="#ffffff"/>
+                </svg>
+            </div>
+            <div class="brand-info">
+                <h1>Cloud Risk Assessment Platform</h1>
+            </div>
+        </div>
+        
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Cambia tema chiaro/scuro">
+            <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <span id="theme-text">Tema Chiaro</span>
+        </button>
+    </header>
+
+    <main>
+        <div class="card">
+            <!-- Navigation Tabs -->
+            <div class="card-tabs">
+                <a href="/results" class="card-tab-btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                        <polyline points="2 17 12 22 22 17"/>
+                        <polyline points="2 12 17 22 12"/>
+                    </svg>
+                    Infrastruttura IaC
+                </a>
+                <a href="/api-results" class="card-tab-btn active">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="2" y1="12" x2="22" y2="12"/>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                    Rischi API & D-AST
+                </a>
+                <a href="/contract-results" class="card-tab-btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                    Validazione Contratto (Spectral)
+                </a>
+                <a href="/bola-results" class="card-tab-btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <circle cx="12" cy="12" r="4"/>
+                        <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/>
+                        <line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/>
+                        <line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/>
+                        <line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/>
+                    </svg>
+                    BOLA/IDOR Testing
+                </a>
+            </div>
+
+
+            <!-- Header della Card -->
+            <div class="card-header">
+                <div class="card-title" style="color: var(--accent-blue);">
+                    <!-- API Security Icon -->
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/>
+                    </svg>
+                    <span>API Security & D-AST Scan Report</span>
+                </div>
+                <a href="/" class="back-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Torna Indietro
+                </a>
+            </div>
+
+            <!-- Loader durante il caricamento -->
+            <div class="loader-container" id="loader-area">
+                <div class="scan-radar" style="border-color: var(--accent-blue);">
+                    <div class="radar-pulse" style="border-color: rgba(0, 210, 255, 0.2);"></div>
+                </div>
+                <p style="font-weight: 600;">Caricamento del report delle vulnerabilità API...</p>
+                <div class="console-output" id="console-log">
+                    [info] Inizializzazione report API Security...
+                </div>
+            </div>
+
+            <!-- Risultati della Scansione -->
+            <div class="results-view" id="results-area">
+                <!-- Sezione 1: API Discovery & Risks -->
+                <div class="section-container" style="margin-bottom: 40px;">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; color: var(--accent-blue); display: flex; align-items: center; gap: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                        Rilevamento Endpoint & Rischi API (Semgrep / BOLA / ZAP)
+                    </h3>
+                    
+                    <div class="severity-summary" id="api-severity-summary" style="margin-bottom: 20px;">
+                        <span class="badge-stat critical" id="api-badge-crit">0 Critical</span>
+                        <span class="badge-stat high" id="api-badge-high">0 High</span>
+                        <span class="badge-stat medium" id="api-badge-med">0 Medium</span>
+                        <span class="badge-stat low" id="api-badge-low">0 Low</span>
+                    </div>
+
+                    <div class="findings-list" id="api-findings-container">
+                        </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Cloud Risk Assessment Platform | Analisi API Security</p>
+    </footer>
+
+    <script>
+        // Tema Chiaro / Scuro Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeText = document.getElementById('theme-text');
+        const themeIcon = document.getElementById('theme-icon');
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.documentElement.removeAttribute('data-theme');
+                themeText.textContent = 'Tema Chiaro';
+                themeIcon.innerHTML = `
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                `;
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeText.textContent = 'Tema Scuro';
+                themeIcon.innerHTML = `
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                `;
+            }
+        });
+
+        // Filtri di severità globali
+        let allApiFindings = [];
+        let activeApiFilter = null; // null, 'critical', 'high', 'medium', 'low'
+
+        // Funzione per applicare i filtri di severità ad una sezione
+        function applyFilters() {
+            const containerId = 'api-findings-container';
+            let filtered = allApiFindings;
+            
+            if (activeApiFilter) {
+                filtered = allApiFindings.filter(f => (f.severity || 'medium').toLowerCase() === activeApiFilter);
+            }
+            
+            // Aggiorna classi CSS dei badge (dimmed / active-filter)
+            const badges = ['crit', 'high', 'med', 'low'];
+            const sevMap = { 'crit': 'critical', 'high': 'high', 'med': 'medium', 'low': 'low' };
+            badges.forEach(bKey => {
+                const badgeEl = document.getElementById(`api-badge-${bKey}`);
+                const sev = sevMap[bKey];
+                if (activeApiFilter === null) {
+                    badgeEl.classList.remove('dimmed', 'active-filter');
+                } else if (activeApiFilter === sev) {
+                    badgeEl.classList.add('active-filter');
+                    badgeEl.classList.remove('dimmed');
+                } else {
+                    badgeEl.classList.add('dimmed');
+                    badgeEl.classList.remove('active-filter');
+                }
+            });
+            
+            renderFindingsList(filtered, containerId);
+        }
+
+        // Caricamento asincrono del report
+        window.addEventListener('DOMContentLoaded', async () => {
+            const consoleLog = document.getElementById('console-log');
+            const loaderArea = document.getElementById('loader-area');
+            const resultsArea = document.getElementById('results-area');
+
+            const steps = [
+                '[info] Inizializzazione pipeline di analisi API Security...',
+                '[info] Scansione dei sorgenti con Semgrep SAST per vulnerabilità API...',
+                '[info] Avvio emulazione traffico HTTP e discovery degli endpoint...',
+                '[info] ObjectReferenceDiscoveryEngine: estrazione parametri e riferimenti a oggetti...',
+                '[info] OwnershipInferenceEngine: decodifica JWT ed elaborazione ownership risorse...',
+                '[info] Esecuzione verifiche di autorizzazione a livello di oggetto (BOLA/IDOR)...',
+                '[info] ZAP D-AST: analisi dinamica degli endpoint e rilevamento shadow API...',
+                '[info] Consolidamento dei findings e generazione del report unificato...'
+            ];
+
+            let i = 0;
+            const logInterval = setInterval(() => {
+                if (i < steps.length) {
+                    consoleLog.innerHTML += `<br>${steps[i]}`;
+                    i++;
+                } else {
+                    clearInterval(logInterval);
+                }
+            }, 350);
+
+            // Collega i gestori di click per i filtri di severità
+            const badges = ['crit', 'high', 'med', 'low'];
+            const sevMap = { 'crit': 'critical', 'high': 'high', 'med': 'medium', 'low': 'low' };
+            
+            badges.forEach(bKey => {
+                const sev = sevMap[bKey];
+                
+                // Filtri sezione API
+                const apiBadge = document.getElementById(`api-badge-${bKey}`);
+                apiBadge.addEventListener('click', () => {
+                    if (activeApiFilter === sev) {
+                        activeApiFilter = null; // Toggle OFF
+                    } else {
+                        activeApiFilter = sev; // Toggle ON
+                    }
+                    applyFilters();
+                });
+            });
+
+            try {
+                const response = await fetch('/scan', { method: 'POST' });
+                const data = await response.json();
+                
+                clearInterval(logInterval);
+                
+                // Filtriamo escludendo Checkov e Spectral
+                const apiFindings = data.filter(f => f.source !== 'CHECKOV' && f.source !== 'SPECTRAL');
+                
+                loaderArea.style.display = 'none';
+                resultsArea.style.display = 'block';
+                
+                renderApiReport(apiFindings, 'api-findings-container', 'api-');
+
+            } catch (err) {
+                console.error("Errore durante il caricamento del report:", err);
+                clearInterval(logInterval);
+                consoleLog.innerHTML += '<br>[warning] Impossibile contattare il backend o caricare il report.';
+                
+                setTimeout(() => {
+                    loaderArea.style.display = 'none';
+                    resultsArea.style.display = 'block';
+                    renderApiReport([], 'api-findings-container', 'api-');
+                }, 1000);
+            }
+        });
+
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function renderApiReport(findings, containerId, badgePrefix) {
+            allApiFindings = findings;
+
+            // Calcola i contatori totali
+            let crit = 0, high = 0, med = 0, low = 0;
+            findings.forEach(f => {
+                const sev = (f.severity || 'medium').toLowerCase();
+                if (sev === 'critical') crit++;
+                else if (sev === 'high') high++;
+                else if (sev === 'medium') med++;
+                else low++;
+            });
+
+            // Aggiorna contatori dei badge
+            document.getElementById(badgePrefix + 'badge-crit').textContent = `${crit} Critical`;
+            document.getElementById(badgePrefix + 'badge-high').textContent = `${high} High`;
+            document.getElementById(badgePrefix + 'badge-med').textContent = `${med} Medium`;
+            document.getElementById(badgePrefix + 'badge-low').textContent = `${low} Low`;
+
+            // Rendering iniziale degli elementi
+            renderFindingsList(findings, containerId);
+        }
+
+        function renderFindingsList(findings, containerId) {
+            const findingsContainer = document.getElementById(containerId);
+            findingsContainer.innerHTML = '';
+            
+            if (findings.length === 0) {
+                findingsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--text-secondary);">
+                        <p style="font-weight: 500; font-size: 0.88rem;">Nessun finding rilevato per questa categoria.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            findings.forEach(f => {
+                try {
+                    const sev = (f.severity || 'medium').toLowerCase();
+                    let badgeClass = 'medium';
+                    if (sev === 'critical') { badgeClass = 'critical'; }
+                    else if (sev === 'high') { badgeClass = 'high'; }
+                    else if (sev === 'medium') { badgeClass = 'medium'; }
+                    else { badgeClass = 'low'; }
+
+                    const fullPath = f.location ? (f.location.file || f.location.file_path || 'unknown') : 'unknown';
+                    const filename = fullPath.split('/').pop();
+                    const line = f.location ? (f.location.line || f.location.start_line || '') : '';
+                    const lineStr = line ? `L${line}` : '';
+                    const ruleCode = f.rule_id ? `${f.rule_id} • ` : '';
+
+                    const item = document.createElement('div');
+                    item.className = 'finding-item';
+                    item.dataset.loaded = "false";
+
+                    item.innerHTML = `
+                        <div class="finding-row">
+                            <div class="finding-meta">
+                                <span class="finding-title">${f.title}</span>
+                                <span class="finding-path" title="${fullPath}">${ruleCode}${filename} ${lineStr} <span style="color: var(--accent-purple); font-weight: 600; margin-left: 8px;">[${f.source}]</span></span>
+                            </div>
+                            <div class="finding-badge-container">
+                                <span class="severity-badge ${badgeClass}">${sev}</span>
+                                <div class="toggle-arrow">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="finding-details">
+                            <div class="finding-details-content">
+                                <div class="remediation-loader">
+                                    <div class="remediation-spinner"></div>
+                                    <span style="font-size: 0.85rem;">Generazione remediation IA in corso...</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Gestore dell'accordion e caricamento on-demand
+                    item.addEventListener('click', async (e) => {
+                        if (e.target.closest('.remediation-code')) return;
+
+                        const wasActive = item.classList.contains('active');
+
+                        // Chiudi tutti gli altri in questo container
+                        const allItems = findingsContainer.querySelectorAll('.finding-item');
+                        allItems.forEach(other => {
+                            if (other !== item) other.classList.remove('active');
+                        });
+
+                        item.classList.toggle('active');
+
+                        if (!wasActive && item.dataset.loaded === "false") {
+                            item.dataset.loaded = "loading";
+                            try {
+                                const response = await fetch('/remediation', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(f)
+                                });
+                                if (!response.ok) throw new Error("Errore API Remediation");
+
+                                const rem = await response.json();
+                                
+                                let steps = rem.steps || [];
+                                if (typeof steps === 'string') steps = [steps];
+                                const stepsList = Array.isArray(steps) && steps.length > 0
+                                    ? steps.map(step => `<li>${step}</li>`).join('')
+                                    : `<li>Nessun passo di mitigazione specificato.</li>`;
+
+                                let exampleStr = '';
+                                if (rem.example) {
+                                    if (typeof rem.example === 'object') {
+                                        if (rem.example.codice) {
+                                            exampleStr = Array.isArray(rem.example.codice)
+                                                ? rem.example.codice.join('\n')
+                                                : rem.example.codice;
+                                        } else {
+                                            exampleStr = JSON.stringify(rem.example, null, 2);
+                                        }
+                                    } else {
+                                        exampleStr = rem.example;
+                                    }
+                                }
+
+                                const codeExampleHtml = exampleStr
+                                    ? `<div class="remediation-code-container"><pre class="remediation-code"><code>${escapeHtml(exampleStr)}</code></pre></div>`
+                                    : '<p class="remediation-text" style="font-style: italic;">Nessun codice di esempio disponibile.</p>';
+
+                                let sourceLabel = 'Knowledge Base Locale';
+                                let warningHtml = '';
+                                
+                                if (rem.source === 'offline_simulator') {
+                                    sourceLabel = 'Simulatore Locale Llama 3.1';
+                                    warningHtml = `
+                                        <div class="remediation-warning-banner">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                            </svg>
+                                            <span><strong>Avviso:</strong> Il server Ollama è offline. Remediation generata dal simulatore ad alta fedeltà.</span>
+                                        </div>
+                                    `;
+                                } else if (rem.source === 'llm') {
+                                    sourceLabel = `Generato da Ollama AI (${Math.round((rem.confidence || 0.85) * 100)}% confidenza)`;
+                                } else if (rem.source) {
+                                    sourceLabel = `Knowledge Base Locale (${rem.source})`;
+                                }
+
+                                const detailsContent = item.querySelector('.finding-details-content');
+                                detailsContent.innerHTML = `
+                                    ${warningHtml}
+                                    <div class="remediation-section">
+                                        <div class="remediation-section-title">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                            </svg>
+                                            Descrizione della Vulnerabilità
+                                        </div>
+                                        <p class="remediation-text">${rem.description || 'Nessuna descrizione specificata.'}</p>
+                                    </div>
+
+                                    <div class="remediation-section">
+                                        <div class="remediation-section-title">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                            </svg>
+                                            Impatto Potenziale
+                                        </div>
+                                        <p class="remediation-text">${rem.impact || 'L\'impatto non è stato specificato.'}</p>
+                                    </div>
+
+                                    <div class="remediation-section">
+                                        <div class="remediation-section-title">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                            Procedura di Mitigazione
+                                        </div>
+                                        <ul class="remediation-steps">
+                                            ${stepsList}
+                                        </ul>
+                                    </div>
+
+                                    <div class="remediation-section">
+                                        <div class="remediation-section-title">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="16 18 22 12 16 6"></polyline>
+                                                <polyline points="8 6 2 12 8 18"></polyline>
+                                            </svg>
+                                            Codice di Esempio Corretto (Remediation Fix)
+                                        </div>
+                                        ${codeExampleHtml}
+                                    </div>
+
+                                    <div class="remediation-section" style="margin-top: 10px;">
+                                        <div>
+                                            <span class="remediation-meta-tag">Origine: ${sourceLabel}</span>
+                                        </div>
+                                    </div>
+                                `;
+
+                                item.dataset.loaded = "true";
+                            } catch (err) {
+                                console.error("Errore caricamento remediation:", err);
+                                const detailsContent = item.querySelector('.finding-details-content');
+                                detailsContent.innerHTML = `
+                                    <div style="padding: 10px; color: #ef4444; font-size: 0.88rem; font-weight: 500;">
+                                        ⚠️ Impossibile caricare i dati della remediation. Clicca di nuovo per riprovare.
+                                    </div>
+                                `;
+                                item.dataset.loaded = "false";
+                            }
+                        }
+                    });
+
+                    findingsContainer.appendChild(item);
+                } catch (err) {
+                    console.error("Errore nel rendering di un singolo finding:", f, err);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

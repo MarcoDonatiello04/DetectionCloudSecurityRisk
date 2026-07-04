@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOLA Differential Testing — Control Center</title>
+    <meta name="description" content="Report D-AST interattivo per il test differenziale di Autorizzazione a Livello di Oggetto (BOLA/IDOR) con scenari multi-utente.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0c;
+            --bg-card: rgba(20, 20, 25, 0.6);
+            --card-border: rgba(255,255,255,0.08);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-blue: #00d2ff;
+            --accent-purple: #9d4edd;
+            --accent-green: #06d6a0;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --bg-vuln: rgba(239,68,68,0.12);
+            --text-vuln: #f87171;
+            --border-vuln: rgba(239,68,68,0.3);
+            --bg-safe: rgba(6,214,160,0.12);
+            --text-safe: #34d399;
+            --border-safe: rgba(6,214,160,0.3);
+            --bg-high: rgba(249,115,22,0.15);
+            --text-high: #fb923c;
+            --border-high: rgba(249,115,22,0.3);
+            --bg-med: rgba(234,179,8,0.12);
+            --text-med: #facc15;
+            --border-med: rgba(234,179,8,0.25);
+            --bg-info: rgba(99,102,241,0.12);
+            --text-info: #818cf8;
+            --border-info: rgba(99,102,241,0.25);
+        }
+        [data-theme="light"] {
+            --bg-primary: #f4f5f6;
+            --bg-card: rgba(255,255,255,0.85);
+            --card-border: rgba(0,0,0,0.08);
+            --text-primary: #18181b;
+            --text-secondary: #52525b;
+            --text-muted: #8e8e93;
+            --accent-blue: #007aff;
+            --accent-purple: #7b2cbf;
+            --accent-green: #10b981;
+            --accent-red: #dc2626;
+            --accent-orange: #ea580c;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        .glow-bg { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(140px); z-index: -1; opacity: 0.12; pointer-events: none; }
+        .glow-top-left { top: -200px; left: -200px; background: var(--accent-orange); }
+        .glow-bottom-right { bottom: -200px; right: -200px; background: var(--accent-red); }
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 40px; border-bottom: 1px solid var(--card-border);
+            backdrop-filter: blur(12px); background: rgba(10,10,12,0.4); z-index: 10;
+        }
+        [data-theme="light"] header { background: rgba(244,245,246,0.4); }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #f97316, #ef4444); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(249,115,22,0.35); }
+        .brand-logo svg { width: 20px; height: 20px; fill: #fff; }
+        .brand-info h1 { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; background: linear-gradient(120deg, var(--text-primary), var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .theme-toggle-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: var(--text-primary); padding: 8px 16px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        .theme-toggle-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
+        main { flex: 1; padding: 32px 40px; max-width: 1280px; width: 100%; margin: 0 auto; }
+        .card { background: var(--bg-card); border: 1px solid var(--card-border); border-radius: 16px; backdrop-filter: blur(20px); box-shadow: 0 20px 40px rgba(0,0,0,0.25); overflow: hidden; }
+        /* Tabs */
+        .card-tabs { display: flex; border-bottom: 1px solid var(--card-border); background: rgba(255,255,255,0.02); overflow-x: auto; }
+        .card-tab-btn { text-decoration: none; color: var(--text-secondary); padding: 16px 22px; font-family: 'Outfit', sans-serif; font-size: 0.83rem; font-weight: 600; border-bottom: 2px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+        .card-tab-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+        .card-tab-btn.active { color: var(--accent-orange); border-bottom-color: var(--accent-orange); background: rgba(249,115,22,0.05); font-weight: 700; }
+        /* Header */
+        .card-header { padding: 24px 32px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+        .card-title { display: flex; align-items: center; gap: 12px; font-family: 'Outfit', sans-serif; font-size: 1.35rem; font-weight: 800; }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text-secondary); font-size: 0.83rem; font-weight: 600; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); transition: all 0.2s; }
+        .back-btn:hover { color: var(--text-primary); transform: translateX(-2px); }
+        /* Loader */
+        .loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 40px; text-align: center; }
+        .scan-radar { width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--accent-orange); position: relative; animation: spin 3s linear infinite; margin-bottom: 24px; box-shadow: 0 0 20px rgba(249,115,22,0.2); }
+        .radar-pulse { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 100%; height: 100%; border-radius: 50%; border: 2px solid rgba(249,115,22,0.2); animation: pulse 1.8s ease-out infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { width:0%;height:0%;opacity:1; } 100% { width:220%;height:220%;opacity:0; } }
+        .console-output { background: #09090b; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 16px 24px; width: 100%; max-width: 640px; margin-top: 24px; font-family: monospace; font-size: 0.8rem; color: #f97316; text-align: left; max-height: 200px; overflow-y: auto; white-space: pre-wrap; box-shadow: inset 0 2px 10px rgba(0,0,0,0.8); }
+        /* Results */
+        .results-view { display: none; padding: 28px 32px; }
+        /* Summary Cards */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+        .summary-card { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px 24px; display: flex; flex-direction: column; gap: 8px; transition: all 0.2s; }
+        .summary-card:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+        .summary-card-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+        .summary-card-value { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; line-height: 1; }
+        .summary-card-value.vuln { color: var(--accent-red); }
+        .summary-card-value.safe { color: var(--accent-green); }
+        .summary-card-value.total { color: var(--accent-orange); }
+        .summary-card-value.eps { color: var(--accent-blue); }
+        .summary-card-sub { font-size: 0.78rem; color: var(--text-muted); }
+        /* Mode badge */
+        .mode-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.03em; margin-bottom: 20px; }
+        .mode-badge.live { background: var(--bg-safe); color: var(--text-safe); border: 1px solid var(--border-safe); }
+        .mode-badge.simulated { background: var(--bg-med); color: var(--text-med); border: 1px solid var(--border-med); }
+        /* Filter bar */
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .filter-bar-label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-right: 4px; }
+        .filter-btn { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--card-border); background: rgba(255,255,255,0.04); color: var(--text-secondary); cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        .filter-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+        .filter-btn.active-filter { background: rgba(249,115,22,0.15); color: var(--accent-orange); border-color: rgba(249,115,22,0.4); }
+        .filter-btn.vuln-filter.active-filter { background: var(--bg-vuln); color: var(--text-vuln); border-color: var(--border-vuln); }
+        .filter-btn.safe-filter.active-filter { background: var(--bg-safe); color: var(--text-safe); border-color: var(--border-safe); }
+        /* Results Table */
+        .results-table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--card-border); }
+        .results-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        .results-table thead th { padding: 14px 18px; text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--card-border); white-space: nowrap; }
+        .results-table tbody tr { border-bottom: 1px solid var(--card-border); cursor: pointer; transition: background 0.15s; }
+        .results-table tbody tr:last-child { border-bottom: none; }
+        .results-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+        .results-table tbody tr.row-vulnerable { background: rgba(239,68,68,0.04); }
+        .results-table tbody tr.row-vulnerable:hover { background: rgba(239,68,68,0.08); }
+        .results-table tbody td { padding: 14px 18px; font-size: 0.84rem; vertical-align: top; }
+        .method-badge { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 0.68rem; font-weight: 800; font-family: monospace; text-transform: uppercase; }
+        .method-GET { background: rgba(6,214,160,0.15); color: #34d399; }
+        .method-POST { background: rgba(99,102,241,0.15); color: #818cf8; }
+        .method-PUT { background: rgba(234,179,8,0.15); color: #facc15; }
+        .method-DELETE { background: rgba(239,68,68,0.15); color: #f87171; }
+        .method-PATCH { background: rgba(249,115,22,0.15); color: #fb923c; }
+        .verdict-badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+        .verdict-badge.vulnerable { background: var(--bg-vuln); color: var(--text-vuln); border: 1px solid var(--border-vuln); }
+        .verdict-badge.safe { background: var(--bg-safe); color: var(--text-safe); border: 1px solid var(--border-safe); }
+        .endpoint-text { font-family: monospace; font-size: 0.8rem; color: var(--accent-blue); word-break: break-all; }
+        .scenario-text { font-size: 0.8rem; color: var(--text-secondary); }
+        /* Expanded detail row */
+        .detail-row { display: none; }
+        .detail-row.open { display: table-row; }
+        .detail-cell { padding: 0 !important; border-bottom: 1px solid var(--card-border); }
+        .detail-inner { padding: 20px 28px; background: rgba(0,0,0,0.2); display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        [data-theme="light"] .detail-inner { background: rgba(0,0,0,0.04); }
+        .detail-section { display: flex; flex-direction: column; gap: 10px; }
+        .detail-section-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+        .assertion-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px solid var(--card-border); }
+        .assertion-label { font-size: 0.8rem; color: var(--text-secondary); }
+        .assertion-pass { color: #34d399; font-weight: 700; font-size: 0.8rem; }
+        .assertion-fail { color: #f87171; font-weight: 700; font-size: 0.8rem; }
+        .response-block { background: #09090b; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.76rem; color: #a1a1aa; max-height: 150px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+        .user-row { display: flex; gap: 8px; align-items: center; font-size: 0.82rem; }
+        .user-pill { padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+        .user-pill.owner { background: rgba(0,210,255,0.12); color: var(--accent-blue); }
+        .user-pill.attacker { background: rgba(239,68,68,0.12); color: #f87171; }
+        .user-pill.anon { background: rgba(113,113,122,0.2); color: var(--text-muted); }
+        .status-chip { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; font-family: monospace; }
+        .status-200 { background: rgba(6,214,160,0.15); color: #34d399; }
+        .status-403 { background: rgba(249,115,22,0.15); color: #fb923c; }
+        .status-401 { background: rgba(234,179,8,0.15); color: #facc15; }
+        .status-other { background: rgba(99,102,241,0.15); color: #818cf8; }
+        /* Empty state */
+        .empty-state { text-align: center; padding: 48px; color: var(--text-secondary); }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 16px; }
+        footer { margin-top: 32px; padding: 0 40px 24px; font-size: 0.75rem; color: var(--text-secondary); text-align: center; }
+        @media (max-width: 768px) {
+            header { padding: 16px 20px; }
+            main { padding: 20px; }
+            .detail-inner { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-bg glow-top-left"></div>
+    <div class="glow-bg glow-bottom-right"></div>
+
+    <header>
+        <div class="brand">
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#fff"/></svg>
+            </div>
+            <div class="brand-info"><h1>Cloud Risk Assessment Platform</h1></div>
+        </div>
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Cambia tema">
+            <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <span id="theme-text">Tema Chiaro</span>
+        </button>
+    </header>
+
+    <main>
+        <div class="card">
+            <!-- Navigation Tabs (4 tabs) -->
+            <div class="card-tabs">
+                <a href="/results" class="card-tab-btn">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    Infrastruttura IaC
+                </a>
+                <a href="/api-results" class="card-tab-btn">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    Rischi API & D-AST
+                </a>
+                <a href="/contract-results" class="card-tab-btn">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Validazione Contratto
+                </a>
+                <a href="/bola-results" class="card-tab-btn active">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>
+                    BOLA/IDOR Testing
+                </a>
+            </div>
+
+            <!-- Header Card -->
+            <div class="card-header">
+                <div class="card-title" style="color: var(--accent-orange);">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
+                        <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/>
+                        <line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/>
+                    </svg>
+                    <span>BOLA/IDOR Differential Testing Report</span>
+                </div>
+                <a href="/" class="back-btn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Torna Indietro
+                </a>
+            </div>
+
+            <!-- Loader -->
+            <div class="loader-container" id="loader-area">
+                <div class="scan-radar"><div class="radar-pulse"></div></div>
+                <p style="font-weight: 600; font-size: 1rem; margin-bottom: 8px;">Esecuzione pipeline D-AST BOLA in corso...</p>
+                <p style="font-size: 0.82rem; color: var(--text-secondary);">Discovery → Seeding → Attacco Differenziale Multi-Utente</p>
+                <div class="console-output" id="console-log">[info] Avvio BOLASimulator in-process...</div>
+            </div>
+
+            <!-- Results -->
+            <div class="results-view" id="results-area">
+                <div id="mode-badge-container"></div>
+                <div class="summary-grid" id="summary-grid"></div>
+
+                <!-- Filter bar -->
+                <div class="filter-bar">
+                    <span class="filter-bar-label">Filtra:</span>
+                    <button class="filter-btn active-filter" id="btn-filter-all" onclick="applyFilter('all')">Tutti</button>
+                    <button class="filter-btn vuln-filter" id="btn-filter-vuln" onclick="applyFilter('vuln')">🚨 Solo Vulnerabili</button>
+                    <button class="filter-btn safe-filter" id="btn-filter-safe" onclick="applyFilter('safe')">✅ Solo Sicuri</button>
+                </div>
+
+                <!-- Results table -->
+                <div class="results-table-container">
+                    <table class="results-table" id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Endpoint</th>
+                                <th>Metodo</th>
+                                <th>Scenario</th>
+                                <th>Attaccante</th>
+                                <th>Proprietario</th>
+                                <th>Status Attac.</th>
+                                <th>Verdetto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="empty-state" style="display:none;">
+                    <div class="empty-state-icon">🔍</div>
+                    <p style="font-weight: 600; margin-bottom: 8px;">Nessun risultato trovato</p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Modifica i filtri per visualizzare altri test.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer><p>© 2026 Cloud Risk Assessment Platform | BOLA/IDOR Differential Testing</p></footer>
+
+    <script>
+    // ── Tema ──────────────────────────────────────────────────────
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeText = document.getElementById('theme-text');
+    const themeIcon = document.getElementById('theme-icon');
+    themeToggle.addEventListener('click', () => {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        if (isLight) {
+            document.documentElement.removeAttribute('data-theme');
+            themeText.textContent = 'Tema Chiaro';
+            themeIcon.innerHTML = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            themeText.textContent = 'Tema Scuro';
+            themeIcon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+        }
+    });
+
+    // ── State ─────────────────────────────────────────────────────
+    let allResults = [];
+    let currentFilter = 'all';
+    let expandedRows = new Set();
+
+    // ── Helpers ───────────────────────────────────────────────────
+    function escHtml(t) {
+        if (typeof t !== 'string') return String(t || '');
+        return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function statusClass(code) {
+        if (code === 200 || code === 204) return 'status-200';
+        if (code === 403) return 'status-403';
+        if (code === 401) return 'status-401';
+        return 'status-other';
+    }
+    function methodClass(m) { return `method-${(m||'GET').toUpperCase()}`; }
+    function assertionBadge(val) {
+        return val ? `<span class="assertion-pass">✔ PASS (bloccato)</span>` : `<span class="assertion-fail">✘ FAIL (non bloccato)</span>`;
+    }
+
+    // ── Render ────────────────────────────────────────────────────
+    function renderResults(data) {
+        const tbody = document.getElementById('table-body');
+        const emptyState = document.getElementById('empty-state');
+        tbody.innerHTML = '';
+        expandedRows.clear();
+
+        const filtered = data.filter(r => {
+            if (currentFilter === 'vuln') return r.is_vulnerable;
+            if (currentFilter === 'safe') return !r.is_vulnerable;
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            emptyState.style.display = 'block';
+            return;
+        }
+        emptyState.style.display = 'none';
+
+        filtered.forEach((r, idx) => {
+            const isVuln = r.is_vulnerable;
+            const ad = r.assertion_details || {};
+
+            // Main row
+            const tr = document.createElement('tr');
+            tr.className = isVuln ? 'row-vulnerable' : '';
+            tr.id = `row-${idx}`;
+            tr.innerHTML = `
+                <td><span class="endpoint-text">${escHtml(r.endpoint)}</span></td>
+                <td><span class="method-badge ${methodClass(r.method)}">${escHtml(r.method)}</span></td>
+                <td><span class="scenario-text">${escHtml(r.scenario_name)}</span></td>
+                <td>
+                    <span class="user-pill ${r.attacker_role === 'anonymous' ? 'anon' : 'attacker'}">${escHtml(r.attacker_role)}</span>
+                    <div style="font-size:0.74rem;color:var(--text-muted);margin-top:3px;">${escHtml(r.attacker)}</div>
+                </td>
+                <td>
+                    <span class="user-pill owner">${escHtml(r.owner_role)}</span>
+                    <div style="font-size:0.74rem;color:var(--text-muted);margin-top:3px;">${escHtml(r.owner)}</div>
+                </td>
+                <td>
+                    <span class="status-chip ${statusClass(r.res_attacker_status)}">${r.res_attacker_status}</span>
+                    <span style="font-size:0.7rem;color:var(--text-muted);margin-left:4px;">(owner: ${r.res_owner_status})</span>
+                </td>
+                <td><span class="verdict-badge ${isVuln ? 'vulnerable' : 'safe'}">${isVuln ? '🚨 ' + escHtml(r.verdict) : '✅ SAFE'}</span></td>
+            `;
+            tr.addEventListener('click', () => toggleDetail(idx, r, ad));
+            tbody.appendChild(tr);
+
+            // Detail row
+            const detailTr = document.createElement('tr');
+            detailTr.className = 'detail-row';
+            detailTr.id = `detail-${idx}`;
+            detailTr.innerHTML = `
+                <td class="detail-cell" colspan="7">
+                    <div class="detail-inner">
+                        <div class="detail-section">
+                            <div class="detail-section-title">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                                Asserzioni di Sicurezza (3 criteri)
+                            </div>
+                            <div class="assertion-row">
+                                <span class="assertion-label">HTTP Status Assertion<br><span style="font-size:0.7rem;color:var(--text-muted)">Attaccante riceve 401/403?</span></span>
+                                ${assertionBadge(ad.http_status_assertion)}
+                            </div>
+                            <div class="assertion-row">
+                                <span class="assertion-label">Content Keyword Assertion<br><span style="font-size:0.7rem;color:var(--text-muted)">Body contiene keyword di blocco?</span></span>
+                                ${assertionBadge(ad.content_keyword_assertion)}
+                            </div>
+                            <div class="assertion-row">
+                                <span class="assertion-label">Structural Similarity Assertion<br><span style="font-size:0.7rem;color:var(--text-muted)">Delta corpo risposta = 0? (violazione isolamento)</span></span>
+                                ${ad.structural_similarity_assertion
+                                    ? `<span class="assertion-fail">✘ Delta=0 (VIOLAZIONE)</span>`
+                                    : `<span class="assertion-pass">✔ Delta≠0 (OK)</span>`}
+                            </div>
+                            <div style="margin-top:8px;font-size:0.75rem;color:var(--text-secondary);">
+                                Ruolo Attaccante: <strong>${escHtml(ad.requesting_role || r.attacker_role)}</strong> &nbsp;|&nbsp; Ruolo Proprietario: <strong>${escHtml(ad.owner_role || r.owner_role)}</strong>
+                            </div>
+                        </div>
+                        <div class="detail-section">
+                            <div class="detail-section-title">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                                Risposta Proprietario (status ${r.res_owner_status})
+                            </div>
+                            <div class="response-block">${escHtml(r.res_owner_body_preview || 'N/D')}</div>
+                            <div class="detail-section-title" style="margin-top:14px;">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                Risposta Attaccante (status ${r.res_attacker_status})
+                            </div>
+                            <div class="response-block">${escHtml(r.res_attacker_body_preview || 'N/D')}</div>
+                            ${r.was_live_request
+                                ? `<div style="margin-top:10px;font-size:0.72rem;color:var(--text-safe);">✔ Richiesta HTTP reale eseguita verso ${escHtml(r.test_url)}</div>`
+                                : `<div style="margin-top:10px;font-size:0.72rem;color:var(--text-med);">⚠ Risposta simulata (target offline) — ${escHtml(r.test_url)}</div>`}
+                        </div>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(detailTr);
+        });
+    }
+
+    function toggleDetail(idx, r, ad) {
+        const detailRow = document.getElementById(`detail-${idx}`);
+        if (!detailRow) return;
+        if (expandedRows.has(idx)) {
+            detailRow.classList.remove('open');
+            expandedRows.delete(idx);
+        } else {
+            expandedRows.add(idx);
+            detailRow.classList.add('open');
+        }
+    }
+
+    function applyFilter(f) {
+        currentFilter = f;
+        document.getElementById('btn-filter-all').className = 'filter-btn' + (f === 'all' ? ' active-filter' : '');
+        document.getElementById('btn-filter-vuln').className = 'filter-btn vuln-filter' + (f === 'vuln' ? ' active-filter' : '');
+        document.getElementById('btn-filter-safe').className = 'filter-btn safe-filter' + (f === 'safe' ? ' active-filter' : '');
+        renderResults(allResults);
+    }
+
+    function renderSummary(meta) {
+        const grid = document.getElementById('summary-grid');
+        grid.innerHTML = `
+            <div class="summary-card">
+                <div class="summary-card-label">Endpoint Scoperti</div>
+                <div class="summary-card-value eps">${meta.endpoints_discovered || 0}</div>
+                <div class="summary-card-sub">endpoint dinamici dall'inventario</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-label">Test Eseguiti</div>
+                <div class="summary-card-value total">${meta.total_tests || 0}</div>
+                <div class="summary-card-sub">${meta.elapsed_seconds || 0}s di esecuzione</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-label">Vulnerabilità Confermate</div>
+                <div class="summary-card-value vuln">${meta.vulnerable_count || 0}</div>
+                <div class="summary-card-sub">${meta.vulnerability_rate || 0}% tasso di vulnerabilità</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-card-label">Endpoint Sicuri</div>
+                <div class="summary-card-value safe">${meta.safe_count || 0}</div>
+                <div class="summary-card-sub">test superati con successo</div>
+            </div>
+        `;
+
+        const modeBadge = document.getElementById('mode-badge-container');
+        const isLive = meta.mode === 'LIVE';
+        modeBadge.innerHTML = `
+            <span class="mode-badge ${isLive ? 'live' : 'simulated'}">
+                ${isLive ? '🟢 Modalità LIVE — crAPI Online' : '🟡 Modalità SIMULATA — Target Offline'}
+            </span>
+            <span style="margin-left:12px;font-size:0.75rem;color:var(--text-muted);">
+                Scan ID: ${meta.scan_id || 'N/D'} &nbsp;|&nbsp; ${meta.started_at ? new Date(meta.started_at).toLocaleString('it-IT') : ''}
+            </span>
+        `;
+    }
+
+    // ── Main Load ─────────────────────────────────────────────────
+    window.addEventListener('DOMContentLoaded', async () => {
+        const consoleLog = document.getElementById('console-log');
+        const loaderArea = document.getElementById('loader-area');
+        const resultsArea = document.getElementById('results-area');
+
+        const steps = [
+            '[info] Avvio BOLASimulator — pipeline D-AST in-process...',
+            '[info] Verifica connettivita target (crAPI localhost:5000)...',
+            '[info] Caricamento inventario API da output/unified_api_inventory.json...',
+            '[info] Discovery endpoint dinamici con parametri {id}...',
+            '[info] Generazione identita simulate: User A (victim), User B (attacker), Admin...',
+            '[info] Costruzione matrice header JWT per ogni identita...',
+            '[info] Avvio scenari: BOLA Orizzontale, BOLA Verticale, Broken Authentication...',
+            '[info] Esecuzione test differenziali multi-utente su ogni endpoint...',
+            '[info] APIAssertionEngine: valutazione 3 asserzioni per ogni coppia di risposte...',
+            '[info] Compilazione del report e calcolo vulnerability rate...',
+        ];
+        let i = 0;
+        const logInterval = setInterval(() => {
+            if (i < steps.length) { consoleLog.innerHTML += `\n${steps[i]}`; consoleLog.scrollTop = consoleLog.scrollHeight; i++; }
+            else clearInterval(logInterval);
+        }, 400);
+
+        try {
+            const resp = await fetch('/bola-scan', { method: 'POST' });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const report = await resp.json();
+            clearInterval(logInterval);
+            consoleLog.innerHTML += `\n[info] Pipeline completata. ${(report.meta||{}).vulnerable_count || 0} vulnerabilita rilevate.`;
+
+            allResults = report.results || [];
+            const meta = report.meta || {};
+
+            loaderArea.style.display = 'none';
+            resultsArea.style.display = 'block';
+            renderSummary(meta);
+            renderResults(allResults);
+        } catch (err) {
+            clearInterval(logInterval);
+            consoleLog.innerHTML += `\n[error] Errore durante l'esecuzione: ${err.message}`;
+            consoleLog.style.color = '#ef4444';
+
+            // Prova a leggere l'ultimo report salvato
+            try {
+                const fallback = await fetch('/api/bola-report');
+                if (fallback.ok) {
+                    const report = await fallback.json();
+                    allResults = report.results || [];
+                    const meta = report.meta || {};
+                    if (allResults.length > 0) {
+                        consoleLog.innerHTML += `\n[info] Caricato report precedente con ${allResults.length} risultati.`;
+                        loaderArea.style.display = 'none';
+                        resultsArea.style.display = 'block';
+                        renderSummary(meta);
+                        renderResults(allResults);
+                        return;
+                    }
+                }
+            } catch (_) {}
+
+            setTimeout(() => {
+                loaderArea.style.display = 'none';
+                resultsArea.style.display = 'block';
+                renderSummary({ endpoints_discovered: 0, total_tests: 0, vulnerable_count: 0, safe_count: 0, vulnerability_rate: 0, mode: 'SIMULATED' });
+                renderResults([]);
+            }, 1500);
+        }
+    });
+    </script>
+</body>
+</html>

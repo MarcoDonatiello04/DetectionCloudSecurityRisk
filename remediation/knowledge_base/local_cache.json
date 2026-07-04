@@ -333,5 +333,66 @@
       ],
       "note": "Nota: questo è un esempio di codice Terraform per abilitare la politica di trasporto sicuro e la cors. Assicurarsi di sostituire i valori con quelli specifici del proprio ambiente."
     }
+  },
+  "info-contact": {
+    "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+    "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
+    "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
+    "remediation_steps": [
+      "Filtrare i payload di risposta escludendo campi sensibili o riservati (Data Filtering/DTO).",
+      "Rimuovere gli endpoint non documentati o proteggerli adeguatamente dietro gateway."
+    ],
+    "example": "# Filtro dei campi sensibili (DTO)\ndef clean_user_response(user_db):\n    return {\n        \"id\": user_db.id,\n        \"username\": user_db.username,\n        \"email\": user_db.email\n        # password_hash e token vengono eslcusi\n    }"
+  },
+  "oas3-schema": {
+    "title": "Mancata Validazione Input o Schema dell'API",
+    "description": "I parametri di input dell'endpoint non sono soggetti a controlli di tipo, lunghezza, formato o espressioni regolari (regex). Questo consente l'invio di dati malformati o attacchi di injection.",
+    "impact": "Rischio di SQL Injection, Cross-Site Scripting (XSS), crash dell'applicazione dovuto a errori di parsing o deserializzazione.",
+    "remediation_steps": [
+      "Definire esplicitamente lo schema di validazione dell'input nel contratto OpenAPI.",
+      "Implementare librerie di validazione dei dati a runtime (es: Pydantic per Python, Joi per Node.js, Express-validator).",
+      "Rigettare immediatamente con HTTP 400 Bad Request qualsiasi input non conforme prima di elaborarlo."
+    ],
+    "example": "# Esempio Schema OpenAPI sicuro (YAML)\ncomponents:\n  schemas:\n    UserRequest:\n      type: object\n      required: [username, email]\n      properties:\n        username:\n          type: string\n          pattern: '^[a-zA-Z0-9_]{3,30}$'\n        email:\n          type: string\n          format: email"
+  },
+  "operation-operationId": {
+    "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+    "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
+    "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
+    "remediation_steps": [
+      "Filtrare i payload di risposta escludendo campi sensibili o riservati (Data Filtering/DTO).",
+      "Rimuovere gli endpoint non documentati o proteggerli adeguatamente dietro gateway."
+    ],
+    "example": "# Filtro dei campi sensibili (DTO)\ndef clean_user_response(user_db):\n    return {\n        \"id\": user_db.id,\n        \"username\": user_db.username,\n        \"email\": user_db.email\n        # password_hash e token vengono eslcusi\n    }"
+  },
+  "operation-tags": {
+    "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+    "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
+    "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
+    "remediation_steps": [
+      "Filtrare i payload di risposta escludendo campi sensibili o riservati (Data Filtering/DTO).",
+      "Rimuovere gli endpoint non documentati o proteggerli adeguatamente dietro gateway."
+    ],
+    "example": "# Filtro dei campi sensibili (DTO)\ndef clean_user_response(user_db):\n    return {\n        \"id\": user_db.id,\n        \"username\": user_db.username,\n        \"email\": user_db.email\n        # password_hash e token vengono eslcusi\n    }"
+  },
+  "owasp-api9-documented-endpoint": {
+    "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+    "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
+    "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
+    "remediation_steps": [
+      "Filtrare i payload di risposta escludendo campi sensibili o riservati (Data Filtering/DTO).",
+      "Rimuovere gli endpoint non documentati o proteggerli adeguatamente dietro gateway."
+    ],
+    "example": "# Filtro dei campi sensibili (DTO)\ndef clean_user_response(user_db):\n    return {\n        \"id\": user_db.id,\n        \"username\": user_db.username,\n        \"email\": user_db.email\n        # password_hash e token vengono eslcusi\n    }"
+  },
+  "operation-description": {
+    "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+    "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
+    "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
+    "remediation_steps": [
+      "Filtrare i payload di risposta escludendo campi sensibili o riservati (Data Filtering/DTO).",
+      "Rimuovere gli endpoint non documentati o proteggerli adeguatamente dietro gateway."
+    ],
+    "example": "# Filtro dei campi sensibili (DTO)\ndef clean_user_response(user_db):\n    return {\n        \"id\": user_db.id,\n        \"username\": user_db.username,\n        \"email\": user_db.email\n        # password_hash e token vengono eslcusi\n    }"
   }
 }

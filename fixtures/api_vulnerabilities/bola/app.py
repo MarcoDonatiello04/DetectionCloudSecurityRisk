@@ -78,10 +78,40 @@ app.add_url_rule("/test/seed", view_func=seed_database, methods=["POST"])
 app.add_url_rule("/test/snapshot", view_func=database_snapshot_endpoint, methods=["GET", "POST"])
 app.add_url_rule("/test/rollback", view_func=database_rollback_endpoint, methods=["POST"])
 
-# Rotta jolly dinamica abilitata per tutti i metodi HTTP (GET, POST, PUT, PATCH, DELETE)
+import re
+
+def catch_all_handler(path):
+    """
+    Catch-all route per estrarre dinamicamente resource_name e resource_id
+    da qualsiasi path contenente un UUID o un ID numerico.
+    """
+    if path.startswith("test/"):
+        return jsonify({"error": "Administrative endpoint not matches"}), 404
+
+    # Cerca UUID o ID numerico nel path
+    uuid_pattern = r"([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})"
+    match = re.search(uuid_pattern, path)
+    if not match:
+        # Cerca un ID numerico (segmento autonomo)
+        match = re.search(r"\b(\d+)\b", path)
+
+    if match:
+        resource_id = match.group(1)
+        # Trova il segmento precedente all'ID
+        segments = [s for s in path.split("/") if s]
+        if resource_id in segments:
+            idx = segments.index(resource_id)
+            if idx > 0:
+                resource_name = segments[idx - 1]
+                # Esegue la logica di business jolly
+                return get_generic_resource(resource_name, resource_id)
+
+    logger.warning(f"Rilevato 404 per path non gestito: {path}")
+    return jsonify({"error": f"Resource path '/{path}' not match generic patterns"}), 404
+
 app.add_url_rule(
-    "/api/<resource_name>/<resource_id>", 
-    view_func=get_generic_resource, 
+    "/<path:path>",
+    view_func=catch_all_handler,
     methods=["GET", "POST", "PUT", "PATCH", "DELETE"]
 )
 

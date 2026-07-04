@@ -1,0 +1,2 @@
+TARGET_URL=https://tvmfxvd5kb.execute-api.us-east-1.amazonaws.com/dev
+ZAP_TARGET_URL=https://tvmfxvd5kb.execute-api.us-east-1.amazonaws.com/dev

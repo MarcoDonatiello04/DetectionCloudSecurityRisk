@@ -56,18 +56,86 @@ class SpectralScannerAdapter(IScanner):
 
         logger.info(f"📄 Trovato contratto OpenAPI da scansionare: {openapi_file}")
         
+        # 1. Carica le rotte originali definite nel contratto per poter fare distinzione
+        from src.normalization.normalizer import APIEndpointNormalizer
+        import yaml
+        original_paths = set()
+        original_data = {}
+        try:
+            with open(openapi_file, "r", encoding="utf-8") as f:
+                original_data = yaml.safe_load(f) or {}
+                paths_dict = original_data.get("paths", {}) or {}
+                for p in paths_dict.keys():
+                    original_paths.add(APIEndpointNormalizer.normalize_path(p))
+        except Exception as e:
+            logger.error(f"Errore lettura api spec originale: {e}")
+
+        # 2. Ottieni la lista degli endpoint scoperti da Semgrep (se presente nella cache statica)
+        from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
+        discovered = getattr(SemgrepScannerAdapter, "discovered_endpoints_cache", [])
+
+        # 3. Costruisci il dizionario OpenAPI unito (merged)
+        import copy
+        merged_data = copy.deepcopy(original_data)
+        if "paths" not in merged_data or merged_data["paths"] is None:
+            merged_data["paths"] = {}
+
+        # Aggiungi gli endpoint scoperti da Semgrep che non erano documentati
+        for ep in discovered:
+            method = ep["method"].lower()
+            path = ep["path"]
+            norm_path = APIEndpointNormalizer.normalize_path(path)
+            
+            if norm_path not in original_paths:
+                if path not in merged_data["paths"]:
+                    merged_data["paths"][path] = {}
+                
+                # Definiamo l'operazione minimale
+                op_data = {
+                    "summary": f"Discovered API Endpoint ({ep.get('framework', 'Semgrep')})",
+                    "responses": {
+                        "200": {
+                            "description": "Risposta automatica"
+                        }
+                    }
+                }
+                # Se Semgrep ha rilevato che richiede autenticazione, aggiungiamo il campo security
+                if ep.get("auth_detected"):
+                    op_data["security"] = [{"BearerAuth": []}]
+                
+                merged_data["paths"][path][method] = op_data
+
+        # 4. Scrivi il contratto unito in un file temporaneo nello stesso folder
+        merged_file_path = openapi_file.replace(os.path.basename(openapi_file), "openapi_merged_temp.yaml")
+        try:
+            with open(merged_file_path, "w", encoding="utf-8") as f:
+                yaml.safe_dump(merged_data, f, default_flow_style=False)
+            logger.info(f"📄 Creato file temporaneo OpenAPI unito per Spectral: {merged_file_path}")
+            
+            # Salva una copia stabile nella cartella output per la Dashboard UI
+            stable_output_path = "output/openapi_merged.yaml"
+            os.makedirs("output", exist_ok=True)
+            with open(stable_output_path, "w", encoding="utf-8") as f_stable:
+                yaml.safe_dump(merged_data, f_stable, default_flow_style=False)
+            logger.info(f"💾 Copia stabile OpenAPI salvata per la UI in: {stable_output_path}")
+        except Exception as e:
+            logger.error(f"Errore scrittura merged yaml: {e}")
+            merged_file_path = openapi_file  # fallback all'originale in caso di errore
+
         ruleset_path = DEFAULT_SPECTRAL_RULESET_PATH
         if not os.path.exists(ruleset_path):
             ruleset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../config/scanner_configs/spectral-owasp.yaml"))
 
         report_file = DEFAULT_SPECTRAL_REPORT_FILE
-        cmd = ["npx", "-y", "@stoplight/spectral-cli", "lint", openapi_file, 
+        cmd = ["npx", "-y", "@stoplight/spectral-cli", "lint", merged_file_path, 
                "--ruleset", ruleset_path, "--format", "json", "-o", report_file]
                
         try:
             subprocess.run(cmd, capture_output=True, text=True, timeout=SPECTRAL_TIMEOUT_SECONDS)
         except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
             logger.warning(f"Salto scansione Spectral (npx o comando fallito): {e}")
+            if merged_file_path != openapi_file and os.path.exists(merged_file_path):
+                os.remove(merged_file_path)
             return []
         
         findings: List[Finding] = []
@@ -97,6 +165,10 @@ class SpectralScannerAdapter(IScanner):
 
                     start_line = issue.get("range", {}).get("start", {}).get("line")
                     source_file = issue.get("source", openapi_file)
+                    
+                    if "openapi_merged_temp" in source_file:
+                        source_file = openapi_file
+
                     loc = CodeLocation(
                         file_path=source_file,
                         start_line=start_line
@@ -106,22 +178,42 @@ class SpectralScannerAdapter(IScanner):
                     path_list = issue.get("path", [])
                     api_ctx = None
                     target_ident = f"{source_file}"
+                    is_documented = True
+
                     if len(path_list) >= 3 and path_list[0] == "paths":
+                        api_path = path_list[1]
+                        api_method = str(path_list[2]).upper()
                         api_ctx = APIContext(
-                            endpoint=path_list[1],
-                            method=str(path_list[2]).upper()
+                            endpoint=api_path,
+                            method=api_method
                         )
                         target_ident += f"|{api_ctx.endpoint}|{api_ctx.method}"
-                    corr_key = None
-                    if not api_ctx:
+                        
+                        norm_api_path = APIEndpointNormalizer.normalize_path(api_path)
+                        if norm_api_path not in original_paths:
+                            is_documented = False
+
+                    # Definisce il titolo e descrizione in base a se l'API è documentata o scoperta
+                    if is_documented:
+                        title_str = f"[Documented API] {rule_code}"
+                        desc_str = f"Violazione su API già documentata: {msg}"
+                    else:
+                        title_str = f"[Discovered API] {rule_code}"
+                        desc_str = f"Violazione su API scoperta da Semgrep (non in OpenAPI): {msg}"
+
+                    # Definiamo la chiave di correlazione includendo la regola specifica,
+                    # altrimenti l'orchestratore raggrupperà tutte le violazioni dello stesso endpoint in un unico Finding.
+                    if api_ctx:
+                        corr_key = f"spectral:{api_ctx.endpoint}:{api_ctx.method}:{rule_code}"
+                    else:
                         filename = source_file.split("/")[-1] if "/" in source_file else source_file
                         corr_key = f"openapi:{filename}:{rule_code}"
 
                     finding = Finding.create(
                         source=FindingSource.SPECTRAL,
                         category=category,
-                        title=rule_code,
-                        description=msg,
+                        title=title_str,
+                        description=desc_str,
                         severity=severity_val,
                         confidence=1.0,
                         rule_id=rule_code,
@@ -138,6 +230,11 @@ class SpectralScannerAdapter(IScanner):
             finally:
                 if os.path.exists(report_file):
                     os.remove(report_file)
+                if merged_file_path != openapi_file and os.path.exists(merged_file_path):
+                    try:
+                        os.remove(merged_file_path)
+                    except Exception as e:
+                        logger.error(f"Errore rimozione file temporaneo unito: {e}")
                     
         logger.info(f"Spectral completato. Rilevate {len(findings)} deviazioni contrattuali.")
         return findings

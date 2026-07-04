@@ -1,9 +1,10 @@
 import logging
 import re
 import jwt
-from typing import List, Dict, Any, Set
+from typing import List, Dict, Any, Optional, Tuple
 
 logger = logging.getLogger("SecurityPlatform.BOLA.OwnershipInference")
+
 
 class OwnershipInferenceEngine:
     """
@@ -12,6 +13,17 @@ class OwnershipInferenceEngine:
     This enables BOLA testing in non-production environments (like staging or prod)
     where database seeding and state rollback are not available.
     """
+
+    # Field names in the body considered as resource identifiers.
+    # Kept in sync with ObjectReferenceDiscoveryEngine's ID heuristics.
+    ID_FIELD_PATTERN = re.compile(r'(.*id|.*Id|.*_id|uuid|guid)$', re.IGNORECASE)
+    SPECIFIC_ID_FIELDS = {
+        "id", "userid", "ownerid", "accountid", "tenantid", "resourceid",
+        "orderid", "customerid", "documentid", "uuid", "guid"
+    }
+
+    EXCLUDED_RESOURCE_IDS = {"seed", "snapshot", "rollback"}
+
     def __init__(self):
         # Maps user identifier (e.g., sub/username) to their details and owned resources
         # Structure:
@@ -26,42 +38,54 @@ class OwnershipInferenceEngine:
         #        }
         #    }
         # }
-        self.ownership_map = {}
+        self.ownership_map: Dict[str, Dict[str, Any]] = {}
+
+    @classmethod
+    def _is_id_field(cls, key: str) -> bool:
+        key_lower = key.lower()
+        if key_lower in cls.SPECIFIC_ID_FIELDS:
+            return True
+        return bool(cls.ID_FIELD_PATTERN.match(key))
 
     def _extract_user_info(self, auth_header: str) -> Dict[str, Any]:
         """Extracts identity info (sub, username, role) from a JWT token."""
         if not auth_header or not auth_header.lower().startswith("bearer "):
             return {}
-        
+
         try:
-            token = auth_header.split(" ")[1]
+            token = auth_header.split(" ", 1)[1]
             # Decode JWT without verifying signature since we are analyzing traffic
             payload = jwt.decode(token, options={"verify_signature": False})
             sub = payload.get("sub")
             username = payload.get("preferred_username") or payload.get("name")
-            roles = payload.get("roles", [])
-            
+            roles = payload.get("roles", []) or []
+            roles_lower = {str(r).lower() for r in roles}
+
             role = "user"
-            if "admin" in roles:
+            if "admin" in roles_lower:
                 role = "admin"
-            elif "manager" in roles:
+            elif "manager" in roles_lower:
                 role = "manager"
-                
+
             if sub:
                 return {"uid": sub, "username": username, "role": role}
         except Exception as e:
             logger.debug(f"Failed to decode token for ownership inference: {e}")
         return {}
 
-    def _parse_resource_from_path(self, path: str) -> tuple:
+    def _parse_resource_from_path(self, path: str) -> Tuple[Optional[str], Optional[str]]:
         """
-        Parses resource type and resource ID from a REST path.
-        E.g., /api/orders/101 -> ('orders', '101')
+        Parses the resource type and resource ID closest to the end of a REST path.
+        Handles nested paths by walking segments from the end, e.g.:
+          /api/orders/101/items/55 -> ('items', '55')
+          /api/orders/101          -> ('orders', '101')
         """
-        pattern = r"/api/([^/]+)/([^/]+)/?$"
-        match = re.search(pattern, path)
-        if match:
-            return match.group(1), match.group(2)
+        segments = [s for s in path.split("/") if s]
+        if segments and segments[0].lower() == "api":
+            segments = segments[1:]
+
+        if len(segments) >= 2:
+            return segments[-2], segments[-1]
         return None, None
 
     def analyze_traffic(self, traffic_data: List[Dict[str, Any]]) -> None:
@@ -102,23 +126,24 @@ class OwnershipInferenceEngine:
             path = entry.get("path", "")
             res_type, res_id = self._parse_resource_from_path(path)
             if res_type and res_id:
-                # Exclude administrative/non-resource paths
-                if not res_id.startswith("test") and res_id not in ("seed", "snapshot", "rollback"):
-                    if res_type not in self.ownership_map[uid]["resources"]:
-                        self.ownership_map[uid]["resources"][res_type] = set()
-                    self.ownership_map[uid]["resources"][res_type].add(res_id)
+                if not res_id.lower().startswith("test") and res_id.lower() not in self.EXCLUDED_RESOURCE_IDS:
+                    self.ownership_map[uid]["resources"].setdefault(res_type, set()).add(res_id)
 
             # 2. Infer from Request body (if JSON is present)
             body_params = entry.get("body_params")
             if isinstance(body_params, dict):
+                path_segments = [s for s in path.split("/") if s]
                 for k, v in body_params.items():
-                    if k in ("id", "resourceId", "uuid", "guid") and isinstance(v, (str, int)):
-                        path_segments = [s for s in path.split("/") if s]
-                        if len(path_segments) >= 2:
-                            inferred_type = path_segments[-2] if path_segments[-1] == str(v) else path_segments[-1]
-                            if inferred_type not in self.ownership_map[uid]["resources"]:
-                                self.ownership_map[uid]["resources"][inferred_type] = set()
-                            self.ownership_map[uid]["resources"][inferred_type].add(str(v))
+                    if not self._is_id_field(k) or not isinstance(v, (str, int)):
+                        continue
+                    if path_segments:
+                        if path_segments[-1] == str(v) and len(path_segments) >= 2:
+                            inferred_type = path_segments[-2]
+                        else:
+                            inferred_type = path_segments[-1]
+                    else:
+                        inferred_type = k
+                    self.ownership_map[uid]["resources"].setdefault(inferred_type, set()).add(str(v))
 
     def get_inferred_identities(self) -> tuple:
         """
@@ -126,10 +151,7 @@ class OwnershipInferenceEngine:
         from the inferred traffic data.
         Returns: (uuid_alice, uuid_bob, uuid_charlie, role_map, headers_matrix)
         """
-        uuid_alice = None
-        uuid_bob = None
-        uuid_charlie = None
-        role_map = {}
+        role_map: Dict[str, str] = {}
         headers_matrix = {
             "userA": {},
             "userB": {},
@@ -138,24 +160,29 @@ class OwnershipInferenceEngine:
         }
 
         users = list(self.ownership_map.keys())
-        
-        # 1. Find Alice and Bob (two users with 'user' role)
         regular_users = [uid for uid in users if self.ownership_map[uid]["role"] == "user"]
-        if len(regular_users) >= 1:
+
+        # 1. Alice: first real regular user, if any
+        if regular_users:
             uuid_alice = regular_users[0]
             headers_matrix["userA"] = {"Authorization": self.ownership_map[uuid_alice]["token"]}
             role_map[uuid_alice] = "user"
+        else:
+            uuid_alice = "mock-alice-uuid"
+            headers_matrix["userA"] = {"Authorization": "Bearer mock-alice-token"}
+            role_map[uuid_alice] = "user"
+
+        # 2. Bob: second real regular user, if any; otherwise a mock distinct from Alice
         if len(regular_users) >= 2:
             uuid_bob = regular_users[1]
             headers_matrix["userB"] = {"Authorization": self.ownership_map[uuid_bob]["token"]}
             role_map[uuid_bob] = "user"
         else:
-            # Fallback if only one user is found
             uuid_bob = "mock-bob-uuid"
             headers_matrix["userB"] = {"Authorization": "Bearer mock-bob-token"}
             role_map[uuid_bob] = "user"
 
-        # 2. Find Charlie (an admin or manager)
+        # 3. Charlie: an admin or manager, if any; otherwise a mock admin
         admins = [uid for uid in users if self.ownership_map[uid]["role"] in ("admin", "manager")]
         if admins:
             uuid_charlie = admins[0]
@@ -165,10 +192,5 @@ class OwnershipInferenceEngine:
             uuid_charlie = "mock-charlie-uuid"
             headers_matrix["userC"] = {"Authorization": "Bearer mock-charlie-token"}
             role_map[uuid_charlie] = "admin"
-
-        if not uuid_alice:
-            uuid_alice = "mock-alice-uuid"
-            headers_matrix["userA"] = {"Authorization": "Bearer mock-alice-token"}
-            role_map[uuid_alice] = "user"
 
         return uuid_alice, uuid_bob, uuid_charlie, role_map, headers_matrix
