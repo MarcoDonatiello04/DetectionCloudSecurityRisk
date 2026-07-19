@@ -50,3 +50,6 @@ validation_results/
 
 # Generato da terraform (data.archive_file in vulnerable_infra.tf)
 fixtures/api_vulnerabilities/generic_vulnerabilities.zip
+
+# Output generato dai runner della repo target
+output/repo_target/

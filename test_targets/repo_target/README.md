@@ -10,7 +10,9 @@ I controlli si costruiscono in modo incrementale. Attualmente la repo copre:
 - **BOLA (dinamico)** — l'app cooperante e il contratto di identità/stato
   (sezioni sotto);
 - **IaC / Checkov (statico)** — la configurazione Terraform in
-  [`terraform/`](terraform/), analizzata dallo scanner Checkov del framework.
+  [`terraform/`](terraform/), analizzata dallo scanner Checkov del framework;
+- **Discovery API / Semgrep (statico)** — il codice sorgente della repo, da cui
+  Semgrep estrae l'inventario degli endpoint.
 
 ## IaC: configurazione Terraform analizzata da Checkov
 
@@ -24,6 +26,23 @@ risultato in dashboard è invariato (stesse misconfiguration IaC rilevate).
 # Provisioning + analisi IaC (Terraform su LocalStack, poi Checkov)
 make iac-analysis
 ```
+
+## Discovery API: endpoint estratti da Semgrep
+
+A differenza di Checkov e Terraform, per Semgrep non c'è configurazione da
+spostare: lo scanner analizza il **codice sorgente**, e la repo lo contiene già
+(`app.py`, `cooperative_harness.py`). Semgrep, scansionando la root del
+progetto, ne ricava le rotte insieme al resto del repository. Un runner dedicato
+permette di isolarne l'inventario:
+
+```bash
+make semgrep-repo-target
+```
+
+Le rotte scoperte (`/api/projects/{id}`, `/api/invoices/{id}`, `/test/*`)
+combaciano con [`openapi.yaml`](openapi.yaml): è questa corrispondenza che
+consente al motore di correlazione di unire la scoperta statica (Semgrep) con
+gli attacchi dinamici (BOLA) sullo stesso endpoint.
 
 `run_iac_analysis.sh` esegue `terraform apply` da `test_targets/repo_target/terraform`
 e vi punta Checkov (`--framework terraform`). Il modello referenzia la Lambda di

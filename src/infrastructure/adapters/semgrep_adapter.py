@@ -291,7 +291,10 @@ class SemgrepScannerAdapter(IScanner):
                 if methods_str:
                     methods = [m.strip().strip("'\"") for m in methods_str.split(",")]
 
-                openapi_path = re.sub(r"<[^>:]*:?([^>]+)>", r"{\1}", path)
+                # Converte i parametri Flask nello standard OpenAPI {name}. Gestisce sia i
+                # converter tipizzati (<int:id> -> {id}) sia i parametri nudi (<id> -> {id}):
+                # il prefisso "converter:" e opzionale, il nome catturato e sempre il segmento finale.
+                openapi_path = re.sub(r"<(?:[^>:]+:)?([^>]+)>", r"{\1}", path)
 
                 decorator_end = match.end()
                 sub_content = content[decorator_end : decorator_end + SUB_CONTENT_LOOKAHEAD_LIMIT]

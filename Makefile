@@ -1,4 +1,4 @@
-.PHONY: install lint format test check setup-env iac-analysis api-security bola-repo-target stop-dashboard dashboard clean
+.PHONY: install lint format test check setup-env iac-analysis api-security bola-repo-target semgrep-repo-target stop-dashboard dashboard clean
 
 PY := .venv/bin/python
 
@@ -41,6 +41,11 @@ bola-repo-target:
 	@PYTHONPATH=. $(PY) entrypoints/runners/run_bola_repo_target.py \
 		--target-url $(REPO_TARGET_URL) \
 		--openapi test_targets/repo_target/openapi.yaml
+
+## Estrae l'inventario degli endpoint (Semgrep) dalla repo target cooperante
+semgrep-repo-target:
+	@PYTHONPATH=. $(PY) entrypoints/runners/run_semgrep_repo_target.py \
+		--target test_targets/repo_target
 
 ## Libera la porta della dashboard da eventuali istanze precedenti
 stop-dashboard:
