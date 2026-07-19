@@ -1,4 +1,4 @@
-.PHONY: install lint format test check setup-env iac-analysis api-security stop-dashboard dashboard clean
+.PHONY: install lint format test check setup-env iac-analysis api-security bola-repo-target stop-dashboard dashboard clean
 
 PY := .venv/bin/python
 
@@ -34,6 +34,13 @@ api-security:
 	@bash entrypoints/operations/run_api_security.sh
 
 DASHBOARD_PORT ?= 8000
+REPO_TARGET_URL ?= http://localhost:5000
+
+## Esegue la scansione BOLA su una repository target cooperante (vedi test_targets/repo_target)
+bola-repo-target:
+	@PYTHONPATH=. $(PY) entrypoints/runners/run_bola_repo_target.py \
+		--target-url $(REPO_TARGET_URL) \
+		--openapi test_targets/repo_target/openapi.yaml
 
 ## Libera la porta della dashboard da eventuali istanze precedenti
 stop-dashboard:

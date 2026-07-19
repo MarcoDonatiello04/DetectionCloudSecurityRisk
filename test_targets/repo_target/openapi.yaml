@@ -1,0 +1,67 @@
+openapi: 3.0.0
+info:
+  title: Repo Target - Projects API
+  version: 1.0.0
+  description: >
+    Repository di esempio resa cooperante per i test D-AST BOLA. Dichiara due
+    risorse per oggetto: /api/projects/{id} (vulnerabile) e /api/invoices/{id}
+    (protetta). L'orchestratore usa questa specifica per costruire l'inventario
+    degli endpoint dinamici da attaccare.
+components:
+  securitySchemes:
+    KeycloakAuth:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: http://localhost:8080/realms/myrealm/protocol/openid-connect/token
+          scopes:
+            openid: Access standard openid claims
+paths:
+  /api/projects/{id}:
+    get:
+      summary: Recupera un progetto per ID (vulnerabile a BOLA)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Progetto trovato
+    put:
+      summary: Aggiorna un progetto per ID (vulnerabile a BOLA)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Progetto aggiornato
+    delete:
+      summary: Elimina un progetto per ID (vulnerabile a BOLA)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Progetto eliminato
+  /api/invoices/{id}:
+    get:
+      summary: Recupera una fattura per ID (protetta da controllo di ownership)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fattura trovata
+        '403':
+          description: Accesso negato a risorsa altrui
