@@ -12,7 +12,9 @@ I controlli si costruiscono in modo incrementale. Attualmente la repo copre:
 - **IaC / Checkov (statico)** — la configurazione Terraform in
   [`terraform/`](terraform/), analizzata dallo scanner Checkov del framework;
 - **Discovery API / Semgrep (statico)** — il codice sorgente della repo, da cui
-  Semgrep estrae l'inventario degli endpoint.
+  Semgrep estrae l'inventario degli endpoint;
+- **Contratto OpenAPI / Spectral (statico)** — [`openapi.yaml`](openapi.yaml),
+  valutato rispetto al ruleset OWASP API Security.
 
 ## IaC: configurazione Terraform analizzata da Checkov
 
@@ -43,6 +45,22 @@ Le rotte scoperte (`/api/projects/{id}`, `/api/invoices/{id}`, `/test/*`)
 combaciano con [`openapi.yaml`](openapi.yaml): è questa corrispondenza che
 consente al motore di correlazione di unire la scoperta statica (Semgrep) con
 gli attacchi dinamici (BOLA) sullo stesso endpoint.
+
+## Contratto OpenAPI: analisi Spectral (OWASP)
+
+Lo stesso [`openapi.yaml`](openapi.yaml) è anche il contratto valutato da
+Spectral rispetto al ruleset OWASP API Security
+(`config/scanner_configs/spectral-owasp.yaml`). Un runner dedicato lo analizza:
+
+```bash
+make spectral-repo-target
+```
+
+Il report distingue le violazioni OWASP (es. `owasp-api2-operation-security`:
+operazioni senza `security` dichiarata) dalle regole di stile/completezza OAS.
+È lo stesso contratto usato dagli altri due controlli: Semgrep ne scopre le
+rotte, Spectral ne valuta la conformità, BOLA le attacca — un unico artefatto
+condiviso.
 
 `run_iac_analysis.sh` esegue `terraform apply` da `test_targets/repo_target/terraform`
 e vi punta Checkov (`--framework terraform`). Il modello referenzia la Lambda di

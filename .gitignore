@@ -53,3 +53,6 @@ fixtures/api_vulnerabilities/generic_vulnerabilities.zip
 
 # Output generato dai runner della repo target
 output/repo_target/
+
+# Contratto OpenAPI unito, rigenerato da Spectral a ogni scansione
+output/openapi_merged.yaml

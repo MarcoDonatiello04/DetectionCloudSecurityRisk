@@ -1,4 +1,4 @@
-.PHONY: install lint format test check setup-env iac-analysis api-security bola-repo-target semgrep-repo-target stop-dashboard dashboard clean
+.PHONY: install lint format test check setup-env iac-analysis api-security bola-repo-target semgrep-repo-target spectral-repo-target stop-dashboard dashboard clean
 
 PY := .venv/bin/python
 
@@ -46,6 +46,11 @@ bola-repo-target:
 semgrep-repo-target:
 	@PYTHONPATH=. $(PY) entrypoints/runners/run_semgrep_repo_target.py \
 		--target test_targets/repo_target
+
+## Analizza il contratto OpenAPI della repo target (Spectral, ruleset OWASP)
+spectral-repo-target:
+	@PYTHONPATH=. $(PY) entrypoints/runners/run_spectral_repo_target.py \
+		--openapi test_targets/repo_target/openapi.yaml
 
 ## Libera la porta della dashboard da eventuali istanze precedenti
 stop-dashboard:
