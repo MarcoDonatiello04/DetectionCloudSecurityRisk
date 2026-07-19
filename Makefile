@@ -71,7 +71,7 @@ dashboard: stop-dashboard
 clean:
 	@echo "=> Cleaning up environment..."
 	@docker compose down -v
-	@rm -rf fixtures/infrastructure_misconfiguration/terraform/.terraform
-	@rm -f fixtures/infrastructure_misconfiguration/terraform/*.tfstate*
+	@rm -rf test_targets/repo_target/terraform/.terraform
+	@rm -f test_targets/repo_target/terraform/*.tfstate*
 	@rm -f config/environments/.target_env
 	@echo "=> Cleanup complete."

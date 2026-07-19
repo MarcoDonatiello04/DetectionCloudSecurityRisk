@@ -196,8 +196,6 @@ PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
 ├── config/
 │   ├── environments/          # Contiene le variabili d'ambiente generate (.target_env)
 │   └── scanner_configs/       # Contiene le configurazioni degli scanner (rulesets)
-├── fixtures/infrastructure_misconfiguration/  # File infrastrutturali IaC di test
-│   └── terraform/             # Configurazioni Terraform (vulnerable_infra.tf, main.tf)
 ├── remediation/               # Modulo offline di Remediation Intelligence
 │   ├── knowledge_base/        # Database locale delle remediation e cache locale
 │   ├── models/                # Modelli dei dati del modulo di remediation
@@ -220,6 +218,8 @@ PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
 │   ├── security_misconfiguration/           # API8: vulnerable_app, secure_app
 │   ├── broken_function_level_authorization/ # API5: vulnerable_app, secure_app
 │   ├── unrestricted_resource_consumption/   # API4: vulnerable_app, secure_app
+│   ├── repo_target/           # Repo cooperante: BOLA + Terraform IaC (Checkov)
+│   │   └── terraform/         # Configurazioni Terraform (vulnerable_infra.tf, main.tf)
 │   └── docker-compose.yml     # Orchestrazione unificata di tutti i target
 ├── tests/                     # Test unitari e di integrazione
 ├── output/                    # Destinazione dei report JSON (generati a runtime)

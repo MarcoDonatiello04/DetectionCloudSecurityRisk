@@ -1,11 +1,39 @@
-# Repo Target — target cooperante per i test BOLA
+# Repo Target — repository cooperante per i controlli del framework
 
-Questo target dimostra come rendere **una repository qualsiasi** attaccabile
-dall'orchestratore BOLA del framework (`src/core/object_level_authorization`),
-esattamente come avviene per `test_targets/bola`. È il riferimento pratico per
-il limite di *repository-independence* descritto nel README principale: BOLA è
-un'analisi **dinamica** e non può ispezionare un'app sconosciuta — la repo deve
-*collaborare*.
+Questo target dimostra come rendere **una repository qualsiasi** analizzabile dal
+framework, raccogliendo al suo interno tutto ciò che serve al sistema per
+eseguire i propri controlli su di essa. È il riferimento pratico per il limite di
+*repository-independence* descritto nel README principale.
+
+I controlli si costruiscono in modo incrementale. Attualmente la repo copre:
+
+- **BOLA (dinamico)** — l'app cooperante e il contratto di identità/stato
+  (sezioni sotto);
+- **IaC / Checkov (statico)** — la configurazione Terraform in
+  [`terraform/`](terraform/), analizzata dallo scanner Checkov del framework.
+
+## IaC: configurazione Terraform analizzata da Checkov
+
+La cartella [`terraform/`](terraform/) contiene la configurazione infrastrutturale
+(`main.tf`, `vulnerable_infra.tf`) che prima risiedeva nella repo principale ed è
+ora ospitata qui, dentro la repo target. Checkov, configurato via `.checkov.yaml`
+nella radice del progetto, la scansiona insieme al resto del repository: il
+risultato in dashboard è invariato (stesse misconfiguration IaC rilevate).
+
+```bash
+# Provisioning + analisi IaC (Terraform su LocalStack, poi Checkov)
+make iac-analysis
+```
+
+`run_iac_analysis.sh` esegue `terraform apply` da `test_targets/repo_target/terraform`
+e vi punta Checkov (`--framework terraform`). Il modello referenzia la Lambda di
+esempio in `fixtures/api_vulnerabilities/generic_vulnerabilities` tramite percorso
+relativo, che resta valido dalla nuova posizione.
+
+## BOLA: il contratto cooperante (3 requisiti)
+
+Una repo diventa testabile da BOLA — analisi **dinamica** che non può ispezionare
+un'app sconosciuta — quando espone questi tre elementi.
 
 ## Il contratto cooperante (3 requisiti)
 
