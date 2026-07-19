@@ -287,6 +287,14 @@ paths:
         '200':
           description: Risposta automatica
       summary: Discovered API Endpoint (fastapi, python-semgrep)
+  /cancel-bola-scan:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (fastapi, python-semgrep)
   /content:
     get:
       responses:

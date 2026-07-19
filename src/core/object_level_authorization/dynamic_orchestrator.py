@@ -142,6 +142,7 @@ class ZapController:
     Gestore per il pilotaggio programmato di OWASP ZAP (Differential Authorization Testing).
     Configura le sessioni e invia traffico tramite il proxy per la scansione differenziale.
     """
+    _is_cancelled = False
 
     def __init__(self, zap_proxy_url: str = DEFAULT_ZAP_PROXY_URL):
         """
@@ -178,6 +179,7 @@ class ZapController:
         validate_url(target_base_url, "target_base_url")
         logger.info("🔥 Avvio test differenziale esteso e Role-Aware...")
         self.test_results = []
+        ZapController._is_cancelled = False
         
         # Inizializza i moduli BOLA e reset dello stato
         state_engine = APIStateEngine(target_base_url)
@@ -198,11 +200,16 @@ class ZapController:
         role_charlie = role_map.get(uuid_charlie, "admin")
 
         for ep in dynamic_endpoints:
+            if ZapController._is_cancelled:
+                logger.info("🛑 Scansione BOLA cancellata su richiesta dell'utente.")
+                break
             path = ep["path"]
             discovered_refs = ep.get("discovered_refs", None)
             logger.info(f"🧪 [BOLA Role-Aware Assessment] Analisi endpoint dinamico: {path}")
 
             for method in methods_to_test:
+                if ZapController._is_cancelled:
+                    break
                 # 1. Snapshot dello stato prima del test
                 if use_state_management:
                     APIStateEngine.take_snapshot(target_base_url)

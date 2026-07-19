@@ -856,6 +856,10 @@
             const isFullScan = scanType === 'all';
 
             // Configure Active Tab and Warning Banner dynamically
+            // Prima rimuovi tutti gli stati active di default
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
             if (isFullScan) {
                 scanTitle.textContent = 'Risultati Scansione Unificata (Con BOLA)';
                 loaderStatus.textContent = 'Esecuzione scansione unificata di tutti i moduli (incluso BOLA) in corso...';
@@ -864,7 +868,7 @@
                     Il modulo <strong>Checkov</strong> (IaC Scanner) non è incluso in questa scansione in quanto considerato non testato a sufficienza.
                     Nota: Il modulo <strong>BOLA</strong> è invece regolarmente eseguito in questa modalità.
                 `;
-                
+                // In full scan: attiva il tab BOLA
                 document.getElementById('tab-bola-btn').classList.add('active');
                 document.getElementById('tab-content-bola').classList.add('active');
             } else {
@@ -875,13 +879,11 @@
                     I moduli <strong>Checkov</strong> (non testato a sufficienza) e <strong>BOLA</strong> (escluso su richiesta per velocizzare) non sono inclusi in questa scansione veloce.
                     Nota: Il modulo principale di avvio di BOLA rimane accessibile in modalità indipendente.
                 `;
-                
+                // In non-bola: nascondi tab BOLA e attiva BOPLA
                 document.getElementById('tab-bola-btn').style.display = 'none';
                 document.getElementById('tab-content-bola').style.display = 'none';
-                
                 document.querySelector('.tab-btn[data-tab="bopla"]').classList.add('active');
                 document.getElementById('tab-content-bopla').classList.add('active');
-                document.getElementById('tab-content-bola').classList.remove('active');
             }
 
             const logSteps = [
@@ -1042,8 +1044,16 @@
                 // Update tab count badge
                 const tabBtn = document.querySelector(`.tab-btn[data-tab="${mod.id}"]`);
                 if (tabBtn) {
+                    const isActive = tabBtn.classList.contains('active');
                     let displayName = mod.id === 'broken_authentication' ? 'Broken Auth' : mod.id === 'security_misconfiguration' ? 'Security Misconfig' : mod.id === 'unrestricted_resource_consumption' ? 'Resource Consumption' : mod.id === 'unsafe_consumption' ? 'Unsafe Consumption' : mod.id.toUpperCase();
-                    tabBtn.innerHTML = `${displayName} <span style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 2px 6px; font-size: 0.7rem; font-weight: 700; margin-left: 4px;">${list.length}</span>`;
+                    // Per BOLA: mostra solo le vulnerabilità reali nel badge, non tutti i test
+                    const badgeCount = mod.id === 'bola'
+                        ? list.filter(f => f.is_vulnerable).length
+                        : list.length;
+                    const badgeColor = mod.id === 'bola' && badgeCount > 0 ? '#ff3b30' : 'rgba(255,255,255,0.08)';
+                    tabBtn.innerHTML = `${displayName} <span style="background: ${badgeColor}; border-radius: 6px; padding: 2px 6px; font-size: 0.7rem; font-weight: 700; margin-left: 4px;">${badgeCount}</span>`;
+                    // Ripristina la classe active se era attivo
+                    if (isActive) tabBtn.classList.add('active');
                 }
 
                 listContainer.innerHTML = '';

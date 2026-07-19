@@ -53,7 +53,7 @@ def serve_results() -> HTMLResponse:
 @app.get("/api-results", response_class=HTMLResponse, tags=["UI"])
 def serve_api_results() -> HTMLResponse:
     """
-    Ritorna la pagina dei risultati per API Security / D-AST (make api-security).
+    Ritorna la pagina dei risultati per l'Analisi del Codice (Semgrep).
     """
     template_path = "src/presentation/templates/api_results.html"
     if os.path.exists(template_path):
@@ -273,6 +273,18 @@ def run_bola_scan() -> Dict[str, Any]:
             },
             "results": []
         }
+
+
+@app.post("/cancel-bola-scan", tags=["Scanning"])
+def cancel_bola_scan() -> Dict[str, Any]:
+    """
+    Interrompe la scansione BOLA impostando il flag _is_cancelled su True.
+    """
+    from src.core.object_level_authorization.dynamic_orchestrator import ZapController
+    ZapController._is_cancelled = True
+    logger.info("🛑 Ricevuto segnale di cancellazione per la scansione BOLA. Interruzione in corso...")
+    return {"status": "cancelled"}
+
 
 
 @app.get("/api/bola-report", response_model=Dict[str, Any], tags=["Scanning"])
@@ -569,28 +581,42 @@ async def execute_benchmark_scan(run_bola: bool) -> Dict[str, Any]:
                 output_dir="output",
                 raw_traffic=None
             )
-
-            # Estrae e formatta i risultati BOLA
+            # Estrae e formatta i risultati BOLA (tutti i test, non solo i vulnerabili)
+            total_tests = len(dast_orchestrator.zap_controller.test_results)
             for res in dast_orchestrator.zap_controller.test_results:
                 is_vuln = res.get("is_vulnerable", False)
-                if is_vuln:
-                    path = res.get("path", "")
-                    segments = [s for s in path.split("/") if s]
-                    resource_name = "resource"
-                    for i, seg in enumerate(segments):
-                        if seg == "{id}" and i > 0:
-                            resource_name = segments[i - 1]
-                            break
-                    bola_list.append({
-                        "title": f"BOLA detected on {res.get('method', 'GET')} {path}",
-                        "severity": "HIGH",
-                        "endpoint": path,
-                        "file_path": path,
-                        "method": res.get("method", "GET"),
-                        "resource_name": resource_name,
-                        "evidence": f"Scenario: {res.get('scenario_name', res.get('test_name', ''))}\nAttacker Role: {res.get('attacker_role', 'user')}\nOwner Role: {res.get('owner_role', 'user')}\nAttacker Response Code: {res.get('status_code', 403)}\nAssertion Verdict: {res.get('assertion_details', {}).get('verdict', 'VULNERABLE')}"
-                    })
-            findings_count = len(bola_list)
+                path = res.get("path", "")
+                segments = [s for s in path.split("/") if s]
+                resource_name = "resource"
+                for i, seg in enumerate(segments):
+                    if seg == "{id}" and i > 0:
+                        resource_name = segments[i - 1]
+                        break
+                bola_list.append({
+                    "title": f"{'⚠️ BOLA VULNERABILE' if is_vuln else '✅ SAFE'}: {res.get('method', 'GET')} {path}",
+                    "severity": "HIGH" if is_vuln else "INFO",
+                    "endpoint": path,
+                    "file_path": path,
+                    "method": res.get("method", "GET"),
+                    "resource_name": resource_name,
+                    "is_vulnerable": is_vuln,
+                    "evidence": (
+                        f"Scenario: {res.get('scenario_name', res.get('test_name', ''))}\n"
+                        f"Attacker Role: {res.get('attacker_role', 'user')}\n"
+                        f"Owner Role: {res.get('owner_role', 'user')}\n"
+                        f"Attacker Response Code: {res.get('status_code', 403)}\n"
+                        f"Assertion Verdict: {res.get('assertion_details', {}).get('verdict', 'VULNERABLE' if is_vuln else 'SAFE')}"
+                    )
+                })
+            findings_count = sum(1 for r in bola_list if r.get("is_vulnerable"))
+            # Se non ci sono stati test eseguiti, lo segnaliamo come warning
+            if total_tests == 0:
+                bola_list.append({
+                    "title": "⚠️ Nessun test eseguito",
+                    "severity": "MEDIUM",
+                    "file_path": "N/A",
+                    "evidence": "ZAP non raggiungibile o inventario API vuoto. Verificare che i container Docker siano in esecuzione."
+                })
             status = "SUCCESS"
         except Exception as e:
             findings_count = 0

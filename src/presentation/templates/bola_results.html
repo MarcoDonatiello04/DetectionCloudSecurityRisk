@@ -75,7 +75,7 @@
         .brand-info h1 { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; background: linear-gradient(120deg, var(--text-primary), var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .theme-toggle-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: var(--text-primary); padding: 8px 16px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; transition: all 0.2s; font-family: 'Inter', sans-serif; }
         .theme-toggle-btn:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
-        main { flex: 1; padding: 32px 40px; max-width: 1280px; width: 100%; margin: 0 auto; }
+        main { flex: 1; padding: 32px 40px; max-width: 900px; width: 100%; margin: 0 auto; }
         .card { background: var(--bg-card); border: 1px solid var(--card-border); border-radius: 16px; backdrop-filter: blur(20px); box-shadow: 0 20px 40px rgba(0,0,0,0.25); overflow: hidden; }
         /* Tabs */
         .card-tabs { display: flex; border-bottom: 1px solid var(--card-border); background: rgba(255,255,255,0.02); overflow-x: auto; }
@@ -207,7 +207,7 @@
                 </a>
                 <a href="/api-results" class="card-tab-btn">
                     <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                    Rischi API & D-AST
+                    Analisi Codice (Semgrep)
                 </a>
                 <a href="/contract-results" class="card-tab-btn">
                     <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
@@ -548,6 +548,20 @@
                 renderResults([]);
             }, 1500);
         }
+
+        // Interrompe la scansione BOLA se si esce dalla sezione
+        function cancelScan() {
+            try {
+                navigator.sendBeacon('/cancel-bola-scan');
+            } catch (e) {
+                fetch('/cancel-bola-scan', { method: 'POST', keepalive: true }).catch(()=>{});
+            }
+        }
+        window.addEventListener('beforeunload', cancelScan);
+        window.addEventListener('unload', cancelScan);
+        document.querySelectorAll('.card-tab-btn, .back-btn').forEach(btn => {
+            btn.addEventListener('click', cancelScan);
+        });
     });
     </script>
 </body>
