@@ -47,3 +47,6 @@ output/bola_scan_report.md
 output/bopla_dynamic_findings_example.json
 output/unified_run/
 validation_results/
+
+# Generato da terraform (data.archive_file in vulnerable_infra.tf)
+fixtures/api_vulnerabilities/generic_vulnerabilities.zip

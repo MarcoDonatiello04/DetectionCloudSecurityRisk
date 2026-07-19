@@ -134,19 +134,59 @@ strumenti risiede in un solo file, `pyproject.toml`.
 il codice di progetto.
 
 ### Organizzazione dei test
-- `tests/unit/` — test isolati (event bus, normalizzatore dei path, adapter).
-- `tests/integration/` — test che attraversano piu componenti reali.
-- `src/core/<vulnerabilita>/tests/` — test per singolo rilevatore OWASP, inclusi
-  i test di *ground truth* che confrontano l'output degli scanner con le
-  vulnerabilita note delle applicazioni bersaglio.
-- `test_targets/` — applicazioni vulnerabili e sicure usate come **input** degli
-  scanner. Sono escluse dalla raccolta di pytest (`norecursedirs`): non sono
-  test del progetto e i loro package inquinerebbero `sys.path`.
+
+I test seguono due collocazioni distinte, per una ragione precisa.
+
+**Test accanto al modulo** — `src/core/<vulnerabilita>/tests/`
+Ogni rilevatore OWASP e un'unita autosufficiente: contiene le proprie regole
+(`rules/`), le proprie fixture (`fixtures/`) e i propri test, inclusi quelli di
+*ground truth* che confrontano l'output dello scanner con le vulnerabilita note
+delle applicazioni bersaglio. I test indirizzano queste risorse con path
+relativi al modulo, quindi restano accanto al codice che verificano: spostarli
+significherebbe separarli dalle risorse che consumano.
+
+**Test trasversali** — `tests/`
+- `tests/unit/` — test isolati su componenti condivisi (event bus,
+  normalizzatore dei path, adapter degli scanner).
+- `tests/integration/` — test che attraversano piu componenti reali e non
+  appartengono a un singolo modulo OWASP.
+
+**Input, non test** — `test_targets/`
+Applicazioni vulnerabili e sicure usate come bersaglio degli scanner. Sono
+escluse dalla raccolta di pytest (`norecursedirs`): non sono test del progetto
+e i loro package inquinerebbero `sys.path` mascherando le dipendenze installate.
 
 Per eseguire un singolo modulo:
 ```bash
 .venv/bin/python -m pytest tests/unit/test_clean_arch.py
 ```
+
+---
+
+## Runner da Riga di Comando
+
+Oltre ai target `make`, in `entrypoints/runners/` sono disponibili runner Python
+per eseguire singoli moduli o campagne di validazione. Vanno lanciati dalla
+radice del progetto con `PYTHONPATH=.`:
+
+| Runner | Cosa fa | Note |
+| --- | --- | --- |
+| `run_unified_core_scanners.py` | Esegue tutti gli scanner Core in sequenza | Alimenta la card "Panoramica Sicurezza" |
+| `run_all_security_tests.py` | Pipeline completa dei tre scanner principali | Accetta `--help`: target URL, repo, output |
+| `run_all_validations.py` | Campagna di validazione sui target di test | `--include-crapi` per includere crAPI |
+| `run_ground_truth_validation.py` | Confronto in cieco con la ground truth | Confronta app vulnerabile e app sicura |
+| `run_crapi_validation.py` | Validazione mirata sul target crAPI | Richiede i container crAPI attivi |
+| `run_bola_scan.py` | Scansione BOLA a se stante | **30+ minuti**, richiede il target attivo |
+| `run_bola_dynamic_demo.py` | Dimostrazione dei test dinamici BOLA | **30+ minuti**, richiede il target attivo |
+| `run_broken_auth_scan.py` | Scansione del modulo Broken Authentication | Richiede Keycloak attivo |
+
+```bash
+PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
+```
+
+> I runner BOLA eseguono attacchi dinamici reali con snapshot e rollback dello
+> stato tra gli scenari: la durata e dominata dalle chiamate di rete e supera
+> i 30 minuti. Le scansioni senza BOLA si completano in circa 20 secondi.
 
 ---
 
