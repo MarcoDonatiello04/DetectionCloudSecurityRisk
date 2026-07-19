@@ -3,7 +3,6 @@
   "python.analysis.pythonPath": "${workspaceFolder}/.venv/bin/python",
   "python.analysis.extraPaths": [
     "${workspaceFolder}",
-    "${workspaceFolder}/cloud_security_analyzer",
     "${workspaceFolder}/src",
     "${workspaceFolder}/remediation"
   ],

@@ -204,7 +204,7 @@ stateDiagram-v2
 ---
 
 ### 3.4.5. User interface – navigational path and screen mock-up
-L'interfaccia utente è costituita da una ricca **Desktop GUI App** basata su PySide6 (avviabile tramite `python3 cloud_security_analyzer/launcher.py`). Si tratta di un'applicazione desktop premium progettata secondo il pattern MVC e dotata di un tema grafico custom scuro/chiaro.
+L'interfaccia utente è costituita da una **dashboard web** servita da FastAPI (avviabile tramite `make dashboard`, disponibile su http://localhost:8000), con template HTML dedicati per ciascuna area di analisi e tema chiaro/scuro.
 
 #### Struttura di Navigazione
 * **Sidebar**: Menu laterale categorizzato per navigare rapidamente tra le sezioni principali:

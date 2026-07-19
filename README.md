@@ -7,7 +7,7 @@
 [![Ruff](https://img.shields.io/badge/lint-ruff-261230.svg)](https://docs.astral.sh/ruff/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Una piattaforma unificata per l'analisi statica e dinamica della sicurezza delle API cloud e dell'infrastruttura (IaC). Lo strumento automatizza il rilevamento delle vulnerabilità a livello infrastrutturale e applicativo, correla i findings statici con prove empiriche di runtime, calcola un punteggio di rischio pesato, fornisce raccomandazioni di remediation immediate (offline e con AI locale) e offre una ricca interfaccia desktop (GUI PySide6) per la visualizzazione delle problematiche riscontrate e il catalogo degli endpoint.
+Una piattaforma unificata per l'analisi statica e dinamica della sicurezza delle API cloud e dell'infrastruttura (IaC). Lo strumento automatizza il rilevamento delle vulnerabilità a livello infrastrutturale e applicativo, correla i findings statici con prove empiriche di runtime, calcola un punteggio di rischio pesato, fornisce raccomandazioni di remediation immediate (offline e con AI locale) e offre una dashboard web (FastAPI + template HTML) per la visualizzazione delle problematiche riscontrate e il catalogo degli endpoint.
 
 ---
 
@@ -99,11 +99,12 @@ Esegue il linter dei contratti OpenAPI, analizza i sorgenti con Semgrep, esegue 
 make api-security
 ```
 
-### Fase 4: Avvio Dashboard Interattiva (Desktop App PySide6)
-Dopo aver completato l'analisi, è possibile avviare l'interfaccia desktop GUI per esplorare in modo interattivo i risultati (findings Checkov, violazioni OpenAPI, rotte BOLA/D-AST) ed esaminare le raccomandazioni di remediation del motore intelligente:
+### Fase 4: Avvio della Dashboard Web
+Dopo aver completato l'analisi, avvia la dashboard per esplorare in modo interattivo i risultati (findings Checkov, violazioni OpenAPI, rotte BOLA/D-AST) ed esaminare le raccomandazioni del motore di remediation:
 ```bash
-python3 cloud_security_analyzer/launcher.py
+make dashboard
 ```
+La dashboard resta disponibile su http://localhost:8000. Il target libera automaticamente la porta da eventuali istanze precedenti; per usarne un'altra: `make dashboard DASHBOARD_PORT=8080`.
 
 
 ### Pulizia dell'ambiente
@@ -152,13 +153,6 @@ Per eseguire un singolo modulo:
 ## Struttura delle Cartelle
 
 ```
-├── cloud_security_analyzer/   # Dashboard desktop (PySide6) basata su pattern MVC
-│   ├── controllers/           # Controller MVC per la gestione delle schermate
-│   ├── gui/                   # Viste ed elementi grafici di interfaccia
-│   ├── models/                # Modelli dei dati per findings ed endpoint
-│   ├── services/              # Logica di business e integrazione pipeline
-│   ├── widgets/               # Componenti e grafici custom riutilizzabili
-│   └── launcher.py            # Entrypoint per l'avvio della dashboard desktop GUI
 ├── config/
 │   ├── environments/          # Contiene le variabili d'ambiente generate (.target_env)
 │   └── scanner_configs/       # Contiene le configurazioni degli scanner (rulesets)
@@ -169,10 +163,9 @@ Per eseguire un singolo modulo:
 │   ├── models/                # Modelli dei dati del modulo di remediation
 │   ├── llm_provider.py        # Integrazione offline con LLM locale (Ollama)
 │   └── remediation_engine.py  # Motore di raccomandazione ed elaborazione fallback
-├── scripts/                   # Script bash di orchestrazione della pipeline
-│   ├── 1_setup_environment.sh
-│   ├── 2_iac_analysis.sh
-│   └── 3_api_security.sh
+├── entrypoints/               # Punti di ingresso eseguibili
+│   ├── operations/            # Script bash di orchestrazione della pipeline
+│   └── runners/               # Runner Python per singoli moduli e validazioni
 ├── src/                       # Codice sorgente dell'Orchestratore di Sicurezza (Python)
 │   ├── application/           # Logica applicativa, Event Bus e Risk engine
 │   ├── core/                  # Logica principale D-AST (dynamic_orchestrator.py)
@@ -180,7 +173,7 @@ Per eseguire un singolo modulo:
 │   ├── infrastructure/        # Adattatori infrastrutturali per gli scanner esterni
 │   ├── normalization/         # Modulo di normalizzazione URL delle API
 │   ├── plugins/               # Plugin detector (bola_detector, shadow_api_detector)
-│   └── presentation/          # Esposizione API (FastAPI) e CLI di comando (cli.py)
+│   └── presentation/          # API FastAPI, dashboard web e template HTML
 ├── test_targets/              # Target di test consolidati (tutti i moduli)
 │   ├── bola/                  # BOLA: microservizio Flask + openapi.yaml
 │   ├── broken_authentication/ # API2: vulnerable_app, secure_app, README, answer_key
@@ -190,6 +183,7 @@ Per eseguire un singolo modulo:
 │   └── docker-compose.yml     # Orchestrazione unificata di tutti i target
 ├── tests/                     # Test unitari e di integrazione
 ├── output/                    # Destinazione dei report JSON (generati a runtime)
+├── docs/                      # ADR, requisiti e diagrammi di architettura
 ├── docker-compose.yml         # Servizi Docker (ZAP, Keycloak, Mitmproxy)
 ├── Makefile                   # Target per il workflow locale
 └── requirements.txt           # Dipendenze Python del progetto
@@ -264,17 +258,17 @@ Per eseguire un singolo modulo:
 ]
 ```
 
-### Dashboard Desktop GUI & Remediation Intelligence
-L'applicazione desktop basata su PySide6 fornisce una visualizzazione ricca e interattiva delle metriche del progetto e supporta le seguenti sezioni:
-1. **Overview Dashboard**: Statistiche generali, conteggio findings per severità (con grafici) e percentuale di confidenza runtime.
+### Dashboard Web & Remediation Intelligence
+La dashboard servita da `make dashboard` fornisce una visualizzazione interattiva delle metriche del progetto e supporta le seguenti sezioni:
+1. **Panoramica Sicurezza**: sintesi dell'ultima scansione unificata dei moduli Core (esito per modulo, findings, durata), con rilancio dell'analisi rapida o completa direttamente dalla home.
 2. **Findings Viewer**: Elenco dettagliato di tutte le vulnerabilità con filtri per categoria e severità. Integra il motore di **Remediation Intelligence** che estrae raccomandazioni da un database offline locale o genera risposte intelligenti interfacciandosi localmente con modelli AI (es. Ollama / Llama3).
 3. **API Catalog**: Mappa in tempo reale le rotte documentate e individua le **Shadow API** scoperte analizzando il traffico di rete a runtime.
 4. **Infrastructure (IaC)**: Dettaglio delle violazioni statiche rilevate da Checkov sui file Terraform.
 5. **Console Logs**: Log dettagliati della esecuzione della pipeline CLI.
 
-Per lanciare la Dashboard Desktop:
+Per lanciare la dashboard:
 ```bash
-python3 cloud_security_analyzer/launcher.py
+make dashboard
 ```
 
 ---

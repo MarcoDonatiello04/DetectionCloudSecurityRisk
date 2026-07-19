@@ -40,3 +40,10 @@ output/bola_scan_results.json
 output/benchmark_results.json
 output/bopla/bopla_report.json
 output/bopla/bopla_report.md
+
+# Artefatti generati dalle esecuzioni (rigenerati da make iac-analysis / api-security / runner)
+config/environments/.target_env
+output/bola_scan_report.md
+output/bopla_dynamic_findings_example.json
+output/unified_run/
+validation_results/
