@@ -4,39 +4,46 @@ Parses project source files using tree-sitter, extracts security signals,
 and ranks files according to an authentication-related score.
 """
 
-import sys
-import re
+import contextlib
 import importlib
+import re
 import subprocess
+import sys
 from pathlib import Path
-from typing import List, Dict, Set, Any, Optional
-from pydantic import BaseModel
-from loguru import logger
-from tree_sitter import Language, Parser, Node
 
-from src.core.broken_authentication.discovery import StackInfo, Config
+from loguru import logger
+from pydantic import BaseModel
+from tree_sitter import Language, Node, Parser
+
+from src.core.broken_authentication.discovery import Config, StackInfo
+
 
 # --- Custom Exceptions ---
 class UnsupportedLanguageException(Exception):
     """Raised when the requested language is not supported or grammar cannot be loaded."""
+
     pass
+
 
 class ASTParsingException(Exception):
     """Raised when parsing fails for a specific file."""
+
     pass
+
 
 # --- Output Model ---
 class FileScore(BaseModel):
     file: str
-    imports_auth: List[str]
-    route_auth: List[str]
-    env_vars_auth: List[str]
-    chiamate_auth: List[str]
+    imports_auth: list[str]
+    route_auth: list[str]
+    env_vars_auth: list[str]
+    chiamate_auth: list[str]
     score: int
-    auth_functions: List[str] = []
-    jwt_claims: List[str] = []
-    auth_decorators: Dict[str, str] = {}
-    auth_middlewares: List[str] = []
+    auth_functions: list[str] = []
+    jwt_claims: list[str] = []
+    auth_decorators: dict[str, str] = {}
+    auth_middlewares: list[str] = []
+
 
 # --- Constants & Mapping ---
 GRAMMAR_MAP = {
@@ -47,7 +54,7 @@ GRAMMAR_MAP = {
     "go": "tree-sitter-go",
     "ruby": "tree-sitter-ruby",
     "php": "tree-sitter-php",
-    "rust": "tree-sitter-rust"
+    "rust": "tree-sitter-rust",
 }
 
 EXTENSION_MAP = {
@@ -58,27 +65,59 @@ EXTENSION_MAP = {
     "go": [".go"],
     "ruby": [".rb"],
     "php": [".php"],
-    "rust": [".rs"]
+    "rust": [".rs"],
 }
 
 # Directories to exclude from source file collection
 IGNORE_DIRS = {
-    "node_modules", ".git", "__pycache__", "dist", "build",
-    "vendor", "venv", ".venv", ".pytest_cache", ".terraform"
+    "node_modules",
+    ".git",
+    "__pycache__",
+    "dist",
+    "build",
+    "vendor",
+    "venv",
+    ".venv",
+    ".pytest_cache",
+    ".terraform",
 }
 
 # Keywords to match in signals
 ROUTE_KEYWORDS = {
-    "login", "logout", "token", "oauth", "refresh", "signin",
-    "signout", "auth", "password", "reset", "verify",
-    "mfa", "2fa", "otp", "totp"
+    "login",
+    "logout",
+    "token",
+    "oauth",
+    "refresh",
+    "signin",
+    "signout",
+    "auth",
+    "password",
+    "reset",
+    "verify",
+    "mfa",
+    "2fa",
+    "otp",
+    "totp",
 }
 
 ENV_KEYWORDS = {
-    "SECRET", "TOKEN", "AUTH", "KEY", "JWT", "PASSWORD",
-    "CREDENTIAL", "CERT", "PRIVATE", "KEYCLOAK", "OAUTH",
-    "SAMESITE", "MFA", "REFRESH"
+    "SECRET",
+    "TOKEN",
+    "AUTH",
+    "KEY",
+    "JWT",
+    "PASSWORD",
+    "CREDENTIAL",
+    "CERT",
+    "PRIVATE",
+    "KEYCLOAK",
+    "OAUTH",
+    "SAMESITE",
+    "MFA",
+    "REFRESH",
 }
+
 
 # --- Grammar Loader ---
 def get_parser_for_language(language_name: str) -> Parser:
@@ -97,13 +136,15 @@ def get_parser_for_language(language_name: str) -> Parser:
     try:
         module = importlib.import_module(module_name)
     except ImportError:
-        logger.info(f"Grammar package {grammar_package} non trovato. Installazione dinamica tramite pip...")
+        logger.info(
+            f"Grammar package {grammar_package} non trovato. Installazione dinamica tramite pip..."
+        )
         try:
             # Run pip install dynamically within the current virtualenv
             subprocess.run(
                 [sys.executable, "-m", "pip", "install", grammar_package],
                 check=True,
-                capture_output=True
+                capture_output=True,
             )
             # Invalidate caches to make sure importlib sees the new package
             importlib.invalidate_caches()
@@ -112,7 +153,7 @@ def get_parser_for_language(language_name: str) -> Parser:
         except Exception as e:
             raise UnsupportedLanguageException(
                 f"Impossibile installare o importare il grammar {grammar_package} per {language_name}: {e}"
-            )
+            ) from e
 
     try:
         language = Language(module.language())
@@ -120,70 +161,85 @@ def get_parser_for_language(language_name: str) -> Parser:
     except Exception as e:
         raise UnsupportedLanguageException(
             f"Errore durante l'inizializzazione del Parser/Language per {language_name}: {e}"
-        )
+        ) from e
+
 
 # --- File Utilities ---
 def is_text_file(file_path: Path) -> bool:
     """Checks if a file is a text file by trying to read the first block."""
     try:
-        with open(file_path, "tr", encoding="utf-8", errors="ignore") as f:
+        with open(file_path, encoding="utf-8", errors="ignore") as f:
             f.read(1024)
             return True
     except Exception:
         return False
 
+
 # --- Helper to clean library names for call checks ---
 def _clean_library_name(lib_name: str) -> str:
     name = lib_name.lower()
-    for prefix in ["python-", "flask-", "django-", "node-", "express-", "go-", "ruby-", "php-", "rust-"]:
+    for prefix in [
+        "python-",
+        "flask-",
+        "django-",
+        "node-",
+        "express-",
+        "go-",
+        "ruby-",
+        "php-",
+        "rust-",
+    ]:
         if name.startswith(prefix):
-            name = name[len(prefix):]
+            name = name[len(prefix) :]
     for suffix in ["-node", "-express", "-go", "-ruby", "-php", "-rust"]:
         if name.endswith(suffix):
-            name = name[:-len(suffix)]
+            name = name[: -len(suffix)]
     return name
+
 
 # --- AST Node Traversal & Signals Collector ---
 class ASTSignalCollector:
-    def __init__(self, lang_name: str, auth_libraries: List[str]):
+    def __init__(self, lang_name: str, auth_libraries: list[str]):
         self.lang_name = lang_name.lower()
         self.auth_libraries = auth_libraries
         self.clean_libs = [_clean_library_name(lib) for lib in auth_libraries]
 
         # Collections of signals found
-        self.imports_auth: Set[str] = set()
-        self.route_auth: Set[str] = set()
-        self.env_vars_auth: Set[str] = set()
-        self.chiamate_auth: Set[str] = set()
+        self.imports_auth: set[str] = set()
+        self.route_auth: set[str] = set()
+        self.env_vars_auth: set[str] = set()
+        self.chiamate_auth: set[str] = set()
 
         # New Authentication Intelligence Engine signals
-        self.auth_functions: Set[str] = set()
-        self.jwt_claims: Set[str] = set()
-        self.auth_decorators: Dict[str, str] = {}
-        self.auth_middlewares: Set[str] = set()
+        self.auth_functions: set[str] = set()
+        self.jwt_claims: set[str] = set()
+        self.auth_decorators: dict[str, str] = {}
+        self.auth_middlewares: set[str] = set()
 
     def collect(self, node: Node):
         """Recursively traverses the nodes and extracts security signals."""
         node_type = node.type
-        
+
         # Safe decode helper
         node_text = ""
-        try:
+        with contextlib.suppress(Exception):
             node_text = node.text.decode("utf-8", errors="replace").strip()
-        except Exception:
-            pass
 
         if node_text:
             # 1. Imports Auth
             is_import_node = node_type in (
-                "import_statement", "import_from_statement", "import_declaration",
-                "import_spec", "use_declaration", "use_clause"
+                "import_statement",
+                "import_from_statement",
+                "import_declaration",
+                "import_spec",
+                "use_declaration",
+                "use_clause",
             )
             # JS require call check
             is_require_call = (
-                self.lang_name in ("javascript", "typescript") and
-                node_type == "call_expression" and
-                node_text.startswith("require(")
+                self.lang_name in ("javascript", "typescript")
+                and node_type == "call_expression"
+                and node_text.startswith("require(")
             )
 
             if is_import_node or is_require_call:
@@ -195,27 +251,61 @@ class ASTSignalCollector:
             # 2. Route Auth
             # Python Decorator route detection (FastAPI/Flask)
             is_py_route = (
-                self.lang_name == "python" and
-                node_type == "decorator" and
-                (node_text.startswith("@app.") or node_text.startswith("@router.") or node_text.startswith("@blueprint."))
+                self.lang_name == "python"
+                and node_type == "decorator"
+                and (
+                    node_text.startswith("@app.")
+                    or node_text.startswith("@router.")
+                    or node_text.startswith("@blueprint.")
+                )
             )
             # JS Express call route detection
             is_js_route = (
-                self.lang_name in ("javascript", "typescript") and
-                node_type == "call_expression" and
-                any(prefix in node_text for prefix in ["app.get(", "app.post(", "app.put(", "app.delete(", "router.get(", "router.post(", "router.put(", "router.delete("])
+                self.lang_name in ("javascript", "typescript")
+                and node_type == "call_expression"
+                and any(
+                    prefix in node_text
+                    for prefix in [
+                        "app.get(",
+                        "app.post(",
+                        "app.put(",
+                        "app.delete(",
+                        "router.get(",
+                        "router.post(",
+                        "router.put(",
+                        "router.delete(",
+                    ]
+                )
             )
             # Java Spring annotation route detection
             is_java_route = (
-                self.lang_name == "java" and
-                node_type == "annotation" and
-                any(ann in node_text for ann in ["RequestMapping", "GetMapping", "PostMapping", "PutMapping", "DeleteMapping"])
+                self.lang_name == "java"
+                and node_type == "annotation"
+                and any(
+                    ann in node_text
+                    for ann in [
+                        "RequestMapping",
+                        "GetMapping",
+                        "PostMapping",
+                        "PutMapping",
+                        "DeleteMapping",
+                    ]
+                )
             )
             # General fallback check if node text has HTTP methods/route mappings in other languages
             is_general_route = (
-                self.lang_name not in ("python", "javascript", "typescript", "java") and
-                node_type in ("call_expression", "method_invocation", "function_declaration", "macro_definition") and
-                any(term in node_text.lower() for term in [".get(", ".post(", ".route(", "handlefunc("])
+                self.lang_name not in ("python", "javascript", "typescript", "java")
+                and node_type
+                in (
+                    "call_expression",
+                    "method_invocation",
+                    "function_declaration",
+                    "macro_definition",
+                )
+                and any(
+                    term in node_text.lower()
+                    for term in [".get(", ".post(", ".route(", "handlefunc("]
+                )
             )
 
             if is_py_route or is_js_route or is_java_route or is_general_route:
@@ -230,14 +320,18 @@ class ASTSignalCollector:
             # 3. Env Vars Auth
             is_env_access = False
             if self.lang_name == "python":
-                is_env_access = "os.environ" in node_text or "os.getenv" in node_text or "getenv(" in node_text
+                is_env_access = (
+                    "os.environ" in node_text or "os.getenv" in node_text or "getenv(" in node_text
+                )
             elif self.lang_name in ("javascript", "typescript"):
                 is_env_access = "process.env" in node_text
             elif self.lang_name == "java":
                 is_env_access = "System.getenv" in node_text
             else:
                 # General environment keywords check
-                is_env_access = any(pattern in node_text for pattern in ["std::env", "getenv", "ENV["])
+                is_env_access = any(
+                    pattern in node_text for pattern in ["std::env", "getenv", "ENV["]
+                )
 
             if is_env_access:
                 for key_word in ENV_KEYWORDS:
@@ -260,34 +354,66 @@ class ASTSignalCollector:
 
             # 5. Advanced AST: Auth Functions
             is_func_def = node_type in (
-                "function_definition", "function_declaration",
-                "method_definition", "method_declaration", "def_statement"
+                "function_definition",
+                "function_declaration",
+                "method_definition",
+                "method_declaration",
+                "def_statement",
             )
             is_call = node_type in ("call", "call_expression", "method_invocation")
-            
+
             if is_func_def or is_call:
                 func_part = node_text.split("(")[0].strip()
                 for prefix in ["def ", "function ", "func "]:
                     if func_part.startswith(prefix):
-                        func_part = func_part[len(prefix):].strip()
+                        func_part = func_part[len(prefix) :].strip()
                 func_clean_name = func_part.split(".")[-1].split(" ")[0].strip()
-                
+
                 auth_fn_keywords = {
-                    "login", "signin", "authenticate", "verify_token", "decode_token",
-                    "refresh_token", "logout", "verify_mfa", "mfa", "otp", "totp",
-                    "two_factor", "twofactor"
+                    "login",
+                    "signin",
+                    "authenticate",
+                    "verify_token",
+                    "decode_token",
+                    "refresh_token",
+                    "logout",
+                    "verify_mfa",
+                    "mfa",
+                    "otp",
+                    "totp",
+                    "two_factor",
+                    "twofactor",
                 }
                 if any(kw in func_clean_name.lower() for kw in auth_fn_keywords):
                     self.auth_functions.add(func_clean_name)
                     logger.debug(f"[AST Signal: Auth Fn] {func_clean_name}")
 
             # 6. Advanced AST: JWT Claims
-            is_literal = node_type in ("string", "string_literal", "identifier", "property_identifier", "shorthand_property_identifier")
+            is_literal = node_type in (
+                "string",
+                "string_literal",
+                "identifier",
+                "property_identifier",
+                "shorthand_property_identifier",
+            )
             if is_literal:
                 clean_literal = node_text.strip("'\"` ")
                 jwt_claim_keywords = {
-                    "sub", "id", "user_id", "role", "roles", "groups", "permissions",
-                    "scope", "email", "samesite", "httponly", "secure", "mfa", "amr", "acr"
+                    "sub",
+                    "id",
+                    "user_id",
+                    "role",
+                    "roles",
+                    "groups",
+                    "permissions",
+                    "scope",
+                    "email",
+                    "samesite",
+                    "httponly",
+                    "secure",
+                    "mfa",
+                    "amr",
+                    "acr",
                 }
                 if clean_literal in jwt_claim_keywords:
                     self.jwt_claims.add(clean_literal)
@@ -296,40 +422,57 @@ class ASTSignalCollector:
             # 7. Advanced AST: Authorization Decorators & Annotations
             is_decorator = False
             decorator_text = ""
-            if node_type in ("decorator", "annotation"):
-                is_decorator = True
-                decorator_text = node_text
-            elif node_text.startswith("@") and node_type in ("identifier", "call_expression"):
+            if node_type in ("decorator", "annotation") or (
+                node_text.startswith("@") and node_type in ("identifier", "call_expression")
+            ):
                 is_decorator = True
                 decorator_text = node_text
 
             if is_decorator:
                 dec_lower = decorator_text.lower()
-                decorator_keywords = ["roles_required", "require_role", "permission_required", "secured", "preauthorize"]
+                decorator_keywords = [
+                    "roles_required",
+                    "require_role",
+                    "permission_required",
+                    "secured",
+                    "preauthorize",
+                ]
                 matched_keyword = None
                 for kw in decorator_keywords:
                     if kw.lower() in dec_lower:
                         matched_keyword = kw
                         break
-                        
+
                 if matched_keyword:
                     role_matches = re.findall(r'["\']([^"\']+)["\']', decorator_text)
                     role_val = ""
                     if role_matches:
                         role_val = role_matches[0]
                     else:
-                        paren_match = re.search(r'\(([^)]+)\)', decorator_text)
+                        paren_match = re.search(r"\(([^)]+)\)", decorator_text)
                         if paren_match:
                             role_val = paren_match.group(1).strip()
-                    
+
                     func_name = ""
                     parent = node.parent
                     if parent:
                         for child in parent.children:
-                            if child.type in ("function_definition", "function_declaration", "method_declaration", "method_definition") or "function" in child.type or "method" in child.type:
+                            if (
+                                child.type
+                                in (
+                                    "function_definition",
+                                    "function_declaration",
+                                    "method_declaration",
+                                    "method_definition",
+                                )
+                                or "function" in child.type
+                                or "method" in child.type
+                            ):
                                 for subchild in child.children:
                                     if subchild.type == "identifier":
-                                        func_name = subchild.text.decode("utf-8", errors="replace").strip()
+                                        func_name = subchild.text.decode(
+                                            "utf-8", errors="replace"
+                                        ).strip()
                                         break
                                 if func_name:
                                     break
@@ -338,32 +481,52 @@ class ASTSignalCollector:
                             idx = parent.children.index(node)
                             for i in range(idx + 1, len(parent.children)):
                                 sibling = parent.children[i]
-                                if sibling.type in ("function_definition", "function_declaration", "method_declaration", "method_definition") or "function" in sibling.type or "method" in sibling.type:
+                                if (
+                                    sibling.type
+                                    in (
+                                        "function_definition",
+                                        "function_declaration",
+                                        "method_declaration",
+                                        "method_definition",
+                                    )
+                                    or "function" in sibling.type
+                                    or "method" in sibling.type
+                                ):
                                     for subchild in sibling.children:
                                         if subchild.type == "identifier":
-                                            func_name = subchild.text.decode("utf-8", errors="replace").strip()
+                                            func_name = subchild.text.decode(
+                                                "utf-8", errors="replace"
+                                            ).strip()
                                             break
                                     if func_name:
                                         break
                         except ValueError:
                             pass
-                    
+
                     if not func_name:
                         func_name = "decorated_route"
-                        
+
                     self.auth_decorators[func_name] = role_val
                     logger.debug(f"[AST Signal: Decorator] {func_name} -> {role_val}")
 
             # 8. Advanced AST: Middleware
             middleware_keywords = {
-                "jwtmiddleware", "authenticationmiddleware", "bearertokenmiddleware",
-                "keycloakmiddleware", "mfamiddleware", "ratelimitmiddleware", "limiter",
-                "samesitemiddleware", "samesite"
+                "jwtmiddleware",
+                "authenticationmiddleware",
+                "bearertokenmiddleware",
+                "keycloakmiddleware",
+                "mfamiddleware",
+                "ratelimitmiddleware",
+                "limiter",
+                "samesitemiddleware",
+                "samesite",
             }
             node_lower = node_text.lower()
             for kw in middleware_keywords:
                 if kw in node_lower:
-                    words = re.findall(r'\b\w+' + kw[len(kw)-10:] + r'\w*\b', node_text, re.IGNORECASE)
+                    words = re.findall(
+                        r"\b\w+" + kw[len(kw) - 10 :] + r"\w*\b", node_text, re.IGNORECASE
+                    )
                     if words:
                         self.auth_middlewares.add(words[0])
                     else:
@@ -375,20 +538,18 @@ class ASTSignalCollector:
         for child in node.children:
             self.collect(child)
 
+
 # --- Main Run Function ---
 async def run(
-    repo_path: str,
-    stack: StackInfo,
-    config: Config,
-    parser: Optional[Parser] = None
-) -> List[FileScore]:
+    repo_path: str, stack: StackInfo, config: Config, parser: Parser | None = None
+) -> list[FileScore]:
     """
     Main entry point for AST Parsing with Tree-sitter (Fase 2).
     Scans source files, parses them, extracts signals, calculates score, and applies limits.
     """
     path = Path(repo_path)
     lang_name = stack.linguaggio.lower().strip()
-    
+
     logger.info(f"Avvio Fase 2 - AST Parsing su: {path} (Linguaggio: {lang_name})")
 
     # Step 1 - Initialize Parser
@@ -403,7 +564,7 @@ async def run(
         )
 
     logger.debug(f"Estensioni cercate: {extensions}")
-    source_files: List[Path] = []
+    source_files: list[Path] = []
 
     def collect_source_files(current_dir: Path):
         try:
@@ -411,10 +572,9 @@ async def run(
                 if item.is_dir():
                     if item.name not in IGNORE_DIRS:
                         collect_source_files(item)
-                elif item.is_file():
-                    if item.suffix in extensions:
-                        if is_text_file(item):
-                            source_files.append(item)
+                elif item.is_file() and item.suffix in extensions:
+                    if is_text_file(item):
+                        source_files.append(item)
         except PermissionError:
             logger.warning(f"Permesso negato durante la scansione della cartella: {current_dir}")
         except Exception as e:
@@ -424,8 +584,8 @@ async def run(
     logger.info(f"File sorgente validi identificati: {len(source_files)}")
 
     # Step 3 - Analyze files
-    scored_files: List[FileScore] = []
-    
+    scored_files: list[FileScore] = []
+
     for file_path in source_files:
         rel_path = str(file_path.relative_to(path))
         try:
@@ -442,23 +602,27 @@ async def run(
 
             # Step 4 - Calculate score
             score = 0
-            if collector.imports_auth: score += 1
-            if collector.route_auth: score += 1
-            if collector.env_vars_auth: score += 1
-            if collector.chiamate_auth: score += 1
+            if collector.imports_auth:
+                score += 1
+            if collector.route_auth:
+                score += 1
+            if collector.env_vars_auth:
+                score += 1
+            if collector.chiamate_auth:
+                score += 1
 
             if score >= config.scanner.score_minimo:
                 file_score = FileScore(
                     file=rel_path,
-                    imports_auth=sorted(list(collector.imports_auth)),
-                    route_auth=sorted(list(collector.route_auth)),
-                    env_vars_auth=sorted(list(collector.env_vars_auth)),
-                    chiamate_auth=sorted(list(collector.chiamate_auth)),
+                    imports_auth=sorted(collector.imports_auth),
+                    route_auth=sorted(collector.route_auth),
+                    env_vars_auth=sorted(collector.env_vars_auth),
+                    chiamate_auth=sorted(collector.chiamate_auth),
                     score=score,
-                    auth_functions=sorted(list(collector.auth_functions)),
-                    jwt_claims=sorted(list(collector.jwt_claims)),
+                    auth_functions=sorted(collector.auth_functions),
+                    jwt_claims=sorted(collector.jwt_claims),
                     auth_decorators=collector.auth_decorators,
-                    auth_middlewares=sorted(list(collector.auth_middlewares))
+                    auth_middlewares=sorted(collector.auth_middlewares),
                 )
                 scored_files.append(file_score)
                 logger.info(f"File {rel_path} analizzato. Score: {score}/4")
@@ -469,7 +633,9 @@ async def run(
             logger.warning(f"Errore durante l'analisi AST del file {rel_path}: {e}")
             continue
 
-    logger.info(f"Totale file analizzati: {len(source_files)}. File sopra la soglia ({config.scanner.score_minimo}): {len(scored_files)}")
+    logger.info(
+        f"Totale file analizzati: {len(source_files)}. File sopra la soglia ({config.scanner.score_minimo}): {len(scored_files)}"
+    )
 
     # Sort scored files by score descending
     scored_files.sort(key=lambda x: x.score, reverse=True)

@@ -1,0 +1,79 @@
+[project]
+name = "detection-cloud-security-risk"
+version = "1.0.0"
+description = "Piattaforma di analisi statica e dinamica del rischio di sicurezza per API cloud e infrastruttura (IaC)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dynamic = ["dependencies"]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.15", "pytest-cov>=5.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["src*", "remediation*"]
+
+# ---------------------------------------------------------------- pytest ----
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests", "src", "remediation"]
+# test_targets/ contiene applicazioni vulnerabili di terze parti (es. crAPI):
+# sono dati di input per gli scanner, non test del progetto. Se raccolte,
+# i loro package inquinano sys.path e mascherano le dipendenze installate.
+norecursedirs = ["test_targets", "fixtures", "output", ".venv", "*.egg-info"]
+addopts = "-q --strict-markers --strict-config"
+markers = [
+    "integration: test che attraversano piu componenti reali",
+    "requires_docker: test che richiedono i container della suite",
+    "requires_llm: test che richiedono un server LLM locale (Ollama)",
+]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+# ------------------------------------------------------------------ ruff ----
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+extend-exclude = ["test_targets", "fixtures", "output", "crapi_repo"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # import sorting
+    "UP",       # pyupgrade
+    "B",        # bugbear
+    "C4",       # comprehensions
+    "SIM",      # simplificazioni
+    "RUF",      # regole ruff
+]
+ignore = [
+    "E501",    # lunghezza riga gestita dal formatter
+    "B008",    # call-in-default: idioma FastAPI (Depends)
+    "RUF001",  # caratteri unicode ambigui nelle stringhe in italiano
+    "RUF002",
+    "RUF003",
+    "RUF012",  # default mutabili: modelli pydantic/dataclass gestiti dal framework
+    "SIM102",  # if annidati: spesso piu leggibili nelle regole di detection
+    "B007",    # variabile di loop inutilizzata negli unpacking dict.items()
+]
+
+[tool.ruff.lint.per-file-ignores]
+# I package espongono la API pubblica tramite re-export negli __init__.
+"__init__.py" = ["F401"]
+# Gli entrypoint e gli script di validazione fanno bootstrap di sys.path
+# prima di importare i moduli del progetto.
+"entrypoints/**" = ["E402"]
+"**/validate_ground_truth.py" = ["E402"]
+"src/core/object_level_authorization/dynamic_orchestrator.py" = ["E402"]
+"tests/**" = ["B011", "E402"]
+"**/tests/**" = ["B011", "E402"]
+
+[tool.ruff.format]
+quote-style = "double"

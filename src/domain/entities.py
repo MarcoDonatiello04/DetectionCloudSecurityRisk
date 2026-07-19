@@ -1,8 +1,8 @@
+import hashlib
 from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
-import hashlib
+from typing import Any
 
 # ─── PUNTEGGI DI SEVERITÀ DI DEFAULT ─────────────────────────────────────────
 
@@ -17,6 +17,7 @@ class Severity(Enum):
     """
     Rappresenta il livello di gravità (Severità) di un Finding di sicurezza.
     """
+
     CRITICAL = "CRITICAL"
     HIGH = "HIGH"
     MEDIUM = "MEDIUM"
@@ -36,7 +37,7 @@ class Severity(Enum):
             Severity.HIGH: SEVERITY_SCORE_HIGH,
             Severity.MEDIUM: SEVERITY_SCORE_MEDIUM,
             Severity.LOW: SEVERITY_SCORE_LOW,
-            Severity.INFO: SEVERITY_SCORE_INFO
+            Severity.INFO: SEVERITY_SCORE_INFO,
         }
         return mapping.get(self, 0.0)
 
@@ -45,6 +46,7 @@ class FindingCategory(Enum):
     """
     Specifica la categoria di vulnerabilità o di configurazione rilevata.
     """
+
     # Infrastructure & IaC
     IAM = "IAM"
     STORAGE = "STORAGE"
@@ -76,6 +78,7 @@ class FindingSource(Enum):
     """
     Rappresenta lo scanner o lo strumento sorgente che ha rilevato il Finding.
     """
+
     CHECKOV = "CHECKOV"
     SPECTRAL = "SPECTRAL"
     SEMGREP = "SEMGREP"
@@ -88,6 +91,7 @@ class ValidationStatus(Enum):
     """
     Rappresenta lo stato di convalida empirica di un Finding.
     """
+
     NOT_VALIDATED = "NOT_VALIDATED"
     CONFIRMED = "CONFIRMED"
     FALSE_POSITIVE = "FALSE_POSITIVE"
@@ -100,10 +104,11 @@ class CodeLocation:
     """
     Rappresenta la localizzazione fisica all'interno dei file sorgente del Finding.
     """
+
     file_path: str
-    start_line: Optional[int] = None
-    end_line: Optional[int] = None
-    code_snippet: Optional[str] = None
+    start_line: int | None = None
+    end_line: int | None = None
+    code_snippet: str | None = None
 
 
 @dataclass(frozen=True)
@@ -111,11 +116,12 @@ class APIContext:
     """
     Rappresenta il contesto dell'endpoint API associato al Finding di sicurezza.
     """
-    endpoint: Optional[str] = None
-    method: Optional[str] = None
-    base_url: Optional[str] = None
-    api_version: Optional[str] = None
-    requires_authentication: Optional[bool] = None
+
+    endpoint: str | None = None
+    method: str | None = None
+    base_url: str | None = None
+    api_version: str | None = None
+    requires_authentication: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -123,13 +129,14 @@ class RuntimeEvidence:
     """
     Evidenza empirica raccolta a runtime che convalida la vulnerabilità.
     """
-    tested_url: Optional[str] = None
-    http_status: Optional[int] = None
-    response_time_ms: Optional[int] = None
-    response_headers: Dict[str, str] = field(default_factory=dict)
-    response_snippet: Optional[str] = None
-    accessible_without_auth: Optional[bool] = None
-    rate_limit_detected: Optional[bool] = None
+
+    tested_url: str | None = None
+    http_status: int | None = None
+    response_time_ms: int | None = None
+    response_headers: dict[str, str] = field(default_factory=dict)
+    response_snippet: str | None = None
+    accessible_without_auth: bool | None = None
+    rate_limit_detected: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -137,12 +144,13 @@ class RiskContext:
     """
     Contesto aggiuntivo per determinare il livello complessivo di esposizione al rischio.
     """
-    internet_exposed: Optional[bool] = None
-    sensitive_data_detected: Optional[bool] = None
-    public_resource: Optional[bool] = None
-    exploitable: Optional[bool] = None
-    attack_complexity: Optional[str] = None
-    impact: Optional[str] = None
+
+    internet_exposed: bool | None = None
+    sensitive_data_detected: bool | None = None
+    public_resource: bool | None = None
+    exploitable: bool | None = None
+    attack_complexity: str | None = None
+    impact: str | None = None
 
 
 @dataclass
@@ -151,6 +159,7 @@ class Finding:
     Rappresenta l'entità core del Dominio che modella un rischio di sicurezza unificato.
     Mantiene l'idempotenza e l'immutabilità parziale dello stato iniziale.
     """
+
     finding_id: str
     source: FindingSource
     category: FindingCategory
@@ -159,30 +168,30 @@ class Finding:
     severity: Severity
     confidence: float  # Valore da 0.0 a 1.0
 
-    rule_id: Optional[str] = None
-    rule_name: Optional[str] = None
-    resource_type: Optional[str] = None
-    resource_name: Optional[str] = None
-    resource_id: Optional[str] = None
+    rule_id: str | None = None
+    rule_name: str | None = None
+    resource_type: str | None = None
+    resource_name: str | None = None
+    resource_id: str | None = None
 
-    location: Optional[CodeLocation] = None
-    api: Optional[APIContext] = None
-    
+    location: CodeLocation | None = None
+    api: APIContext | None = None
+
     validation_status: ValidationStatus = ValidationStatus.NOT_VALIDATED
-    runtime_evidence: Optional[RuntimeEvidence] = None
-    risk_context: Optional[RiskContext] = None
+    runtime_evidence: RuntimeEvidence | None = None
+    risk_context: RiskContext | None = None
 
-    correlation_key: Optional[str] = None
-    related_findings: List[str] = field(default_factory=list)
+    correlation_key: str | None = None
+    related_findings: list[str] = field(default_factory=list)
 
-    owasp_api_category: Optional[str] = None
-    cwe_id: Optional[str] = None
-    cve_id: Optional[str] = None
-    remediation: Optional[str] = None
+    owasp_api_category: str | None = None
+    cwe_id: str | None = None
+    cve_id: str | None = None
+    remediation: str | None = None
 
-    tags: List[str] = field(default_factory=list)
-    references: List[str] = field(default_factory=list)
-    raw_data: Dict[str, Any] = field(default_factory=dict)
+    tags: list[str] = field(default_factory=list)
+    references: list[str] = field(default_factory=list)
+    raw_data: dict[str, Any] = field(default_factory=dict)
     detected_at: datetime = field(default_factory=datetime.utcnow)
 
     @classmethod
@@ -196,8 +205,8 @@ class Finding:
         confidence: float,
         rule_id: str,
         target_identifier: str,
-        **kwargs
-    ) -> 'Finding':
+        **kwargs,
+    ) -> "Finding":
         """
         Factory method per istanziare Finding generando un ID deterministico.
 
@@ -225,11 +234,13 @@ class Finding:
             severity=severity,
             confidence=confidence,
             rule_id=rule_id,
-            **kwargs
+            **kwargs,
         )
 
     @staticmethod
-    def generate_deterministic_id(source: FindingSource, rule_id: str, target_identifier: str) -> str:
+    def generate_deterministic_id(
+        source: FindingSource, rule_id: str, target_identifier: str
+    ) -> str:
         """
         Genera un identificativo stabile e univoco per evitare duplicati in correlazione.
 
@@ -241,10 +252,10 @@ class Finding:
         Returns:
             str: Identificativo deterministico calcolato in hash.
         """
-        raw_key = f"{source.value}|{rule_id}|{target_identifier}".encode('utf-8')
+        raw_key = f"{source.value}|{rule_id}|{target_identifier}".encode()
         return f"{source.value.lower()}-{hashlib.md5(raw_key).hexdigest()[:12]}"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Serializza il Finding in un dizionario compatibile con JSON.
 
@@ -268,15 +279,19 @@ class Finding:
                 "file_path": self.location.file_path,
                 "start_line": self.location.start_line,
                 "end_line": self.location.end_line,
-                "code_snippet": self.location.code_snippet
-            } if self.location else None,
+                "code_snippet": self.location.code_snippet,
+            }
+            if self.location
+            else None,
             "api": {
                 "endpoint": self.api.endpoint,
                 "method": self.api.method,
                 "base_url": self.api.base_url,
                 "api_version": self.api.api_version,
-                "requires_authentication": self.api.requires_authentication
-            } if self.api else None,
+                "requires_authentication": self.api.requires_authentication,
+            }
+            if self.api
+            else None,
             "validation_status": self.validation_status.value,
             "runtime_evidence": {
                 "tested_url": self.runtime_evidence.tested_url,
@@ -285,16 +300,20 @@ class Finding:
                 "response_headers": self.runtime_evidence.response_headers,
                 "response_snippet": self.runtime_evidence.response_snippet,
                 "accessible_without_auth": self.runtime_evidence.accessible_without_auth,
-                "rate_limit_detected": self.runtime_evidence.rate_limit_detected
-            } if self.runtime_evidence else None,
+                "rate_limit_detected": self.runtime_evidence.rate_limit_detected,
+            }
+            if self.runtime_evidence
+            else None,
             "risk_context": {
                 "internet_exposed": self.risk_context.internet_exposed,
                 "sensitive_data_detected": self.risk_context.sensitive_data_detected,
                 "public_resource": self.risk_context.public_resource,
                 "exploitable": self.risk_context.exploitable,
                 "attack_complexity": self.risk_context.attack_complexity,
-                "impact": self.risk_context.impact
-            } if self.risk_context else None,
+                "impact": self.risk_context.impact,
+            }
+            if self.risk_context
+            else None,
             "correlation_key": self.correlation_key,
             "related_findings": self.related_findings,
             "owasp_api_category": self.owasp_api_category,
@@ -304,5 +323,5 @@ class Finding:
             "tags": self.tags,
             "references": self.references,
             "raw_data": self.raw_data,
-            "detected_at": self.detected_at.isoformat()
+            "detected_at": self.detected_at.isoformat(),
         }

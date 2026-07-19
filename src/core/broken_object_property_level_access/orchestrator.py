@@ -1,18 +1,23 @@
-import os
 import json
+import os
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 from loguru import logger
 
 from src.core.broken_authentication.discovery import Config
-from src.core.broken_object_property_level_access.models import (
-    PropertyInventory, PropertyEvidence, PropertyAuthorizationGraph, DynamicPropertyFinding
-)
 from src.core.broken_object_property_level_access.discovery import PropertyDiscoveryEngine
-from src.core.broken_object_property_level_access.property_inference import PropertyAuthorizationInferenceEngine
 from src.core.broken_object_property_level_access.dynamic_tester import BOPLADynamicTester
+from src.core.broken_object_property_level_access.models import (
+    DynamicPropertyFinding,
+    PropertyAuthorizationGraph,
+    PropertyEvidence,
+    PropertyInventory,
+)
+from src.core.broken_object_property_level_access.property_inference import (
+    PropertyAuthorizationInferenceEngine,
+)
 
 
 class BOPLAOrchestrator:
@@ -28,10 +33,10 @@ class BOPLAOrchestrator:
     def run_assessment(
         self,
         repo_path: str,
-        openapi_spec: Optional[Dict[str, Any]] = None,
-        runtime_traffic: Optional[List[Dict[str, Any]]] = None,
-        headers_matrix: Optional[Dict[str, Dict[str, str]]] = None
-    ) -> Dict[str, Any]:
+        openapi_spec: dict[str, Any] | None = None,
+        runtime_traffic: list[dict[str, Any]] | None = None,
+        headers_matrix: dict[str, dict[str, str]] | None = None,
+    ) -> dict[str, Any]:
         """
         Executes the complete BOPLA assessment.
         """
@@ -44,24 +49,24 @@ class BOPLAOrchestrator:
         try:
             logger.info("Inizio Fase 1: Property Discovery...")
             inventory = PropertyDiscoveryEngine.discover_properties(
-                repo_path=repo_path,
-                openapi_spec=openapi_spec,
-                runtime_traffic=runtime_traffic
+                repo_path=repo_path, openapi_spec=openapi_spec, runtime_traffic=runtime_traffic
             )
             objects_count = len(inventory.root)
             properties_count = sum(len(o.properties) for o in inventory.root.values())
-            
+
             # Print exact log required by USER
             print("\n[DISCOVERY]")
             print("Property Discovery completed.")
             print(f"Objects discovered: {objects_count}")
             print(f"Properties discovered: {properties_count}\n")
         except Exception as e:
-            logger.error(f"Errore durante Property Discovery: {e}. Inizializzazione inventario vuoto.")
+            logger.error(
+                f"Errore durante Property Discovery: {e}. Inizializzazione inventario vuoto."
+            )
             inventory = PropertyInventory({})
 
         # --- Phase 2: Property Inference ---
-        evidences: List[PropertyEvidence] = []
+        evidences: list[PropertyEvidence] = []
         graph = PropertyAuthorizationGraph()
         protected_count = 0
         try:
@@ -71,12 +76,14 @@ class BOPLAOrchestrator:
                     repo_path=repo_path,
                     inventory=inventory,
                     openapi_spec=openapi_spec,
-                    runtime_traffic=runtime_traffic
+                    runtime_traffic=runtime_traffic,
                 )
                 graph = PropertyAuthorizationInferenceEngine.build_authorization_graph(evidences)
                 # Count protected properties (confidence > 0.4 or having auth contexts)
-                protected_count = sum(1 for ev in evidences if ev.confidence >= 0.4 or ev.authorization_contexts)
-            
+                protected_count = sum(
+                    1 for ev in evidences if ev.confidence >= 0.4 or ev.authorization_contexts
+                )
+
             # Print exact log required by USER
             print("[INFERENCE]")
             print("Authorization relationships inferred.")
@@ -85,13 +92,13 @@ class BOPLAOrchestrator:
             logger.error(f"Errore durante Property Authorization Inference: {e}")
 
         # --- Phase 3: Dynamic Testing ---
-        findings: List[DynamicPropertyFinding] = []
+        findings: list[DynamicPropertyFinding] = []
         try:
             if headers_matrix and evidences:
                 logger.info("Inizio Fase 3: Dynamic Property Testing...")
                 print("[DYNAMIC]")
                 print("Running Property Authorization Tests...")
-                
+
                 tester = BOPLADynamicTester(
                     target_base_url=self.config.target.base_url,
                     inventory=inventory,
@@ -99,7 +106,7 @@ class BOPLAOrchestrator:
                     graph=graph,
                     headers_matrix=headers_matrix,
                     runtime_traffic=runtime_traffic,
-                    openapi_spec=openapi_spec
+                    openapi_spec=openapi_spec,
                 )
 
                 # Run each test with individual completion prints
@@ -131,13 +138,15 @@ class BOPLAOrchestrator:
                 findings.extend(t07_res)
                 print("T07 completed\n")
             else:
-                logger.warning("Fase 3: Dynamic Property Testing saltata per assenza di credenziali o evidenze.")
+                logger.warning(
+                    "Fase 3: Dynamic Property Testing saltata per assenza di credenziali o evidenze."
+                )
         except Exception as e:
             logger.error(f"Errore durante il Dynamic Testing: {e}")
 
         # --- Phase 4: Risk Assessment & Reporting ---
         logger.info("Inizio Fase 4: Risk Assessment e Generazione Report...")
-        
+
         # Calculate Property Authorization Score (resilience starting at 100)
         # Deduct 15 points per failed/verified test case, minimum 0.
         verified_test_ids = {f.test_id for f in findings if f.verified}
@@ -168,7 +177,7 @@ class BOPLAOrchestrator:
             "tests_executed": len(findings),
             "vulnerabilities_detected": len([f for f in findings if f.verified]),
             "findings": [f.model_dump() for f in findings],
-            "graph": graph.model_dump()
+            "graph": graph.model_dump(),
         }
 
         # Ensure output folder
@@ -199,7 +208,7 @@ class BOPLAOrchestrator:
 
         return report_data
 
-    def _generate_markdown_report(self, data: Dict[str, Any]) -> str:
+    def _generate_markdown_report(self, data: dict[str, Any]) -> str:
         """Generates Markdown content for the report."""
         md = []
         md.append("# Broken Object Property Level Authorization (BOPLA) Security Report")
@@ -221,10 +230,12 @@ class BOPLAOrchestrator:
         md.append("## Risultati dei Test Dinamici")
         md.append("| Test ID | Proprietà | Endpoint | Metodo | Risultato | Confidenza |")
         md.append("|---|---|---|---|---|---|")
-        
+
         for f in data["findings"]:
             status = "🔴 FAIL (Vulnerable)" if f["verified"] else "🟢 PASS (Secure)"
-            md.append(f"| {f['test_id']} | `{f['property_name']}` | `{f['endpoint']}` | `{f['method']}` | {status} | {f['confidence']} |")
+            md.append(
+                f"| {f['test_id']} | `{f['property_name']}` | `{f['endpoint']}` | `{f['method']}` | {status} | {f['confidence']} |"
+            )
         md.append("")
 
         md.append("## Dettaglio Findings Rilevati")
@@ -233,7 +244,9 @@ class BOPLAOrchestrator:
             md.append("Nessuna vulnerabilità BOPLA rilevata con successo.\n")
         else:
             for f in vulnerable_findings:
-                md.append(f"### [{f['test_id']}] Proprietà: `{f['property_name']}` su `{f['method']} {f['endpoint']}`")
+                md.append(
+                    f"### [{f['test_id']}] Proprietà: `{f['property_name']}` su `{f['method']} {f['endpoint']}`"
+                )
                 md.append(f"- **Livello Confidenza**: {f['confidence']}")
                 md.append("- **Evidenze Rilevate**:")
                 for ev in f["evidence"]:

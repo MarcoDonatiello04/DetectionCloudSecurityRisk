@@ -1,20 +1,18 @@
 import os
 import re
-from typing import Dict, Any, List, Optional
+
 from src.core.server_side_request_forgery.models import SsrfFinding
 
-def normalize_semgrep_output(
-    semgrep_json: dict,
-    target_path: str
-) -> List[SsrfFinding]:
+
+def normalize_semgrep_output(semgrep_json: dict, target_path: str) -> list[SsrfFinding]:
     """
     Converte l'output JSON di Semgrep in lista di SsrfFinding.
     """
     findings = []
-    
+
     for result in semgrep_json.get("results", []):
         metadata = result.get("extra", {}).get("metadata", {})
-        
+
         finding = SsrfFinding(
             rule_id=metadata.get("rule_id_internal", "SS-000"),
             semgrep_rule_id=result.get("check_id", ""),
@@ -23,7 +21,7 @@ def normalize_semgrep_output(
             severity=_map_severity(result.get("extra", {}).get("severity", "WARNING")),
             file_path=_make_relative(result.get("path", ""), target_path),
             line_number=result.get("start", {}).get("line", 0),
-            endpoint=None,          # arricchito dopo da route discovery
+            endpoint=None,  # arricchito dopo da route discovery
             source=_extract_source(result),
             sink=_extract_sink(result),
             validation_found=_has_validation(result),
@@ -31,19 +29,17 @@ def normalize_semgrep_output(
             allow_redirects=_detect_allow_redirects(result),
             evidence=result.get("extra", {}).get("lines", "").strip(),
             confidence=_compute_confidence(result),
-            layer="semgrep"
+            layer="semgrep",
         )
         findings.append(finding)
-    
+
     return findings
 
 
 def _map_severity(semgrep_severity: str) -> str:
-    return {
-        "ERROR": "CRITICAL",
-        "WARNING": "HIGH",
-        "INFO": "MEDIUM"
-    }.get(semgrep_severity, "MEDIUM")
+    return {"ERROR": "CRITICAL", "WARNING": "HIGH", "INFO": "MEDIUM"}.get(
+        semgrep_severity, "MEDIUM"
+    )
 
 
 def _compute_confidence(result: dict) -> float:
@@ -82,7 +78,7 @@ def _extract_source(result: dict) -> str:
     metavars = extra.get("metavars", {})
     if "$URL" in metavars:
         return metavars["$URL"].get("abstract_content", "url")
-    
+
     # Fallback heuristico da lines
     lines = extra.get("lines", "")
     match = re.search(r'request\.(args|json|form|headers)\.get\([\'"]([^\'"]+)[\'"]\)', lines)
@@ -97,10 +93,10 @@ def _extract_sink(result: dict) -> str:
     lines = extra.get("lines", "").strip()
     if not lines:
         return result.get("check_id", "http_request")
-    return lines.split('\n')[0].strip()
+    return lines.split("\n")[0].strip()
 
 
-def _detect_validation_type(result: dict) -> Optional[str]:
+def _detect_validation_type(result: dict) -> str | None:
     """Identifica la tipologia di validazione."""
     lines = result.get("extra", {}).get("lines", "").lower()
     if any(kw in lines for kw in ["allowlist", "whitelist", "is_allowed"]):
@@ -112,7 +108,7 @@ def _detect_validation_type(result: dict) -> Optional[str]:
     return "none"
 
 
-def _detect_allow_redirects(result: dict) -> Optional[bool]:
+def _detect_allow_redirects(result: dict) -> bool | None:
     """Indica se il client segue redirect (rischio aggiuntivo)."""
     lines = result.get("extra", {}).get("lines", "")
     if "allow_redirects" in lines:

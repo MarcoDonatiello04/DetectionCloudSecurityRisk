@@ -4,16 +4,18 @@ Identifies the technological stack and authentication libraries from project man
 using a local LLM (Ollama) with support for robust parsing and error recovery.
 """
 
-import re
 import json
-import httpx
-import yaml
+import re
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any
+
+import httpx
+import yaml
+from loguru import logger
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
-from loguru import logger
+
 
 # --- Categorie di Vulnerabilità ---
 class VulnerabilityCategory(str, Enum):
@@ -22,18 +24,25 @@ class VulnerabilityCategory(str, Enum):
     SECURITY_MISCONFIGURATION = "Security Misconfiguration"
     INFORMATION_DISCLOSURE = "Information Disclosure"
 
+
 # --- Custom Exceptions ---
 class ManifestNotFoundException(Exception):
     """Raised when no manifest files are found in the repository root."""
+
     pass
+
 
 class LLMResponseException(Exception):
     """Raised when the LLM response cannot be parsed into JSON after retries."""
+
     pass
+
 
 class LLMConnectionException(Exception):
     """Raised when the LLM provider is unreachable."""
+
     pass
+
 
 # --- Configuration Models ---
 class LLMConfig(BaseModel):
@@ -43,22 +52,27 @@ class LLMConfig(BaseModel):
     retry_count: int = 3
     base_url: str = "http://localhost:11434"
 
+
 class DockerConfig(BaseModel):
     timeout_startup: int = 30
+
 
 class TargetConfig(BaseModel):
     base_url: str = "http://localhost:5000"
     username: str = "testuser"
     password: str = "testpassword"
 
+
 class ScannerConfig(BaseModel):
     score_minimo: int = 2
     max_file_per_fase: int = 50
     timeout_http: float = 10.0
 
+
 class OutputConfig(BaseModel):
     path: str = "output"
     formato: str = "both"  # "json" | "markdown" | "both"
+
 
 class Config(BaseSettings):
     llm: LLMConfig = Field(default_factory=LLMConfig)
@@ -72,24 +86,28 @@ class Config(BaseSettings):
         """Loads configuration from a YAML file or returns default settings."""
         if file_path.is_file():
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     data = yaml.safe_load(f) or {}
                 logger.info(f"Configurazione caricata con successo da {file_path}")
                 return cls.model_validate(data)
             except Exception as e:
-                logger.warning(f"Errore caricamento config da {file_path}: {e}. Uso dei valori di default.")
+                logger.warning(
+                    f"Errore caricamento config da {file_path}: {e}. Uso dei valori di default."
+                )
         return cls()
+
 
 # --- Pydantic Output Schema ---
 class StackInfo(BaseModel):
     linguaggio: str
     framework: str
-    librerie_auth: List[str]
-    identity_provider: Optional[str] = None
-    file_configurazione_rilevanti: List[str]
-    discovery_methods: Dict[str, str] = Field(default_factory=dict)
-    non_jwt_mechanisms: List[str] = Field(default_factory=list)
-    crawled_routes: Dict[str, str] = Field(default_factory=dict)
+    librerie_auth: list[str]
+    identity_provider: str | None = None
+    file_configurazione_rilevanti: list[str]
+    discovery_methods: dict[str, str] = Field(default_factory=dict)
+    non_jwt_mechanisms: list[str] = Field(default_factory=list)
+    crawled_routes: dict[str, str] = Field(default_factory=dict)
+
 
 # --- LLM Client Interface ---
 class LLMClient:
@@ -100,19 +118,15 @@ class LLMClient:
         """Sends system and user messages to the LLM and returns the text response."""
         raise NotImplementedError
 
+
 class OllamaClient(LLMClient):
     async def complete(self, system: str, user: str) -> str:
         url = f"{self.config.base_url.rstrip('/')}/api/chat"
         payload = {
             "model": self.config.model,
-            "messages": [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user}
-            ],
+            "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "stream": False,
-            "options": {
-                "temperature": 0.1
-            }
+            "options": {"temperature": 0.1},
         }
         if "json" in system.lower() or "json" in user.lower():
             payload["format"] = "json"
@@ -137,24 +151,34 @@ class OllamaClient(LLMClient):
                 f"Errore generico di connessione a Ollama per il provider {self.config.provider}: {e}"
             ) from e
 
+
 # --- Repository Scanner ---
-def find_relevant_files(repo_dir: Path) -> Dict[str, Path]:
+def find_relevant_files(repo_dir: Path) -> dict[str, Path]:
     """
     Scans the repository to locate manifests/infra at root level, and configs recursively.
     """
     found = {}
 
     manifest_names = {
-        "package.json", "requirements.txt", "pyproject.toml",
-        "pom.xml", "build.gradle", "go.mod", "Gemfile",
-        "composer.json", "Cargo.toml"
+        "package.json",
+        "requirements.txt",
+        "pyproject.toml",
+        "pom.xml",
+        "build.gradle",
+        "go.mod",
+        "Gemfile",
+        "composer.json",
+        "Cargo.toml",
     }
-    infra_names = {
-        "docker-compose.yml", "docker-compose.yaml", "Dockerfile"
-    }
+    infra_names = {"docker-compose.yml", "docker-compose.yaml", "Dockerfile"}
     config_names = {
-        ".env.example", ".env.template", "config.yml", "config.yaml",
-        "application.yml", "application.properties", "settings.py"
+        ".env.example",
+        ".env.template",
+        "config.yml",
+        "config.yaml",
+        "application.yml",
+        "application.properties",
+        "settings.py",
     }
 
     # Root level scan for manifests and infra
@@ -165,8 +189,15 @@ def find_relevant_files(repo_dir: Path) -> Dict[str, Path]:
 
     # Recursive scan for config files (ignoring common build/dependency dirs)
     ignore_dirs = {
-        ".git", ".venv", "node_modules", ".terraform", "__pycache__",
-        ".pytest_cache", "dist", "build", "target"
+        ".git",
+        ".venv",
+        "node_modules",
+        ".terraform",
+        "__pycache__",
+        ".pytest_cache",
+        "dist",
+        "build",
+        "target",
     }
 
     def walk_configs(current_dir: Path):
@@ -186,7 +217,8 @@ def find_relevant_files(repo_dir: Path) -> Dict[str, Path]:
     walk_configs(repo_dir)
     return found
 
-def _parse_json_robust(text: str) -> Dict[str, Any]:
+
+def _parse_json_robust(text: str) -> dict[str, Any]:
     """Robustly extracts and parses JSON from LLM text containing markdown code blocks."""
     clean_text = text.strip()
     if clean_text.startswith("```json"):
@@ -203,10 +235,11 @@ def _parse_json_robust(text: str) -> Dict[str, Any]:
         start_idx = clean_text.find("{")
         end_idx = clean_text.rfind("}")
         if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-            return json.loads(clean_text[start_idx:end_idx + 1])
+            return json.loads(clean_text[start_idx : end_idx + 1])
         raise
 
-def run_heuristics(files_context: Dict[str, str]) -> Dict[str, Any]:
+
+def run_heuristics(files_context: dict[str, str]) -> dict[str, Any]:
     """Runs deterministic heuristics on manifest contents to discover tech stack and auth configurations."""
     inferred = {
         "linguaggio": "",
@@ -215,15 +248,37 @@ def run_heuristics(files_context: Dict[str, str]) -> Dict[str, Any]:
         "identity_provider": None,
         "non_jwt_mechanisms": [],
     }
-    
+
     all_combined = "\n".join(files_context.values()).lower()
-    
+
     # Non-JWT mechanisms detection
-    if "basic " in all_combined or "basicauth" in all_combined or "authorizationbasic" in all_combined or "authbasic" in all_combined:
+    if (
+        "basic " in all_combined
+        or "basicauth" in all_combined
+        or "authorizationbasic" in all_combined
+        or "authbasic" in all_combined
+    ):
         inferred["non_jwt_mechanisms"].append("Basic Auth")
-    if "api_key" in all_combined or "apikey" in all_combined or "x-api-key" in all_combined or "api-key" in all_combined:
+    if (
+        "api_key" in all_combined
+        or "apikey" in all_combined
+        or "x-api-key" in all_combined
+        or "api-key" in all_combined
+    ):
         inferred["non_jwt_mechanisms"].append("API Key")
-    if any(k in all_combined for k in ["client.crt", "client.key", "mtls", "mutual_tls", "client-cert", "client_cert", "cert.pem", "key.pem"]):
+    if any(
+        k in all_combined
+        for k in [
+            "client.crt",
+            "client.key",
+            "mtls",
+            "mutual_tls",
+            "client-cert",
+            "client_cert",
+            "cert.pem",
+            "key.pem",
+        ]
+    ):
         inferred["non_jwt_mechanisms"].append("mTLS")
 
     # JavaScript/TypeScript
@@ -236,8 +291,17 @@ def run_heuristics(files_context: Dict[str, str]) -> Dict[str, Any]:
             inferred["framework"] = "Next.js"
         elif "nest" in content:
             inferred["framework"] = "NestJS"
-            
-        for lib in ["jsonwebtoken", "jose", "passport", "next-auth", "auth0", "keycloak-connect", "bcrypt", "passport-saml"]:
+
+        for lib in [
+            "jsonwebtoken",
+            "jose",
+            "passport",
+            "next-auth",
+            "auth0",
+            "keycloak-connect",
+            "bcrypt",
+            "passport-saml",
+        ]:
             if lib in content:
                 inferred["librerie_auth"].append(lib)
 
@@ -253,14 +317,29 @@ def run_heuristics(files_context: Dict[str, str]) -> Dict[str, Any]:
             inferred["framework"] = "Django"
         elif "flask" in all_py:
             inferred["framework"] = "Flask"
-            
-        for lib in ["pyjwt", "python-jose", "passlib", "bcrypt", "cryptography", "auth0", "cognito", "keycloak", "python3-saml", "pysaml2"]:
+
+        for lib in [
+            "pyjwt",
+            "python-jose",
+            "passlib",
+            "bcrypt",
+            "cryptography",
+            "auth0",
+            "cognito",
+            "keycloak",
+            "python3-saml",
+            "pysaml2",
+        ]:
             if lib in all_py:
                 if lib == "pyjwt":
                     inferred["librerie_auth"].append("PyJWT")
                 else:
                     inferred["librerie_auth"].append(lib)
-        if "jwt" in all_py and "PyJWT" not in inferred["librerie_auth"] and "python-jose" not in inferred["librerie_auth"]:
+        if (
+            "jwt" in all_py
+            and "PyJWT" not in inferred["librerie_auth"]
+            and "python-jose" not in inferred["librerie_auth"]
+        ):
             inferred["librerie_auth"].append("PyJWT")
 
     # Go
@@ -284,7 +363,13 @@ def run_heuristics(files_context: Dict[str, str]) -> Dict[str, Any]:
         all_java = "\n".join(files_context[k] for k in java_manifests if k in files_context).lower()
         if "spring-boot" in all_java or "spring-security" in all_java:
             inferred["framework"] = "Spring Boot"
-        for lib in ["spring-security", "jjwt", "keycloak", "nimbus-jose-jwt", "spring-security-saml"]:
+        for lib in [
+            "spring-security",
+            "jjwt",
+            "keycloak",
+            "nimbus-jose-jwt",
+            "spring-security-saml",
+        ]:
             if lib in all_java:
                 inferred["librerie_auth"].append(lib)
 
@@ -324,8 +409,9 @@ def run_heuristics(files_context: Dict[str, str]) -> Dict[str, Any]:
 
     return inferred
 
+
 # --- Main Run Function ---
-async def run(repo_path: str, config: Config, llm_client: Optional[LLMClient] = None) -> StackInfo:
+async def run(repo_path: str, config: Config, llm_client: LLMClient | None = None) -> StackInfo:
     """
     Main entry point for Manifest Discovery (Fase 1).
     Scans the repository path, builds context, runs heuristics, asks the LLM, and parses/validates the stack info.
@@ -338,11 +424,17 @@ async def run(repo_path: str, config: Config, llm_client: Optional[LLMClient] = 
 
     # Validate that at least one manifest exists at root
     manifest_names = {
-        "package.json", "requirements.txt", "pyproject.toml",
-        "pom.xml", "build.gradle", "go.mod", "Gemfile",
-        "composer.json", "Cargo.toml"
+        "package.json",
+        "requirements.txt",
+        "pyproject.toml",
+        "pom.xml",
+        "build.gradle",
+        "go.mod",
+        "Gemfile",
+        "composer.json",
+        "Cargo.toml",
     }
-    manifests_found = [k for k in found_files.keys() if k in manifest_names]
+    manifests_found = [k for k in found_files if k in manifest_names]
     if not manifests_found:
         raise ManifestNotFoundException(
             f"Nessun file manifest di dipendenze (es. package.json, requirements.txt, ecc.) "
@@ -355,8 +447,8 @@ async def run(repo_path: str, config: Config, llm_client: Optional[LLMClient] = 
         try:
             stat = file_path.stat()
             size = stat.st_size
-            
-            with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+
+            with open(file_path, encoding="utf-8", errors="replace") as f:
                 content = f.read()
 
             if len(content) > 4000:
@@ -402,11 +494,12 @@ async def run(repo_path: str, config: Config, llm_client: Optional[LLMClient] = 
         llm_client = OllamaClient(config.llm)
 
     parsed_data = {}
-    llm_succeeded = False
     try:
-        logger.info(f"Invio contesto di {len(files_context)} file al client LLM (provider: {config.llm.provider})...")
+        logger.info(
+            f"Invio contesto di {len(files_context)} file al client LLM (provider: {config.llm.provider})..."
+        )
         response_text = await llm_client.complete(system_prompt, user_content)
-        
+
         # Parsing and double-attempt error recovery
         try:
             parsed_data = _parse_json_robust(response_text)
@@ -431,50 +524,60 @@ async def run(repo_path: str, config: Config, llm_client: Optional[LLMClient] = 
                 raise LLMResponseException(
                     f"La risposta dell'LLM (provider: {config.llm.provider}) non è parsabile in JSON dopo i tentativi di recupero: {retry_e}"
                 ) from retry_e
-            
-        llm_succeeded = True
-    except (LLMConnectionException, httpx.HTTPError, httpx.NetworkError, httpx.TimeoutException) as conn_err:
-        logger.warning(f"Connessione LLM non disponibile (Ollama down/unreachable). Degradazione all'euristica deterministica: {conn_err}")
+
+    except (
+        LLMConnectionException,
+        httpx.HTTPError,
+        httpx.NetworkError,
+        httpx.TimeoutException,
+    ) as conn_err:
+        logger.warning(
+            f"Connessione LLM non disponibile (Ollama down/unreachable). Degradazione all'euristica deterministica: {conn_err}"
+        )
         parsed_data = {
             "linguaggio": heuristic_results["linguaggio"] or "unknown",
             "framework": heuristic_results["framework"] or "unknown",
             "librerie_auth": heuristic_results["librerie_auth"],
             "identity_provider": heuristic_results["identity_provider"],
-            "file_configurazione_rilevanti": list(files_context.keys())
+            "file_configurazione_rilevanti": list(files_context.keys()),
         }
 
     # Step 5 - Merge & Validation
     try:
         # Validate schema via Pydantic model
         stack_info = StackInfo.model_validate(parsed_data)
-        
+
         # Merge heuristics with LLM inferred values if needed
         # Heuristics take precedence for determinism if they successfully found the values
         final_linguaggio = heuristic_results["linguaggio"] or stack_info.linguaggio
         final_framework = heuristic_results["framework"] or stack_info.framework
         final_idp = heuristic_results["identity_provider"] or stack_info.identity_provider
-        
+
         final_libs_set = set(heuristic_results["librerie_auth"])
         for lib in stack_info.librerie_auth:
             final_libs_set.add(lib)
-            
+
         stack_info.linguaggio = final_linguaggio
         stack_info.framework = final_framework
-        stack_info.librerie_auth = sorted(list(final_libs_set))
+        stack_info.librerie_auth = sorted(final_libs_set)
         stack_info.identity_provider = final_idp
-        
+
         # Populate non_jwt_mechanisms and discovery_methods
         stack_info.non_jwt_mechanisms = heuristic_results["non_jwt_mechanisms"]
-        
+
         stack_info.discovery_methods = {
             "linguaggio": "heuristic" if heuristic_results["linguaggio"] else "llm_inferred",
             "framework": "heuristic" if heuristic_results["framework"] else "llm_inferred",
             "librerie_auth": "heuristic" if heuristic_results["librerie_auth"] else "llm_inferred",
-            "identity_provider": "heuristic" if heuristic_results["identity_provider"] else "llm_inferred"
+            "identity_provider": "heuristic"
+            if heuristic_results["identity_provider"]
+            else "llm_inferred",
         }
-        
-        logger.info(f"Discovery completato con successo. Linguaggio: {stack_info.linguaggio}, Framework: {stack_info.framework}")
-        
+
+        logger.info(
+            f"Discovery completato con successo. Linguaggio: {stack_info.linguaggio}, Framework: {stack_info.framework}"
+        )
+
         # Step 6 - Dynamic Crawler (spidering) with safe-crawl policy
         crawled_routes = {}
         target_url = config.target.base_url
@@ -500,13 +603,10 @@ async def run(repo_path: str, config: Config, llm_client: Optional[LLMClient] = 
                 queue = ["/"]
                 max_depth = 3
                 current_depth = 0
-                
+
                 # Helper to check robots.txt ignore paths
                 def is_disallowed(path: str) -> bool:
-                    for ignored in ignored_paths:
-                        if path.startswith(ignored):
-                            return True
-                    return False
+                    return any(path.startswith(ignored) for ignored in ignored_paths)
 
                 while queue and current_depth < max_depth:
                     next_queue = []
@@ -528,12 +628,18 @@ async def run(repo_path: str, config: Config, llm_client: Optional[LLMClient] = 
                                     if link.startswith("/") and not link.startswith("//"):
                                         if link not in visited:
                                             next_queue.append(link.split("#")[0].split("?")[0])
-                                            
+
                                 # Enumerate forms (POST/PUT/DELETE) without executing them
-                                form_actions = re.findall(r'<form\s+[^>]*action=["\']([^"\']+)["\'][^>]*method=["\'](post|put|delete)["\']', html, re.IGNORECASE)
+                                form_actions = re.findall(
+                                    r'<form\s+[^>]*action=["\']([^"\']+)["\'][^>]*method=["\'](post|put|delete)["\']',
+                                    html,
+                                    re.IGNORECASE,
+                                )
                                 for action, method in form_actions:
                                     cleaned_action = action.split("?")[0]
-                                    if cleaned_action.startswith("/") and not cleaned_action.startswith("//"):
+                                    if cleaned_action.startswith(
+                                        "/"
+                                    ) and not cleaned_action.startswith("//"):
                                         crawled_routes[cleaned_action] = method.upper()
                         except Exception as req_err:
                             logger.debug(f"Errore crawling {path}: {req_err}")
@@ -541,7 +647,7 @@ async def run(repo_path: str, config: Config, llm_client: Optional[LLMClient] = 
                     current_depth += 1
         except Exception as crawl_err:
             logger.warning(f"Errore crawler inatteso: {crawl_err}")
-            
+
         stack_info.crawled_routes = crawled_routes
         return stack_info
     except Exception as val_e:

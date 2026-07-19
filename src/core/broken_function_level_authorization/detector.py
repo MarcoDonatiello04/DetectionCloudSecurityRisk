@@ -1,13 +1,22 @@
-from typing import Optional, Dict, Any, List
-from src.core.broken_function_level_authorization.models import FunctionAuthzReport, FunctionAuthzFinding
-from src.core.broken_function_level_authorization.layers.layer1_ast import analyze_ast_with_endpoints
-from src.core.broken_function_level_authorization.layers.layer2_config import analyze_configs as analyze_config
+from typing import Any
+
+from src.core.broken_function_level_authorization.layers.layer1_ast import (
+    analyze_ast_with_endpoints,
+)
+from src.core.broken_function_level_authorization.layers.layer2_config import (
+    analyze_configs as analyze_config,
+)
 from src.core.broken_function_level_authorization.layers.layer3_openapi import analyze_openapi
+from src.core.broken_function_level_authorization.models import (
+    FunctionAuthzFinding,
+    FunctionAuthzReport,
+)
+
 
 def _build_coverage_signals(
-    findings: List[FunctionAuthzFinding],
-) -> Dict[str, List[str]]:
-    signals: Dict[str, List[str]] = {}
+    findings: list[FunctionAuthzFinding],
+) -> dict[str, list[str]]:
+    signals: dict[str, list[str]] = {}
     for f in findings:
         signals.setdefault(f.category, [])
         if f.rule_id not in signals[f.category]:
@@ -16,9 +25,9 @@ def _build_coverage_signals(
 
 
 def _build_summary(
-    findings: List[FunctionAuthzFinding],
-) -> Dict[str, Dict[str, int]]:
-    summary: Dict[str, Dict[str, int]] = {
+    findings: list[FunctionAuthzFinding],
+) -> dict[str, dict[str, int]]:
+    summary: dict[str, dict[str, int]] = {
         "severity": {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0, "INFO": 0},
         "category": {},
         "layer": {"ast": 0, "config": 0, "openapi": 0, "ast+openapi": 0},
@@ -40,9 +49,8 @@ RULE_PRIORITY = {
     "BF-005": 1,
 }
 
-def deduplicate_findings(
-    findings: List[FunctionAuthzFinding]
-) -> List[FunctionAuthzFinding]:
+
+def deduplicate_findings(findings: list[FunctionAuthzFinding]) -> list[FunctionAuthzFinding]:
     """
     Per ogni coppia (file_path, endpoint), mantiene solo il finding
     con la rule di priorità più alta.
@@ -72,7 +80,7 @@ def deduplicate_findings(
 
 def analyze(
     target_path: str,
-    openapi_spec: Optional[Dict[str, Any]] = None,
+    openapi_spec: dict[str, Any] | None = None,
     enrich_spec: bool = False,
 ) -> FunctionAuthzReport:
     """
@@ -88,7 +96,7 @@ def analyze(
     Returns:
         FunctionAuthzReport containing aggregated findings from all layers.
     """
-    findings: List[FunctionAuthzFinding] = []
+    findings: list[FunctionAuthzFinding] = []
 
     # Layer 1 — AST analysis (always executed)
     ast_findings, discovered_endpoints = analyze_ast_with_endpoints(target_path)
@@ -104,7 +112,7 @@ def analyze(
             spec=openapi_spec,
             ast_findings=ast_findings,
             discovered_endpoints=discovered_endpoints,
-            enrich_spec=enrich_spec
+            enrich_spec=enrich_spec,
         )
         findings.extend(openapi_findings)
 
@@ -119,19 +127,15 @@ def analyze(
     )
 
 
-def analyze_content(
-    content: str,
-    filename: str = "app.py"
-) -> FunctionAuthzReport:
+def analyze_content(content: str, filename: str = "app.py") -> FunctionAuthzReport:
     """
     Helper for testing inline content analysis.
     Writes content to a temporary file and runs analyze().
     """
     import tempfile
     from pathlib import Path
+
     with tempfile.TemporaryDirectory() as tmpdir:
         file_path = Path(tmpdir) / filename
         file_path.write_text(content, encoding="utf-8")
         return analyze(str(tmpdir))
-
-

@@ -1,6 +1,8 @@
 import ast
 from pathlib import Path
+
 from src.core.security_misconfiguration.rules.cors_wildcard import analyze
+
 
 def test_cors_wildcard_python_flask():
     content = """
@@ -12,6 +14,7 @@ CORS(app)
     assert len(findings) == 1
     assert findings[0].rule_id == "SC-001"
     assert findings[0].severity == "HIGH"
+
 
 def test_cors_wildcard_fastapi_critical():
     content = """
@@ -27,6 +30,7 @@ app.add_middleware(
     assert len(findings) == 1
     assert findings[0].rule_id == "SC-001"
     assert findings[0].severity == "CRITICAL"
+
 
 def test_cors_wildcard_js():
     content = "app.use(cors())"

@@ -1,6 +1,7 @@
-import pytest
 from unittest.mock import MagicMock
+
 from src.core.object_level_authorization.assertion_engine import APIAssertionEngine
+
 
 def test_evaluate_bola_assertion_identical_response():
     # Scenario dove la risposta di Bob è identica a quella di Alice (Delta = 0)
@@ -19,7 +20,7 @@ def test_evaluate_bola_assertion_identical_response():
         res_alice=res_alice,
         res_bob=res_bob,
         requesting_user_role="user",
-        resource_owner_role="user"
+        resource_owner_role="user",
     )
 
     # Poiché Delta = 0, l'isolamento è violato -> Vulnerabile a BOLA Orizzontale
@@ -45,7 +46,7 @@ def test_evaluate_bola_assertion_different_response():
         res_alice=res_alice,
         res_bob=res_bob,
         requesting_user_role="user",
-        resource_owner_role="user"
+        resource_owner_role="user",
     )
 
     # Poiché Delta != 0, l'isolamento dei dati ha retto -> SAFE

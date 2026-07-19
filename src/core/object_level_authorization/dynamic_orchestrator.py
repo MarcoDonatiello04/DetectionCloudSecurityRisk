@@ -19,22 +19,24 @@ Questo garantisce la replicabilità scientifica del test, azzerando le corse cri
 sul database di test e massimizzando la precisione di ZAP.
 """
 
-import os
-import re
 import json
 import logging
-import base64
+import os
 import time
-from typing import List, Dict, Any, Tuple
+from typing import Any
+
 import requests
 from zapv2 import ZAPv2
 
-# Allineamento con il sistema di Discovery centralizzato della Core Pipeline
-from src.normalization.normalizer import APIEndpointNormalizer
 from src.domain.entities import Finding
 
+# Allineamento con il sistema di Discovery centralizzato della Core Pipeline
+from src.normalization.normalizer import APIEndpointNormalizer
+
 # Disabilita gli alert SSL di urllib3 per le richieste passanti dal proxy di ZAP
-requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings(
+    requests.packages.urllib3.exceptions.InsecureRequestWarning
+)
 
 # Configurazione logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -43,23 +45,28 @@ logger = logging.getLogger("SecurityPlatform.DynamicAST")
 
 # ─── ECCEZIONI PERSONALIZZATE ────────────────────────────────────────────────
 
+
 class OrchestratorError(Exception):
     """Classe base per le eccezioni dell'orchestratore D-AST."""
+
     pass
 
 
 class IdentityManagerError(OrchestratorError):
     """Eccezione sollevata da IdentityManager in caso di errori di autenticazione."""
+
     pass
 
 
 class SeedingError(OrchestratorError):
     """Eccezione sollevata da DatabaseSeeder in caso di errore di popolamento dati."""
+
     pass
 
 
 class ScannerError(OrchestratorError):
     """Eccezione sollevata da ZapController in caso di fallimento della scansione."""
+
     pass
 
 
@@ -98,6 +105,7 @@ ZAP_POLL_INTERVAL_SECONDS = 2
 
 # ─── FUNZIONI DI VALIDAZIONE DELL'INPUT ──────────────────────────────────────
 
+
 def validate_url(url: str, param_name: str) -> None:
     """
     Valida la struttura formale di un URL passato come parametro.
@@ -110,10 +118,12 @@ def validate_url(url: str, param_name: str) -> None:
         ValueError: Se l'URL non inizia con 'http://' o 'https://'.
     """
     if not url or not (url.startswith("http://") or url.startswith("https://")):
-        raise ValueError(f"Parametro '{param_name}' non valido: deve iniziare con http:// o https://. Valore: {url}")
+        raise ValueError(
+            f"Parametro '{param_name}' non valido: deve iniziare con http:// o https://. Valore: {url}"
+        )
 
 
-def validate_api_inventory(inventory: List[Dict[str, Any]]) -> None:
+def validate_api_inventory(inventory: list[dict[str, Any]]) -> None:
     """
     Valida la struttura dei dati dell'inventario API prima dell'elaborazione.
 
@@ -129,12 +139,16 @@ def validate_api_inventory(inventory: List[Dict[str, Any]]) -> None:
 
 # ─── CLASSI PRINCIPALI DEL FLUSSO ───────────────────────────────────────────
 
-from src.core.identity_context import IdentityManager, DatabaseSeeder
-from src.core.object_level_authorization.state_manager import APIStateEngine
-from src.core.object_level_authorization.attack_vector import ContextAwareAttackGenerator
+from src.core.identity_context import DatabaseSeeder, IdentityManager
 from src.core.object_level_authorization.assertion_engine import APIAssertionEngine
-from src.core.object_level_authorization.discovery.ownership_inference import OwnershipInferenceEngine
-from src.core.object_level_authorization.discovery.object_discovery import ObjectReferenceDiscoveryEngine
+from src.core.object_level_authorization.attack_vector import ContextAwareAttackGenerator
+from src.core.object_level_authorization.discovery.object_discovery import (
+    ObjectReferenceDiscoveryEngine,
+)
+from src.core.object_level_authorization.discovery.ownership_inference import (
+    OwnershipInferenceEngine,
+)
+from src.core.object_level_authorization.state_manager import APIStateEngine
 
 
 class ZapController:
@@ -142,6 +156,7 @@ class ZapController:
     Gestore per il pilotaggio programmato di OWASP ZAP (Differential Authorization Testing).
     Configura le sessioni e invia traffico tramite il proxy per la scansione differenziale.
     """
+
     _is_cancelled = False
 
     def __init__(self, zap_proxy_url: str = DEFAULT_ZAP_PROXY_URL):
@@ -160,16 +175,16 @@ class ZapController:
         self.test_results = []
 
     def run_differential_scan(
-        self, 
-        target_base_url: str, 
-        dynamic_endpoints: List[Dict[str, Any]], 
-        headers_matrix: Dict[str, Dict[str, str]],
+        self,
+        target_base_url: str,
+        dynamic_endpoints: list[dict[str, Any]],
+        headers_matrix: dict[str, dict[str, str]],
         uuid_alice: str,
         uuid_bob: str,
         uuid_charlie: str,
-        role_map: Dict[str, str],
+        role_map: dict[str, str],
         output_dir: str = "output",
-        use_state_management: bool = True
+        use_state_management: bool = True,
     ) -> None:
         """
         Pianifica ed esegue gli attacchi differenziali reali inviando traffico
@@ -180,9 +195,9 @@ class ZapController:
         logger.info("🔥 Avvio test differenziale esteso e Role-Aware...")
         self.test_results = []
         ZapController._is_cancelled = False
-        
+
         # Inizializza i moduli BOLA e reset dello stato
-        state_engine = APIStateEngine(target_base_url)
+        APIStateEngine(target_base_url)
         attack_generator = ContextAwareAttackGenerator(self.zap_proxy_url)
 
         # Configurazione contesto ZAP
@@ -226,7 +241,7 @@ class ZapController:
                     role_alice=role_alice,
                     role_bob=role_bob,
                     role_charlie=role_charlie,
-                    discovered_refs=discovered_refs
+                    discovered_refs=discovered_refs,
                 )
 
                 for stim in scenarios_results:
@@ -246,30 +261,33 @@ class ZapController:
                             res_alice=res_alice,
                             res_bob=res_bob,
                             requesting_user_role=attacker_role,
-                            resource_owner_role=owner_role
+                            resource_owner_role=owner_role,
                         )
                         is_vulnerable = assertion_result["is_vulnerable"]
                         verdict = assertion_result["verdict"]
 
                         import urllib.parse
+
                         parsed_url = urllib.parse.urlparse(target_url)
 
                         # Registriamo i dettagli del test
-                        self.test_results.append({
-                            "url": target_url,
-                            "path": parsed_url.path,
-                            "method": method,
-                            "status_code": res_bob.status_code,
-                            "test_name": f"{scenario_name} {method} Test",
-                            "is_vulnerable": is_vulnerable,
-                            "assertion_details": assertion_result,
-                            "response_text": res_bob.text,
-                            "res_owner_status": res_alice.status_code,
-                            "res_owner_text": res_alice.text,
-                            "attacker_role": attacker_role,
-                            "owner_role": owner_role,
-                            "scenario_name": scenario_name
-                        })
+                        self.test_results.append(
+                            {
+                                "url": target_url,
+                                "path": parsed_url.path,
+                                "method": method,
+                                "status_code": res_bob.status_code,
+                                "test_name": f"{scenario_name} {method} Test",
+                                "is_vulnerable": is_vulnerable,
+                                "assertion_details": assertion_result,
+                                "response_text": res_bob.text,
+                                "res_owner_status": res_alice.status_code,
+                                "res_owner_text": res_alice.text,
+                                "attacker_role": attacker_role,
+                                "owner_role": owner_role,
+                                "scenario_name": scenario_name,
+                            }
+                        )
 
                         logger.info(
                             f"      [{scenario_name} - {method}] Verdict: {verdict}\n"
@@ -279,56 +297,67 @@ class ZapController:
                         )
 
                         if is_vulnerable:
-                            logger.error(f"🚨 [ALERT CRITICAL] {verdict} RILEVATO SU: {method} {target_url}")
+                            logger.error(
+                                f"🚨 [ALERT CRITICAL] {verdict} RILEVATO SU: {method} {target_url}"
+                            )
                             try:
                                 self.zap.ascan.scan(url=zap_target_url, recurse="false")
                             except Exception as ze:
                                 logger.debug(f"ZAP ascan fallito: {ze}")
                         else:
-                            logger.info(f"✅ [SAFE] {scenario_name} {method} su: {target_url} (Verdetto: {verdict})")
+                            logger.info(
+                                f"✅ [SAFE] {scenario_name} {method} su: {target_url} (Verdetto: {verdict})"
+                            )
                     else:
-                        logger.warning(f"⚠️ Impossibile eseguire BOLA Assessment for {scenario_name} {method} dovuto a errori di rete.")
+                        logger.warning(
+                            f"⚠️ Impossibile eseguire BOLA Assessment for {scenario_name} {method} dovuto a errori di rete."
+                        )
 
                     # 4. Broken Authentication Check (Anonymous)
                     if res_anon is not None:
-                        is_anon_vulnerable = (res_anon.status_code in (200, 204))
+                        is_anon_vulnerable = res_anon.status_code in (200, 204)
                         import urllib.parse
+
                         parsed_url = urllib.parse.urlparse(target_url)
 
-                        self.test_results.append({
-                            "url": target_url,
-                            "path": parsed_url.path,
-                            "method": method,
-                            "status_code": res_anon.status_code,
-                            "test_name": f"Broken Auth {scenario_name} {method} Test",
-                            "is_vulnerable": is_anon_vulnerable,
-                            "assertion_details": {
-                                "http_status_assertion": not is_anon_vulnerable,
-                                "content_keyword_assertion": True,
-                                "structural_similarity_assertion": True
-                            },
-                            "response_text": res_anon.text,
-                            "res_owner_status": res_alice.status_code if res_alice else 200,
-                            "res_owner_text": res_alice.text if res_alice else "",
-                            "attacker_role": "anonymous",
-                            "owner_role": owner_role,
-                            "scenario_name": f"Broken Auth {scenario_name}"
-                        })
+                        self.test_results.append(
+                            {
+                                "url": target_url,
+                                "path": parsed_url.path,
+                                "method": method,
+                                "status_code": res_anon.status_code,
+                                "test_name": f"Broken Auth {scenario_name} {method} Test",
+                                "is_vulnerable": is_anon_vulnerable,
+                                "assertion_details": {
+                                    "http_status_assertion": not is_anon_vulnerable,
+                                    "content_keyword_assertion": True,
+                                    "structural_similarity_assertion": True,
+                                },
+                                "response_text": res_anon.text,
+                                "res_owner_status": res_alice.status_code if res_alice else 200,
+                                "res_owner_text": res_alice.text if res_alice else "",
+                                "attacker_role": "anonymous",
+                                "owner_role": owner_role,
+                                "scenario_name": f"Broken Auth {scenario_name}",
+                            }
+                        )
 
                         if is_anon_vulnerable:
-                            logger.error(f"🚨 [ALERT CRITICAL] BROKEN AUTHENTICATION RILEVATA SU: {method} {target_url}")
+                            logger.error(
+                                f"🚨 [ALERT CRITICAL] BROKEN AUTHENTICATION RILEVATA SU: {method} {target_url}"
+                            )
                             try:
                                 self.zap.ascan.scan(url=zap_target_url, recurse="false")
                             except Exception as ze:
                                 logger.debug(f"ZAP ascan fallito: {ze}")
-                
+
                 # 5. Rollback dello stato dopo il test per ripulire gli effetti collaterali
                 if use_state_management:
                     APIStateEngine.trigger_rollback(target_base_url)
 
         # Attendi la conclusione degli active scan
         self._wait_for_scan_completion()
-        
+
         # Salvataggio del report ZAP
         report_path = os.path.join(output_dir, "zap_report.json")
         self._export_report(report_path)
@@ -372,11 +401,11 @@ class DynamicOrchestrator:
     """
 
     def __init__(
-        self, 
+        self,
         target_base_url: str = DEFAULT_TARGET_BASE_URL,
         keycloak_url: str = DEFAULT_KEYCLOAK_URL,
         zap_proxy_url: str = DEFAULT_ZAP_PROXY_URL,
-        assessment_mode: bool = False
+        assessment_mode: bool = False,
     ):
         """
         Inizializza l'orchestratore dinamico configurando le dipendenze richieste.
@@ -390,14 +419,16 @@ class DynamicOrchestrator:
         validate_url(target_base_url, "target_base_url")
         validate_url(keycloak_url, "keycloak_url")
         validate_url(zap_proxy_url, "zap_proxy_url")
-        
+
         self.target_base_url = target_base_url
         self.assessment_mode = assessment_mode
         self.identity_manager = IdentityManager(keycloak_url=keycloak_url)
         self.seeder = DatabaseSeeder(seed_url=f"{target_base_url.rstrip('/')}/test/seed")
         self.zap_controller = ZapController(zap_proxy_url=zap_proxy_url)
 
-    def _extract_endpoints_from_inventory(self, api_inventory: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    def _extract_endpoints_from_inventory(
+        self, api_inventory: list[dict[str, Any]]
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         """
         Estrae le rotte dall'inventario dei findings della pipeline,
         dividendole in dinamiche (con parametri {id}) e statiche.
@@ -418,20 +449,20 @@ class DynamicOrchestrator:
             api_ctx = finding.get("api")
             if not api_ctx or not api_ctx.get("endpoint"):
                 continue
-                
+
             path = api_ctx["endpoint"]
             method = api_ctx.get("method") or "GET"
-            
+
             # Normalizziamo il path usando lo standard centralizzato del Core
             normalized_path = APIEndpointNormalizer.normalize_path(path)
-            
+
             if normalized_path not in path_to_methods:
                 path_to_methods[normalized_path] = set()
             path_to_methods[normalized_path].add(method.upper())
-            
+
         dynamic_endpoints = []
         static_endpoints = []
-        
+
         for path, methods in path_to_methods.items():
             methods_list = list(methods)
             if "{id}" in path:
@@ -442,21 +473,23 @@ class DynamicOrchestrator:
                     if segment == "{id}":
                         resource_name = segments[i - 1] if i > 0 else "generic_resource"
                         break
-                dynamic_endpoints.append({
-                    "path": path,
-                    "methods": methods_list,
-                    "resource_name": resource_name
-                })
+                dynamic_endpoints.append(
+                    {"path": path, "methods": methods_list, "resource_name": resource_name}
+                )
             else:
-                static_endpoints.append({
-                    "path": path,
-                    "methods": methods_list
-                })
-                
-        logger.info(f"Filtro endpoint da inventario completato. Trovati {len(dynamic_endpoints)} endpoint dinamici e {len(static_endpoints)} statici.")
+                static_endpoints.append({"path": path, "methods": methods_list})
+
+        logger.info(
+            f"Filtro endpoint da inventario completato. Trovati {len(dynamic_endpoints)} endpoint dinamici e {len(static_endpoints)} statici."
+        )
         return dynamic_endpoints, static_endpoints
 
-    def run_dast_pipeline(self, api_inventory: List[Dict[str, Any]], output_dir: str = "output", raw_traffic: List[Dict[str, Any]] = None) -> List[Finding]:
+    def run_dast_pipeline(
+        self,
+        api_inventory: list[dict[str, Any]],
+        output_dir: str = "output",
+        raw_traffic: list[dict[str, Any]] | None = None,
+    ) -> list[Finding]:
         """
         Esegue l'intero workflow orchestrato del D-AST: estrazione, provisioning, seeding e attacco differenziale.
 
@@ -482,21 +515,25 @@ class DynamicOrchestrator:
             logger.info("🔍 [Assessment Mode / Traffic Analysis] Esecuzione Ownership Inference...")
             inference_engine = OwnershipInferenceEngine()
             inference_engine.analyze_traffic(raw_traffic)
-            
-            uuid_alice, uuid_bob, uuid_charlie, inferred_roles, inferred_headers = inference_engine.get_inferred_identities()
+
+            uuid_alice, uuid_bob, uuid_charlie, inferred_roles, inferred_headers = (
+                inference_engine.get_inferred_identities()
+            )
             role_map.update(inferred_roles)
             headers_matrix.update(inferred_headers)
-            
+
             # Troviamo ulteriori endpoint con riferimenti a oggetti tramite ObjectReferenceDiscoveryEngine
             if raw_traffic:
-                logger.info("🔍 [Object Reference Discovery] Analisi del traffico alla ricerca di ID nascosti...")
+                logger.info(
+                    "🔍 [Object Reference Discovery] Analisi del traffico alla ricerca di ID nascosti..."
+                )
                 for entry in raw_traffic:
                     refs = ObjectReferenceDiscoveryEngine.extract_references(entry)
                     if refs:
                         path = entry.get("path", "")
                         norm_path = APIEndpointNormalizer.normalize_path(path)
                         method = entry.get("method", "GET").upper()
-                        
+
                         exists = False
                         for ep in dynamic_eps:
                             if ep["path"] == norm_path:
@@ -507,20 +544,22 @@ class DynamicOrchestrator:
                                     ep["discovered_refs"] = []
                                 ep["discovered_refs"].extend(refs)
                                 break
-                        
+
                         if not exists:
                             resource_name = "generic"
                             for ref in refs:
                                 if ref["location"] == "path":
                                     resource_name = ref["name"].replace("_id", "")
                                     break
-                            
-                            dynamic_eps.append({
-                                "path": norm_path,
-                                "methods": [method],
-                                "resource_name": resource_name,
-                                "discovered_refs": refs
-                            })
+
+                            dynamic_eps.append(
+                                {
+                                    "path": norm_path,
+                                    "methods": [method],
+                                    "resource_name": resource_name,
+                                    "discovered_refs": refs,
+                                }
+                            )
 
         # Se non siamo in Assessment Mode o se non siamo riusciti ad estrarre le identità dal traffico, usiamo Keycloak (Lab Mode)
         use_state_management = True
@@ -536,11 +575,17 @@ class DynamicOrchestrator:
             role_map = self.identity_manager.role_map
 
             # In Lab Mode eseguiamo anche il seeding e abilitiamo lo snapshot/rollback dello stato
-            seeding_success = self.seeder.seed_target_application(dynamic_eps, uuid_alice, uuid_bob, uuid_charlie)
+            seeding_success = self.seeder.seed_target_application(
+                dynamic_eps, uuid_alice, uuid_bob, uuid_charlie
+            )
             if not seeding_success:
-                logger.warning("Procedo con il test DAST anche se il seeding dinamico ha rilevato degli avvisi.")
+                logger.warning(
+                    "Procedo con il test DAST anche se il seeding dinamico ha rilevato degli avvisi."
+                )
         else:
-            logger.info("ℹ️ [Assessment Mode] Utilizzo delle identità e relazioni inferte dal traffico. Seeding saltato.")
+            logger.info(
+                "ℹ️ [Assessment Mode] Utilizzo delle identità e relazioni inferte dal traffico. Seeding saltato."
+            )
 
         # 4. Differential Scan & Authorization Testing (Passando gli UUID di contesto)
         self.zap_controller.run_differential_scan(
@@ -552,15 +597,26 @@ class DynamicOrchestrator:
             uuid_charlie=uuid_charlie,
             role_map=role_map,
             output_dir=output_dir,
-            use_state_management=use_state_management
+            use_state_management=use_state_management,
         )
 
-        logger.info("🏆 Pipeline D-AST completata con successo! Generazione dei findings di sbarramento...")
-        
+        logger.info(
+            "🏆 Pipeline D-AST completata con successo! Generazione dei findings di sbarramento..."
+        )
+
         # Generiamo i findings per attestare se gli endpoint sono sicuri o vulnerabili
-        from src.domain.entities import Finding, FindingSource, FindingCategory, Severity, APIContext, RuntimeEvidence, ValidationStatus
+        from src.domain.entities import (
+            APIContext,
+            Finding,
+            FindingCategory,
+            FindingSource,
+            RuntimeEvidence,
+            Severity,
+            ValidationStatus,
+        )
+
         dast_findings = []
-        
+
         for res in self.zap_controller.test_results:
             path = res["path"]
             method = res["method"]
@@ -568,7 +624,7 @@ class DynamicOrchestrator:
             test_name = res["test_name"]
             is_vulnerable = res["is_vulnerable"]
             assertion_details = res["assertion_details"]
-            
+
             # Formattiamo i dettagli delle asserzioni per l'evidenza
             details_str = (
                 f"Asserzioni di Sicurezza BOLA:\n"
@@ -581,13 +637,15 @@ class DynamicOrchestrator:
             evidence = RuntimeEvidence(
                 tested_url=res["url"],
                 http_status=status_code,
-                response_snippet=details_str + f"\n\nPayload di Bob:\n{res['response_text'][:500]}"
+                response_snippet=details_str + f"\n\nPayload di Bob:\n{res['response_text'][:500]}",
             )
-            
+
             if is_vulnerable:
                 finding = Finding.create(
                     source=FindingSource.RUNTIME_VALIDATOR,
-                    category=FindingCategory.AUTHORIZATION if "BOLA" in test_name else FindingCategory.AUTHENTICATION,
+                    category=FindingCategory.AUTHORIZATION
+                    if "BOLA" in test_name
+                    else FindingCategory.AUTHENTICATION,
                     title=f"Vulnerabilità {test_name} confermata a runtime",
                     description=(
                         f"Il test differenziale '{test_name}' per l'endpoint '{path}' ha confermato che l'accesso "
@@ -595,18 +653,22 @@ class DynamicOrchestrator:
                     ),
                     severity=Severity.HIGH,
                     confidence=1.0,
-                    rule_id="dynamic-bola-exploited" if "BOLA" in test_name else "dynamic-broken-auth-exploited",
+                    rule_id="dynamic-bola-exploited"
+                    if "BOLA" in test_name
+                    else "dynamic-broken-auth-exploited",
                     target_identifier=f"{method}:{path}:{test_name}",
                     rule_name=f"Dynamic {test_name} Exploitation Check",
                     api=APIContext(endpoint=path, method=method, requires_authentication=True),
                     runtime_evidence=evidence,
-                    correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}"
+                    correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}",
                 )
                 finding.validation_status = ValidationStatus.CONFIRMED
             else:
                 finding = Finding.create(
                     source=FindingSource.RUNTIME_VALIDATOR,
-                    category=FindingCategory.AUTHORIZATION if "BOLA" in test_name else FindingCategory.AUTHENTICATION,
+                    category=FindingCategory.AUTHORIZATION
+                    if "BOLA" in test_name
+                    else FindingCategory.AUTHENTICATION,
                     title=f"Test {test_name} - Endpoint Sicuro ({status_code})",
                     description=(
                         f"Il test differenziale '{test_name}' ha verificato che l'accesso non autorizzato viene "
@@ -619,12 +681,12 @@ class DynamicOrchestrator:
                     rule_name="Dynamic Differential Authorization Check",
                     api=APIContext(endpoint=path, method=method, requires_authentication=True),
                     runtime_evidence=evidence,
-                    correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}"
+                    correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}",
                 )
                 finding.validation_status = ValidationStatus.CONFIRMED
 
             dast_findings.append(finding)
-                
+
         return dast_findings
 
 
@@ -632,26 +694,22 @@ if __name__ == "__main__":
     # Esempio di esecuzione manuale standalone o caricamento dell'ultimo inventario
     inventory_path = "output/unified_api_inventory.json"
     if os.path.exists(inventory_path):
-        logger.info(f"Caricamento inventario esistente da {inventory_path} per esecuzione standalone...")
-        with open(inventory_path, "r", encoding="utf-8") as f:
+        logger.info(
+            f"Caricamento inventario esistente da {inventory_path} per esecuzione standalone..."
+        )
+        with open(inventory_path, encoding="utf-8") as f:
             api_inv = json.load(f)
     else:
-        logger.info("Nessun inventario trovato. Utilizzo di un inventario mock per test standalone...")
+        logger.info(
+            "Nessun inventario trovato. Utilizzo di un inventario mock per test standalone..."
+        )
         # Generiamo dei mock findings che assomigliano alla struttura reale dei findings della pipeline
         api_inv = [
-            {
-                "api": {"endpoint": "/api/orders/<order_id>", "method": "GET"}
-            },
-            {
-                "api": {"endpoint": "/api/orders/<order_id>", "method": "POST"}
-            },
-            {
-                "api": {"endpoint": "/api/profile", "method": "GET"}
-            },
-            {
-                "api": {"endpoint": "/api/invoices/{invoice_id}", "method": "GET"}
-            }
+            {"api": {"endpoint": "/api/orders/<order_id>", "method": "GET"}},
+            {"api": {"endpoint": "/api/orders/<order_id>", "method": "POST"}},
+            {"api": {"endpoint": "/api/profile", "method": "GET"}},
+            {"api": {"endpoint": "/api/invoices/{invoice_id}", "method": "GET"}},
         ]
-    
+
     orchestrator = DynamicOrchestrator()
     orchestrator.run_dast_pipeline(api_inv)

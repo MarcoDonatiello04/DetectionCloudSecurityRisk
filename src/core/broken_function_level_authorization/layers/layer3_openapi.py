@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional, Dict, List
 
 from src.core.broken_function_level_authorization.models import FunctionAuthzFinding
-from src.core.broken_function_level_authorization.rules.admin_path_exposure import AdminPathExposureRule
-from src.core.broken_function_level_authorization.rules.shadow_admin_function import ShadowAdminFunctionRule
+from src.core.broken_function_level_authorization.rules.admin_path_exposure import (
+    AdminPathExposureRule,
+)
+from src.core.broken_function_level_authorization.rules.shadow_admin_function import (
+    ShadowAdminFunctionRule,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +60,7 @@ def _enrich_spec(
                 "rule_id": f.rule_id,
                 "severity": f.severity,
                 "missing_guard": f.missing_guard,
-                "layer": f.layer
+                "layer": f.layer,
             }
             if f.layer == "ast+openapi":
                 entry["correlation"] = "confirmed_by_ast"
@@ -83,7 +86,7 @@ def analyze_openapi(
     spec: dict,
     ast_findings: list[FunctionAuthzFinding] | None = None,
     discovered_endpoints: list[str] | None = None,
-    enrich_spec: bool = False
+    enrich_spec: bool = False,
 ) -> list[FunctionAuthzFinding]:
     if not isinstance(spec, dict) or not spec:
         return []
@@ -111,10 +114,11 @@ def analyze_openapi(
         logger.warning("BF-006 OpenAPI analysis failed: %s", exc)
 
     from src.core.broken_function_level_authorization.rules.privileged_endpoint_no_role_check import (
-        is_privileged_path, normalize_path
+        is_privileged_path,
+        normalize_path,
     )
     from src.core.broken_function_level_authorization.rules.shadow_admin_function import (
-        is_shadow_path
+        is_shadow_path,
     )
 
     global_security = spec.get("security") or []
@@ -123,8 +127,17 @@ def analyze_openapi(
     for path_str, path_item in paths.items():
         if not isinstance(path_item, dict):
             continue
-        for method in path_item.keys():
-            if method.lower() not in ("get", "post", "put", "delete", "patch", "options", "head", "trace"):
+        for method in path_item:
+            if method.lower() not in (
+                "get",
+                "post",
+                "put",
+                "delete",
+                "patch",
+                "options",
+                "head",
+                "trace",
+            ):
                 continue
 
             if is_privileged_path(path_str, method.upper()):
@@ -141,22 +154,24 @@ def analyze_openapi(
                         has_security = True
 
                 if not has_security:
-                    all_findings.append(FunctionAuthzFinding(
-                        rule_id="BF-001",
-                        cwe_id="CWE-285",
-                        category="privileged_endpoint_no_role_check",
-                        severity="CRITICAL",
-                        file_path="openapi_spec",
-                        line_number=None,
-                        endpoint=f"{method.upper()} {path_str}",
-                        http_methods=[method.upper()],
-                        required_role="admin",
-                        found_guard=None,
-                        missing_guard="No security scheme on privileged endpoint",
-                        evidence=f"{method.upper()} {path_str}",
-                        confidence=0.95,
-                        layer="openapi"
-                    ))
+                    all_findings.append(
+                        FunctionAuthzFinding(
+                            rule_id="BF-001",
+                            cwe_id="CWE-285",
+                            category="privileged_endpoint_no_role_check",
+                            severity="CRITICAL",
+                            file_path="openapi_spec",
+                            line_number=None,
+                            endpoint=f"{method.upper()} {path_str}",
+                            http_methods=[method.upper()],
+                            required_role="admin",
+                            found_guard=None,
+                            missing_guard="No security scheme on privileged endpoint",
+                            evidence=f"{method.upper()} {path_str}",
+                            confidence=0.95,
+                            layer="openapi",
+                        )
+                    )
 
     # Signal 2: HTTP methods not restricted in code (BF-003 correlation)
     if ast_findings is not None:
@@ -164,8 +179,17 @@ def analyze_openapi(
         for path_str, path_item in paths.items():
             if not isinstance(path_item, dict):
                 continue
-            for method in path_item.keys():
-                if method.lower() not in ("get", "post", "put", "delete", "patch", "options", "head", "trace"):
+            for method in path_item:
+                if method.lower() not in (
+                    "get",
+                    "post",
+                    "put",
+                    "delete",
+                    "patch",
+                    "options",
+                    "head",
+                    "trace",
+                ):
                     continue
 
                 matched_ast_finding = None
@@ -176,46 +200,50 @@ def analyze_openapi(
                         break
 
                 if matched_ast_finding is not None:
-                    all_findings.append(FunctionAuthzFinding(
-                        rule_id="BF-003",
-                        cwe_id="CWE-650",
-                        category="http_method_override",
-                        severity="HIGH",
-                        file_path="openapi_spec",
-                        line_number=None,
-                        endpoint=f"{method.upper()} {path_str}",
-                        http_methods=[method.upper()],
-                        required_role="admin",
-                        found_guard=None,
-                        missing_guard="HTTP methods not restricted in code",
-                        evidence=f"Spec defines {method.upper()} {path_str} but code does not restrict methods (confirmed by AST finding)",
-                        confidence=0.90,
-                        layer="ast+openapi"
-                    ))
+                    all_findings.append(
+                        FunctionAuthzFinding(
+                            rule_id="BF-003",
+                            cwe_id="CWE-650",
+                            category="http_method_override",
+                            severity="HIGH",
+                            file_path="openapi_spec",
+                            line_number=None,
+                            endpoint=f"{method.upper()} {path_str}",
+                            http_methods=[method.upper()],
+                            required_role="admin",
+                            found_guard=None,
+                            missing_guard="HTTP methods not restricted in code",
+                            evidence=f"Spec defines {method.upper()} {path_str} but code does not restrict methods (confirmed by AST finding)",
+                            confidence=0.90,
+                            layer="ast+openapi",
+                        )
+                    )
 
     # Signal 3: Shadow endpoint detection (BF-006)
     if discovered_endpoints is not None:
-        spec_paths_normalized = {normalize_path(p) for p in paths.keys()}
+        spec_paths_normalized = {normalize_path(p) for p in paths}
         for discovered_path in discovered_endpoints:
             norm_discovered = normalize_path(discovered_path)
             if norm_discovered not in spec_paths_normalized:
                 if is_shadow_path(discovered_path):
-                    all_findings.append(FunctionAuthzFinding(
-                        rule_id="BF-006",
-                        cwe_id="CWE-285",
-                        category="shadow_admin_function",
-                        severity="HIGH",
-                        file_path="openapi_spec",
-                        line_number=None,
-                        endpoint=f"GET {discovered_path}",
-                        http_methods=["GET"],
-                        required_role="admin",
-                        found_guard=None,
-                        missing_guard="Shadow admin / debug endpoint exposed in production without role check",
-                        evidence=f"endpoint presente nel codice ma assente dalla spec: {discovered_path}",
-                        confidence=0.95,
-                        layer="openapi"
-                    ))
+                    all_findings.append(
+                        FunctionAuthzFinding(
+                            rule_id="BF-006",
+                            cwe_id="CWE-285",
+                            category="shadow_admin_function",
+                            severity="HIGH",
+                            file_path="openapi_spec",
+                            line_number=None,
+                            endpoint=f"GET {discovered_path}",
+                            http_methods=["GET"],
+                            required_role="admin",
+                            found_guard=None,
+                            missing_guard="Shadow admin / debug endpoint exposed in production without role check",
+                            evidence=f"endpoint presente nel codice ma assente dalla spec: {discovered_path}",
+                            confidence=0.95,
+                            layer="openapi",
+                        )
+                    )
 
     if enrich_spec:
         try:

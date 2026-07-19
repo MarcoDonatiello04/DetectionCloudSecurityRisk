@@ -19,7 +19,6 @@ from tree_sitter import Node
 
 from src.core.unrestricted_resource_consumption.models import ResourceConsumptionFinding
 
-
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -41,6 +40,7 @@ LEN_GUARD_KEYWORDS = ("len(", "length", ".size", "count(", "MAX_ITEMS", "max_ite
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _node_text(node: Node) -> str:
     return node.text.decode("utf-8", errors="replace") if node.text else ""
@@ -78,6 +78,7 @@ def _text_contains_len_guard(text: str) -> bool:
 # ---------------------------------------------------------------------------
 # Taint source detection — Python
 # ---------------------------------------------------------------------------
+
 
 def _is_py_request_body_source(node: Node) -> bool:
     """
@@ -144,6 +145,7 @@ def _collect_tainted_vars_python(body: Node) -> set[str]:
 # Python analysis
 # ---------------------------------------------------------------------------
 
+
 def _analyze_python_function(func_node: Node, file_path: str) -> list[ResourceConsumptionFinding]:
     findings: list[ResourceConsumptionFinding] = []
     body = func_node.child_by_field_name("body")
@@ -161,7 +163,9 @@ def _analyze_python_function(func_node: Node, file_path: str) -> list[ResourceCo
         iterable = for_node.child_by_field_name("right")  # Python: 'right' is iterable
         if iterable is None:
             # Try alternate field name
-            children = [c for c in for_node.children if c.type not in ("for", "in", ":", "identifier")]
+            children = [
+                c for c in for_node.children if c.type not in ("for", "in", ":", "identifier")
+            ]
             if len(children) >= 1:
                 iterable = children[-1]
         if iterable is None:
@@ -181,20 +185,22 @@ def _analyze_python_function(func_node: Node, file_path: str) -> list[ResourceCo
         ):
             continue
 
-        findings.append(ResourceConsumptionFinding(
-            rule_id="RC-005",
-            cwe_id="CWE-400",
-            category="loop_on_user_input",
-            severity="HIGH",
-            file_path=file_path,
-            line_number=for_node.start_point[0] + 1,
-            endpoint=None,
-            parameter=iter_name,
-            evidence=_node_text(for_node)[:120],
-            missing_guard="No len() / count check before iterating over user-supplied collection",
-            confidence=0.75,
-            layer="ast",
-        ))
+        findings.append(
+            ResourceConsumptionFinding(
+                rule_id="RC-005",
+                cwe_id="CWE-400",
+                category="loop_on_user_input",
+                severity="HIGH",
+                file_path=file_path,
+                line_number=for_node.start_point[0] + 1,
+                endpoint=None,
+                parameter=iter_name,
+                evidence=_node_text(for_node)[:120],
+                missing_guard="No len() / count check before iterating over user-supplied collection",
+                confidence=0.75,
+                layer="ast",
+            )
+        )
     return findings
 
 
@@ -202,13 +208,12 @@ def _analyze_python_function(func_node: Node, file_path: str) -> list[ResourceCo
 # JavaScript analysis — taint from req.body / req.query
 # ---------------------------------------------------------------------------
 
+
 def _is_js_request_body(node: Node) -> bool:
     chain = _get_attribute_chain(node)
     if not chain:
         return False
-    return (
-        (chain[0] in ("req", "request") and len(chain) >= 2 and chain[1] in ("body", "json"))
-    )
+    return chain[0] in ("req", "request") and len(chain) >= 2 and chain[1] in ("body", "json")
 
 
 def _collect_tainted_vars_js(func_body: Node) -> set[str]:
@@ -242,7 +247,11 @@ def _analyze_js_function(func_node: Node, file_path: str) -> list[ResourceConsum
 
     for for_node in _collect_nodes(body, "for_of_statement"):
         # for (const item of <iterable>)
-        right_children = [c for c in for_node.children if c.type not in ("for", "of", "const", "let", "var", "(", ")", "identifier")]
+        right_children = [
+            c
+            for c in for_node.children
+            if c.type not in ("for", "of", "const", "let", "var", "(", ")", "identifier")
+        ]
         if not right_children:
             continue
         iterable_node = right_children[0]
@@ -252,26 +261,29 @@ def _analyze_js_function(func_node: Node, file_path: str) -> list[ResourceConsum
         pre_loop_text = body_text[: for_node.start_byte - body.start_byte]
         if _text_contains_len_guard(pre_loop_text):
             continue
-        findings.append(ResourceConsumptionFinding(
-            rule_id="RC-005",
-            cwe_id="CWE-400",
-            category="loop_on_user_input",
-            severity="HIGH",
-            file_path=file_path,
-            line_number=for_node.start_point[0] + 1,
-            endpoint=None,
-            parameter=iter_name,
-            evidence=_node_text(for_node)[:120],
-            missing_guard="No .length check before iterating over user-supplied array",
-            confidence=0.75,
-            layer="ast",
-        ))
+        findings.append(
+            ResourceConsumptionFinding(
+                rule_id="RC-005",
+                cwe_id="CWE-400",
+                category="loop_on_user_input",
+                severity="HIGH",
+                file_path=file_path,
+                line_number=for_node.start_point[0] + 1,
+                endpoint=None,
+                parameter=iter_name,
+                evidence=_node_text(for_node)[:120],
+                missing_guard="No .length check before iterating over user-supplied array",
+                confidence=0.75,
+                layer="ast",
+            )
+        )
     return findings
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 class LoopBoundsRule:
     rule_id = "RC-005"

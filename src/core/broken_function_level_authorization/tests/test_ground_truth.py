@@ -1,5 +1,6 @@
 from src.core.broken_function_level_authorization.tests.validate_ground_truth import _run_validation
 
+
 def test_ground_truth_validation():
     res = _run_validation(verbose=True)
     assert res["tpr"] == 100.0

@@ -1,6 +1,7 @@
-import sys
 import argparse
+import sys
 from pathlib import Path
+
 from src.core.unsafe_consumption import detector
 
 GROUND_TRUTH = {
@@ -11,10 +12,9 @@ GROUND_TRUTH = {
             {"rule_id": "UC-003", "must_find": True},
         ]
     },
-    "secure_app": {
-        "expected_findings": []
-    }
+    "secure_app": {"expected_findings": []},
 }
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -71,21 +71,21 @@ def main():
     print("=" * 60)
     print("=== Validation Results ===")
     print(f"TP: {tp_count} | TN: {tn_count} | FP: {fp_count} | FN: {fn_count}")
-    
+
     total_positives = tp_count + fn_count
     tpr = (tp_count / total_positives * 100.0) if total_positives > 0 else 100.0
     fpr = (fp_count / (fp_count + tn_count) * 100.0) if (fp_count + tn_count) > 0 else 0.0
-    
+
     print(f"TPR: {tpr:.1f}% | FPR: {fpr:.1f}%")
     print("\n=== Acceptance Criteria ===")
-    
+
     ok = True
     if tpr >= 80.0:
         print(f"  ✓ TPR >= 80% → {tpr:.1f}%")
     else:
         print(f"  ✗ TPR >= 80% → {tpr:.1f}%")
         ok = False
-        
+
     if fpr == 0.0:
         print(f"  ✓ FPR = 0%  → {fpr:.1f}%")
     else:
@@ -97,6 +97,7 @@ def main():
     else:
         print("\n❌ API10 module NOT READY — gaps remain.\n")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

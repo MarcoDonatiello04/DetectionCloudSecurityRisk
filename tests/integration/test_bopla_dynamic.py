@@ -1,24 +1,31 @@
-import pytest
-import json
 import base64
-from unittest.mock import patch, MagicMock
+import json
+from unittest.mock import MagicMock, patch
 
-from src.core.broken_object_property_level_access.models import PropertyInventory, PropertyEvidence, PropertyAuthorizationGraph
+import pytest
+
 from src.core.broken_object_property_level_access.dynamic_tester import BOPLADynamicTester
+from src.core.broken_object_property_level_access.models import (
+    PropertyAuthorizationGraph,
+    PropertyEvidence,
+    PropertyInventory,
+)
 
 
 @pytest.fixture
 def mock_inventory():
-    return PropertyInventory({
-        "User": {
-            "properties": [
-                {"name": "id", "sources": ["openapi", "ast", "runtime"]},
-                {"name": "email", "sources": ["openapi", "ast"]},
-                {"name": "salary", "sources": ["ast", "runtime"]},
-                {"name": "role", "sources": ["ast"]}
-            ]
+    return PropertyInventory(
+        {
+            "User": {
+                "properties": [
+                    {"name": "id", "sources": ["openapi", "ast", "runtime"]},
+                    {"name": "email", "sources": ["openapi", "ast"]},
+                    {"name": "salary", "sources": ["ast", "runtime"]},
+                    {"name": "role", "sources": ["ast"]},
+                ]
+            }
         }
-    })
+    )
 
 
 @pytest.fixture
@@ -32,7 +39,7 @@ def mock_evidences():
             found_runtime=True,
             read_endpoints=["GET /api/users/{id}"],
             write_endpoints=["PUT /api/users/{id}"],
-            confidence=0.5
+            confidence=0.5,
         ),
         PropertyEvidence(
             object_name="User",
@@ -43,7 +50,7 @@ def mock_evidences():
             read_endpoints=["GET /api/users/{id}"],
             write_endpoints=["PUT /api/users/{id}"],
             authorization_contexts=["if(current_user.is_admin)"],
-            confidence=0.8
+            confidence=0.8,
         ),
         PropertyEvidence(
             object_name="User",
@@ -52,15 +59,18 @@ def mock_evidences():
             found_in_openapi=False,
             read_endpoints=[],
             write_endpoints=["PUT /api/users/{id}"],
-            confidence=0.4
-        )
+            confidence=0.4,
+        ),
     ]
 
 
 @pytest.fixture
 def mock_graph(mock_evidences):
     # Construct graph from evidences
-    from src.core.broken_object_property_level_access.property_inference import PropertyAuthorizationInferenceEngine
+    from src.core.broken_object_property_level_access.property_inference import (
+        PropertyAuthorizationInferenceEngine,
+    )
+
     return PropertyAuthorizationInferenceEngine.build_authorization_graph(mock_evidences)
 
 
@@ -72,15 +82,15 @@ def mock_headers_matrix():
     header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
     payload_a = base64_encode_json({"sub": "user_a_uuid", "roles": ["user"]})
     payload_c = base64_encode_json({"sub": "admin_uuid", "roles": ["admin"]})
-    
+
     token_a = f"{header}.{payload_a}.signature"
     token_c = f"{header}.{payload_c}.signature"
-    
+
     return {
         "userA": {"Authorization": f"Bearer {token_a}"},
         "userB": {"Authorization": "Bearer invalid_token_fallback"},
         "userC": {"Authorization": f"Bearer {token_c}"},
-        "anonymous": {}
+        "anonymous": {},
     }
 
 
@@ -95,7 +105,7 @@ def test_jwt_sub_extraction(mock_headers_matrix):
         inventory=PropertyInventory({}),
         evidences=[],
         graph=PropertyAuthorizationGraph(),
-        headers_matrix=mock_headers_matrix
+        headers_matrix=mock_headers_matrix,
     )
     # Check Alice UUID is extracted
     assert tester.uuid_alice == "user_a_uuid"
@@ -111,14 +121,16 @@ def test_resolve_path(mock_headers_matrix):
         inventory=PropertyInventory({}),
         evidences=[],
         graph=PropertyAuthorizationGraph(),
-        headers_matrix=mock_headers_matrix
+        headers_matrix=mock_headers_matrix,
     )
     assert tester._resolve_path("/api/users/{id}", "123") == "/api/users/123"
     assert tester._resolve_path("/api/orders/<userId>/items", "abc") == "/api/orders/abc/items"
 
 
 @patch("requests.request")
-def test_run_t01_exposure(mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix):
+def test_run_t01_exposure(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
     # Mock GET response containing sensitive property 'salary'
     mock_resp = MagicMock()
     mock_resp.status_code = 200
@@ -131,11 +143,11 @@ def test_run_t01_exposure(mock_req, mock_inventory, mock_evidences, mock_graph, 
         inventory=mock_inventory,
         evidences=mock_evidences,
         graph=mock_graph,
-        headers_matrix=mock_headers_matrix
+        headers_matrix=mock_headers_matrix,
     )
 
     findings = tester.run_t01()
-    
+
     # We expect one finding for 'salary' since it is returned in GET and has confidence >= 0.4
     assert len(findings) >= 1
     salary_finding = next(f for f in findings if f.property_name == "salary")
@@ -145,7 +157,9 @@ def test_run_t01_exposure(mock_req, mock_inventory, mock_evidences, mock_graph, 
 
 
 @patch("requests.request")
-def test_run_t02_unauthorized_modification(mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix):
+def test_run_t02_unauthorized_modification(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
     # Dynamic side_effect function to handle any sequence of calls
     def mock_side_effect(method, url, **kwargs):
         resp = MagicMock()
@@ -157,6 +171,7 @@ def test_run_t02_unauthorized_modification(mock_req, mock_inventory, mock_eviden
             resp.text = '{"status": "success"}'
             resp.json.return_value = {"status": "success"}
         return resp
+
     mock_req.side_effect = mock_side_effect
 
     tester = BOPLADynamicTester(
@@ -164,7 +179,7 @@ def test_run_t02_unauthorized_modification(mock_req, mock_inventory, mock_eviden
         inventory=mock_inventory,
         evidences=mock_evidences,
         graph=mock_graph,
-        headers_matrix=mock_headers_matrix
+        headers_matrix=mock_headers_matrix,
     )
 
     findings = tester.run_t02()
@@ -175,7 +190,9 @@ def test_run_t02_unauthorized_modification(mock_req, mock_inventory, mock_eviden
 
 
 @patch("requests.request")
-def test_run_t03_mass_assignment(mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix):
+def test_run_t03_mass_assignment(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
     # Mock PUT/PATCH accepting modification
     mock_resp = MagicMock()
     mock_resp.status_code = 200
@@ -188,7 +205,7 @@ def test_run_t03_mass_assignment(mock_req, mock_inventory, mock_evidences, mock_
         inventory=mock_inventory,
         evidences=mock_evidences,
         graph=mock_graph,
-        headers_matrix=mock_headers_matrix
+        headers_matrix=mock_headers_matrix,
     )
 
     findings = tester.run_t03()
@@ -199,7 +216,9 @@ def test_run_t03_mass_assignment(mock_req, mock_inventory, mock_evidences, mock_
 
 
 @patch("requests.request")
-def test_run_t04_hidden_injection(mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix):
+def test_run_t04_hidden_injection(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
     # salary is in AST/Runtime but not in OpenAPI (found_in_openapi = False)
     mock_resp = MagicMock()
     mock_resp.status_code = 200
@@ -212,7 +231,7 @@ def test_run_t04_hidden_injection(mock_req, mock_inventory, mock_evidences, mock
         inventory=mock_inventory,
         evidences=mock_evidences,
         graph=mock_graph,
-        headers_matrix=mock_headers_matrix
+        headers_matrix=mock_headers_matrix,
     )
 
     findings = tester.run_t04()
@@ -223,7 +242,9 @@ def test_run_t04_hidden_injection(mock_req, mock_inventory, mock_evidences, mock
 
 
 @patch("requests.request")
-def test_run_t05_read_write_mismatch(mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix):
+def test_run_t05_read_write_mismatch(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
     # role has write_endpoints but empty read_endpoints
     mock_resp = MagicMock()
     mock_resp.status_code = 200
@@ -236,7 +257,7 @@ def test_run_t05_read_write_mismatch(mock_req, mock_inventory, mock_evidences, m
         inventory=mock_inventory,
         evidences=mock_evidences,
         graph=mock_graph,
-        headers_matrix=mock_headers_matrix
+        headers_matrix=mock_headers_matrix,
     )
 
     findings = tester.run_t05()
@@ -247,9 +268,12 @@ def test_run_t05_read_write_mismatch(mock_req, mock_inventory, mock_evidences, m
 
 
 @patch("requests.request")
-def test_run_t06_differential_response(mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix):
+def test_run_t06_differential_response(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
     # Keep track of which call number this is to alternate responses
     calls = []
+
     def mock_side_effect(method, url, **kwargs):
         resp = MagicMock()
         resp.status_code = 200
@@ -263,6 +287,7 @@ def test_run_t06_differential_response(mock_req, mock_inventory, mock_evidences,
             resp.text = '{"id": 42, "email": "alice@test.com", "salary": 12000}'
             resp.json.return_value = {"id": 42, "email": "alice@test.com", "salary": 12000}
         return resp
+
     mock_req.side_effect = mock_side_effect
 
     tester = BOPLADynamicTester(
@@ -270,7 +295,7 @@ def test_run_t06_differential_response(mock_req, mock_inventory, mock_evidences,
         inventory=mock_inventory,
         evidences=mock_evidences,
         graph=mock_graph,
-        headers_matrix=mock_headers_matrix
+        headers_matrix=mock_headers_matrix,
     )
 
     findings = tester.run_t06()
@@ -281,7 +306,9 @@ def test_run_t06_differential_response(mock_req, mock_inventory, mock_evidences,
 
 
 @patch("requests.request")
-def test_run_t07_differential_update(mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix):
+def test_run_t07_differential_update(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
     # Always succeed with 200 to simulate vulnerability
     def mock_side_effect(method, url, **kwargs):
         resp = MagicMock()
@@ -289,6 +316,7 @@ def test_run_t07_differential_update(mock_req, mock_inventory, mock_evidences, m
         resp.text = '{"status": "success"}'
         resp.json.return_value = {"status": "success"}
         return resp
+
     mock_req.side_effect = mock_side_effect
 
     tester = BOPLADynamicTester(
@@ -296,7 +324,7 @@ def test_run_t07_differential_update(mock_req, mock_inventory, mock_evidences, m
         inventory=mock_inventory,
         evidences=mock_evidences,
         graph=mock_graph,
-        headers_matrix=mock_headers_matrix
+        headers_matrix=mock_headers_matrix,
     )
 
     findings = tester.run_t07()

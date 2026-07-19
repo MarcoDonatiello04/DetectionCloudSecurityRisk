@@ -15,8 +15,6 @@ Supports:
 
 from __future__ import annotations
 
-from typing import Optional
-
 from tree_sitter import Node
 
 from src.core.unrestricted_resource_consumption.models import ResourceConsumptionFinding
@@ -47,6 +45,7 @@ REQUEST_ARG_ATTRS = {
 # ---------------------------------------------------------------------------
 # Helpers — AST traversal
 # ---------------------------------------------------------------------------
+
 
 def _node_text(node: Node) -> str:
     return node.text.decode("utf-8", errors="replace") if node.text else ""
@@ -83,7 +82,7 @@ def _get_attribute_chain(node: Node) -> list[str]:
     return []
 
 
-def _is_request_param_source(call_node: Node) -> Optional[str]:
+def _is_request_param_source(call_node: Node) -> str | None:
     """
     Returns the string key of the parameter if this call is a request-param
     extraction (e.g. request.args.get('limit')), else None.
@@ -169,7 +168,7 @@ def _body_has_capping_guard(body: Node, var_name: str) -> bool:
     return False
 
 
-def _body_uses_var_in_orm(body: Node, var_name: str) -> Optional[Node]:
+def _body_uses_var_in_orm(body: Node, var_name: str) -> Node | None:
     """
     Returns the call node where var_name is passed to an ORM limit method.
     """
@@ -201,6 +200,7 @@ def _body_uses_var_in_orm(body: Node, var_name: str) -> Optional[Node]:
 # Python analysis
 # ---------------------------------------------------------------------------
 
+
 def _analyze_python_function(func_node: Node, file_path: str) -> list[ResourceConsumptionFinding]:
     findings: list[ResourceConsumptionFinding] = []
     body = func_node.child_by_field_name("body")
@@ -220,20 +220,22 @@ def _analyze_python_function(func_node: Node, file_path: str) -> list[ResourceCo
                     continue
                 is_query, has_le = _is_fastapi_query_with_le(param)
                 if is_query and not has_le:
-                    findings.append(ResourceConsumptionFinding(
-                        rule_id="RC-001",
-                        cwe_id="CWE-400",
-                        category="unbounded_pagination",
-                        severity="HIGH",
-                        file_path=file_path,
-                        line_number=param.start_point[0] + 1,
-                        endpoint=None,
-                        parameter=param_name,
-                        evidence=_node_text(param)[:120],
-                        missing_guard="FastAPI Query() missing le= (upper-bound) constraint",
-                        confidence=0.9,
-                        layer="ast",
-                    ))
+                    findings.append(
+                        ResourceConsumptionFinding(
+                            rule_id="RC-001",
+                            cwe_id="CWE-400",
+                            category="unbounded_pagination",
+                            severity="HIGH",
+                            file_path=file_path,
+                            line_number=param.start_point[0] + 1,
+                            endpoint=None,
+                            parameter=param_name,
+                            evidence=_node_text(param)[:120],
+                            missing_guard="FastAPI Query() missing le= (upper-bound) constraint",
+                            confidence=0.9,
+                            layer="ast",
+                        )
+                    )
 
     # --- Assignment-based taint: limit = request.args.get('limit') ---
     assignments = _collect_nodes(body, "assignment")
@@ -269,41 +271,46 @@ def _analyze_python_function(func_node: Node, file_path: str) -> list[ResourceCo
         if orm_call is None:
             # Still flag — the parameter is unbounded even if ORM call not found yet
             # but lower confidence
-            findings.append(ResourceConsumptionFinding(
-                rule_id="RC-001",
-                cwe_id="CWE-400",
-                category="unbounded_pagination",
-                severity="MEDIUM",
-                file_path=file_path,
-                line_number=assign.start_point[0] + 1,
-                endpoint=None,
-                parameter=var_name,
-                evidence=_node_text(assign)[:120],
-                missing_guard="No upper-bound cap (min/max/if-check) on pagination parameter",
-                confidence=0.6,
-                layer="ast",
-            ))
+            findings.append(
+                ResourceConsumptionFinding(
+                    rule_id="RC-001",
+                    cwe_id="CWE-400",
+                    category="unbounded_pagination",
+                    severity="MEDIUM",
+                    file_path=file_path,
+                    line_number=assign.start_point[0] + 1,
+                    endpoint=None,
+                    parameter=var_name,
+                    evidence=_node_text(assign)[:120],
+                    missing_guard="No upper-bound cap (min/max/if-check) on pagination parameter",
+                    confidence=0.6,
+                    layer="ast",
+                )
+            )
         else:
-            findings.append(ResourceConsumptionFinding(
-                rule_id="RC-001",
-                cwe_id="CWE-400",
-                category="unbounded_pagination",
-                severity="HIGH",
-                file_path=file_path,
-                line_number=assign.start_point[0] + 1,
-                endpoint=None,
-                parameter=var_name,
-                evidence=_node_text(assign)[:120],
-                missing_guard="No upper-bound cap (min/max/if-check) before ORM/query usage",
-                confidence=0.85,
-                layer="ast",
-            ))
+            findings.append(
+                ResourceConsumptionFinding(
+                    rule_id="RC-001",
+                    cwe_id="CWE-400",
+                    category="unbounded_pagination",
+                    severity="HIGH",
+                    file_path=file_path,
+                    line_number=assign.start_point[0] + 1,
+                    endpoint=None,
+                    parameter=var_name,
+                    evidence=_node_text(assign)[:120],
+                    missing_guard="No upper-bound cap (min/max/if-check) before ORM/query usage",
+                    confidence=0.85,
+                    layer="ast",
+                )
+            )
     return findings
 
 
 # ---------------------------------------------------------------------------
 # JavaScript / TypeScript analysis
 # ---------------------------------------------------------------------------
+
 
 def _analyze_js_function(func_node: Node, file_path: str) -> list[ResourceConsumptionFinding]:
     """Detect req.query.limit → .limit(limit) without Math.min guard."""
@@ -327,26 +334,29 @@ def _analyze_js_function(func_node: Node, file_path: str) -> list[ResourceConsum
         if len(chain) >= 2 and chain[-2].lower() in ("query", "params"):
             # Tainted. Check for Math.min guard
             if not _body_has_capping_guard(body, var_name):
-                findings.append(ResourceConsumptionFinding(
-                    rule_id="RC-001",
-                    cwe_id="CWE-400",
-                    category="unbounded_pagination",
-                    severity="HIGH",
-                    file_path=file_path,
-                    line_number=decl.start_point[0] + 1,
-                    endpoint=None,
-                    parameter=var_name,
-                    evidence=_node_text(decl)[:120],
-                    missing_guard="No Math.min/max cap on pagination query parameter",
-                    confidence=0.8,
-                    layer="ast",
-                ))
+                findings.append(
+                    ResourceConsumptionFinding(
+                        rule_id="RC-001",
+                        cwe_id="CWE-400",
+                        category="unbounded_pagination",
+                        severity="HIGH",
+                        file_path=file_path,
+                        line_number=decl.start_point[0] + 1,
+                        endpoint=None,
+                        parameter=var_name,
+                        evidence=_node_text(decl)[:120],
+                        missing_guard="No Math.min/max cap on pagination query parameter",
+                        confidence=0.8,
+                        layer="ast",
+                    )
+                )
     return findings
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 class PaginationRule:
     rule_id = "RC-001"

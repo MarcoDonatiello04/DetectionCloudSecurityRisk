@@ -1,9 +1,10 @@
 import ast
 from pathlib import Path
-from typing import List
+
 from src.core.security_misconfiguration.models import MisconfigFinding
 
-def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[MisconfigFinding]:
+
+def analyze(tree: ast.AST | None, file_path: Path, content: str) -> list[MisconfigFinding]:
     findings = []
     if tree is None:
         return findings
@@ -23,32 +24,34 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
 
             if is_errorhandler and node.args.args:
                 exc_var_name = node.args.args[0].arg
-                
+
                 body_visitor = VerboseBodyVisitor(exc_var_name)
                 body_visitor.visit(node)
-                
+
                 if body_visitor.leaks:
                     body_visitor.leaks.sort(key=lambda x: x[0])
-                    priority, leak_line, leak_node = body_visitor.leaks[0]
-                    
+                    _priority, leak_line, _leak_node = body_visitor.leaks[0]
+
                     content_lines = content.splitlines()
                     if 1 <= leak_line <= len(content_lines):
                         evidence = content_lines[leak_line - 1].strip()
                     else:
                         evidence = f"def {node.name}({exc_var_name}):"
-                        
-                    self.findings.append(MisconfigFinding(
-                        rule_id="SC-003",
-                        cwe_id="CWE-209",
-                        category="verbose_error_handler",
-                        severity="HIGH",
-                        file_path=str(file_path),
-                        line_number=leak_line,
-                        evidence=evidence,
-                        missing_guard="Sanitize error messages before returning to user",
-                        confidence=0.90,
-                        layer="ast"
-                    ))
+
+                    self.findings.append(
+                        MisconfigFinding(
+                            rule_id="SC-003",
+                            cwe_id="CWE-209",
+                            category="verbose_error_handler",
+                            severity="HIGH",
+                            file_path=str(file_path),
+                            line_number=leak_line,
+                            evidence=evidence,
+                            missing_guard="Sanitize error messages before returning to user",
+                            confidence=0.90,
+                            layer="ast",
+                        )
+                    )
             self.generic_visit(node)
 
     class VerboseBodyVisitor(ast.NodeVisitor):
@@ -61,14 +64,28 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
                 if node.func.attr in ("format_exc", "print_exc"):
                     if isinstance(node.func.value, ast.Name) and node.func.value.id == "traceback":
                         self.leaks.append((1, node.lineno, node))
-            
-            if isinstance(node.func, ast.Name) and node.func.id == "repr":
-                if node.args and isinstance(node.args[0], ast.Name) and node.args[0].id == self.exc_var:
-                    self.leaks.append((2, node.lineno, node))
 
-            if isinstance(node.func, ast.Name) and node.func.id == "str":
-                if node.args and isinstance(node.args[0], ast.Name) and node.args[0].id == self.exc_var:
-                    self.leaks.append((3, node.lineno, node))
+            if (
+                isinstance(node.func, ast.Name)
+                and node.func.id == "repr"
+                and (
+                    node.args
+                    and isinstance(node.args[0], ast.Name)
+                    and node.args[0].id == self.exc_var
+                )
+            ):
+                self.leaks.append((2, node.lineno, node))
+
+            if (
+                isinstance(node.func, ast.Name)
+                and node.func.id == "str"
+                and (
+                    node.args
+                    and isinstance(node.args[0], ast.Name)
+                    and node.args[0].id == self.exc_var
+                )
+            ):
+                self.leaks.append((3, node.lineno, node))
 
             self.generic_visit(node)
 

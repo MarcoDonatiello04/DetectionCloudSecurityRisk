@@ -1,20 +1,20 @@
 import ast
 from pathlib import Path
-from typing import List
+
 from src.core.unsafe_consumption.models import UnsafeConsumptionFinding
 
 EXCLUDED_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0"}
 EXCLUDED_VAR_KEYWORDS = {"test", "mock", "fake", "stub"}
 
+
 def is_vulnerable_http_url(url: str) -> bool:
     if not url.startswith("http://"):
         return False
     host = url[7:].split("/", 1)[0].split(":", 1)[0]
-    if host.lower() in EXCLUDED_HOSTS:
-        return False
-    return True
+    return host.lower() not in EXCLUDED_HOSTS
 
-def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[UnsafeConsumptionFinding]:
+
+def analyze(tree: ast.AST | None, file_path: Path, content: str) -> list[UnsafeConsumptionFinding]:
     findings = []
     if tree is None:
         return findings
@@ -38,19 +38,21 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[UnsafeC
                     if isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
                         val = node.value.value
                         if is_vulnerable_http_url(val):
-                            self.http_vars[target.id] = {
-                                "url": val,
-                                "lineno": node.lineno
-                            }
+                            self.http_vars[target.id] = {"url": val, "lineno": node.lineno}
             self.generic_visit(node)
 
         def visit_Call(self, node: ast.Call):
             is_http_client_call = False
             url_val = None
 
-            if isinstance(node.func, ast.Attribute) and node.func.attr in ("get", "post", "put", "patch", "delete", "request", "urlopen", "urlretrieve"):
-                is_http_client_call = True
-            elif isinstance(node.func, ast.Name) and node.func.id in ("fetch", "urlopen", "urlretrieve"):
+            if (
+                isinstance(node.func, ast.Attribute)
+                and node.func.attr
+                in ("get", "post", "put", "patch", "delete", "request", "urlopen", "urlretrieve")
+            ) or (
+                isinstance(node.func, ast.Name)
+                and node.func.id in ("fetch", "urlopen", "urlretrieve")
+            ):
                 is_http_client_call = True
 
             if is_http_client_call and node.args:
@@ -67,20 +69,24 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[UnsafeC
                                 url_val = self.http_vars[val.value.id]["url"]
 
             if url_val:
-                evidence_line = ast.get_source_segment(content, node) or f"requests.get('{url_val}')"
-                self.findings.append(UnsafeConsumptionFinding(
-                    rule_id="UC-002",
-                    cwe_id="CWE-319",
-                    category="http_instead_of_https",
-                    severity="HIGH",
-                    file_path=str(file_path),
-                    line_number=node.lineno,
-                    third_party_url=url_val,
-                    evidence=evidence_line.strip().splitlines()[0],
-                    missing_guard="Use HTTPS: replace http:// with https://",
-                    confidence=0.95,
-                    layer="ast"
-                ))
+                evidence_line = (
+                    ast.get_source_segment(content, node) or f"requests.get('{url_val}')"
+                )
+                self.findings.append(
+                    UnsafeConsumptionFinding(
+                        rule_id="UC-002",
+                        cwe_id="CWE-319",
+                        category="http_instead_of_https",
+                        severity="HIGH",
+                        file_path=str(file_path),
+                        line_number=node.lineno,
+                        third_party_url=url_val,
+                        evidence=evidence_line.strip().splitlines()[0],
+                        missing_guard="Use HTTPS: replace http:// with https://",
+                        confidence=0.95,
+                        layer="ast",
+                    )
+                )
             self.generic_visit(node)
 
     visitor = UC002Visitor()

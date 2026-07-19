@@ -3,17 +3,27 @@ from __future__ import annotations
 import logging
 import re
 from pathlib import Path
-from typing import Callable, Optional
 
 from src.core.broken_function_level_authorization.models import FunctionAuthzFinding
-from src.core.broken_function_level_authorization.rules.missing_deny_by_default import MissingDenyByDefaultRule
+from src.core.broken_function_level_authorization.rules.missing_deny_by_default import (
+    MissingDenyByDefaultRule,
+)
 
 logger = logging.getLogger(__name__)
 
 SKIP_DIRS = {
-    ".git", ".venv", "venv", "node_modules", "__pycache__",
-    ".pytest_cache", "dist", "build", ".mypy_cache", ".tox",
-    "site-packages", "egg-info",
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "__pycache__",
+    ".pytest_cache",
+    "dist",
+    "build",
+    ".mypy_cache",
+    ".tox",
+    "site-packages",
+    "egg-info",
 }
 
 
@@ -31,7 +41,6 @@ def discover_config_files(target_path: str) -> list[Path]:
         r"application\.yml|application\.yaml|security\.config|security\-config\.xml|"
         r"app\.py|main\.py|app\.js|server\.js|index\.js)$"
     )
-
 
     result: list[Path] = []
 

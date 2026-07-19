@@ -1,16 +1,15 @@
-import pytest
-import jwt
-from src.core.object_level_authorization.discovery.ownership_inference import OwnershipInferenceEngine
+from src.core.object_level_authorization.discovery.ownership_inference import (
+    OwnershipInferenceEngine,
+)
+
 
 def test_ownership_inference_flow():
     # Helper to generate a token with a specific sub
     def make_token(sub, username, role):
-        payload = {
-            "sub": sub,
-            "preferred_username": username,
-            "roles": [role]
-        }
-        import base64, json
+        payload = {"sub": sub, "preferred_username": username, "roles": [role]}
+        import base64
+        import json
+
         h_b64 = base64.urlsafe_b64encode(b'{"alg":"HS256"}').decode().rstrip("=")
         p_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
         return f"{h_b64}.{p_b64}.mock"
@@ -25,29 +24,29 @@ def test_ownership_inference_flow():
             "method": "GET",
             "path": "/api/orders/500",
             "status": 200,
-            "auth_header": f"Bearer {token_alice}"
+            "auth_header": f"Bearer {token_alice}",
         },
         # Bob accesses his order 600
         {
             "method": "GET",
             "path": "/api/orders/600",
             "status": 200,
-            "auth_header": f"Bearer {token_bob}"
+            "auth_header": f"Bearer {token_bob}",
         },
         # Charlie (admin) accesses an invoice 900
         {
             "method": "GET",
             "path": "/api/invoices/900",
             "status": 200,
-            "auth_header": f"Bearer {token_charlie}"
+            "auth_header": f"Bearer {token_charlie}",
         },
         # A failed request (should not infer anything)
         {
             "method": "GET",
             "path": "/api/orders/999",
             "status": 403,
-            "auth_header": f"Bearer {token_alice}"
-        }
+            "auth_header": f"Bearer {token_alice}",
+        },
     ]
 
     engine = OwnershipInferenceEngine()
@@ -66,7 +65,7 @@ def test_ownership_inference_flow():
 
     # Get inferred identities for the test scenarios
     uuid_alice, uuid_bob, uuid_charlie, role_map, headers_matrix = engine.get_inferred_identities()
-    
+
     assert uuid_alice == "alice-uuid"
     assert uuid_bob == "bob-uuid"
     assert uuid_charlie == "admin-uuid"

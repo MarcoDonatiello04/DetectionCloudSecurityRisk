@@ -1,7 +1,8 @@
-import os
 import json
 import logging
-from typing import List, Dict, Any
+import os
+from typing import Any
+
 from src.domain.entities import Finding
 
 logger = logging.getLogger("SecurityPlatform.ReportRepository")
@@ -23,7 +24,7 @@ class ReportRepository:
         self.output_dir = os.path.abspath(output_dir)
         os.makedirs(self.output_dir, exist_ok=True)
 
-    def save_findings(self, findings: List[Finding], filename: str = "findings_report.json") -> str:
+    def save_findings(self, findings: list[Finding], filename: str = "findings_report.json") -> str:
         """
         Salva una lista di Finding in un file JSON. Ritorna il path assoluto.
 
@@ -42,10 +43,14 @@ class ReportRepository:
             logger.info(f"💾 Report dei Findings salvato con successo in: {filepath}")
             return filepath
         except Exception as e:
-            logger.error(f"Errore durante il salvataggio dei findings in {filepath}: {e}", exc_info=True)
+            logger.error(
+                f"Errore durante il salvataggio dei findings in {filepath}: {e}", exc_info=True
+            )
             return ""
 
-    def save_inventory(self, inventory: List[Dict[str, Any]], filename: str = "unified_api_inventory.json") -> str:
+    def save_inventory(
+        self, inventory: list[dict[str, Any]], filename: str = "unified_api_inventory.json"
+    ) -> str:
         """
         Salva l'inventario API unificato in formato JSON.
 
@@ -63,5 +68,7 @@ class ReportRepository:
             logger.info(f"💾 Inventario API salvato con successo in: {filepath}")
             return filepath
         except Exception as e:
-            logger.error(f"Errore durante il salvataggio dell'inventario in {filepath}: {e}", exc_info=True)
+            logger.error(
+                f"Errore durante il salvataggio dell'inventario in {filepath}: {e}", exc_info=True
+            )
             return ""

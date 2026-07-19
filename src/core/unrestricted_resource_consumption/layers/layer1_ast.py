@@ -10,22 +10,19 @@ Entry point: analyze_ast(target_path) -> list[ResourceConsumptionFinding]
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
-from typing import Optional
 
+import tree_sitter_javascript as tsjavascript
+import tree_sitter_python as tspython
 from tree_sitter import Language, Parser
 
-import tree_sitter_python as tspython
-import tree_sitter_javascript as tsjavascript
-
 from src.core.unrestricted_resource_consumption.models import ResourceConsumptionFinding
-from src.core.unrestricted_resource_consumption.rules.pagination import PaginationRule
-from src.core.unrestricted_resource_consumption.rules.upload import UploadRule
-from src.core.unrestricted_resource_consumption.rules.timeout import TimeoutRule
 from src.core.unrestricted_resource_consumption.rules.graphql_batching import GraphQLBatchingRule
 from src.core.unrestricted_resource_consumption.rules.loop_bounds import LoopBoundsRule
+from src.core.unrestricted_resource_consumption.rules.pagination import PaginationRule
 from src.core.unrestricted_resource_consumption.rules.third_party_cost import ThirdPartyCostRule
+from src.core.unrestricted_resource_consumption.rules.timeout import TimeoutRule
+from src.core.unrestricted_resource_consumption.rules.upload import UploadRule
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +30,11 @@ logger = logging.getLogger(__name__)
 # Language setup (lazy, module-level singletons)
 # ---------------------------------------------------------------------------
 
-_PY_LANGUAGE: Optional[Language] = None
-_JS_LANGUAGE: Optional[Language] = None
+_PY_LANGUAGE: Language | None = None
+_JS_LANGUAGE: Language | None = None
 
 
-def _get_python_language() -> Optional[Language]:
+def _get_python_language() -> Language | None:
     global _PY_LANGUAGE
     if _PY_LANGUAGE is None:
         try:
@@ -47,7 +44,7 @@ def _get_python_language() -> Optional[Language]:
     return _PY_LANGUAGE
 
 
-def _get_javascript_language() -> Optional[Language]:
+def _get_javascript_language() -> Language | None:
     global _JS_LANGUAGE
     if _JS_LANGUAGE is None:
         try:
@@ -70,9 +67,18 @@ MAX_FILE_SIZE = 1 * 1024 * 1024  # 1 MB
 
 # Directories to skip
 SKIP_DIRS = {
-    ".git", ".venv", "venv", "node_modules", "__pycache__",
-    ".pytest_cache", "dist", "build", ".mypy_cache", ".tox",
-    "site-packages", "egg-info",
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "__pycache__",
+    ".pytest_cache",
+    "dist",
+    "build",
+    ".mypy_cache",
+    ".tox",
+    "site-packages",
+    "egg-info",
 }
 
 
@@ -102,6 +108,7 @@ _JS_RULES = [
 # ---------------------------------------------------------------------------
 # Core analysis
 # ---------------------------------------------------------------------------
+
 
 def _analyze_file(file_path: Path) -> list[ResourceConsumptionFinding]:
     """
@@ -207,13 +214,19 @@ _SEVERITY_ORDER = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
 def _sort_findings(findings: list[ResourceConsumptionFinding]) -> list[ResourceConsumptionFinding]:
     return sorted(
         findings,
-        key=lambda f: (_SEVERITY_ORDER.get(f.severity, 9), -f.confidence, f.file_path, f.line_number or 0),
+        key=lambda f: (
+            _SEVERITY_ORDER.get(f.severity, 9),
+            -f.confidence,
+            f.file_path,
+            f.line_number or 0,
+        ),
     )
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def analyze_ast(target_path: str) -> list[ResourceConsumptionFinding]:
     """

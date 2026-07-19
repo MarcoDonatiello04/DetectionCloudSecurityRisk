@@ -1,41 +1,41 @@
 import ast
 import logging
+from collections.abc import Generator
 from pathlib import Path
-from typing import List, Optional, Generator
 
-from .models import UnsafeConsumptionReport, UnsafeConsumptionFinding
-from .rules import (
-    unvalidated_external_data, http_instead_of_https, blind_redirect_following
-)
+from .models import UnsafeConsumptionFinding, UnsafeConsumptionReport
+from .rules import blind_redirect_following, http_instead_of_https, unvalidated_external_data
 
 logger = logging.getLogger(__name__)
 
+
 def analyze(target_path: str) -> UnsafeConsumptionReport:
-    findings: List[UnsafeConsumptionFinding] = []
-    
+    findings: list[UnsafeConsumptionFinding] = []
+
     for file_path in _walk_source_files(target_path):
         try:
-            content = file_path.read_text(errors='replace')
+            content = file_path.read_text(errors="replace")
         except Exception as e:
             logger.warning(f"Failed to read file {file_path}: {e}")
             continue
-            
+
         tree = _parse(file_path, content)
         if tree is None:
             continue
-        
+
         findings.extend(unvalidated_external_data.analyze(tree, file_path, content))
         findings.extend(http_instead_of_https.analyze(tree, file_path, content))
         findings.extend(blind_redirect_following.analyze(tree, file_path, content))
-    
+
     findings = [f for f in findings if f.confidence >= 0.70]
-    
+
     return UnsafeConsumptionReport(
         target_path=target_path,
         findings=findings,
         coverage_signals=_build_coverage_signals(findings),
-        summary=_build_summary(findings)
+        summary=_build_summary(findings),
     )
+
 
 def _walk_source_files(target_path: str) -> Generator[Path, None, None]:
     path = Path(target_path)
@@ -43,15 +43,25 @@ def _walk_source_files(target_path: str) -> Generator[Path, None, None]:
         if path.suffix == ".py":
             yield path
         return
-        
-    skip_dirs = {".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", "dist", "build"}
+
+    skip_dirs = {
+        ".git",
+        ".venv",
+        "venv",
+        "node_modules",
+        "__pycache__",
+        ".pytest_cache",
+        "dist",
+        "build",
+    }
     for p in path.rglob("*"):
         if any(part in skip_dirs for part in p.parts):
             continue
         if p.is_file() and p.suffix == ".py":
             yield p
 
-def _parse(file_path: Path, content: str) -> Optional[ast.AST]:
+
+def _parse(file_path: Path, content: str) -> ast.AST | None:
     if file_path.suffix != ".py":
         return None
     try:
@@ -60,13 +70,15 @@ def _parse(file_path: Path, content: str) -> Optional[ast.AST]:
         logger.warning(f"Failed to parse AST for {file_path}: {e}")
         return None
 
-def _build_coverage_signals(findings: List[UnsafeConsumptionFinding]) -> dict:
+
+def _build_coverage_signals(findings: list[UnsafeConsumptionFinding]) -> dict:
     return {
         rule_id: any(f.rule_id == rule_id for f in findings)
         for rule_id in ["UC-001", "UC-002", "UC-003"]
     }
 
-def _build_summary(findings: List[UnsafeConsumptionFinding]) -> dict:
+
+def _build_summary(findings: list[UnsafeConsumptionFinding]) -> dict:
     return {
         "total": len(findings),
         "by_severity": {
@@ -75,6 +87,6 @@ def _build_summary(findings: List[UnsafeConsumptionFinding]) -> dict:
         },
         "by_category": {
             cat: len([f for f in findings if f.category == cat])
-            for cat in set(f.category for f in findings)
-        }
+            for cat in {f.category for f in findings}
+        },
     }

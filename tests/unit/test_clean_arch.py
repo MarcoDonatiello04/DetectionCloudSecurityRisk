@@ -1,7 +1,6 @@
-import pytest
-from src.domain.entities import Finding, FindingSource, FindingCategory, Severity, ValidationStatus
-from src.application.event_bus import EventBus
 from src.application.correlation.engine import RiskCorrelationEngine
+from src.application.event_bus import EventBus
+from src.domain.entities import Finding, FindingCategory, FindingSource, Severity, ValidationStatus
 from src.normalization.normalizer import APIEndpointNormalizer
 
 
@@ -23,7 +22,9 @@ def test_event_bus_pub_sub():
 def test_api_endpoint_normalization():
     normalizer = APIEndpointNormalizer()
     assert normalizer.normalize_path("/api/v1/users/123/profile") == "/api/v1/users/{id}/profile"
-    assert normalizer.normalize_path("/orders/550e8400-e29b-41d4-a716-446655440000") == "/orders/{id}"
+    assert (
+        normalizer.normalize_path("/orders/550e8400-e29b-41d4-a716-446655440000") == "/orders/{id}"
+    )
 
 
 def test_risk_correlation():
@@ -39,7 +40,7 @@ def test_risk_correlation():
         confidence=0.7,
         rule_id="bola-route-static-check",
         target_identifier="/users/{id}",
-        correlation_key="api:GET:/users/{id}"
+        correlation_key="api:GET:/users/{id}",
     )
 
     # Finding runtime (active test finding)
@@ -52,7 +53,7 @@ def test_risk_correlation():
         confidence=1.0,
         rule_id="bola-exploit-confirmed",
         target_identifier="GET:/users/123",
-        correlation_key="api:GET:/users/{id}"
+        correlation_key="api:GET:/users/{id}",
     )
 
     correlated = engine.correlate([static_finding], [runtime_finding])

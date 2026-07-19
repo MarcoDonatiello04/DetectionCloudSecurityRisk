@@ -1,5 +1,5 @@
-from pathlib import Path
 from src.core.security_misconfiguration.rules.missing_security_headers import analyze_global
+
 
 def test_security_headers_signals(tmp_path):
     # Test directory with no security headers -> should produce finding

@@ -1,9 +1,10 @@
 import ast
 from pathlib import Path
-from typing import List
+
 from src.core.security_misconfiguration.models import MisconfigFinding
 
-def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[MisconfigFinding]:
+
+def analyze(tree: ast.AST | None, file_path: Path, content: str) -> list[MisconfigFinding]:
     findings = []
     if tree is None:
         return findings
@@ -16,7 +17,7 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
             is_app_run = False
             if isinstance(node.func, ast.Attribute) and node.func.attr == "run":
                 is_app_run = True
-            
+
             is_uvicorn_run = False
             if isinstance(node.func, ast.Attribute) and node.func.attr == "run":
                 if isinstance(node.func.value, ast.Name) and node.func.value.id == "uvicorn":
@@ -28,37 +29,46 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
                 for keyword in node.keywords:
                     if keyword.arg == "debug":
                         if isinstance(keyword.value, ast.Constant) and keyword.value.value is True:
-                            evidence_line = ast.get_source_segment(content, node) or "app.run(debug=True)"
-                            self.findings.append(MisconfigFinding(
-                                rule_id="SC-002",
-                                cwe_id="CWE-94",
-                                category="debug_mode_enabled",
-                                severity="HIGH",
-                                file_path=str(file_path),
-                                line_number=node.lineno,
-                                evidence=evidence_line.strip().splitlines()[0],
-                                missing_guard="Replace literal True with os.environ.get('DEBUG', 'false').lower() == 'true'",
-                                confidence=0.95,
-                                layer="ast"
-                            ))
+                            evidence_line = (
+                                ast.get_source_segment(content, node) or "app.run(debug=True)"
+                            )
+                            self.findings.append(
+                                MisconfigFinding(
+                                    rule_id="SC-002",
+                                    cwe_id="CWE-94",
+                                    category="debug_mode_enabled",
+                                    severity="HIGH",
+                                    file_path=str(file_path),
+                                    line_number=node.lineno,
+                                    evidence=evidence_line.strip().splitlines()[0],
+                                    missing_guard="Replace literal True with os.environ.get('DEBUG', 'false').lower() == 'true'",
+                                    confidence=0.95,
+                                    layer="ast",
+                                )
+                            )
 
             if is_uvicorn_run:
                 for keyword in node.keywords:
                     if keyword.arg in ("debug", "reload"):
                         if isinstance(keyword.value, ast.Constant) and keyword.value.value is True:
-                            evidence_line = ast.get_source_segment(content, node) or f"uvicorn.run(..., {keyword.arg}=True)"
-                            self.findings.append(MisconfigFinding(
-                                rule_id="SC-002",
-                                cwe_id="CWE-94",
-                                category="debug_mode_enabled",
-                                severity="HIGH",
-                                file_path=str(file_path),
-                                line_number=node.lineno,
-                                evidence=evidence_line.strip().splitlines()[0],
-                                missing_guard="Replace literal True with os.environ.get('DEBUG', 'false').lower() == 'true'",
-                                confidence=0.95,
-                                layer="ast"
-                            ))
+                            evidence_line = (
+                                ast.get_source_segment(content, node)
+                                or f"uvicorn.run(..., {keyword.arg}=True)"
+                            )
+                            self.findings.append(
+                                MisconfigFinding(
+                                    rule_id="SC-002",
+                                    cwe_id="CWE-94",
+                                    category="debug_mode_enabled",
+                                    severity="HIGH",
+                                    file_path=str(file_path),
+                                    line_number=node.lineno,
+                                    evidence=evidence_line.strip().splitlines()[0],
+                                    missing_guard="Replace literal True with os.environ.get('DEBUG', 'false').lower() == 'true'",
+                                    confidence=0.95,
+                                    layer="ast",
+                                )
+                            )
             self.generic_visit(node)
 
         def visit_Assign(self, node: ast.Assign):
@@ -67,18 +77,20 @@ def analyze(tree: ast.AST | None, file_path: Path, content: str) -> List[Misconf
                     if isinstance(target, ast.Name) and target.id == "DEBUG":
                         if isinstance(node.value, ast.Constant) and node.value.value is True:
                             evidence_line = ast.get_source_segment(content, node) or "DEBUG = True"
-                            self.findings.append(MisconfigFinding(
-                                rule_id="SC-002",
-                                cwe_id="CWE-94",
-                                category="debug_mode_enabled",
-                                severity="HIGH",
-                                file_path=str(file_path),
-                                line_number=node.lineno,
-                                evidence=evidence_line.strip(),
-                                missing_guard="Replace literal True with os.environ.get('DEBUG', 'false').lower() == 'true'",
-                                confidence=0.95,
-                                layer="ast"
-                            ))
+                            self.findings.append(
+                                MisconfigFinding(
+                                    rule_id="SC-002",
+                                    cwe_id="CWE-94",
+                                    category="debug_mode_enabled",
+                                    severity="HIGH",
+                                    file_path=str(file_path),
+                                    line_number=node.lineno,
+                                    evidence=evidence_line.strip(),
+                                    missing_guard="Replace literal True with os.environ.get('DEBUG', 'false').lower() == 'true'",
+                                    confidence=0.95,
+                                    layer="ast",
+                                )
+                            )
             self.generic_visit(node)
 
     visitor = DebugModeVisitor()

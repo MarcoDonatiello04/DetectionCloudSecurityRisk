@@ -1,8 +1,11 @@
 """Smoke test and client-side gating tests for timeout rule module."""
+
 from pathlib import Path
-from tree_sitter import Language, Parser
+
 import tree_sitter_javascript as tsjavascript
 import tree_sitter_python as tspython
+from tree_sitter import Language, Parser
+
 from src.core.unrestricted_resource_consumption.rules.timeout import TimeoutRule
 
 
@@ -32,7 +35,7 @@ def analyze_rule(content: str, file_path: Path):
         parser = Parser(lang)
         tree = parser.parse(content.encode())
         findings = TimeoutRule.analyze_javascript(tree.root_node, str(file_path))
-    
+
     # De-duplicate findings like the AST layer does
     seen = {}
     for f in findings:
@@ -44,7 +47,7 @@ def analyze_rule(content: str, file_path: Path):
 
 def test_rc003_no_finding_on_redux_saga():
     """fetch() in Redux Saga non deve produrre RC-003"""
-    content = '''
+    content = """
 function* loginSaga(action) {
     const response = yield call(fetch, "/api/login", {
         method: "POST",
@@ -55,14 +58,14 @@ function* loginSaga(action) {
 export function* watchLogin() {
     yield takeEvery("LOGIN_REQUEST", loginSaga);
 }
-'''
+"""
     findings = analyze_rule(content, file_path=Path("userSaga.ts"))
     assert len(findings) == 0, f"FP: RC-003 su Redux Saga: {findings}"
 
 
 def test_rc003_no_finding_on_react_component():
     """fetch() in componente React non deve produrre RC-003"""
-    content = '''
+    content = """
 import React, { useState, useEffect } from 'react';
 
 function UserProfile({ userId }) {
@@ -74,14 +77,14 @@ function UserProfile({ userId }) {
     }, [userId]);
     return <div>{user?.name}</div>;
 }
-'''
+"""
     findings = analyze_rule(content, file_path=Path("UserProfile.tsx"))
     assert len(findings) == 0, f"FP: RC-003 su React component: {findings}"
 
 
 def test_rc003_tp_on_backend_typescript():
     """fetch() in backend TypeScript (Express) senza timeout → RC-003"""
-    content = '''
+    content = """
 import express from 'express';
 const app = express();
 
@@ -93,7 +96,7 @@ app.post('/notify', async (req, res) => {
     });
     res.json({ ok: true });
 });
-'''
+"""
     findings = analyze_rule(content, file_path=Path("routes/notify.ts"))
     assert len(findings) == 1
     assert findings[0].rule_id == "RC-003"
@@ -101,7 +104,7 @@ app.post('/notify', async (req, res) => {
 
 def test_rc003_no_finding_on_service_worker():
     """fetch() in Service Worker non deve produrre RC-003"""
-    content = '''
+    content = """
 self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request).then(response => {
@@ -113,8 +116,6 @@ self.addEventListener('fetch', event => {
     );
 });
 self.skipWaiting();
-'''
+"""
     findings = analyze_rule(content, file_path=Path("serviceWorker.js"))
     assert len(findings) == 0, f"FP: RC-003 su Service Worker: {findings}"
-
-

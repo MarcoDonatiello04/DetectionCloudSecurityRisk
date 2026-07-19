@@ -10,8 +10,8 @@ le sessioni di stimolazione dinamica (D-AST). L'obiettivo è prevenire la
 """
 
 import logging
+
 import requests
-from typing import Optional
 
 logger = logging.getLogger("SecurityPlatform.BOLA.APIStateEngine")
 
@@ -21,14 +21,14 @@ class APIStateEngine:
     Componente di controllo dello stato (State Manager).
     Fornisce servizi sincroni per eseguire il backup transazionale e il
     ripristino dello stato in memoria dell'applicazione target.
-    
+
     Pattern Strutturale: Singleton / Utility Class
     """
 
-    def __init__(self, target_base_url: Optional[str] = None):
+    def __init__(self, target_base_url: str | None = None):
         """
         Costruttore della classe. Consente l'inizializzazione con un host predefinito.
-        
+
         Args:
             target_base_url (str, optional): URL di base dell'host target.
         """
@@ -39,10 +39,10 @@ class APIStateEngine:
         """
         Invia una richiesta sincrona all'endpoint /test/snapshot dell'applicazione target
         per congelare lo stato attuale del database in memoria.
-        
+
         Args:
             target_host (str): L'host/URL di base del server target.
-            
+
         Returns:
             bool: True se lo snapshot è stato eseguito correttamente, False altrimenti.
         """
@@ -64,10 +64,10 @@ class APIStateEngine:
         """
         Invia una richiesta POST sincrona all'endpoint /test/rollback dell'applicazione target
         per ripristinare il DB allo stato originario congelato dallo snapshot (Fase di Teardown).
-        
+
         Args:
             target_host (str): L'host/URL di base del server target.
-            
+
         Returns:
             bool: True se il rollback ha avuto successo, False altrimenti.
         """
@@ -102,6 +102,7 @@ class BOLAStateManager(APIStateEngine):
     Classe adattatrice per mantenere compatibilità con il codice legacy.
     Mappa i vecchi metodi di istanza sui nuovi servizi di APIStateEngine.
     """
+
     def take_snapshot(self) -> bool:
         return self.take_instance_snapshot()
 

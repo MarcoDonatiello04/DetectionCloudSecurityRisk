@@ -11,28 +11,30 @@ All tests are deterministic and require no network or LLM calls.
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
+import tree_sitter_javascript as tsjavascript
+import tree_sitter_python as tspython
 from tree_sitter import Language, Parser
 
-import tree_sitter_python as tspython
-import tree_sitter_javascript as tsjavascript
-
 from src.core.unrestricted_resource_consumption.layers.layer1_ast import analyze_ast
-from src.core.unrestricted_resource_consumption.rules.pagination import PaginationRule
-from src.core.unrestricted_resource_consumption.rules.upload import UploadRule
-from src.core.unrestricted_resource_consumption.rules.timeout import TimeoutRule
 from src.core.unrestricted_resource_consumption.rules.graphql_batching import GraphQLBatchingRule
 from src.core.unrestricted_resource_consumption.rules.loop_bounds import LoopBoundsRule
+from src.core.unrestricted_resource_consumption.rules.pagination import PaginationRule
 from src.core.unrestricted_resource_consumption.rules.third_party_cost import ThirdPartyCostRule
+from src.core.unrestricted_resource_consumption.rules.timeout import TimeoutRule
+from src.core.unrestricted_resource_consumption.rules.upload import UploadRule
 
 # ---------------------------------------------------------------------------
 # Fixtures — paths
 # ---------------------------------------------------------------------------
 
-FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent / "test_targets" / "unrestricted_resource_consumption"
+FIXTURES_DIR = (
+    Path(__file__).resolve().parent.parent.parent.parent.parent
+    / "test_targets"
+    / "unrestricted_resource_consumption"
+)
 VULNERABLE_APP = FIXTURES_DIR / "vulnerable_app" / "app.py"
 SECURE_APP = FIXTURES_DIR / "secure_app" / "app.py"
 
@@ -40,6 +42,7 @@ SECURE_APP = FIXTURES_DIR / "secure_app" / "app.py"
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _parse_python(source: str):
     lang = Language(tspython.language())
@@ -63,8 +66,8 @@ def _rule_ids(findings) -> set[str]:
 # RC-001 — Unbounded Pagination
 # ===========================================================================
 
-class TestRC001Pagination:
 
+class TestRC001Pagination:
     # --- TRUE POSITIVE (Flask assignment + ORM) ---
     def test_tp_flask_unbounded(self):
         src = """
@@ -89,7 +92,9 @@ def list_users():
         assert not findings, f"Expected no findings, got {findings}"
 
     # --- TRUE POSITIVE (FastAPI Query without le=) ---
-    @pytest.mark.skip(reason="tree-sitter 0.25: typed_default_parameter uses 'value' field, not 'default_value' — tracked for fix")
+    @pytest.mark.skip(
+        reason="tree-sitter 0.25: typed_default_parameter uses 'value' field, not 'default_value' — tracked for fix"
+    )
     def test_tp_fastapi_no_le(self):
         src = """
 @app.get("/users")
@@ -142,8 +147,8 @@ def handler():
 # RC-002 — Missing Upload Size Limit
 # ===========================================================================
 
-class TestRC002Upload:
 
+class TestRC002Upload:
     # --- TRUE POSITIVE: Flask no size check ---
     def test_tp_flask_no_size_check(self):
         src = """
@@ -238,8 +243,8 @@ def get_users():
 # RC-003 — Missing HTTP Timeout
 # ===========================================================================
 
-class TestRC003Timeout:
 
+class TestRC003Timeout:
     # --- TRUE POSITIVE: requests.get without timeout ---
     def test_tp_requests_no_timeout(self):
         src = """
@@ -272,7 +277,9 @@ def send():
         assert high, "Expected high-confidence RC-003 for SMS endpoint"
 
     # --- TRUE POSITIVE: axios without timeout (JS) ---
-    @pytest.mark.skip(reason="tree-sitter 0.25 JS: member_expression uses 'property_identifier' not 'identifier', _get_attribute_chain needs update — tracked for fix")
+    @pytest.mark.skip(
+        reason="tree-sitter 0.25 JS: member_expression uses 'property_identifier' not 'identifier', _get_attribute_chain needs update — tracked for fix"
+    )
     def test_tp_axios_no_timeout(self):
         src = """
 async function notify() {
@@ -319,8 +326,8 @@ def call():
 # RC-004 — GraphQL Batching Unlimited
 # ===========================================================================
 
-class TestRC004GraphQL:
 
+class TestRC004GraphQL:
     # --- TRUE POSITIVE: strawberry.Schema without extensions ---
     def test_tp_strawberry_no_limiter(self):
         src = """
@@ -345,7 +352,9 @@ schema = strawberry.Schema(
         assert not findings
 
     # --- TRUE POSITIVE: ApolloServer without validationRules (JS) ---
-    @pytest.mark.skip(reason="tree-sitter 0.25 JS: new_expression uses 'constructor' field not 'function' — tracked for fix")
+    @pytest.mark.skip(
+        reason="tree-sitter 0.25 JS: new_expression uses 'constructor' field not 'function' — tracked for fix"
+    )
     def test_tp_apollo_no_validation_rules(self):
         src = """
 const server = new ApolloServer({ typeDefs, resolvers })
@@ -381,8 +390,8 @@ schema = Schema(query=Query, mutation=Mutation)
 # RC-005 — Loop on User Input
 # ===========================================================================
 
-class TestRC005LoopBounds:
 
+class TestRC005LoopBounds:
     # --- TRUE POSITIVE: for loop on request.json['items'] with no guard ---
     def test_tp_loop_no_guard(self):
         src = """
@@ -447,8 +456,8 @@ def handler():
 # RC-006 — Third-Party Without Throttle
 # ===========================================================================
 
-class TestRC006ThirdParty:
 
+class TestRC006ThirdParty:
     # --- TRUE POSITIVE: send_sms in undecorated function ---
     def test_tp_send_sms_no_throttle(self):
         src = """
@@ -518,8 +527,8 @@ def list_users():
 # Integration — analyze_ast() end-to-end
 # ===========================================================================
 
-class TestAnalyzeAST:
 
+class TestAnalyzeAST:
     def test_returns_list(self, tmp_path):
         result = analyze_ast(str(tmp_path))
         assert isinstance(result, list)

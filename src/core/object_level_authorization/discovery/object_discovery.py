@@ -1,7 +1,7 @@
 import json
 import re
 import urllib.parse
-from typing import List, Dict, Any
+from typing import Any
 
 
 class ObjectReferenceDiscoveryEngine:
@@ -10,22 +10,30 @@ class ObjectReferenceDiscoveryEngine:
     potential object references in paths, query parameters, and JSON bodies.
     """
 
-    ID_PATTERN = re.compile(r'(.*id|.*Id|.*_id|uuid|guid)$', re.IGNORECASE)
+    ID_PATTERN = re.compile(r"(.*id|.*Id|.*_id|uuid|guid)$", re.IGNORECASE)
 
     # Specific fields to look for directly
     SPECIFIC_ID_FIELDS = {
-        "id", "userid", "ownerid", "accountid", "tenantid", "resourceid",
-        "orderid", "customerid", "documentid", "uuid", "guid"
+        "id",
+        "userid",
+        "ownerid",
+        "accountid",
+        "tenantid",
+        "resourceid",
+        "orderid",
+        "customerid",
+        "documentid",
+        "uuid",
+        "guid",
     }
 
     # UUID standard (v1-v5, case-insensitive)
     UUID_PATTERN = re.compile(
-        r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
-        re.IGNORECASE
+        r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE
     )
 
     # MongoDB ObjectId (24 hex chars)
-    MONGO_OBJECTID_PATTERN = re.compile(r'^[0-9a-f]{24}$', re.IGNORECASE)
+    MONGO_OBJECTID_PATTERN = re.compile(r"^[0-9a-f]{24}$", re.IGNORECASE)
 
     @classmethod
     def is_id_field(cls, key: str) -> bool:
@@ -42,12 +50,10 @@ class ObjectReferenceDiscoveryEngine:
             return True
         if cls.UUID_PATTERN.match(segment):
             return True
-        if cls.MONGO_OBJECTID_PATTERN.match(segment):
-            return True
-        return False
+        return bool(cls.MONGO_OBJECTID_PATTERN.match(segment))
 
     @classmethod
-    def parse_json_recursive(cls, data: Any, prefix: str = "") -> List[Dict[str, Any]]:
+    def parse_json_recursive(cls, data: Any, prefix: str = "") -> list[dict[str, Any]]:
         """
         Recursively walks a JSON object/list to find ID fields and their values.
         Returns a list of dicts: {"path": "...", "value": ...}
@@ -57,11 +63,7 @@ class ObjectReferenceDiscoveryEngine:
             for k, v in data.items():
                 current_path = f"{prefix}.{k}" if prefix else k
                 if cls.is_id_field(k) and isinstance(v, (str, int)):
-                    results.append({
-                        "path": current_path,
-                        "value": v,
-                        "location": "body"
-                    })
+                    results.append({"path": current_path, "value": v, "location": "body"})
                 if isinstance(v, (dict, list)):
                     results.extend(cls.parse_json_recursive(v, current_path))
         elif isinstance(data, list):
@@ -71,7 +73,7 @@ class ObjectReferenceDiscoveryEngine:
         return results
 
     @classmethod
-    def extract_references(cls, request_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def extract_references(cls, request_data: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Extracts all candidate object references from the request.
         A request is a dict representing the traffic entry:
@@ -92,12 +94,14 @@ class ObjectReferenceDiscoveryEngine:
         for idx, segment in enumerate(segments):
             if cls.looks_like_id_value(segment):
                 parent_name = segments[idx - 1] if idx > 0 else "path"
-                references.append({
-                    "name": f"{parent_name}_id",
-                    "value": segment,
-                    "location": "path",
-                    "index": idx
-                })
+                references.append(
+                    {
+                        "name": f"{parent_name}_id",
+                        "value": segment,
+                        "location": "path",
+                        "index": idx,
+                    }
+                )
 
         # 2. Query Parameter extraction
         full_url = request_data.get("full_url", "")
@@ -107,11 +111,7 @@ class ObjectReferenceDiscoveryEngine:
             for key, values in query_params.items():
                 if cls.is_id_field(key):
                     for val in values:
-                        references.append({
-                            "name": key,
-                            "value": val,
-                            "location": "query"
-                        })
+                        references.append({"name": key, "value": val, "location": "query"})
 
         # 3. Body Parameter extraction
         body_params = request_data.get("body_params")
@@ -125,10 +125,6 @@ class ObjectReferenceDiscoveryEngine:
             if isinstance(body_params, (dict, list)):
                 body_refs = cls.parse_json_recursive(body_params)
                 for r in body_refs:
-                    references.append({
-                        "name": r["path"],
-                        "value": r["value"],
-                        "location": "body"
-                    })
+                    references.append({"name": r["path"], "value": r["value"], "location": "body"})
 
         return references

@@ -9,10 +9,12 @@ Responsabilità:
 
 import json
 import logging
+from typing import Any
+
 import requests
-from typing import Dict, Any, Optional
 
 logger = logging.getLogger("SecurityPlatform.Remediation.LlmProvider")
+
 
 class LlmProvider:
     """
@@ -24,7 +26,7 @@ class LlmProvider:
         self._cached_model = None
         self._checked_online = False
 
-    def get_available_model(self) -> Optional[str]:
+    def get_available_model(self) -> str | None:
         """
         Interroga il server Ollama per trovare il primo modello disponibile.
         Ritorna un modello simulato se il server è offline o non ha modelli.
@@ -44,26 +46,27 @@ class LlmProvider:
                     logger.info(f"Rilevato modello locale Ollama attivo: {self._cached_model}")
                 else:
                     self._cached_model = "llama3.1:8b (Simulato)"
-                    logger.warning("Ollama attivo ma nessun modello scaricato trovato. Attivazione Simulatore Locale Llama 3.1.")
+                    logger.warning(
+                        "Ollama attivo ma nessun modello scaricato trovato. Attivazione Simulatore Locale Llama 3.1."
+                    )
             else:
                 self._cached_model = "llama3.1:8b (Simulato)"
-                logger.warning(f"Risposta Ollama non corretta ({response.status_code}). Attivazione Simulatore Locale Llama 3.1.")
+                logger.warning(
+                    f"Risposta Ollama non corretta ({response.status_code}). Attivazione Simulatore Locale Llama 3.1."
+                )
             self._checked_online = True
             return self._cached_model
         except Exception as e:
-            logger.warning(f"Ollama server offline in {self.base_url} ({e}). Attivazione Simulatore Locale Llama 3.1.")
+            logger.warning(
+                f"Ollama server offline in {self.base_url} ({e}). Attivazione Simulatore Locale Llama 3.1."
+            )
             self._cached_model = "llama3.1:8b (Simulato)"
             self._checked_online = True
             return self._cached_model
 
     def generate_remediation(
-        self,
-        finding_id: str,
-        title: str,
-        category: str,
-        source: str,
-        description: str
-    ) -> Optional[Dict[str, Any]]:
+        self, finding_id: str, title: str, category: str, source: str, description: str
+    ) -> dict[str, Any] | None:
         """
         Invia la richiesta a Ollama per generare una remediation strutturata JSON.
         Se Ollama è contrassegnato come simulato, richiama il simulatore offline locale.
@@ -74,7 +77,9 @@ class LlmProvider:
             return self._simulate_generation(finding_id, title, category, source, description)
 
         if "Simulato" in model:
-            logger.info("Ollama offline. Generazione della remediation tramite Simulatore Locale Llama 3.1...")
+            logger.info(
+                "Ollama offline. Generazione della remediation tramite Simulatore Locale Llama 3.1..."
+            )
             return self._simulate_generation(finding_id, title, category, source, description)
 
         # Costruisce il prompt strutturato per Ollama reale (ottimizzato per essere sintetico e veloce)
@@ -108,20 +113,18 @@ class LlmProvider:
             "prompt": prompt,
             "stream": False,
             "format": "json",
-            "options": {
-                "temperature": 0.2
-            }
+            "options": {"temperature": 0.2},
         }
 
         try:
             url = f"{self.base_url}/api/generate"
             logger.info(f"Invio prompt a Ollama utilizzando modello '{model}'...")
             response = requests.post(url, json=payload, timeout=90.0)
-            
+
             if response.status_code == 200:
                 res_data = response.json()
                 response_text = res_data.get("response", "").strip()
-                
+
                 # Robust extraction of JSON from response (handling markdown code blocks or wrapper text)
                 clean_text = response_text
                 if clean_text.startswith("```json"):
@@ -131,34 +134,31 @@ class LlmProvider:
                 if clean_text.endswith("```"):
                     clean_text = clean_text[:-3]
                 clean_text = clean_text.strip()
-                
+
                 try:
                     parsed_remediation = json.loads(clean_text)
                 except json.JSONDecodeError:
                     start_idx = clean_text.find("{")
                     end_idx = clean_text.rfind("}")
                     if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-                        parsed_remediation = json.loads(clean_text[start_idx:end_idx + 1])
+                        parsed_remediation = json.loads(clean_text[start_idx : end_idx + 1])
                     else:
                         raise
-                
+
                 logger.info("Remediation generata con successo da LLM locale.")
                 return parsed_remediation
             else:
-                logger.error(f"Errore chiamata Ollama API: {response.status_code}. Uso del simulatore locale.")
+                logger.error(
+                    f"Errore chiamata Ollama API: {response.status_code}. Uso del simulatore locale."
+                )
                 return self._simulate_generation(finding_id, title, category, source, description)
         except Exception as e:
             logger.error(f"Eccezione chiamata Ollama: {e}. Uso del simulatore locale.")
             return self._simulate_generation(finding_id, title, category, source, description)
 
     def _simulate_generation(
-        self,
-        finding_id: str,
-        title: str,
-        category: str,
-        source: str,
-        description: str
-    ) -> Dict[str, Any]:
+        self, finding_id: str, title: str, category: str, source: str, description: str
+    ) -> dict[str, Any]:
         """
         Simulatore offline ad alta fedeltà Llama 3.1. Ritorna risposte realistiche strutturate in JSON.
         """
@@ -168,12 +168,12 @@ class LlmProvider:
         if "AUTHORIZATION" in category_upper or "BOLA" in title.upper() or "IDOR" in title.upper():
             return {
                 "title": "Controllo di Autorizzazione Mancante (BOLA / IDOR)",
-                "description": f"L'applicazione non verifica i permessi di accesso per la risorsa identificata nell'endpoint. Ciò consente a utenti autenticati di accedere arbitrariamente alle risorse altrui manipolando i parametri identificativi (Broken Object Level Authorization).",
+                "description": "L'applicazione non verifica i permessi di accesso per la risorsa identificata nell'endpoint. Ciò consente a utenti autenticati di accedere arbitrariamente alle risorse altrui manipolando i parametri identificativi (Broken Object Level Authorization).",
                 "impact": "Esposizione e alterazione non autorizzata di dati sensibili appartenenti ad altri utenti, compromissione dell'integrità dei record a database.",
                 "remediation_steps": [
                     "Implementare una verifica di ownership lato server estraendo il JWT del client corrente.",
                     "Validare che il proprietario della risorsa coincida con l'identità dell'utente autenticato prima di restituire i dati.",
-                    "Sostituire gli ID sequenziali (es. database auto-increment) con UUID v4 non prevedibili."
+                    "Sostituire gli ID sequenziali (es. database auto-increment) con UUID v4 non prevedibili.",
                 ],
                 "example": """# Codice Corretto (Python Flask)
 @app.route('/api/v1/resources/<resource_id>', methods=['GET'])
@@ -181,12 +181,12 @@ class LlmProvider:
 def get_resource(resource_id):
     current_user = get_jwt_identity()
     resource = db.get_resource(resource_id)
-    
+
     # VERIFICA PROPRIETÀ (BOLA FIX)
     if resource.owner_id != current_user:
         return jsonify({"error": "Forbidden"}), 403
-        
-    return jsonify(resource.to_dict()), 200"""
+
+    return jsonify(resource.to_dict()), 200""",
             }
 
         elif "AUTHENTICATION" in category_upper or "AUTHN" in category_upper:
@@ -197,7 +197,7 @@ def get_resource(resource_id):
                 "remediation_steps": [
                     "Applicare middleware di autenticazione robusti su tutti gli endpoint sensibili.",
                     "Inviare un codice di stato HTTP 401 Unauthorized per le richieste prive di credenziali valide.",
-                    "Verificare sempre la firma crittografica del token JWT lato server."
+                    "Verificare sempre la firma crittografica del token JWT lato server.",
                 ],
                 "example": """# Codice Corretto (Python Flask JWT)
 @app.route('/api/v1/admin/dashboard', methods=['GET'])
@@ -207,10 +207,12 @@ def get_admin_dashboard():
     claims = get_jwt()
     if claims.get("role") != "admin":
         return jsonify({"error": "Role administrator required"}), 403
-    return jsonify({"data": "sensitive admin data"}), 200"""
+    return jsonify({"data": "sensitive admin data"}), 200""",
             }
 
-        elif "RATE_LIMITING" in category_upper or "LIMIT" in title.upper() or "DOS" in title.upper():
+        elif (
+            "RATE_LIMITING" in category_upper or "LIMIT" in title.upper() or "DOS" in title.upper()
+        ):
             return {
                 "title": "Assenza di Rate Limiting su Endpoint Sensibile",
                 "description": "L'API non limita il numero di richieste consecutive che un client può inviare in un intervallo di tempo limitato. Questo consente brute-force di credenziali o Denial of Service.",
@@ -218,7 +220,7 @@ def get_admin_dashboard():
                 "remediation_steps": [
                     "Configurare un middleware di rate limiting (es. token bucket o leaky bucket).",
                     "Limitare a massimo 5 richieste al minuto gli endpoint critici come login, reset password e token generation.",
-                    "Ritornare lo stato HTTP 429 Too Many Requests con header Retry-After quando il limite viene superato."
+                    "Ritornare lo stato HTTP 429 Too Many Requests con header Retry-After quando il limite viene superato.",
                 ],
                 "example": """# Codice Corretto (Flask-Limiter)
 from flask_limiter import Limiter
@@ -231,10 +233,14 @@ limiter = Limiter(key_func=get_remote_address)
 @limiter.limit("5 per minute")
 def login():
     # Logica di autenticazione sicura
-    return jsonify({"status": "success"}), 200"""
+    return jsonify({"status": "success"}), 200""",
             }
 
-        elif "INPUT_VALIDATION" in category_upper or "VALIDATE" in category_upper or "SCHEMA" in category_upper:
+        elif (
+            "INPUT_VALIDATION" in category_upper
+            or "VALIDATE" in category_upper
+            or "SCHEMA" in category_upper
+        ):
             return {
                 "title": "Mancata Validazione Input o Schema dell'API",
                 "description": "I parametri di input dell'endpoint non sono soggetti a controlli di tipo, lunghezza, formato o espressioni regolari (regex). Questo consente l'invio di dati malformati o attacchi di injection.",
@@ -242,7 +248,7 @@ def login():
                 "remediation_steps": [
                     "Definire esplicitamente lo schema di validazione dell'input nel contratto OpenAPI.",
                     "Implementare librerie di validazione dei dati a runtime (es: Pydantic per Python, Joi per Node.js, Express-validator).",
-                    "Rigettare immediatamente con HTTP 400 Bad Request qualsiasi input non conforme prima di elaborarlo."
+                    "Rigettare immediatamente con HTTP 400 Bad Request qualsiasi input non conforme prima di elaborarlo.",
                 ],
                 "example": """# Esempio Schema OpenAPI sicuro (YAML)
 components:
@@ -256,17 +262,21 @@ components:
           pattern: '^[a-zA-Z0-9_]{3,30}$'
         email:
           type: string
-          format: email"""
+          format: email""",
             }
 
-        elif "SECURITY_HEADERS" in category_upper or "CORS" in category_upper or "HEADER" in category_upper:
+        elif (
+            "SECURITY_HEADERS" in category_upper
+            or "CORS" in category_upper
+            or "HEADER" in category_upper
+        ):
             return {
                 "title": "Assenza di Security Headers o Configurazione CORS Permissiva",
                 "description": "L'API non invia gli header di sicurezza HTTP raccomandati o espone una configurazione CORS eccessivamente aperta (es. Access-Control-Allow-Origin: *).",
                 "impact": "Attacchi di tipo Cross-Origin Resource Sharing (CORS) exploit, clickjacking, o furto di token di sessione da siti esterni.",
                 "remediation_steps": [
                     "Configurare intestazioni CORS ristrette specificando gli origini consentiti invece di usare l'asterisco (*).",
-                    "Inviare intestazioni come Content-Security-Policy (CSP), Strict-Transport-Security (HSTS) e X-Frame-Options."
+                    "Inviare intestazioni come Content-Security-Policy (CSP), Strict-Transport-Security (HSTS) e X-Frame-Options.",
                 ],
                 "example": """# Python Flask CORS Sicuro
 from flask_cors import CORS
@@ -274,17 +284,21 @@ from flask_cors import CORS
 app = Flask(__name__)
 
 # Restringere CORS solo a domini fidati
-CORS(app, origins=["https://dashboard.miodominio.it"])"""
+CORS(app, origins=["https://dashboard.miodominio.it"])""",
             }
 
-        elif "API_EXPOSURE" in category_upper or "DATA_EXPOSURE" in category_upper or "SHADOW" in title.upper():
+        elif (
+            "API_EXPOSURE" in category_upper
+            or "DATA_EXPOSURE" in category_upper
+            or "SHADOW" in title.upper()
+        ):
             return {
                 "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
                 "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
                 "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
                 "remediation_steps": [
                     "Filtrare i payload di risposta escludendo campi sensibili o riservati (Data Filtering/DTO).",
-                    "Rimuovere gli endpoint non documentati o proteggerli adeguatamente dietro gateway."
+                    "Rimuovere gli endpoint non documentati o proteggerli adeguatamente dietro gateway.",
                 ],
                 "example": """# Filtro dei campi sensibili (DTO)
 def clean_user_response(user_db):
@@ -293,10 +307,14 @@ def clean_user_response(user_db):
         "username": user_db.username,
         "email": user_db.email
         # password_hash e token vengono eslcusi
-    }"""
+    }""",
             }
 
-        elif source_upper == "CHECKOV" or "IAC" in category_upper or "MISCONFIGURATION" in category_upper:
+        elif (
+            source_upper == "CHECKOV"
+            or "IAC" in category_upper
+            or "MISCONFIGURATION" in category_upper
+        ):
             return {
                 "title": f"Misconfiguration Infrastrutturale IaC: {finding_id}",
                 "description": f"Il codice di configurazione infrastrutturale (Terraform) contiene una definizione non sicura per la regola {finding_id}. La risorsa cloud associata risulta eccessivamente esposta o priva di cifratura/logging.",
@@ -304,7 +322,7 @@ def clean_user_response(user_db):
                 "remediation_steps": [
                     "Restringere l'accesso specificando regole di rete e IAM minime indispensabili.",
                     "Abilitare la cifratura a riposo (encryption at rest) tramite chiavi gestite (KMS).",
-                    "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa."
+                    "Attivare il log dei flussi di rete e degli accessi amministrativi sulla risorsa.",
                 ],
                 "example": """# Codice Terraform Corretto
 resource "aws_s3_bucket" "secure_bucket" {
@@ -318,7 +336,7 @@ resource "aws_s3_bucket_public_access_block" "block" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
-}"""
+}""",
             }
 
         else:
@@ -329,11 +347,11 @@ resource "aws_s3_bucket_public_access_block" "block" {
                 "remediation_steps": [
                     "Rivedere la configurazione della risorsa interessata.",
                     "Applicare le patch o gli aggiornamenti di sicurezza raccomandati.",
-                    "Isolare la risorsa sensibile limitando l'esposizione sulla rete pubblica."
+                    "Isolare la risorsa sensibile limitando l'esposizione sulla rete pubblica.",
                 ],
                 "example": """# Configurazione Sicura Consigliata
 {
   "status": "secure_configuration_applied",
   "verification": "required"
-}"""
+}""",
             }

@@ -1,6 +1,8 @@
 import ast
 from pathlib import Path
+
 from src.core.unsafe_consumption.rules import unvalidated_external_data
+
 
 def test_unvalidated_external_data_vulnerable():
     code = """
@@ -13,7 +15,10 @@ db.execute(f"INSERT INTO businesses VALUES ('{data['name']}')")
     assert len(findings) == 1
     assert findings[0].rule_id == "UC-001"
     assert findings[0].severity == "HIGH"
-    assert findings[0].evidence == "db.execute(f\"INSERT INTO businesses VALUES ('{data['name']}')\")"
+    assert (
+        findings[0].evidence == "db.execute(f\"INSERT INTO businesses VALUES ('{data['name']}')\")"
+    )
+
 
 def test_unvalidated_external_data_secure():
     code = """

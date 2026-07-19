@@ -1,20 +1,21 @@
+import json
 import os
 import sys
-import json
-import yaml
 from pathlib import Path
+
+import yaml
 
 # Add root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.core.broken_authentication.discovery import Config
-from src.core.identity_context import IdentityManager
 from src.core.broken_object_property_level_access.orchestrator import BOPLAOrchestrator
+from src.core.identity_context import IdentityManager
 
 
 def main():
     repo_path = "."
-    
+
     # 1. Load config
     config_path = Path("config/config.yaml")
     config = Config.load(config_path)
@@ -25,7 +26,7 @@ def main():
     for path in openapi_paths:
         if os.path.exists(path):
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     if path.endswith(".yaml") or path.endswith(".yml"):
                         openapi_spec = yaml.safe_load(f)
                     else:
@@ -40,7 +41,7 @@ def main():
     for path in traffic_paths:
         if os.path.exists(path):
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     runtime_traffic = json.load(f)
                 break
             except Exception:
@@ -54,7 +55,9 @@ def main():
         )
         headers_matrix = identity_manager.get_headers_for_identities()
     except Exception as e:
-        print(f"[-] Impossibile inizializzare IdentityManager: {e}. I test dinamici utilizzeranno mock o verranno ignorati.")
+        print(
+            f"[-] Impossibile inizializzare IdentityManager: {e}. I test dinamici utilizzeranno mock o verranno ignorati."
+        )
 
     # 5. Execute BOPLA Orchestrator
     orchestrator = BOPLAOrchestrator(config)
@@ -62,7 +65,7 @@ def main():
         repo_path=repo_path,
         openapi_spec=openapi_spec,
         runtime_traffic=runtime_traffic,
-        headers_matrix=headers_matrix
+        headers_matrix=headers_matrix,
     )
 
     # 6. Display final summary block requested by USER

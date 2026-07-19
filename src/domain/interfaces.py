@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import List, Callable, Any
+from collections.abc import Callable
+from typing import Any
+
 from src.domain.entities import Finding
 
 
@@ -7,9 +9,9 @@ class IScanner(ABC):
     """
     Interfaccia astratta per gli scanner statici (es: Semgrep, Checkov, Spectral).
     """
-    
+
     @abstractmethod
-    def scan(self, target_dir: str) -> List[Finding]:
+    def scan(self, target_dir: str) -> list[Finding]:
         """
         Esegue la scansione statica della directory target e restituisce la lista di findings rilevati.
 
@@ -26,7 +28,7 @@ class IDetector(ABC):
     """
     Interfaccia astratta per i detector dinamici o logici (es: BOLA Analyzer, Shadow API Hunter).
     """
-    
+
     @property
     @abstractmethod
     def name(self) -> str:
@@ -39,7 +41,7 @@ class IDetector(ABC):
         pass
 
     @abstractmethod
-    def analyze(self, context: Any) -> List[Finding]:
+    def analyze(self, context: Any) -> list[Finding]:
         """
         Esegue l'analisi logica basata sul contesto (es: traffico catturato o config) e ritorna i findings.
 
@@ -56,7 +58,7 @@ class IRemediation(ABC):
     """
     Interfaccia astratta per i moduli di remediation automatica.
     """
-    
+
     @property
     @abstractmethod
     def target_category(self) -> str:
@@ -86,7 +88,7 @@ class IEventBus(ABC):
     """
     Interfaccia per il bus degli eventi asincroni o sincroni per la comunicazione decoupled.
     """
-    
+
     @abstractmethod
     def publish(self, event_type: str, event_data: Any) -> None:
         """

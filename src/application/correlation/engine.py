@@ -1,6 +1,6 @@
 import logging
-from typing import List, Dict, Any
-from src.domain.entities import Finding, Severity, ValidationStatus, FindingSource, FindingCategory
+
+from src.domain.entities import Finding, FindingCategory, Severity, ValidationStatus
 from src.normalization.normalizer import APIEndpointNormalizer
 
 logger = logging.getLogger("SecurityPlatform.CorrelationEngine")
@@ -36,9 +36,11 @@ class RiskCorrelationEngine:
         """
         Inizializza il RiskCorrelationEngine impostando il dizionario dei findings correlati.
         """
-        self.correlated_findings: Dict[str, Finding] = {}
+        self.correlated_findings: dict[str, Finding] = {}
 
-    def correlate(self, static_findings: List[Finding], runtime_findings: List[Finding]) -> List[Finding]:
+    def correlate(
+        self, static_findings: list[Finding], runtime_findings: list[Finding]
+    ) -> list[Finding]:
         """
         Unisce i findings statici e runtime in un inventario correlato.
         Se un rischio statico trova riscontro in un test o log a runtime, lo convalida (CONFIRMED)
@@ -66,25 +68,29 @@ class RiskCorrelationEngine:
         # 2. Correliamo con i findings di runtime
         for rf in runtime_findings:
             key = self._get_correlation_key(rf)
-            
+
             if key in self.correlated_findings:
                 existing = self.correlated_findings[key]
                 logger.info(f"🔗 Correlazione trovata per la chiave: {key}")
-                
+
                 # Caso importante: avevamo previsto la vulnerabilità staticamente e ora l'abbiamo confermata a runtime!
                 # Aggiorniamo lo stato di convalida a CONFIRMED
                 existing.validation_status = ValidationStatus.CONFIRMED
                 existing.runtime_evidence = rf.runtime_evidence
-                
+
                 # Boost della severity e confidence in quanto verificata empiricamente a runtime
                 if existing.severity.score < Severity.CRITICAL.score:
-                    logger.info(f"🔺 Elevazione Severity per {existing.finding_id} da {existing.severity.value} a HIGH/CRITICAL per riscontro a runtime.")
-                    existing.severity = Severity.CRITICAL if existing.severity == Severity.HIGH else Severity.HIGH
-                
+                    logger.info(
+                        f"🔺 Elevazione Severity per {existing.finding_id} da {existing.severity.value} a HIGH/CRITICAL per riscontro a runtime."
+                    )
+                    existing.severity = (
+                        Severity.CRITICAL if existing.severity == Severity.HIGH else Severity.HIGH
+                    )
+
                 existing.confidence = 1.0
                 if rf.finding_id not in existing.related_findings:
                     existing.related_findings.append(rf.finding_id)
-                    
+
                 # Uniamo dati grezzi aggiuntivi
                 existing.raw_data[f"runtime_verification_{rf.finding_id}"] = rf.raw_data
             else:
@@ -109,7 +115,7 @@ class RiskCorrelationEngine:
         """
         sev_score = finding.severity.score
         conf_score = finding.confidence * CONFIDENCE_NORMALIZER
-        
+
         # Moltiplicatore di contesto (es: esposto a internet, dati sensibili)
         context_score = 0.0
         if finding.risk_context:
@@ -127,7 +133,11 @@ class RiskCorrelationEngine:
                 context_score = DEFAULT_CONTEXT_OTHER
 
         # Calcolo pesato
-        risk_score = (sev_score * RISK_WEIGHT_SEVERITY) + (conf_score * RISK_WEIGHT_CONFIDENCE) + (context_score * RISK_WEIGHT_CONTEXT)
+        risk_score = (
+            (sev_score * RISK_WEIGHT_SEVERITY)
+            + (conf_score * RISK_WEIGHT_CONFIDENCE)
+            + (context_score * RISK_WEIGHT_CONTEXT)
+        )
         return round(min(risk_score, MAX_RISK_SCORE), 2)
 
     def _get_correlation_key(self, finding: Finding) -> str:
@@ -142,21 +152,21 @@ class RiskCorrelationEngine:
         """
         if finding.correlation_key:
             return finding.correlation_key
-            
+
         # Per le API, usiamo METHOD + Path normalizzato
         if finding.api and finding.api.endpoint:
             norm_path = APIEndpointNormalizer.normalize_path(finding.api.endpoint)
             method = (finding.api.method or "GET").upper()
             return f"api:{method}:{norm_path}"
-            
+
         # Per risorse cloud/IaC, usiamo il resource_id o resource_name
         if finding.resource_id:
             return f"resource:{finding.resource_id}"
-            
+
         # Fallback al target localizzato (es: file e riga)
         if finding.location:
             return f"file:{finding.location.file_path}:{finding.location.start_line or 0}"
-            
+
         return f"generic:{finding.finding_id}"
 
     def _merge_findings(self, target: Finding, source: Finding) -> None:
@@ -170,14 +180,14 @@ class RiskCorrelationEngine:
         # Se la sorgente ha severity maggiore, la eleviamo
         if source.severity.score > target.severity.score:
             target.severity = source.severity
-            
+
         # Uniamo i riferimenti
         if source.finding_id not in target.related_findings:
             target.related_findings.append(source.finding_id)
-            
+
         # Uniamo tag e referenze
         target.tags = list(set(target.tags + source.tags))
         target.references = list(set(target.references + source.references))
-        
+
         # Conserviamo dati grezzi aggiuntivi
         target.raw_data[f"merged_{source.finding_id}"] = source.raw_data

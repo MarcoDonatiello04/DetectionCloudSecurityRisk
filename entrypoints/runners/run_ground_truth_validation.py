@@ -20,9 +20,9 @@ Constraints
 """
 
 import asyncio
+import contextlib
 import json
 import os
-import signal
 import subprocess
 import sys
 import time
@@ -32,12 +32,12 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 # Paths — all relative to project root
 # ---------------------------------------------------------------------------
-PROJECT_ROOT  = Path(__file__).resolve().parent.parent.parent
-VULN_APP_DIR  = PROJECT_ROOT / "test_targets/broken_authentication" / "vulnerable_app"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+VULN_APP_DIR = PROJECT_ROOT / "test_targets/broken_authentication" / "vulnerable_app"
 SECURE_APP_DIR = PROJECT_ROOT / "test_targets/broken_authentication" / "secure_app"
-OUTPUT_DIR    = PROJECT_ROOT / "validation_results"
+OUTPUT_DIR = PROJECT_ROOT / "validation_results"
 
-VULN_PORT  = 5001
+VULN_PORT = 5001
 SECURE_PORT = 5002
 
 # Test credentials (same in both apps, documented in README.md)
@@ -49,19 +49,18 @@ PASSWORD = "testpass123"
 # ---------------------------------------------------------------------------
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from loguru import logger
-import yaml
 
-from src.core.broken_authentication.discovery import Config, TargetConfig, StackInfo
+import yaml
+from loguru import logger
+
 from src.core.broken_authentication import (
     ast_parser,
-    discovery,
-    authentication_intelligence,
     dynamic_tester,
 )
 from src.core.broken_authentication.authentication_intelligence import (
     AuthenticationIntelligenceEngine,
 )
+from src.core.broken_authentication.discovery import Config, StackInfo, TargetConfig
 
 
 # ---------------------------------------------------------------------------
@@ -72,6 +71,7 @@ async def wait_for_app(base_url: str, proc: subprocess.Popen, timeout: int = 45)
     If the process has already died, logs its stderr and returns False.
     """
     import httpx
+
     deadline = time.time() + timeout
     while time.time() < deadline:
         # Check if the subprocess crashed early
@@ -89,14 +89,10 @@ async def wait_for_app(base_url: str, proc: subprocess.Popen, timeout: int = 45)
         await asyncio.sleep(1)
     # On timeout, still log stderr
     stderr_out = ""
-    try:
-        proc.stderr.seek(0)  # only works for seekable streams
-    except Exception:
-        pass
-    try:
+    with contextlib.suppress(Exception):  # only works for seekable streams
+        proc.stderr.seek(0)
+    with contextlib.suppress(Exception):
         stderr_out = proc.stderr.read(4096).decode("utf-8", errors="replace")
-    except Exception:
-        pass
     if stderr_out:
         logger.error(f"Flask stderr on timeout:\n{stderr_out}")
     return False
@@ -164,7 +160,7 @@ def build_stack_info() -> StackInfo:
 def load_openapi(app_dir: Path) -> dict:
     spec_path = app_dir / "openapi.yaml"
     if spec_path.is_file():
-        with open(spec_path, "r", encoding="utf-8") as f:
+        with open(spec_path, encoding="utf-8") as f:
             return yaml.safe_load(f) or {}
     return {}
 
@@ -182,9 +178,9 @@ async def scan_target(
     Run Fase 1-4 of the broken-auth scanner against a running Flask app.
     Returns the list of RisultatoTest objects.
     """
-    logger.info(f"\n{'='*60}")
+    logger.info(f"\n{'=' * 60}")
     logger.info(f"Scanning: {label}  →  {base_url}")
-    logger.info(f"{'='*60}")
+    logger.info(f"{'=' * 60}")
 
     config = build_config(base_url)
     stack = build_stack_info()
@@ -220,10 +216,10 @@ async def scan_target(
     tester = dynamic_tester.DynamicTester(
         config=config,
         auth_intel=auth_intel,
-        target_environment="staging",      # enables destructive tests
+        target_environment="staging",  # enables destructive tests
         allow_destructive_tests=True,
         rate_limit_delay=0.1,
-        confidence_threshold=0.0,          # run all tests regardless of confidence
+        confidence_threshold=0.0,  # run all tests regardless of confidence
         openapi_spec=openapi_spec if openapi_spec else None,
     )
     results = await tester.run_all(stack, [])  # no AST vulnerabilities pre-fed
@@ -247,16 +243,16 @@ def print_summary(label: str, results: list) -> None:
     pass_count = sum(1 for r in results if r.stato == "PASS")
     skip_count = sum(1 for r in results if r.stato in ("SKIPPED", "INCONCLUSIVE"))
 
-    print(f"\n{'─'*70}")
+    print(f"\n{'─' * 70}")
     print(f"  {label}")
-    print(f"{'─'*70}")
+    print(f"{'─' * 70}")
     print(f"  {'Test ID':<8}{'Status':<14}{'Severity':<12}{'Name'}")
-    print(f"  {'─'*7:<8}{'─'*13:<14}{'─'*11:<12}{'─'*30}")
+    print(f"  {'─' * 7:<8}{'─' * 13:<14}{'─' * 11:<12}{'─' * 30}")
     for r in results:
         flag = "🔴" if r.stato == "FAIL" else ("🟢" if r.stato == "PASS" else "⚪")
         print(f"  {r.test_id:<8}{flag} {r.stato:<12}{r.severita:<12}{r.nome}")
     print(f"\n  FAIL={fail_count}  PASS={pass_count}  SKIP/INC={skip_count}")
-    print(f"{'─'*70}\n")
+    print(f"{'─' * 70}\n")
 
 
 # ---------------------------------------------------------------------------
@@ -272,10 +268,10 @@ async def main() -> None:
     # ------------------------------------------------------------------
     # 1. Start Flask apps
     # ------------------------------------------------------------------
-    vuln_proc   = start_flask_app(VULN_APP_DIR,   VULN_PORT)
+    vuln_proc = start_flask_app(VULN_APP_DIR, VULN_PORT)
     secure_proc = start_flask_app(SECURE_APP_DIR, SECURE_PORT)
 
-    vuln_url   = f"http://localhost:{VULN_PORT}"
+    vuln_url = f"http://localhost:{VULN_PORT}"
     secure_url = f"http://localhost:{SECURE_PORT}"
 
     try:

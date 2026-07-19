@@ -1,10 +1,18 @@
+import logging
 import time
 import urllib.parse
-import logging
-from typing import List, Dict, Any
+
 from zapv2 import ZAPv2
+
+from src.domain.entities import (
+    APIContext,
+    Finding,
+    FindingCategory,
+    FindingSource,
+    RiskContext,
+    Severity,
+)
 from src.domain.interfaces import IScanner
-from src.domain.entities import Finding, FindingSource, FindingCategory, Severity, APIContext, RiskContext
 
 logger = logging.getLogger("SecurityPlatform.ZapAdapter")
 
@@ -47,9 +55,9 @@ class ZapClientAdapter(IScanner):
             logger.debug(f"Connessione ZAP fallita: {e}")
             return False
 
-    def scan(self, target_url: str) -> List[Finding]:
+    def scan(self, target_url: str) -> list[Finding]:
         """
-        Esegue lo spidering su target_url per stimolare le API 
+        Esegue lo spidering su target_url per stimolare le API
         e raccoglie i findings/alert generati da ZAP.
 
         Args:
@@ -77,13 +85,13 @@ class ZapClientAdapter(IScanner):
                     time.sleep(SPIDER_POLL_INTERVAL_SECONDS)
         except Exception as e:
             logger.warning(f"Spidering ZAP fallito o saltato: {e}")
-        
+
         # 2. Recupero degli Alert registrati da ZAP
-        findings: List[Finding] = []
+        findings: list[Finding] = []
         try:
             alerts = self.zap.core.alerts(baseurl=target_url)
             logger.info(f"Rilevati {len(alerts)} alert grezzi da ZAP per target {target_url}.")
-            
+
             for alert in alerts:
                 alert_id = alert.get("id", "zap-alert")
                 alert_name = alert.get("alert", "Vulnerabilità DAST")
@@ -92,7 +100,7 @@ class ZapClientAdapter(IScanner):
                 method = alert.get("method", "GET")
                 param = alert.get("param", "")
                 evidence = alert.get("evidence", "")
-                
+
                 # Mappatura della severità ZAP (High, Medium, Low, Informational)
                 risk = alert.get("risk", "Informational")
                 severity = Severity.INFO
@@ -116,12 +124,8 @@ class ZapClientAdapter(IScanner):
                     category = FindingCategory.SECURITY_HEADERS
 
                 path = urllib.parse.urlparse(url).path
-                api_ctx = APIContext(
-                    endpoint=path,
-                    method=method,
-                    base_url=target_url
-                )
-                
+                api_ctx = APIContext(endpoint=path, method=method, base_url=target_url)
+
                 finding = Finding.create(
                     source=FindingSource.ZAP_DAST,
                     category=category,
@@ -134,7 +138,7 @@ class ZapClientAdapter(IScanner):
                     rule_name=alert_name,
                     api=api_ctx,
                     risk_context=RiskContext(exploitable=True, internet_exposed=True),
-                    raw_data=alert
+                    raw_data=alert,
                 )
                 findings.append(finding)
         except Exception as e:

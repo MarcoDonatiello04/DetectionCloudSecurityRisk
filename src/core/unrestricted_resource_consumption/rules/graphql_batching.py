@@ -17,7 +17,6 @@ from tree_sitter import Node
 
 from src.core.unrestricted_resource_consumption.models import ResourceConsumptionFinding
 
-
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -25,8 +24,8 @@ from src.core.unrestricted_resource_consumption.models import ResourceConsumptio
 # Python GraphQL constructor call names
 PY_GRAPHQL_CONSTRUCTORS = {
     "strawberry.Schema",
-    "Schema",              # graphene.Schema / graphql-core Schema
-    "GraphQL",             # graphql-core WSGI/ASGI app
+    "Schema",  # graphene.Schema / graphql-core Schema
+    "GraphQL",  # graphql-core WSGI/ASGI app
     "make_executable_schema",  # Ariadne
     "build_schema",
 }
@@ -65,6 +64,7 @@ JS_PROTECTION_KEYS = {
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _node_text(node: Node) -> str:
     return node.text.decode("utf-8", errors="replace") if node.text else ""
 
@@ -102,6 +102,7 @@ def _dotted(chain: list[str]) -> str:
 # Python analysis
 # ---------------------------------------------------------------------------
 
+
 def _is_py_graphql_call(call_node: Node) -> bool:
     func = call_node.child_by_field_name("function")
     if func is None:
@@ -130,28 +131,31 @@ def _analyze_python(root: Node, file_path: str) -> list[ResourceConsumptionFindi
             continue
         func = call.child_by_field_name("function")
         func_name = _node_text(func) if func else "GraphQL"
-        findings.append(ResourceConsumptionFinding(
-            rule_id="RC-004",
-            cwe_id="CWE-400",
-            category="graphql_batching_unlimited",
-            severity="HIGH",
-            file_path=file_path,
-            line_number=call.start_point[0] + 1,
-            endpoint=None,
-            parameter=None,
-            evidence=f"{func_name}(...) without depth/complexity limiter extension",
-            missing_guard=(
-                "No QueryDepthLimiter / cost_validator in extensions= or validation_rules="
-            ),
-            confidence=0.85,
-            layer="ast",
-        ))
+        findings.append(
+            ResourceConsumptionFinding(
+                rule_id="RC-004",
+                cwe_id="CWE-400",
+                category="graphql_batching_unlimited",
+                severity="HIGH",
+                file_path=file_path,
+                line_number=call.start_point[0] + 1,
+                endpoint=None,
+                parameter=None,
+                evidence=f"{func_name}(...) without depth/complexity limiter extension",
+                missing_guard=(
+                    "No QueryDepthLimiter / cost_validator in extensions= or validation_rules="
+                ),
+                confidence=0.85,
+                layer="ast",
+            )
+        )
     return findings
 
 
 # ---------------------------------------------------------------------------
 # JavaScript analysis
 # ---------------------------------------------------------------------------
+
 
 def _is_js_graphql_call(call_node: Node) -> bool:
     func = call_node.child_by_field_name("function")
@@ -179,26 +183,29 @@ def _analyze_javascript(root: Node, file_path: str) -> list[ResourceConsumptionF
                 continue
             func = call.child_by_field_name("function")
             func_name = _node_text(func) if func else "GraphQLServer"
-            findings.append(ResourceConsumptionFinding(
-                rule_id="RC-004",
-                cwe_id="CWE-400",
-                category="graphql_batching_unlimited",
-                severity="HIGH",
-                file_path=file_path,
-                line_number=call.start_point[0] + 1,
-                endpoint=None,
-                parameter=None,
-                evidence=f"new {func_name}(...) without validationRules or depthLimit",
-                missing_guard="No validationRules: [depthLimit(...)] or complexity limiter",
-                confidence=0.85,
-                layer="ast",
-            ))
+            findings.append(
+                ResourceConsumptionFinding(
+                    rule_id="RC-004",
+                    cwe_id="CWE-400",
+                    category="graphql_batching_unlimited",
+                    severity="HIGH",
+                    file_path=file_path,
+                    line_number=call.start_point[0] + 1,
+                    endpoint=None,
+                    parameter=None,
+                    evidence=f"new {func_name}(...) without validationRules or depthLimit",
+                    missing_guard="No validationRules: [depthLimit(...)] or complexity limiter",
+                    confidence=0.85,
+                    layer="ast",
+                )
+            )
     return findings
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 class GraphQLBatchingRule:
     rule_id = "RC-004"

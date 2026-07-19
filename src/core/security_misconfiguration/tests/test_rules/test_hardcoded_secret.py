@@ -1,6 +1,8 @@
 import ast
 from pathlib import Path
+
 from src.core.security_misconfiguration.rules.hardcoded_secret import analyze
+
 
 def test_hardcoded_secret():
     content = """

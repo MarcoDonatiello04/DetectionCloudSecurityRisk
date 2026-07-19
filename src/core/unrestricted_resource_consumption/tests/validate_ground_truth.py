@@ -24,7 +24,7 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.core.unrestricted_resource_consumption import detector  # noqa: E402
+from src.core.unrestricted_resource_consumption import detector
 
 # ---------------------------------------------------------------------------
 # Ground truth
@@ -37,15 +37,19 @@ FIXTURES_DIR = PROJECT_ROOT / "test_targets" / "unrestricted_resource_consumptio
 GROUND_TRUTH: dict[str, dict[str, Any]] = {
     "vulnerable_app": {
         "expected_findings": [
-            {"rule_id": "RC-001", "must_find": True,  "note": "Unbounded pagination param"},
-            {"rule_id": "RC-002", "must_find": True,  "note": "Upload without size check"},
-            {"rule_id": "RC-003", "must_find": True,  "note": "HTTP call without timeout"},
-            {"rule_id": "RC-004", "must_find": True,  "note": "GraphQL schema without limiter"},
-            {"rule_id": "RC-005", "must_find": True,  "note": "For-loop on user input"},
-            {"rule_id": "RC-006", "must_find": True,  "note": "Twilio client call without throttle"},
-            {"rule_id": "RC-007", "must_find": True,  "note": "docker-compose: no memory limits"},
-            {"rule_id": "RC-008", "must_find": True,  "note": "nginx + .env: no body size limit"},
-            {"rule_id": "RC-009", "must_find": True,  "note": "gunicorn timeout=0 + nginx no proxy timeouts"},
+            {"rule_id": "RC-001", "must_find": True, "note": "Unbounded pagination param"},
+            {"rule_id": "RC-002", "must_find": True, "note": "Upload without size check"},
+            {"rule_id": "RC-003", "must_find": True, "note": "HTTP call without timeout"},
+            {"rule_id": "RC-004", "must_find": True, "note": "GraphQL schema without limiter"},
+            {"rule_id": "RC-005", "must_find": True, "note": "For-loop on user input"},
+            {"rule_id": "RC-006", "must_find": True, "note": "Twilio client call without throttle"},
+            {"rule_id": "RC-007", "must_find": True, "note": "docker-compose: no memory limits"},
+            {"rule_id": "RC-008", "must_find": True, "note": "nginx + .env: no body size limit"},
+            {
+                "rule_id": "RC-009",
+                "must_find": True,
+                "note": "gunicorn timeout=0 + nginx no proxy timeouts",
+            },
         ]
     },
     "secure_app": {
@@ -56,6 +60,7 @@ GROUND_TRUTH: dict[str, dict[str, Any]] = {
 # ---------------------------------------------------------------------------
 # Per-rule result tracking
 # ---------------------------------------------------------------------------
+
 
 def _run_validation(verbose: bool = True) -> dict[str, Any]:
     results: dict[str, int] = {"TP": 0, "TN": 0, "FP": 0, "FN": 0}
@@ -73,7 +78,7 @@ def _run_validation(verbose: bool = True) -> dict[str, Any]:
         found_rule_ids = {f.rule_id for f in report.findings}
 
         if verbose:
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"Fixture: {app_name}")
             print(f"Found:   {sorted(found_rule_ids)}")
 
@@ -90,7 +95,7 @@ def _run_validation(verbose: bool = True) -> dict[str, Any]:
             else:
                 results["TN"] += 1
                 if verbose:
-                    print(f"  [TN] Secure app clean — correct")
+                    print("  [TN] Secure app clean — correct")
         else:
             for exp in expected:
                 rule_id = exp["rule_id"]
@@ -124,8 +129,8 @@ def _run_validation(verbose: bool = True) -> dict[str, Any]:
     fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
 
     if verbose:
-        print(f"\n{'='*60}")
-        print(f"=== Validation Results ===")
+        print(f"\n{'=' * 60}")
+        print("=== Validation Results ===")
         print(f"TP: {tp} | TN: {tn} | FP: {fp} | FN: {fn}")
         print(f"TPR: {tpr:.1%} | FPR: {fpr:.1%}")
         if missed:
@@ -133,15 +138,19 @@ def _run_validation(verbose: bool = True) -> dict[str, Any]:
         if false_positives:
             print(f"False positives: {false_positives}")
 
-        print(f"\n=== Per-Rule Summary ===")
+        print("\n=== Per-Rule Summary ===")
         for rule_id in sorted(per_rule):
             status = per_rule[rule_id]
             icon = {"TP": "✓", "FN": "✗", "N/A": "-"}.get(status, "?")
             print(f"  {icon} {rule_id}: {status}")
 
     return {
-        "TP": tp, "TN": tn, "FP": fp, "FN": fn,
-        "TPR": tpr, "FPR": fpr,
+        "TP": tp,
+        "TN": tn,
+        "FP": fp,
+        "FN": fn,
+        "TPR": tpr,
+        "FPR": fpr,
         "per_rule": per_rule,
         "missed": missed,
         "false_positives": false_positives,
@@ -152,6 +161,7 @@ def _run_validation(verbose: bool = True) -> dict[str, Any]:
 # Optional: crAPI validation (no strict ground truth, report-only)
 # ---------------------------------------------------------------------------
 
+
 def run_crapi_validation(crapi_path: str) -> None:
     """
     Run detector against crAPI codebase.
@@ -161,7 +171,7 @@ def run_crapi_validation(crapi_path: str) -> None:
     report = detector.analyze(crapi_path)
     high_confidence = [f for f in report.findings if f.confidence >= 0.8]
 
-    print(f"\n=== crAPI Findings (confidence >= 0.8) ===")
+    print("\n=== crAPI Findings (confidence >= 0.8) ===")
     if not high_confidence:
         print("  No high-confidence findings.")
         return
@@ -176,6 +186,7 @@ def run_crapi_validation(crapi_path: str) -> None:
 # Acceptance criteria check
 # ---------------------------------------------------------------------------
 
+
 def check_acceptance_criteria(results: dict[str, Any]) -> bool:
     """
     Returns True if the module meets the acceptance criteria for API5 readiness:
@@ -185,10 +196,10 @@ def check_acceptance_criteria(results: dict[str, Any]) -> bool:
     tpr = results["TPR"]
     fpr = results["FPR"]
 
-    print(f"\n=== Acceptance Criteria ===")
+    print("\n=== Acceptance Criteria ===")
     criteria = [
         (tpr >= 0.80, f"TPR >= 80% → {tpr:.1%}"),
-        (fpr == 0.0,  f"FPR = 0%  → {fpr:.1%}"),
+        (fpr == 0.0, f"FPR = 0%  → {fpr:.1%}"),
     ]
     all_pass = True
     for passed, label in criteria:
@@ -209,6 +220,7 @@ def check_acceptance_criteria(results: dict[str, Any]) -> bool:
 # Entry point
 # ---------------------------------------------------------------------------
 
+
 def run_validation(verbose: bool = True) -> dict[str, Any]:
     return _run_validation(verbose=verbose)
 
@@ -217,7 +229,9 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="API4 ground truth validator")
-    parser.add_argument("--crapi", metavar="PATH", help="Path to crAPI codebase for supplemental analysis")
+    parser.add_argument(
+        "--crapi", metavar="PATH", help="Path to crAPI codebase for supplemental analysis"
+    )
     parser.add_argument("--quiet", action="store_true", help="Suppress per-fixture output")
     args = parser.parse_args()
 

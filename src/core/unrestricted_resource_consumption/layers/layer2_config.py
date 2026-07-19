@@ -17,8 +17,8 @@ from __future__ import annotations
 import ast
 import logging
 import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Optional
 
 from src.core.unrestricted_resource_consumption.models import ResourceConsumptionFinding
 
@@ -29,9 +29,18 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 SKIP_DIRS = {
-    ".git", ".venv", "venv", "node_modules", "__pycache__",
-    ".pytest_cache", "dist", "build", ".mypy_cache", ".tox",
-    "site-packages", "egg-info",
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "__pycache__",
+    ".pytest_cache",
+    "dist",
+    "build",
+    ".mypy_cache",
+    ".tox",
+    "site-packages",
+    "egg-info",
 }
 
 # Nginx body size over which we warn even if present (bytes)
@@ -42,11 +51,12 @@ NGINX_BODY_SIZE_WARN_THRESHOLD = 50 * 1024 * 1024  # 50 MB
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _should_skip(path: Path) -> bool:
     return any(part in SKIP_DIRS for part in path.parts)
 
 
-def _safe_read_text(path: Path) -> Optional[str]:
+def _safe_read_text(path: Path) -> str | None:
     try:
         return path.read_text(encoding="utf-8", errors="replace")
     except OSError as exc:
@@ -61,7 +71,7 @@ def _make_finding(
     category: str,
     severity: str,
     file_path: str,
-    line_number: Optional[int],
+    line_number: int | None,
     evidence: str,
     missing_guard: str,
     confidence: float,
@@ -85,6 +95,7 @@ def _make_finding(
 # ===========================================================================
 # RC-007 — docker-compose.yml: no memory/CPU limits
 # ===========================================================================
+
 
 def _parse_docker_compose(path: Path) -> list[ResourceConsumptionFinding]:
     """
@@ -129,17 +140,19 @@ def _parse_docker_compose(path: Path) -> list[ResourceConsumptionFinding]:
         # cpus is optional — only flag memory
 
         if missing:
-            findings.append(_make_finding(
-                rule_id="RC-007",
-                cwe_id="CWE-400",
-                category="no_container_resource_limit",
-                severity="MEDIUM",
-                file_path=str(path),
-                line_number=None,
-                evidence=f"Service '{svc_name}' missing deploy.resources.limits: {', '.join(missing)}",
-                missing_guard="deploy.resources.limits.memory (and optionally cpus)",
-                confidence=0.9,
-            ))
+            findings.append(
+                _make_finding(
+                    rule_id="RC-007",
+                    cwe_id="CWE-400",
+                    category="no_container_resource_limit",
+                    severity="MEDIUM",
+                    file_path=str(path),
+                    line_number=None,
+                    evidence=f"Service '{svc_name}' missing deploy.resources.limits: {', '.join(missing)}",
+                    missing_guard="deploy.resources.limits.memory (and optionally cpus)",
+                    confidence=0.9,
+                )
+            )
 
     return findings
 
@@ -147,6 +160,7 @@ def _parse_docker_compose(path: Path) -> list[ResourceConsumptionFinding]:
 # ===========================================================================
 # RC-008 — Body size limit: nginx.conf / .env / settings.py
 # ===========================================================================
+
 
 def _parse_nginx_body_size(path: Path) -> list[ResourceConsumptionFinding]:
     """
@@ -160,23 +174,23 @@ def _parse_nginx_body_size(path: Path) -> list[ResourceConsumptionFinding]:
     findings: list[ResourceConsumptionFinding] = []
 
     # Look for client_max_body_size directive anywhere in the file
-    pattern = re.compile(
-        r"client_max_body_size\s+(\d+)([kKmMgG]?)\s*;", re.IGNORECASE
-    )
+    pattern = re.compile(r"client_max_body_size\s+(\d+)([kKmMgG]?)\s*;", re.IGNORECASE)
     matches = list(pattern.finditer(text))
 
     if not matches:
-        findings.append(_make_finding(
-            rule_id="RC-008",
-            cwe_id="CWE-400",
-            category="no_body_size_limit",
-            severity="HIGH",
-            file_path=str(path),
-            line_number=None,
-            evidence="client_max_body_size not found in nginx config",
-            missing_guard="client_max_body_size directive at http{} or server{} level",
-            confidence=0.9,
-        ))
+        findings.append(
+            _make_finding(
+                rule_id="RC-008",
+                cwe_id="CWE-400",
+                category="no_body_size_limit",
+                severity="HIGH",
+                file_path=str(path),
+                line_number=None,
+                evidence="client_max_body_size not found in nginx config",
+                missing_guard="client_max_body_size directive at http{} or server{} level",
+                confidence=0.9,
+            )
+        )
         return findings
 
     # Check if any value is excessively large
@@ -187,17 +201,19 @@ def _parse_nginx_body_size(path: Path) -> list[ResourceConsumptionFinding]:
         bytes_val = value * _MULTIPLIERS.get(unit, 1)
         if bytes_val > NGINX_BODY_SIZE_WARN_THRESHOLD:
             line_no = text[: m.start()].count("\n") + 1
-            findings.append(_make_finding(
-                rule_id="RC-008",
-                cwe_id="CWE-400",
-                category="no_body_size_limit",
-                severity="MEDIUM",
-                file_path=str(path),
-                line_number=line_no,
-                evidence=f"client_max_body_size {m.group(1)}{m.group(2)} exceeds 50 MB threshold",
-                missing_guard="Consider reducing client_max_body_size to a business-appropriate limit",
-                confidence=0.7,
-            ))
+            findings.append(
+                _make_finding(
+                    rule_id="RC-008",
+                    cwe_id="CWE-400",
+                    category="no_body_size_limit",
+                    severity="MEDIUM",
+                    file_path=str(path),
+                    line_number=line_no,
+                    evidence=f"client_max_body_size {m.group(1)}{m.group(2)} exceeds 50 MB threshold",
+                    missing_guard="Consider reducing client_max_body_size to a business-appropriate limit",
+                    confidence=0.7,
+                )
+            )
 
     return findings
 
@@ -221,17 +237,19 @@ def _parse_env_body_size(path: Path) -> list[ResourceConsumptionFinding]:
     )
 
     if not has_max_content and not has_django_upload:
-        return [_make_finding(
-            rule_id="RC-008",
-            cwe_id="CWE-400",
-            category="no_body_size_limit",
-            severity="MEDIUM",
-            file_path=str(path),
-            line_number=None,
-            evidence="MAX_CONTENT_LENGTH not set in environment file",
-            missing_guard="MAX_CONTENT_LENGTH=<bytes> or DATA_UPLOAD_MAX_MEMORY_SIZE=<bytes>",
-            confidence=0.75,
-        )]
+        return [
+            _make_finding(
+                rule_id="RC-008",
+                cwe_id="CWE-400",
+                category="no_body_size_limit",
+                severity="MEDIUM",
+                file_path=str(path),
+                line_number=None,
+                evidence="MAX_CONTENT_LENGTH not set in environment file",
+                missing_guard="MAX_CONTENT_LENGTH=<bytes> or DATA_UPLOAD_MAX_MEMORY_SIZE=<bytes>",
+                confidence=0.75,
+            )
+        ]
     return []
 
 
@@ -262,23 +280,26 @@ def _parse_settings_body_size(path: Path) -> list[ResourceConsumptionFinding]:
                 found = True
 
     if not found:
-        return [_make_finding(
-            rule_id="RC-008",
-            cwe_id="CWE-400",
-            category="no_body_size_limit",
-            severity="MEDIUM",
-            file_path=str(path),
-            line_number=None,
-            evidence=f"MAX_CONTENT_LENGTH not assigned in {path.name}",
-            missing_guard="MAX_CONTENT_LENGTH = <bytes>  # Flask upload limit",
-            confidence=0.7,
-        )]
+        return [
+            _make_finding(
+                rule_id="RC-008",
+                cwe_id="CWE-400",
+                category="no_body_size_limit",
+                severity="MEDIUM",
+                file_path=str(path),
+                line_number=None,
+                evidence=f"MAX_CONTENT_LENGTH not assigned in {path.name}",
+                missing_guard="MAX_CONTENT_LENGTH = <bytes>  # Flask upload limit",
+                confidence=0.7,
+            )
+        ]
     return []
 
 
 # ===========================================================================
 # RC-009 — Request timeout: nginx.conf / gunicorn.conf.py
 # ===========================================================================
+
 
 def _parse_nginx_timeout(path: Path) -> list[ResourceConsumptionFinding]:
     """
@@ -296,7 +317,7 @@ def _parse_nginx_timeout(path: Path) -> list[ResourceConsumptionFinding]:
     # We look for location { ... } blocks that contain proxy_pass
     depth = 0
     in_location = False
-    location_start_line: Optional[int] = None
+    location_start_line: int | None = None
     location_name = ""
     block_lines: list[str] = []
 
@@ -326,20 +347,24 @@ def _parse_nginx_timeout(path: Path) -> list[ResourceConsumptionFinding]:
                 # Block closed — analyze it
                 # Strip comment lines before checking directives (avoid false negatives)
                 block_text_no_comments = "\n".join(
-                    l for l in block_lines if not l.strip().startswith("#")
+                    line for line in block_lines if not line.strip().startswith("#")
                 )
-                if "proxy_pass" in block_text_no_comments and not TIMEOUT_RE.search(block_text_no_comments):
-                    findings.append(_make_finding(
-                        rule_id="RC-009",
-                        cwe_id="CWE-400",
-                        category="no_request_timeout",
-                        severity="MEDIUM",
-                        file_path=str(path),
-                        line_number=location_start_line,
-                        evidence=f"location {location_name}: proxy_pass without proxy_read_timeout",
-                        missing_guard="proxy_connect_timeout Xs; proxy_read_timeout Xs; proxy_send_timeout Xs;",
-                        confidence=0.85,
-                    ))
+                if "proxy_pass" in block_text_no_comments and not TIMEOUT_RE.search(
+                    block_text_no_comments
+                ):
+                    findings.append(
+                        _make_finding(
+                            rule_id="RC-009",
+                            cwe_id="CWE-400",
+                            category="no_request_timeout",
+                            severity="MEDIUM",
+                            file_path=str(path),
+                            line_number=location_start_line,
+                            evidence=f"location {location_name}: proxy_pass without proxy_read_timeout",
+                            missing_guard="proxy_connect_timeout Xs; proxy_read_timeout Xs; proxy_send_timeout Xs;",
+                            confidence=0.85,
+                        )
+                    )
                 # Reset state
                 in_location = False
                 block_lines = []
@@ -364,8 +389,8 @@ def _parse_gunicorn_timeout(path: Path) -> list[ResourceConsumptionFinding]:
         logger.warning("AST parse error in %s: %s", path, exc)
         return []
 
-    timeout_value: Optional[int] = None
-    timeout_line: Optional[int] = None
+    timeout_value: int | None = None
+    timeout_line: int | None = None
 
     for node in ast.walk(tree):
         if isinstance(node, ast.Assign):
@@ -376,30 +401,34 @@ def _parse_gunicorn_timeout(path: Path) -> list[ResourceConsumptionFinding]:
                         timeout_line = node.lineno
 
     if timeout_value is None:
-        return [_make_finding(
-            rule_id="RC-009",
-            cwe_id="CWE-400",
-            category="no_request_timeout",
-            severity="LOW",
-            file_path=str(path),
-            line_number=None,
-            evidence="gunicorn 'timeout' not explicitly set (default 30s applies)",
-            missing_guard="timeout = 30  # Explicit timeout recommended",
-            confidence=0.5,
-        )]
+        return [
+            _make_finding(
+                rule_id="RC-009",
+                cwe_id="CWE-400",
+                category="no_request_timeout",
+                severity="LOW",
+                file_path=str(path),
+                line_number=None,
+                evidence="gunicorn 'timeout' not explicitly set (default 30s applies)",
+                missing_guard="timeout = 30  # Explicit timeout recommended",
+                confidence=0.5,
+            )
+        ]
 
     if timeout_value == 0:
-        return [_make_finding(
-            rule_id="RC-009",
-            cwe_id="CWE-400",
-            category="no_request_timeout",
-            severity="HIGH",
-            file_path=str(path),
-            line_number=timeout_line,
-            evidence=f"gunicorn timeout = 0 disables worker watchdog (infinite hang possible)",
-            missing_guard="timeout = 30  # Non-zero timeout required",
-            confidence=0.98,
-        )]
+        return [
+            _make_finding(
+                rule_id="RC-009",
+                cwe_id="CWE-400",
+                category="no_request_timeout",
+                severity="HIGH",
+                file_path=str(path),
+                line_number=timeout_line,
+                evidence="gunicorn timeout = 0 disables worker watchdog (infinite hang possible)",
+                missing_guard="timeout = 30  # Non-zero timeout required",
+                confidence=0.98,
+            )
+        ]
 
     return []  # timeout > 0 and explicitly set → OK
 
@@ -418,17 +447,19 @@ def _parse_procfile_timeout(path: Path) -> list[ResourceConsumptionFinding]:
             continue
         if "--timeout" in line or "-t " in line:
             continue
-        findings.append(_make_finding(
-            rule_id="RC-009",
-            cwe_id="CWE-400",
-            category="no_request_timeout",
-            severity="LOW",
-            file_path=str(path),
-            line_number=lineno,
-            evidence=f"Procfile: {line.strip()[:100]} — no --timeout flag",
-            missing_guard="Add --timeout 30 to gunicorn/uvicorn command",
-            confidence=0.6,
-        ))
+        findings.append(
+            _make_finding(
+                rule_id="RC-009",
+                cwe_id="CWE-400",
+                category="no_request_timeout",
+                severity="LOW",
+                file_path=str(path),
+                line_number=lineno,
+                evidence=f"Procfile: {line.strip()[:100]} — no --timeout flag",
+                missing_guard="Add --timeout 30 to gunicorn/uvicorn command",
+                confidence=0.6,
+            )
+        )
     return findings
 
 
@@ -510,6 +541,7 @@ def discover_config_files(target_path: str) -> list[Path]:
 # ===========================================================================
 # Public API
 # ===========================================================================
+
 
 def analyze_configs(target_path: str) -> list[ResourceConsumptionFinding]:
     """

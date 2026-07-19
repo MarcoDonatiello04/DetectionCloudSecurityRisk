@@ -1,29 +1,36 @@
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
-from typing import Optional
 
-from tree_sitter import Language, Parser
-
-import tree_sitter_python as tspython
 import tree_sitter_javascript as tsjavascript
+import tree_sitter_python as tspython
+from tree_sitter import Language, Node, Parser
 
 from src.core.broken_function_level_authorization.models import FunctionAuthzFinding
-from src.core.broken_function_level_authorization.rules.privileged_endpoint_no_role_check import PrivilegedEndpointNoRoleCheckRule
-from src.core.broken_function_level_authorization.rules.auth_without_authz import AuthWithoutAuthzRule
-from src.core.broken_function_level_authorization.rules.http_method_override import HTTPMethodOverrideRule
-from src.core.broken_function_level_authorization.rules.admin_path_exposure import AdminPathExposureRule
-from src.core.broken_function_level_authorization.rules.shadow_admin_function import ShadowAdminFunctionRule
+from src.core.broken_function_level_authorization.rules.admin_path_exposure import (
+    AdminPathExposureRule,
+)
+from src.core.broken_function_level_authorization.rules.auth_without_authz import (
+    AuthWithoutAuthzRule,
+)
+from src.core.broken_function_level_authorization.rules.http_method_override import (
+    HTTPMethodOverrideRule,
+)
+from src.core.broken_function_level_authorization.rules.privileged_endpoint_no_role_check import (
+    PrivilegedEndpointNoRoleCheckRule,
+)
+from src.core.broken_function_level_authorization.rules.shadow_admin_function import (
+    ShadowAdminFunctionRule,
+)
 
 logger = logging.getLogger(__name__)
 
-_PY_LANGUAGE: Optional[Language] = None
-_JS_LANGUAGE: Optional[Language] = None
+_PY_LANGUAGE: Language | None = None
+_JS_LANGUAGE: Language | None = None
 
 
-def _get_python_language() -> Optional[Language]:
+def _get_python_language() -> Language | None:
     global _PY_LANGUAGE
     if _PY_LANGUAGE is None:
         try:
@@ -33,7 +40,7 @@ def _get_python_language() -> Optional[Language]:
     return _PY_LANGUAGE
 
 
-def _get_javascript_language() -> Optional[Language]:
+def _get_javascript_language() -> Language | None:
     global _JS_LANGUAGE
     if _JS_LANGUAGE is None:
         try:
@@ -50,9 +57,18 @@ SUPPORTED_EXTENSIONS = PYTHON_EXTENSIONS | JS_EXTENSIONS
 MAX_FILE_SIZE = 1 * 1024 * 1024  # 1 MB
 
 SKIP_DIRS = {
-    ".git", ".venv", "venv", "node_modules", "__pycache__",
-    ".pytest_cache", "dist", "build", ".mypy_cache", ".tox",
-    "site-packages", "egg-info",
+    ".git",
+    ".venv",
+    "venv",
+    "node_modules",
+    "__pycache__",
+    ".pytest_cache",
+    "dist",
+    "build",
+    ".mypy_cache",
+    ".tox",
+    "site-packages",
+    "egg-info",
 }
 
 _PYTHON_RULES = [
@@ -133,29 +149,32 @@ def _analyze_file_with_endpoints(file_path: Path) -> tuple[list[FunctionAuthzFin
 
 
 def _extract_endpoints_python(root: Node) -> list[str]:
-    from src.core.broken_function_level_authorization.rules.admin_path_exposure import _get_blueprint_info
+    from src.core.broken_function_level_authorization.rules.admin_path_exposure import (
+        _get_blueprint_info,
+    )
     from src.core.broken_function_level_authorization.rules.privileged_endpoint_no_role_check import (
-        _collect_nodes, _parse_python_decorator
+        _collect_nodes,
+        _parse_python_decorator,
     )
 
     blueprints = _get_blueprint_info(root)
     paths = []
-    
+
     dec_defs = _collect_nodes(root, "decorated_definition")
     for dec_def in dec_defs:
         decorators = [c for c in dec_def.children if c.type == "decorator"]
         func_node = next((c for c in dec_def.children if c.type == "function_definition"), None)
         if not func_node:
             continue
-            
+
         is_route = False
         bp_var_used = None
         route_path = ""
-        
+
         for dec in decorators:
             dec_name, dec_args = _parse_python_decorator(dec)
             dec_name_lower = dec_name.lower()
-            
+
             # Check blueprint or app level
             for bp_var in blueprints:
                 if dec_name.startswith(f"{bp_var}."):
@@ -164,13 +183,15 @@ def _extract_endpoints_python(root: Node) -> list[str]:
                     if dec_args:
                         route_path = dec_args[0]
                     break
-                    
-            if not is_route:
-                if any(x in dec_name_lower for x in (".route", ".get", ".post", ".put", ".delete", ".patch")):
-                    is_route = True
-                    if dec_args:
-                        route_path = dec_args[0]
-                        
+
+            if not is_route and any(
+                x in dec_name_lower
+                for x in (".route", ".get", ".post", ".put", ".delete", ".patch")
+            ):
+                is_route = True
+                if dec_args:
+                    route_path = dec_args[0]
+
         if is_route:
             full_path = ""
             if bp_var_used:
@@ -180,14 +201,16 @@ def _extract_endpoints_python(root: Node) -> list[str]:
                 full_path = route_path
             if full_path:
                 paths.append(full_path)
-                
+
     return paths
 
 
 def _extract_endpoints_javascript(root: Node) -> list[str]:
     from src.core.broken_function_level_authorization.rules.privileged_endpoint_no_role_check import (
-        _collect_nodes, _node_text
+        _collect_nodes,
+        _node_text,
     )
+
     paths = []
     calls = _collect_nodes(root, "call_expression")
     for call in calls:
@@ -195,18 +218,31 @@ def _extract_endpoints_javascript(root: Node) -> list[str]:
         if not func:
             continue
         func_text = _node_text(func)
-        
-        is_js_route = any(prefix in func_text for prefix in [
-            "app.get", "app.post", "app.put", "app.delete", "app.patch", "app.all",
-            "router.get", "router.post", "router.put", "router.delete", "router.patch", "router.all"
-        ])
+
+        is_js_route = any(
+            prefix in func_text
+            for prefix in [
+                "app.get",
+                "app.post",
+                "app.put",
+                "app.delete",
+                "app.patch",
+                "app.all",
+                "router.get",
+                "router.post",
+                "router.put",
+                "router.delete",
+                "router.patch",
+                "router.all",
+            ]
+        )
         if not is_js_route:
             continue
-            
+
         args_node = call.child_by_field_name("arguments")
         if not args_node or len(args_node.children) < 3:
             continue
-            
+
         path_node = args_node.children[1]
         if path_node.type != "string":
             continue
@@ -249,7 +285,12 @@ _SEVERITY_ORDER = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "INFO": 4}
 def _sort_findings(findings: list[FunctionAuthzFinding]) -> list[FunctionAuthzFinding]:
     return sorted(
         findings,
-        key=lambda f: (_SEVERITY_ORDER.get(f.severity, 9), -f.confidence, f.file_path, f.line_number or 0),
+        key=lambda f: (
+            _SEVERITY_ORDER.get(f.severity, 9),
+            -f.confidence,
+            f.file_path,
+            f.line_number or 0,
+        ),
     )
 
 
@@ -276,7 +317,7 @@ def analyze_ast_with_endpoints(target_path: str) -> tuple[list[FunctionAuthzFind
 
     deduped = _dedup(all_findings)
     sorted_findings = _sort_findings(deduped)
-    
+
     unique_endpoints = list(dict.fromkeys(discovered_endpoints))
-    
+
     return sorted_findings, unique_endpoints

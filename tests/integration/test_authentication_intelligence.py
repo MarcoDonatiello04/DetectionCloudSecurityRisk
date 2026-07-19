@@ -1,9 +1,9 @@
-import pytest
-from src.core.broken_authentication.discovery import StackInfo
 from src.core.broken_authentication.ast_parser import FileScore
 from src.core.broken_authentication.authentication_intelligence import (
-    AuthenticationIntelligenceEngine, AuthenticationKnowledgeGraph, base64url_decode
+    AuthenticationIntelligenceEngine,
+    base64url_decode,
 )
+from src.core.broken_authentication.discovery import StackInfo
 
 
 def test_base64url_decode():
@@ -21,7 +21,7 @@ def test_jwt_apps_correlation():
         framework="FastAPI",
         librerie_auth=["PyJWT"],
         identity_provider=None,
-        file_configurazione_rilevanti=["main.py"]
+        file_configurazione_rilevanti=["main.py"],
     )
 
     ast_output = [
@@ -35,32 +35,17 @@ def test_jwt_apps_correlation():
             auth_functions=["login", "verify_token"],
             jwt_claims=["sub", "role"],
             auth_decorators={"profile": "user"},
-            auth_middlewares=[]
+            auth_middlewares=[],
         )
     ]
 
     openapi = {
-        "components": {
-            "securitySchemes": {
-                "bearerAuth": {
-                    "type": "http",
-                    "scheme": "bearer"
-                }
-            }
-        },
-        "paths": {
-            "/api/profile": {
-                "get": {
-                    "security": [{"bearerAuth": []}]
-                }
-            }
-        }
+        "components": {"securitySchemes": {"bearerAuth": {"type": "http", "scheme": "bearer"}}},
+        "paths": {"/api/profile": {"get": {"security": [{"bearerAuth": []}]}}},
     }
 
     graph = AuthenticationIntelligenceEngine.correlate(
-        discovery_output=discovery,
-        ast_output=ast_output,
-        openapi_spec=openapi
+        discovery_output=discovery, ast_output=ast_output, openapi_spec=openapi
     )
 
     assert graph.authentication_type == "JWT"
@@ -78,31 +63,18 @@ def test_oauth2_apps_correlation():
         framework="Express",
         librerie_auth=["oauth2-server"],
         identity_provider=None,
-        file_configurazione_rilevanti=[]
+        file_configurazione_rilevanti=[],
     )
 
     ast_output = []
 
     openapi = {
-        "components": {
-            "securitySchemes": {
-                "oauth2": {
-                    "type": "oauth2",
-                    "flows": {}
-                }
-            }
-        },
-        "paths": {
-            "/oauth/token": {
-                "post": {}
-            }
-        }
+        "components": {"securitySchemes": {"oauth2": {"type": "oauth2", "flows": {}}}},
+        "paths": {"/oauth/token": {"post": {}}},
     }
 
     graph = AuthenticationIntelligenceEngine.correlate(
-        discovery_output=discovery,
-        ast_output=ast_output,
-        openapi_spec=openapi
+        discovery_output=discovery, ast_output=ast_output, openapi_spec=openapi
     )
 
     assert graph.authentication_type == "OAuth2"
@@ -116,7 +88,7 @@ def test_keycloak_apps_correlation():
         framework="Spring Boot",
         librerie_auth=["spring-boot-starter-oauth2-resource-server"],
         identity_provider="Keycloak",
-        file_configurazione_rilevanti=["application.yml"]
+        file_configurazione_rilevanti=["application.yml"],
     )
 
     ast_output = [
@@ -130,13 +102,12 @@ def test_keycloak_apps_correlation():
             auth_functions=[],
             jwt_claims=[],
             auth_decorators={"getAdmin": "admin"},
-            auth_middlewares=["KeycloakWebSecurityConfigurer"]
+            auth_middlewares=["KeycloakWebSecurityConfigurer"],
         )
     ]
 
     graph = AuthenticationIntelligenceEngine.correlate(
-        discovery_output=discovery,
-        ast_output=ast_output
+        discovery_output=discovery, ast_output=ast_output
     )
 
     assert graph.authentication_type == "JWT"
@@ -153,7 +124,7 @@ def test_absence_openapi_and_runtime():
         framework="Flask",
         librerie_auth=["flask_login"],
         identity_provider=None,
-        file_configurazione_rilevanti=[]
+        file_configurazione_rilevanti=[],
     )
 
     ast_output = [
@@ -167,15 +138,12 @@ def test_absence_openapi_and_runtime():
             auth_functions=["signin", "signout"],
             jwt_claims=[],
             auth_decorators={},
-            auth_middlewares=["AuthenticationMiddleware"]
+            auth_middlewares=["AuthenticationMiddleware"],
         )
     ]
 
     graph = AuthenticationIntelligenceEngine.correlate(
-        discovery_output=discovery,
-        ast_output=ast_output,
-        openapi_spec=None,
-        runtime_traffic=None
+        discovery_output=discovery, ast_output=ast_output, openapi_spec=None, runtime_traffic=None
     )
 
     # Absence of OpenAPI/runtime, fallbacks on AST route/names
@@ -193,7 +161,7 @@ def test_runtime_traffic_correlation():
         framework="Gin",
         librerie_auth=["jwt-go"],
         identity_provider=None,
-        file_configurazione_rilevanti=[]
+        file_configurazione_rilevanti=[],
     )
 
     # Base64url encoded payload: {"sub":"user123","role":"operator","scope":"read write"}
@@ -203,26 +171,17 @@ def test_runtime_traffic_correlation():
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwicm9sZSI6Im9wZXJhdG9yIiwic2NvcGUiOiJyZWFkIHdyaXRlIn0.signature"
 
     runtime_traffic = [
-        {
-            "method": "POST",
-            "path": "/api/v1/auth/login",
-            "headers": {},
-            "body_params": {}
-        },
+        {"method": "POST", "path": "/api/v1/auth/login", "headers": {}, "body_params": {}},
         {
             "method": "GET",
             "path": "/api/v1/users/profile",
-            "headers": {
-                "Authorization": f"Bearer {token}"
-            },
-            "body_params": {}
-        }
+            "headers": {"Authorization": f"Bearer {token}"},
+            "body_params": {},
+        },
     ]
 
     graph = AuthenticationIntelligenceEngine.correlate(
-        discovery_output=discovery,
-        ast_output=[],
-        runtime_traffic=runtime_traffic
+        discovery_output=discovery, ast_output=[], runtime_traffic=runtime_traffic
     )
 
     assert graph.login_endpoint == "/api/v1/auth/login"
@@ -240,13 +199,10 @@ def test_unknown_repositories():
         framework="Unknown",
         librerie_auth=[],
         identity_provider=None,
-        file_configurazione_rilevanti=[]
+        file_configurazione_rilevanti=[],
     )
 
-    graph = AuthenticationIntelligenceEngine.correlate(
-        discovery_output=discovery,
-        ast_output=[]
-    )
+    graph = AuthenticationIntelligenceEngine.correlate(discovery_output=discovery, ast_output=[])
 
     assert graph.authentication_type == "Opaque"
     assert graph.confidence_score <= 0.2
@@ -259,11 +215,10 @@ def test_extra_idps_correlation():
             framework="Django",
             librerie_auth=[],
             identity_provider=idp,
-            file_configurazione_rilevanti=[]
+            file_configurazione_rilevanti=[],
         )
         graph = AuthenticationIntelligenceEngine.correlate(
-            discovery_output=discovery,
-            ast_output=[]
+            discovery_output=discovery, ast_output=[]
         )
         assert graph.identity_provider == idp
         assert "roles" in graph.idp_metadata or idp == "OtherIDP"
@@ -282,23 +237,15 @@ def test_cookie_runtime_correlation():
         framework="Flask",
         librerie_auth=[],
         identity_provider=None,
-        file_configurazione_rilevanti=[]
+        file_configurazione_rilevanti=[],
     )
     # Token payload: {"sub": "cookie_user", "roles": ["editor"], "permissions": "write"}
     token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjb29raWVfdXNlciIsInJvbGVzIjpbImVkaXRvciJdLCJwZXJtaXNzaW9ucyI6IndyaXRlIn0.signature"
     runtime_traffic = [
-        {
-            "method": "GET",
-            "path": "/api/profile",
-            "headers": {
-                "Cookie": f"jwt={token}"
-            }
-        }
+        {"method": "GET", "path": "/api/profile", "headers": {"Cookie": f"jwt={token}"}}
     ]
     graph = AuthenticationIntelligenceEngine.correlate(
-        discovery_output=discovery,
-        ast_output=[],
-        runtime_traffic=runtime_traffic
+        discovery_output=discovery, ast_output=[], runtime_traffic=runtime_traffic
     )
     assert graph.authentication_type == "JWT"
     assert "cookie_user" in graph.jwt_claims or "sub" in graph.jwt_claims

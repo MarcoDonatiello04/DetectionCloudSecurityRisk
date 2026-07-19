@@ -1,6 +1,8 @@
 import ast
 from pathlib import Path
+
 from src.core.security_misconfiguration.rules.verbose_error_handler import analyze
+
 
 def test_verbose_errorhandler():
     content = """

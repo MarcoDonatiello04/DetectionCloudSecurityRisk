@@ -18,7 +18,6 @@ from tree_sitter import Node
 
 from src.core.unrestricted_resource_consumption.models import ResourceConsumptionFinding
 
-
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -42,8 +41,19 @@ JS_AXIOS_METHODS = {"get", "post", "put", "patch", "delete", "head", "options", 
 
 # Keywords that indicate a paid-service call (higher confidence)
 PAID_SERVICE_KEYWORDS = {
-    "sms", "twilio", "sendgrid", "stripe", "mailgun", "vonage", "otp",
-    "notify", "notification", "ses", "email", "whatsapp", "telegram",
+    "sms",
+    "twilio",
+    "sendgrid",
+    "stripe",
+    "mailgun",
+    "vonage",
+    "otp",
+    "notify",
+    "notification",
+    "ses",
+    "email",
+    "whatsapp",
+    "telegram",
 }
 
 # Context managers that provide timeout (Python only)
@@ -53,6 +63,7 @@ TIMEOUT_CONTEXT_MANAGERS = {"anyio.fail_after", "asyncio.timeout", "trio.fail_af
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _node_text(node: Node) -> str:
     return node.text.decode("utf-8", errors="replace") if node.text else ""
@@ -138,6 +149,7 @@ def _paid_service_confidence(call_node: Node) -> float:
 # Python analysis
 # ---------------------------------------------------------------------------
 
+
 def _analyze_python(root: Node, file_path: str) -> list[ResourceConsumptionFinding]:
     findings: list[ResourceConsumptionFinding] = []
     calls = _collect_nodes(root, "call")
@@ -149,26 +161,29 @@ def _analyze_python(root: Node, file_path: str) -> list[ResourceConsumptionFindi
         if _is_inside_timeout_ctx(call, root):
             continue
         confidence = _paid_service_confidence(call)
-        findings.append(ResourceConsumptionFinding(
-            rule_id="RC-003",
-            cwe_id="CWE-400",
-            category="missing_http_timeout",
-            severity="HIGH",
-            file_path=file_path,
-            line_number=call.start_point[0] + 1,
-            endpoint=None,
-            parameter=None,
-            evidence=_node_text(call)[:120],
-            missing_guard="No timeout= keyword argument on outbound HTTP call",
-            confidence=confidence,
-            layer="ast",
-        ))
+        findings.append(
+            ResourceConsumptionFinding(
+                rule_id="RC-003",
+                cwe_id="CWE-400",
+                category="missing_http_timeout",
+                severity="HIGH",
+                file_path=file_path,
+                line_number=call.start_point[0] + 1,
+                endpoint=None,
+                parameter=None,
+                evidence=_node_text(call)[:120],
+                missing_guard="No timeout= keyword argument on outbound HTTP call",
+                confidence=confidence,
+                layer="ast",
+            )
+        )
     return findings
 
 
 # ---------------------------------------------------------------------------
 # JavaScript analysis
 # ---------------------------------------------------------------------------
+
 
 def _js_call_is_http(call_node: Node) -> bool:
     """Detect axios.get/post/... or fetch() calls."""
@@ -188,9 +203,7 @@ def _js_call_is_http(call_node: Node) -> bool:
     if chain[-1] == "axios":
         return True
     # got(url) / got.get / superagent.get
-    if chain[0] in ("got", "superagent"):
-        return True
-    return False
+    return chain[0] in ("got", "superagent")
 
 
 def _js_call_has_timeout(call_node: Node) -> bool:
@@ -220,20 +233,22 @@ def _analyze_javascript(root: Node, file_path: str) -> list[ResourceConsumptionF
             if _js_call_has_timeout(call):
                 continue
             confidence = _paid_service_confidence(call)
-            findings.append(ResourceConsumptionFinding(
-                rule_id="RC-003",
-                cwe_id="CWE-400",
-                category="missing_http_timeout",
-                severity="HIGH",
-                file_path=file_path,
-                line_number=call.start_point[0] + 1,
-                endpoint=None,
-                parameter=None,
-                evidence=_node_text(call)[:120],
-                missing_guard="No timeout property in HTTP call options",
-                confidence=confidence,
-                layer="ast",
-            ))
+            findings.append(
+                ResourceConsumptionFinding(
+                    rule_id="RC-003",
+                    cwe_id="CWE-400",
+                    category="missing_http_timeout",
+                    severity="HIGH",
+                    file_path=file_path,
+                    line_number=call.start_point[0] + 1,
+                    endpoint=None,
+                    parameter=None,
+                    evidence=_node_text(call)[:120],
+                    missing_guard="No timeout property in HTTP call options",
+                    confidence=confidence,
+                    layer="ast",
+                )
+            )
     return findings
 
 
@@ -277,6 +292,7 @@ def is_client_side_file(content: str) -> bool:
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 class TimeoutRule:
     rule_id = "RC-003"

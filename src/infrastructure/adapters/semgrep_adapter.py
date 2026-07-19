@@ -1,11 +1,19 @@
+import json
+import logging
 import os
 import re
-import json
 import subprocess
-import logging
-from typing import List, Dict, Any
+from typing import Any
+
+from src.domain.entities import (
+    APIContext,
+    CodeLocation,
+    Finding,
+    FindingCategory,
+    FindingSource,
+    Severity,
+)
 from src.domain.interfaces import IScanner
-from src.domain.entities import Finding, FindingSource, FindingCategory, Severity, CodeLocation, APIContext
 from src.normalization.normalizer import APIEndpointNormalizer
 
 logger = logging.getLogger("SecurityPlatform.SemgrepAdapter")
@@ -30,9 +38,9 @@ class SemgrepScannerAdapter(IScanner):
         """
         Inizializza il SemgrepScannerAdapter con una lista vuota di endpoint.
         """
-        self.endpoints: List[Dict[str, Any]] = []
+        self.endpoints: list[dict[str, Any]] = []
 
-    def scan(self, target_dir: str) -> List[Finding]:
+    def scan(self, target_dir: str) -> list[Finding]:
         """
         Esegue la scansione statica della directory target tramite euristiche e Semgrep.
 
@@ -44,20 +52,25 @@ class SemgrepScannerAdapter(IScanner):
         """
         logger.info(f"🚀 Esecuzione Semgrep & Heuristic AST Scanner su: {target_dir}")
         self.endpoints = []
-        
+
         # 1. Esecuzione euristica nativa dei sorgenti (Python, Express, Spring Boot)
         for root, dirs, files in os.walk(target_dir):
-            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ('venv', '.venv', 'node_modules', 'target', 'build')]
+            dirs[:] = [
+                d
+                for d in dirs
+                if not d.startswith(".")
+                and d not in ("venv", ".venv", "node_modules", "target", "build")
+            ]
             for file in files:
                 filepath = os.path.join(root, file)
                 rel_path = os.path.relpath(filepath, target_dir)
-                
+
                 try:
-                    if file.endswith('.py'):
+                    if file.endswith(".py"):
                         self._parse_python_file(filepath, rel_path)
-                    elif file.endswith(('.js', '.ts')):
+                    elif file.endswith((".js", ".ts")):
                         self._parse_javascript_file(filepath, rel_path)
-                    elif file.endswith('.java'):
+                    elif file.endswith(".java"):
                         self._parse_java_file(filepath, rel_path)
                 except Exception as e:
                     logger.debug(f"Errore nel parsing euristico di {filepath}: {e}")
@@ -66,36 +79,40 @@ class SemgrepScannerAdapter(IScanner):
         self._run_semgrep_discovery(target_dir)
 
         # 3. Trasformazione delle definizioni degli endpoint in entità Finding del Dominio
-        findings: List[Finding] = []
+        findings: list[Finding] = []
         deduplicated = self._deduplicate_endpoints()
         SemgrepScannerAdapter.discovered_endpoints_cache = deduplicated
-        
+
         for ep in deduplicated:
             method = ep["method"]
             path = ep["path"]
             file = ep["file"]
             auth_detected = ep["auth_detected"]
             framework = ep["framework"]
-            
+
             api_ctx = APIContext(
-                endpoint=path,
-                method=method,
-                requires_authentication=auth_detected
+                endpoint=path, method=method, requires_authentication=auth_detected
             )
-            
+
             # Se la rotta non richiede/rileva autenticazione staticamente, impostiamo un MEDIUM Risk
             # Altrimenti registriamo come INFO (route discovered)
             severity = Severity.INFO if auth_detected else Severity.MEDIUM
-            title = "API Endpoint Rilevato" if auth_detected else "Endpoint API non protetto rilevato (Statico)"
+            title = (
+                "API Endpoint Rilevato"
+                if auth_detected
+                else "Endpoint API non protetto rilevato (Statico)"
+            )
             desc = (
                 f"Identificato endpoint API [{framework}]: {method} {path} protetto da autenticazione."
-                if auth_detected else
-                f"L'endpoint API [{framework}]: {method} {path} non sembra richiedere controlli di autenticazione a livello statico."
+                if auth_detected
+                else f"L'endpoint API [{framework}]: {method} {path} non sembra richiedere controlli di autenticazione a livello statico."
             )
-            
+
             finding = Finding.create(
                 source=FindingSource.SEMGREP,
-                category=FindingCategory.API_EXPOSURE if auth_detected else FindingCategory.AUTHENTICATION,
+                category=FindingCategory.API_EXPOSURE
+                if auth_detected
+                else FindingCategory.AUTHENTICATION,
                 title=title,
                 description=desc,
                 severity=severity,
@@ -106,14 +123,14 @@ class SemgrepScannerAdapter(IScanner):
                 location=CodeLocation(file_path=file),
                 api=api_ctx,
                 correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}",
-                raw_data=ep
+                raw_data=ep,
             )
             findings.append(finding)
-            
+
         logger.info(f"Scansione sorgenti completata. Trovati {len(findings)} endpoint statici.")
         return findings
 
-    def _deduplicate_endpoints(self) -> List[Dict[str, Any]]:
+    def _deduplicate_endpoints(self) -> list[dict[str, Any]]:
         """
         Deduplica la lista degli endpoint estratti in base a metodo e percorso,
         fondendo i flag di autenticazione e le definizioni di framework.
@@ -148,29 +165,44 @@ class SemgrepScannerAdapter(IScanner):
         ruleset_path = DEFAULT_SEMGREP_RULESET_PATH
         if not os.path.exists(ruleset_path):
             # Fallback path per testing
-            ruleset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../config/scanner_configs/route-detect.yaml"))
+            ruleset_path = os.path.abspath(
+                os.path.join(
+                    os.path.dirname(__file__), "../../../config/scanner_configs/route-detect.yaml"
+                )
+            )
 
         if not os.path.exists(ruleset_path):
             logger.warning(f"File {DEFAULT_SEMGREP_RULESET_PATH} non trovato. Semgrep saltato.")
             return
 
         output_file = DEFAULT_SEMGREP_OUTPUT_FILE
-        cmd = [semgrep_bin, "scan", f"--config={ruleset_path}", "--json", "-o", output_file, target_dir]
-        
+        cmd = [
+            semgrep_bin,
+            "scan",
+            f"--config={ruleset_path}",
+            "--json",
+            "-o",
+            output_file,
+            target_dir,
+        ]
+
         try:
             subprocess.run(cmd, capture_output=True, text=True, timeout=SEMGREP_TIMEOUT_SECONDS)
             if os.path.exists(output_file):
-                with open(output_file, 'r', encoding='utf-8') as f:
+                with open(output_file, encoding="utf-8") as f:
                     data = json.load(f)
                     for issue in data.get("results", []):
                         extra = issue.get("extra", {})
                         message = extra.get("message", "")
-                        
-                        route_match = re.search(r'(?:Route|Secured Route)\s+Detected:\s*[\'"]?([^\'"\s,]+)[\'"]?', message)
+
+                        route_match = re.search(
+                            r'(?:Route|Secured Route)\s+Detected:\s*[\'"]?([^\'"\s,]+)[\'"]?',
+                            message,
+                        )
                         if route_match:
                             path = route_match.group(1)
                             path = APIEndpointNormalizer.normalize_path(path)
-                            
+
                             rule_id = issue.get("check_id", "")
                             method = "GET"
                             lines = extra.get("lines", "").lower()
@@ -180,19 +212,26 @@ class SemgrepScannerAdapter(IScanner):
                                 method = "PUT"
                             elif "delete" in rule_id.lower() or "delete" in lines:
                                 method = "DELETE"
-                                
+
                             auth_detected = "secured" in rule_id.lower()
-                            
-                            self.endpoints.append({
-                                "method": method,
-                                "path": path,
-                                "file": issue.get("path", ""),
-                                "auth_detected": auth_detected,
-                                "framework": "python-semgrep"
-                            })
+
+                            self.endpoints.append(
+                                {
+                                    "method": method,
+                                    "path": path,
+                                    "file": issue.get("path", ""),
+                                    "auth_detected": auth_detected,
+                                    "framework": "python-semgrep",
+                                }
+                            )
                 if os.path.exists(output_file):
                     os.remove(output_file)
-        except (subprocess.SubprocessError, subprocess.TimeoutExpired, OSError, json.JSONDecodeError) as e:
+        except (
+            subprocess.SubprocessError,
+            subprocess.TimeoutExpired,
+            OSError,
+            json.JSONDecodeError,
+        ) as e:
             logger.debug(f"Esecuzione Semgrep fallita: {e}")
 
     def _parse_python_file(self, filepath: str, rel_path: str) -> None:
@@ -203,54 +242,74 @@ class SemgrepScannerAdapter(IScanner):
             filepath (str): Percorso completo del file Python.
             rel_path (str): Percorso relativo del file rispetto alla cartella target.
         """
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, encoding="utf-8") as f:
             content = f.read()
-            
-        is_fastapi = "fastapi" in content.lower() or "apirouter" in content.lower() or "@app.get" in content or "@router." in content
-        is_flask = "flask" in content.lower() or "@app.route" in content or "@blueprint.route" in content
-        
+
+        is_fastapi = (
+            "fastapi" in content.lower()
+            or "apirouter" in content.lower()
+            or "@app.get" in content
+            or "@router." in content
+        )
+        is_flask = (
+            "flask" in content.lower() or "@app.route" in content or "@blueprint.route" in content
+        )
+
         if is_fastapi:
-            fastapi_pattern = r'@(?:app|router|api_router)\.(get|post|put|delete|patch)\(\s*[\'"]([^\'"]+)[\'"]'
+            fastapi_pattern = (
+                r'@(?:app|router|api_router)\.(get|post|put|delete|patch)\(\s*[\'"]([^\'"]+)[\'"]'
+            )
             for match in re.finditer(fastapi_pattern, content):
                 method = match.group(1).upper()
                 path = match.group(2)
-                
+
                 decorator_end = match.end()
-                sub_content = content[decorator_end:decorator_end + SUB_CONTENT_LOOKAHEAD_LIMIT]
-                auth_detected = "Depends(" in sub_content or "verify_" in sub_content or "auth" in sub_content.lower()
-                
-                self.endpoints.append({
-                    "method": method,
-                    "path": path,
-                    "file": rel_path,
-                    "auth_detected": auth_detected,
-                    "framework": "fastapi"
-                })
-                
+                sub_content = content[decorator_end : decorator_end + SUB_CONTENT_LOOKAHEAD_LIMIT]
+                auth_detected = (
+                    "Depends(" in sub_content
+                    or "verify_" in sub_content
+                    or "auth" in sub_content.lower()
+                )
+
+                self.endpoints.append(
+                    {
+                        "method": method,
+                        "path": path,
+                        "file": rel_path,
+                        "auth_detected": auth_detected,
+                        "framework": "fastapi",
+                    }
+                )
+
         if is_flask or (not is_fastapi and "route(" in content):
             flask_pattern = r'@(?:app|blueprint|auth_blueprint)?\.route\(\s*[\'"]([^\'"]+)[\'"](?:\s*,\s*methods\s*=\s*\[([^\]]+)\])?'
             for match in re.finditer(flask_pattern, content):
                 path = match.group(1)
                 methods_str = match.group(2)
-                
+
                 methods = ["GET"]
                 if methods_str:
-                    methods = [m.strip().strip('\'"') for m in methods_str.split(',')]
-                    
-                openapi_path = re.sub(r'<[^>:]*:?([^>]+)>', r'{\1}', path)
-                
+                    methods = [m.strip().strip("'\"") for m in methods_str.split(",")]
+
+                openapi_path = re.sub(r"<[^>:]*:?([^>]+)>", r"{\1}", path)
+
                 decorator_end = match.end()
-                sub_content = content[decorator_end:decorator_end + SUB_CONTENT_LOOKAHEAD_LIMIT]
-                auth_detected = any(dec in sub_content for dec in ["@login_required", "@jwt_required", "@token_required"])
-                
+                sub_content = content[decorator_end : decorator_end + SUB_CONTENT_LOOKAHEAD_LIMIT]
+                auth_detected = any(
+                    dec in sub_content
+                    for dec in ["@login_required", "@jwt_required", "@token_required"]
+                )
+
                 for method in methods:
-                    self.endpoints.append({
-                        "method": method.upper(),
-                        "path": openapi_path,
-                        "file": rel_path,
-                        "auth_detected": auth_detected,
-                        "framework": "flask"
-                    })
+                    self.endpoints.append(
+                        {
+                            "method": method.upper(),
+                            "path": openapi_path,
+                            "file": rel_path,
+                            "auth_detected": auth_detected,
+                            "framework": "flask",
+                        }
+                    )
 
     def _parse_javascript_file(self, filepath: str, rel_path: str) -> None:
         """
@@ -260,24 +319,28 @@ class SemgrepScannerAdapter(IScanner):
             filepath (str): Percorso completo del file JavaScript/TypeScript.
             rel_path (str): Percorso relativo del file rispetto alla cartella target.
         """
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, encoding="utf-8") as f:
             content = f.read()
         express_pattern = r'(?:app|router)\.(get|post|put|delete|patch)\(\s*[\'"]([^\'"]+)[\'"]\s*,'
         for match in re.finditer(express_pattern, content):
             method = match.group(1).upper()
             path = match.group(2)
-            openapi_path = re.sub(r':([^/]+)', r'{\1}', path)
-            
-            sub_content = content[match.end():match.end() + SUB_CONTENT_LOOKAHEAD_SHORT]
-            auth_detected = any(term in sub_content for term in ["auth", "verify", "protect", "jwt"])
-            
-            self.endpoints.append({
-                "method": method,
-                "path": openapi_path,
-                "file": rel_path,
-                "auth_detected": auth_detected,
-                "framework": "express"
-            })
+            openapi_path = re.sub(r":([^/]+)", r"{\1}", path)
+
+            sub_content = content[match.end() : match.end() + SUB_CONTENT_LOOKAHEAD_SHORT]
+            auth_detected = any(
+                term in sub_content for term in ["auth", "verify", "protect", "jwt"]
+            )
+
+            self.endpoints.append(
+                {
+                    "method": method,
+                    "path": openapi_path,
+                    "file": rel_path,
+                    "auth_detected": auth_detected,
+                    "framework": "express",
+                }
+            )
 
     def _parse_java_file(self, filepath: str, rel_path: str) -> None:
         """
@@ -287,24 +350,31 @@ class SemgrepScannerAdapter(IScanner):
             filepath (str): Percorso completo del file Java.
             rel_path (str): Percorso relativo del file rispetto alla cartella target.
         """
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, encoding="utf-8") as f:
             content = f.read()
         spring_pattern = r'@(GetMapping|PostMapping|PutMapping|DeleteMapping)\s*\(\s*(?:value\s*=\s*)?[\'"]([^\'"]+)[\'"]'
         for match in re.finditer(spring_pattern, content):
             ann = match.group(1)
             path = match.group(2)
-            
+
             method = "GET"
-            if "Post" in ann: method = "POST"
-            elif "Put" in ann: method = "PUT"
-            elif "Delete" in ann: method = "DELETE"
-            
-            auth_detected = any(term in content for term in ["@PreAuthorize", "SecurityContext", "auth"])
-            
-            self.endpoints.append({
-                "method": method,
-                "path": path,
-                "file": rel_path,
-                "auth_detected": auth_detected,
-                "framework": "springboot"
-            })
+            if "Post" in ann:
+                method = "POST"
+            elif "Put" in ann:
+                method = "PUT"
+            elif "Delete" in ann:
+                method = "DELETE"
+
+            auth_detected = any(
+                term in content for term in ["@PreAuthorize", "SecurityContext", "auth"]
+            )
+
+            self.endpoints.append(
+                {
+                    "method": method,
+                    "path": path,
+                    "file": rel_path,
+                    "auth_detected": auth_detected,
+                    "framework": "springboot",
+                }
+            )

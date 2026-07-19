@@ -8,26 +8,29 @@ Responsabilità:
 - Gestire gli errori e fornire fallback leggibili offline.
 """
 
-import os
 import json
 import logging
-from typing import Dict, Any, Optional, Union
+import os
+from typing import Any
 
-from remediation.models.remediation_model import RemediationModel
 from remediation.llm_provider import LlmProvider
+from remediation.models.remediation_model import RemediationModel
 
 logger = logging.getLogger("SecurityPlatform.Remediation.Engine")
+
 
 class RemediationEngine:
     """
     Engine centrale di coordinamento per la remediation automatica offline.
     """
 
-    def __init__(self, kb_directory: Optional[str] = None):
+    def __init__(self, kb_directory: str | None = None):
         if not kb_directory:
-            kb_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), "knowledge_base")
+            kb_directory = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "knowledge_base"
+            )
         self.kb_directory = os.path.abspath(kb_directory)
-        
+
         # Mappa dei file di Knowledge Base
         self.checkov_path = os.path.join(self.kb_directory, "checkov_remediation.json")
         self.owasp_path = os.path.join(self.kb_directory, "owasp_api_remediation.json")
@@ -52,21 +55,23 @@ class RemediationEngine:
         rule_id = getattr(finding, "rule_id", "") or "N/A"
         title = getattr(finding, "title", "")
         description = getattr(finding, "description", "")
-        
+
         # Gestione Enums di dominio o stringhe della GUI
         severity = getattr(finding, "severity", "INFO")
         if not isinstance(severity, str):
             severity = severity.value if hasattr(severity, "value") else str(severity)
-            
+
         category = getattr(finding, "category", "MISCONFIGURATION")
         if not isinstance(category, str):
             category = category.value if hasattr(category, "value") else str(category)
-            
+
         source = getattr(finding, "source", "CHECKOV")
         if not isinstance(source, str):
             source = source.value if hasattr(source, "value") else str(source)
 
-        remediation_default = getattr(finding, "remediation", "") or "Nessuna mitigazione specificata."
+        remediation_default = (
+            getattr(finding, "remediation", "") or "Nessuna mitigazione specificata."
+        )
 
         # Chiave di ricerca primaria
         search_key = rule_id if rule_id and rule_id != "N/A" else finding_id
@@ -75,23 +80,33 @@ class RemediationEngine:
         # 1. Ricerca Checkov KB
         if source == "CHECKOV" and search_key in self.checkov_kb:
             logger.info(f"Remediation trovata in Checkov KB per la regola: {search_key}")
-            return self._build_model_from_kb(finding_id, severity, self.checkov_kb[search_key], "knowledge_base")
+            return self._build_model_from_kb(
+                finding_id, severity, self.checkov_kb[search_key], "knowledge_base"
+            )
 
         # 2. Ricerca OWASP API KB
         # Controlla per categoria (AUTHORIZATION, AUTHENTICATION, RATE_LIMITING ecc.)
         if category in self.owasp_kb:
             logger.info(f"Remediation trovata in OWASP API KB per la categoria: {category}")
-            return self._build_model_from_kb(finding_id, severity, self.owasp_kb[category], "knowledge_base")
+            return self._build_model_from_kb(
+                finding_id, severity, self.owasp_kb[category], "knowledge_base"
+            )
 
         # 3. Ricerca Cloud Misconfiguration KB
         if search_key in self.cloud_kb:
-            logger.info(f"Remediation trovata in Cloud Misconfiguration KB per la regola: {search_key}")
-            return self._build_model_from_kb(finding_id, severity, self.cloud_kb[search_key], "knowledge_base")
+            logger.info(
+                f"Remediation trovata in Cloud Misconfiguration KB per la regola: {search_key}"
+            )
+            return self._build_model_from_kb(
+                finding_id, severity, self.cloud_kb[search_key], "knowledge_base"
+            )
 
         # ─── FASE 2: RICERCA IN CACHE LOCALE ───
         if search_key in self.cache_kb:
             logger.info(f"Remediation trovata in cache locale per: {search_key}")
-            return self._build_model_from_kb(finding_id, severity, self.cache_kb[search_key], "cache", confidence=0.9)
+            return self._build_model_from_kb(
+                finding_id, severity, self.cache_kb[search_key], "cache", confidence=0.9
+            )
 
         # ─── FASE 3: GENERAZIONE FALLBACK TRAMITE LLM OLLAMA LOCALE ───
         llm_data = self.llm_provider.generate_remediation(
@@ -99,7 +114,7 @@ class RemediationEngine:
             title=title,
             category=category,
             source=source,
-            description=description
+            description=description,
         )
 
         if llm_data:
@@ -107,7 +122,9 @@ class RemediationEngine:
             self._save_to_cache(search_key, llm_data)
             model_name = self.llm_provider.get_available_model() or ""
             source_label = "offline_simulator" if "Simulato" in model_name else "llm"
-            return self._build_model_from_kb(finding_id, severity, llm_data, source_label, confidence=0.8)
+            return self._build_model_from_kb(
+                finding_id, severity, llm_data, source_label, confidence=0.8
+            )
 
         # ─── FASE 4: FALLBACK DI EMERGENZA (OFFLINE SENZA LLM) ───
         logger.warning(f"Nessuna remediation trovata. Fallback standard per: {finding_id}")
@@ -120,7 +137,7 @@ class RemediationEngine:
             remediation_steps=[remediation_default],
             example="# Nessun esempio di configurazione disponibile.",
             source="knowledge_base_fallback",
-            confidence=0.5
+            confidence=0.5,
         )
 
     def get_remediation_source_fast(self, finding: Any) -> str:
@@ -130,17 +147,17 @@ class RemediationEngine:
         """
         finding_id = getattr(finding, "id", "") or getattr(finding, "finding_id", "")
         rule_id = getattr(finding, "rule_id", "") or "N/A"
-        
+
         category = getattr(finding, "category", "MISCONFIGURATION")
         if not isinstance(category, str):
             category = category.value if hasattr(category, "value") else str(category)
-            
+
         source = getattr(finding, "source", "CHECKOV")
         if not isinstance(source, str):
             source = source.value if hasattr(source, "value") else str(source)
-            
+
         search_key = rule_id if rule_id and rule_id != "N/A" else finding_id
-        
+
         if source == "CHECKOV" and search_key in self.checkov_kb:
             return "knowledge_base"
         if category in self.owasp_kb:
@@ -149,20 +166,20 @@ class RemediationEngine:
             return "knowledge_base"
         if search_key in self.cache_kb:
             return "cache"
-            
+
         if self.llm_provider.get_available_model():
             return "llm"
-            
+
         return "fallback"
 
-    def _load_json_db(self, path: str) -> Dict[str, Any]:
+    def _load_json_db(self, path: str) -> dict[str, Any]:
         """
         Carica in memoria un file JSON. Crea un dizionario vuoto se non esiste.
         """
         if not os.path.exists(path):
             return {}
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
             logger.error(f"Errore lettura file KB {path}: {e}")
@@ -172,9 +189,9 @@ class RemediationEngine:
         self,
         finding_id: str,
         severity: str,
-        kb_entry: Dict[str, Any],
+        kb_entry: dict[str, Any],
         source: str,
-        confidence: float = 1.0
+        confidence: float = 1.0,
     ) -> RemediationModel:
         """
         Costruisce un RemediationModel a partire da una entry JSON di KB.
@@ -188,10 +205,10 @@ class RemediationEngine:
             remediation_steps=kb_entry.get("remediation_steps", []),
             example=kb_entry.get("example", ""),
             source=source,
-            confidence=confidence
+            confidence=confidence,
         )
 
-    def _save_to_cache(self, key: str, data: Dict[str, Any]):
+    def _save_to_cache(self, key: str, data: dict[str, Any]):
         """
         Aggiorna il file di cache locale scrivendolo su disco.
         """

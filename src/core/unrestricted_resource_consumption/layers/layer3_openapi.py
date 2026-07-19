@@ -20,7 +20,7 @@ Entry point: analyze_openapi(spec, enrich_spec=False) -> list[ResourceConsumptio
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from src.core.unrestricted_resource_consumption.models import ResourceConsumptionFinding
 
@@ -32,8 +32,17 @@ logger = logging.getLogger(__name__)
 
 # Pagination-related parameter names (case-insensitive)
 PAGINATION_PARAM_NAMES = {
-    "limit", "page_size", "per_page", "count", "size",
-    "max", "take", "top", "n", "offset", "skip",
+    "limit",
+    "page_size",
+    "per_page",
+    "count",
+    "size",
+    "max",
+    "take",
+    "top",
+    "n",
+    "offset",
+    "skip",
 }
 
 # Maximum value considered "sane" — above this we still warn but lower severity
@@ -70,15 +79,23 @@ EXPENSIVE_PATTERNS: list[tuple[str, str]] = [
 
 # Keywords in description/summary that imply documented rate limiting
 THROTTLE_KEYWORDS = {
-    "rate limit", "rate-limit", "throttle", "throttling",
-    "per hour", "per minute", "per day", "requests/hour",
-    "calls per", "max requests",
+    "rate limit",
+    "rate-limit",
+    "throttle",
+    "throttling",
+    "per hour",
+    "per minute",
+    "per day",
+    "requests/hour",
+    "calls per",
+    "max requests",
 }
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_finding(
     *,
@@ -87,9 +104,9 @@ def _make_finding(
     category: str,
     severity: str,
     file_path: str,
-    line_number: Optional[int],
-    endpoint: Optional[str],
-    parameter: Optional[str],
+    line_number: int | None,
+    endpoint: str | None,
+    parameter: str | None,
     evidence: str,
     missing_guard: str,
     confidence: float,
@@ -116,9 +133,9 @@ def detect_spec_version(spec: dict) -> str:
     Raises ValueError for unrecognized formats.
     """
     if "openapi" in spec:
-        return spec["openapi"]   # "3.0.x" or "3.1.x"
+        return spec["openapi"]  # "3.0.x" or "3.1.x"
     if "swagger" in spec:
-        return spec["swagger"]   # "2.0"
+        return spec["swagger"]  # "2.0"
     raise ValueError("Unrecognized spec format — missing 'openapi' or 'swagger' key")
 
 
@@ -167,13 +184,14 @@ def _resolve_schema(schema: Any, spec: dict) -> dict:
 # RC-010 — Pagination parameter without maximum
 # ---------------------------------------------------------------------------
 
+
 def _check_schema_for_max(
     schema: dict,
     param_name: str,
     path_str: str,
     method: str,
     source: str,  # "parameter" or "requestBody"
-) -> Optional[ResourceConsumptionFinding]:
+) -> ResourceConsumptionFinding | None:
     """
     Check a single schema dict for missing maximum constraint on a pagination field.
     """
@@ -253,6 +271,7 @@ def _analyze_rc010(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
 # RC-011 — File upload without maxLength / maxItems
 # ---------------------------------------------------------------------------
 
+
 def _analyze_rc011(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
     findings: list[ResourceConsumptionFinding] = []
 
@@ -278,26 +297,28 @@ def _analyze_rc011(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
 
                 if prop_type == "string" and prop_format == "binary":
                     if "maxLength" not in prop_schema:
-                        findings.append(_make_finding(
-                            rule_id="RC-011",
-                            cwe_id="CWE-400",
-                            category="openapi_no_upload_size_limit",
-                            severity="HIGH",
-                            file_path="openapi_spec",
-                            line_number=None,
-                            endpoint=f"{method} {path_str}",
-                            parameter=prop_name,
-                            evidence=(
-                                f"{method} {path_str} — upload field '{prop_name}' "
-                                f"(format: binary) has no maxLength"
-                            ),
-                            missing_guard="Add maxLength: <bytes> to the binary property schema",
-                            confidence=0.9,
-                        ))
+                        findings.append(
+                            _make_finding(
+                                rule_id="RC-011",
+                                cwe_id="CWE-400",
+                                category="openapi_no_upload_size_limit",
+                                severity="HIGH",
+                                file_path="openapi_spec",
+                                line_number=None,
+                                endpoint=f"{method} {path_str}",
+                                parameter=prop_name,
+                                evidence=(
+                                    f"{method} {path_str} — upload field '{prop_name}' "
+                                    f"(format: binary) has no maxLength"
+                                ),
+                                missing_guard="Add maxLength: <bytes> to the binary property schema",
+                                confidence=0.9,
+                            )
+                        )
 
-                elif prop_type == "array":
-                    if "maxItems" not in prop_schema:
-                        findings.append(_make_finding(
+                elif prop_type == "array" and "maxItems" not in prop_schema:
+                    findings.append(
+                        _make_finding(
                             rule_id="RC-011",
                             cwe_id="CWE-400",
                             category="openapi_no_upload_size_limit",
@@ -312,23 +333,26 @@ def _analyze_rc011(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
                             ),
                             missing_guard="Add maxItems: <int> to the array property schema",
                             confidence=0.8,
-                        ))
+                        )
+                    )
 
             # Also check top-level schema if it is array
             if schema.get("type") == "array" and "maxItems" not in schema:
-                findings.append(_make_finding(
-                    rule_id="RC-011",
-                    cwe_id="CWE-400",
-                    category="openapi_no_upload_size_limit",
-                    severity="MEDIUM",
-                    file_path="openapi_spec",
-                    line_number=None,
-                    endpoint=f"{method} {path_str}",
-                    parameter=None,
-                    evidence=f"{method} {path_str} — top-level array schema has no maxItems",
-                    missing_guard="Add maxItems: <int> to the array schema",
-                    confidence=0.75,
-                ))
+                findings.append(
+                    _make_finding(
+                        rule_id="RC-011",
+                        cwe_id="CWE-400",
+                        category="openapi_no_upload_size_limit",
+                        severity="MEDIUM",
+                        file_path="openapi_spec",
+                        line_number=None,
+                        endpoint=f"{method} {path_str}",
+                        parameter=None,
+                        evidence=f"{method} {path_str} — top-level array schema has no maxItems",
+                        missing_guard="Add maxItems: <int> to the array schema",
+                        confidence=0.75,
+                    )
+                )
 
     return findings
 
@@ -337,7 +361,8 @@ def _analyze_rc011(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
 # RC-012 — Expensive endpoint without documented protection
 # ---------------------------------------------------------------------------
 
-def _path_is_expensive(path_str: str, operation: dict) -> Optional[str]:
+
+def _path_is_expensive(path_str: str, operation: dict) -> str | None:
     """
     Returns the matched pattern name if the endpoint is considered expensive.
     Checks path string + summary + description (all case-insensitive).
@@ -379,10 +404,7 @@ def _has_documented_protection(operation: dict, global_security: list) -> bool:
     description = str(operation.get("description", "")).lower()
     summary = str(operation.get("summary", "")).lower()
     combined = description + " " + summary
-    if any(kw in combined for kw in THROTTLE_KEYWORDS):
-        return True
-
-    return False
+    return bool(any(kw in combined for kw in THROTTLE_KEYWORDS))
 
 
 def _analyze_rc012(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
@@ -397,25 +419,27 @@ def _analyze_rc012(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
         if _has_documented_protection(operation, global_security):
             continue
 
-        findings.append(_make_finding(
-            rule_id="RC-012",
-            cwe_id="CWE-770",
-            category="openapi_expensive_endpoint_unprotected",
-            severity="HIGH",
-            file_path="openapi_spec",
-            line_number=None,
-            endpoint=f"{method} {path_str}",
-            parameter=None,
-            evidence=(
-                f"{method} {path_str} — matches expensive pattern '{matched_pattern}' "
-                f"without security or rate-limit documentation"
-            ),
-            missing_guard=(
-                "Add security: [{scheme: []}] or x-rate-limit extension "
-                "or document throttling in description"
-            ),
-            confidence=0.85,
-        ))
+        findings.append(
+            _make_finding(
+                rule_id="RC-012",
+                cwe_id="CWE-770",
+                category="openapi_expensive_endpoint_unprotected",
+                severity="HIGH",
+                file_path="openapi_spec",
+                line_number=None,
+                endpoint=f"{method} {path_str}",
+                parameter=None,
+                evidence=(
+                    f"{method} {path_str} — matches expensive pattern '{matched_pattern}' "
+                    f"without security or rate-limit documentation"
+                ),
+                missing_guard=(
+                    "Add security: [{scheme: []}] or x-rate-limit extension "
+                    "or document throttling in description"
+                ),
+                confidence=0.85,
+            )
+        )
 
     return findings
 
@@ -423,6 +447,7 @@ def _analyze_rc012(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
 # ---------------------------------------------------------------------------
 # Spec enrichment (optional)
 # ---------------------------------------------------------------------------
+
 
 def _enrich_spec(
     spec: dict,
@@ -454,13 +479,15 @@ def _enrich_spec(
 
         analysis_entries = []
         for f in ep_findings:
-            analysis_entries.append({
-                "rule_id": f.rule_id,
-                "severity": f.severity,
-                "parameter": f.parameter,
-                "missing_guard": f.missing_guard,
-                "confidence": f.confidence,
-            })
+            analysis_entries.append(
+                {
+                    "rule_id": f.rule_id,
+                    "severity": f.severity,
+                    "parameter": f.parameter,
+                    "missing_guard": f.missing_guard,
+                    "confidence": f.confidence,
+                }
+            )
 
         # Write x-security-analysis (do not overwrite if already present)
         if "x-security-analysis" not in operation:
@@ -475,6 +502,7 @@ def _enrich_spec(
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def analyze_openapi(
     spec: dict,

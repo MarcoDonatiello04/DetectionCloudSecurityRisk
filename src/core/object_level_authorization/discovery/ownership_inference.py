@@ -1,7 +1,8 @@
 import logging
 import re
+from typing import Any
+
 import jwt
-from typing import List, Dict, Any, Optional, Tuple
 
 logger = logging.getLogger("SecurityPlatform.BOLA.OwnershipInference")
 
@@ -16,10 +17,19 @@ class OwnershipInferenceEngine:
 
     # Field names in the body considered as resource identifiers.
     # Kept in sync with ObjectReferenceDiscoveryEngine's ID heuristics.
-    ID_FIELD_PATTERN = re.compile(r'(.*id|.*Id|.*_id|uuid|guid)$', re.IGNORECASE)
+    ID_FIELD_PATTERN = re.compile(r"(.*id|.*Id|.*_id|uuid|guid)$", re.IGNORECASE)
     SPECIFIC_ID_FIELDS = {
-        "id", "userid", "ownerid", "accountid", "tenantid", "resourceid",
-        "orderid", "customerid", "documentid", "uuid", "guid"
+        "id",
+        "userid",
+        "ownerid",
+        "accountid",
+        "tenantid",
+        "resourceid",
+        "orderid",
+        "customerid",
+        "documentid",
+        "uuid",
+        "guid",
     }
 
     EXCLUDED_RESOURCE_IDS = {"seed", "snapshot", "rollback"}
@@ -38,7 +48,7 @@ class OwnershipInferenceEngine:
         #        }
         #    }
         # }
-        self.ownership_map: Dict[str, Dict[str, Any]] = {}
+        self.ownership_map: dict[str, dict[str, Any]] = {}
 
     @classmethod
     def _is_id_field(cls, key: str) -> bool:
@@ -47,7 +57,7 @@ class OwnershipInferenceEngine:
             return True
         return bool(cls.ID_FIELD_PATTERN.match(key))
 
-    def _extract_user_info(self, auth_header: str) -> Dict[str, Any]:
+    def _extract_user_info(self, auth_header: str) -> dict[str, Any]:
         """Extracts identity info (sub, username, role) from a JWT token."""
         if not auth_header or not auth_header.lower().startswith("bearer "):
             return {}
@@ -73,7 +83,7 @@ class OwnershipInferenceEngine:
             logger.debug(f"Failed to decode token for ownership inference: {e}")
         return {}
 
-    def _parse_resource_from_path(self, path: str) -> Tuple[Optional[str], Optional[str]]:
+    def _parse_resource_from_path(self, path: str) -> tuple[str | None, str | None]:
         """
         Parses the resource type and resource ID closest to the end of a REST path.
         Handles nested paths by walking segments from the end, e.g.:
@@ -88,7 +98,7 @@ class OwnershipInferenceEngine:
             return segments[-2], segments[-1]
         return None, None
 
-    def analyze_traffic(self, traffic_data: List[Dict[str, Any]]) -> None:
+    def analyze_traffic(self, traffic_data: list[dict[str, Any]]) -> None:
         """
         Processes a list of HTTP transactions to infer ownership relations and extract tokens.
         """
@@ -101,7 +111,9 @@ class OwnershipInferenceEngine:
             if not status or not (200 <= status < 300):
                 continue
 
-            auth_header = entry.get("auth_header") or entry.get("headers", {}).get("Authorization", "")
+            auth_header = entry.get("auth_header") or entry.get("headers", {}).get(
+                "Authorization", ""
+            )
             user_info = self._extract_user_info(auth_header)
             if not user_info:
                 continue
@@ -116,7 +128,7 @@ class OwnershipInferenceEngine:
                     "role": role,
                     "username": username,
                     "token": auth_header,
-                    "resources": {}
+                    "resources": {},
                 }
             else:
                 # Keep token fresh if new one is seen
@@ -125,9 +137,15 @@ class OwnershipInferenceEngine:
             # 1. Infer from Path
             path = entry.get("path", "")
             res_type, res_id = self._parse_resource_from_path(path)
-            if res_type and res_id:
-                if not res_id.lower().startswith("test") and res_id.lower() not in self.EXCLUDED_RESOURCE_IDS:
-                    self.ownership_map[uid]["resources"].setdefault(res_type, set()).add(res_id)
+            if (
+                res_type
+                and res_id
+                and (
+                    not res_id.lower().startswith("test")
+                    and res_id.lower() not in self.EXCLUDED_RESOURCE_IDS
+                )
+            ):
+                self.ownership_map[uid]["resources"].setdefault(res_type, set()).add(res_id)
 
             # 2. Infer from Request body (if JSON is present)
             body_params = entry.get("body_params")
@@ -143,7 +161,9 @@ class OwnershipInferenceEngine:
                             inferred_type = path_segments[-1]
                     else:
                         inferred_type = k
-                    self.ownership_map[uid]["resources"].setdefault(inferred_type, set()).add(str(v))
+                    self.ownership_map[uid]["resources"].setdefault(inferred_type, set()).add(
+                        str(v)
+                    )
 
     def get_inferred_identities(self) -> tuple:
         """
@@ -151,13 +171,8 @@ class OwnershipInferenceEngine:
         from the inferred traffic data.
         Returns: (uuid_alice, uuid_bob, uuid_charlie, role_map, headers_matrix)
         """
-        role_map: Dict[str, str] = {}
-        headers_matrix = {
-            "userA": {},
-            "userB": {},
-            "userC": {},
-            "anonymous": {}
-        }
+        role_map: dict[str, str] = {}
+        headers_matrix = {"userA": {}, "userB": {}, "userC": {}, "anonymous": {}}
 
         users = list(self.ownership_map.keys())
         regular_users = [uid for uid in users if self.ownership_map[uid]["role"] == "user"]

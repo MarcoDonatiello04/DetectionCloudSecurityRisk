@@ -22,3 +22,18 @@ output/unified_security_report.json
 output/unified_api_inventory.json
 output/dashboard.html
 output/zap_report.json
+
+# Secrets / local env
+.env
+.target_env
+.vscode/
+
+# Tooling caches
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+output/raw_traffic.json
+output/findings_report.json
+output/bola_scan_results.json

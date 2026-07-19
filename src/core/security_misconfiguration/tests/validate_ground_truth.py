@@ -19,10 +19,9 @@ GROUND_TRUTH = {
             {"rule_id": "SC-005", "must_find": True},
         ]
     },
-    "secure_app": {
-        "expected_findings": []
-    }
+    "secure_app": {"expected_findings": []},
 }
+
 
 def run_validation(crapi_path: str | None = None):
     results = {"TP": 0, "TN": 0, "FP": 0, "FN": 0}
@@ -32,7 +31,7 @@ def run_validation(crapi_path: str | None = None):
         report = detector.analyze(str(fixture_path))
         found_rule_ids = {f.rule_id for f in report.findings}
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Fixture: {app_name}")
         print(f"Found:   {sorted(found_rule_ids)}")
 
@@ -52,34 +51,44 @@ def run_validation(crapi_path: str | None = None):
                     print(f"  [FP]  {fid}: false positive ✗")
             else:
                 results["TN"] += 1
-                print(f"  [TN] Secure app clean — correct")
+                print("  [TN] Secure app clean — correct")
 
-    tpr = results["TP"] / (results["TP"] + results["FN"]) if (results["TP"] + results["FN"]) > 0 else 0
-    fpr = results["FP"] / (results["FP"] + results["TN"]) if (results["FP"] + results["TN"]) > 0 else 0
+    tpr = (
+        results["TP"] / (results["TP"] + results["FN"])
+        if (results["TP"] + results["FN"]) > 0
+        else 0
+    )
+    fpr = (
+        results["FP"] / (results["FP"] + results["TN"])
+        if (results["FP"] + results["TN"]) > 0
+        else 0
+    )
 
-    print(f"\n{'='*60}")
-    print(f"=== Validation Results ===")
+    print(f"\n{'=' * 60}")
+    print("=== Validation Results ===")
     print(f"TP: {results['TP']} | TN: {results['TN']} | FP: {results['FP']} | FN: {results['FN']}")
     print(f"TPR: {tpr:.1%} | FPR: {fpr:.1%}")
-    print(f"\n=== Acceptance Criteria ===")
+    print("\n=== Acceptance Criteria ===")
     print(f"  {'✓' if tpr >= 0.8 else '✗'} TPR >= 80% → {tpr:.1%}")
     print(f"  {'✓' if fpr == 0 else '✗'} FPR = 0%  → {fpr:.1%}")
 
     if tpr >= 0.8 and fpr == 0:
-        print(f"\n✅ API8 module READY — acceptance criteria met.")
+        print("\n✅ API8 module READY — acceptance criteria met.")
     else:
-        print(f"\n❌ API8 module NOT READY — gaps remain.")
+        print("\n❌ API8 module NOT READY — gaps remain.")
 
     if crapi_path:
-        print(f"\n=== crAPI Findings ===")
+        print("\n=== crAPI Findings ===")
         crapi_report = detector.analyze(crapi_path)
         for f in crapi_report.findings:
             print(f"  [{f.rule_id}] {f.category} @ {f.file_path}:{f.line_number}")
             print(f"    Evidence: {f.evidence}")
             print(f"    Missing:  {f.missing_guard}")
 
+
 if __name__ == "__main__":
     import sys
+
     crapi = None
     if "--crapi" in sys.argv:
         idx = sys.argv.index("--crapi")

@@ -1,10 +1,17 @@
-import os
 import json
-import subprocess
 import logging
-from typing import List
+import os
+import subprocess
+
+from src.domain.entities import (
+    APIContext,
+    CodeLocation,
+    Finding,
+    FindingCategory,
+    FindingSource,
+    Severity,
+)
 from src.domain.interfaces import IScanner
-from src.domain.entities import Finding, FindingSource, FindingCategory, Severity, CodeLocation, APIContext
 
 logger = logging.getLogger("SecurityPlatform.SpectralAdapter")
 
@@ -22,7 +29,7 @@ class SpectralScannerAdapter(IScanner):
     e mappa gli alert del linter in oggetti Finding.
     """
 
-    def scan(self, target_file_or_dir: str) -> List[Finding]:
+    def scan(self, target_file_or_dir: str) -> list[Finding]:
         """
         Esegue l'analisi di conformità con Spectral sull'OpenAPI contract.
 
@@ -34,15 +41,15 @@ class SpectralScannerAdapter(IScanner):
         """
         logger.info(f"🚀 Esecuzione Spectral API Contract Scanner su: {target_file_or_dir}")
         openapi_file = None
-        
+
         if os.path.isfile(target_file_or_dir):
             if self._is_openapi_file(target_file_or_dir):
                 openapi_file = target_file_or_dir
         else:
             for root, dirs, files in os.walk(target_file_or_dir):
-                dirs[:] = [d for d in dirs if not d.startswith('.')]
+                dirs[:] = [d for d in dirs if not d.startswith(".")]
                 for file in files:
-                    if file.endswith(('.yaml', '.yml', '.json')):
+                    if file.endswith((".yaml", ".yml", ".json")):
                         filepath = os.path.join(root, file)
                         if self._is_openapi_file(filepath):
                             openapi_file = filepath
@@ -55,27 +62,31 @@ class SpectralScannerAdapter(IScanner):
             return []
 
         logger.info(f"📄 Trovato contratto OpenAPI da scansionare: {openapi_file}")
-        
+
         # 1. Carica le rotte originali definite nel contratto per poter fare distinzione
-        from src.normalization.normalizer import APIEndpointNormalizer
         import yaml
+
+        from src.normalization.normalizer import APIEndpointNormalizer
+
         original_paths = set()
         original_data = {}
         try:
-            with open(openapi_file, "r", encoding="utf-8") as f:
+            with open(openapi_file, encoding="utf-8") as f:
                 original_data = yaml.safe_load(f) or {}
                 paths_dict = original_data.get("paths", {}) or {}
-                for p in paths_dict.keys():
+                for p in paths_dict:
                     original_paths.add(APIEndpointNormalizer.normalize_path(p))
         except Exception as e:
             logger.error(f"Errore lettura api spec originale: {e}")
 
         # 2. Ottieni la lista degli endpoint scoperti da Semgrep (se presente nella cache statica)
         from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
+
         discovered = getattr(SemgrepScannerAdapter, "discovered_endpoints_cache", [])
 
         # 3. Costruisci il dizionario OpenAPI unito (merged)
         import copy
+
         merged_data = copy.deepcopy(original_data)
         if "paths" not in merged_data or merged_data["paths"] is None:
             merged_data["paths"] = {}
@@ -85,33 +96,31 @@ class SpectralScannerAdapter(IScanner):
             method = ep["method"].lower()
             path = ep["path"]
             norm_path = APIEndpointNormalizer.normalize_path(path)
-            
+
             if norm_path not in original_paths:
                 if path not in merged_data["paths"]:
                     merged_data["paths"][path] = {}
-                
+
                 # Definiamo l'operazione minimale
                 op_data = {
                     "summary": f"Discovered API Endpoint ({ep.get('framework', 'Semgrep')})",
-                    "responses": {
-                        "200": {
-                            "description": "Risposta automatica"
-                        }
-                    }
+                    "responses": {"200": {"description": "Risposta automatica"}},
                 }
                 # Se Semgrep ha rilevato che richiede autenticazione, aggiungiamo il campo security
                 if ep.get("auth_detected"):
                     op_data["security"] = [{"BearerAuth": []}]
-                
+
                 merged_data["paths"][path][method] = op_data
 
         # 4. Scrivi il contratto unito in un file temporaneo nello stesso folder
-        merged_file_path = openapi_file.replace(os.path.basename(openapi_file), "openapi_merged_temp.yaml")
+        merged_file_path = openapi_file.replace(
+            os.path.basename(openapi_file), "openapi_merged_temp.yaml"
+        )
         try:
             with open(merged_file_path, "w", encoding="utf-8") as f:
                 yaml.safe_dump(merged_data, f, default_flow_style=False)
             logger.info(f"📄 Creato file temporaneo OpenAPI unito per Spectral: {merged_file_path}")
-            
+
             # Salva una copia stabile nella cartella output per la Dashboard UI
             stable_output_path = "output/openapi_merged.yaml"
             os.makedirs("output", exist_ok=True)
@@ -124,12 +133,27 @@ class SpectralScannerAdapter(IScanner):
 
         ruleset_path = DEFAULT_SPECTRAL_RULESET_PATH
         if not os.path.exists(ruleset_path):
-            ruleset_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../config/scanner_configs/spectral-owasp.yaml"))
+            ruleset_path = os.path.abspath(
+                os.path.join(
+                    os.path.dirname(__file__), "../../../config/scanner_configs/spectral-owasp.yaml"
+                )
+            )
 
         report_file = DEFAULT_SPECTRAL_REPORT_FILE
-        cmd = ["npx", "-y", "@stoplight/spectral-cli", "lint", merged_file_path, 
-               "--ruleset", ruleset_path, "--format", "json", "-o", report_file]
-               
+        cmd = [
+            "npx",
+            "-y",
+            "@stoplight/spectral-cli",
+            "lint",
+            merged_file_path,
+            "--ruleset",
+            ruleset_path,
+            "--format",
+            "json",
+            "-o",
+            report_file,
+        ]
+
         try:
             subprocess.run(cmd, capture_output=True, text=True, timeout=SPECTRAL_TIMEOUT_SECONDS)
         except (subprocess.SubprocessError, subprocess.TimeoutExpired) as e:
@@ -137,43 +161,48 @@ class SpectralScannerAdapter(IScanner):
             if merged_file_path != openapi_file and os.path.exists(merged_file_path):
                 os.remove(merged_file_path)
             return []
-        
-        findings: List[Finding] = []
+
+        findings: list[Finding] = []
         if os.path.exists(report_file):
             try:
-                with open(report_file, "r", encoding="utf-8") as f:
+                with open(report_file, encoding="utf-8") as f:
                     issues = json.load(f)
-                    
+
                 for issue in issues:
                     rule_code = str(issue.get("code", "unknown"))
                     msg = issue.get("message", "Violazione contratto API")
                     severity_val = Severity.HIGH if issue.get("severity") == 0 else Severity.MEDIUM
-                    
+
                     # Categoria derivata da rule_code o message
                     rule_code_lower = rule_code.lower()
                     msg_lower = msg.lower()
-                    
+
                     category = FindingCategory.DATA_EXPOSURE
-                    if "auth" in rule_code_lower or "security" in rule_code_lower or "auth" in msg_lower:
+                    if (
+                        "auth" in rule_code_lower
+                        or "security" in rule_code_lower
+                        or "auth" in msg_lower
+                    ):
                         category = FindingCategory.AUTHENTICATION
                     elif "rate" in rule_code_lower or "limit" in rule_code_lower:
                         category = FindingCategory.RATE_LIMITING
-                    elif "validate" in rule_code_lower or "schema" in rule_code_lower or "type" in rule_code_lower:
+                    elif (
+                        "validate" in rule_code_lower
+                        or "schema" in rule_code_lower
+                        or "type" in rule_code_lower
+                    ):
                         category = FindingCategory.INPUT_VALIDATION
                     elif "header" in rule_code_lower or "cors" in rule_code_lower:
                         category = FindingCategory.SECURITY_HEADERS
 
                     start_line = issue.get("range", {}).get("start", {}).get("line")
                     source_file = issue.get("source", openapi_file)
-                    
+
                     if "openapi_merged_temp" in source_file:
                         source_file = openapi_file
 
-                    loc = CodeLocation(
-                        file_path=source_file,
-                        start_line=start_line
-                    )
-                    
+                    loc = CodeLocation(file_path=source_file, start_line=start_line)
+
                     # Estrae l'API Context dal JSON path di Spectral
                     path_list = issue.get("path", [])
                     api_ctx = None
@@ -183,12 +212,9 @@ class SpectralScannerAdapter(IScanner):
                     if len(path_list) >= 3 and path_list[0] == "paths":
                         api_path = path_list[1]
                         api_method = str(path_list[2]).upper()
-                        api_ctx = APIContext(
-                            endpoint=api_path,
-                            method=api_method
-                        )
+                        api_ctx = APIContext(endpoint=api_path, method=api_method)
                         target_ident += f"|{api_ctx.endpoint}|{api_ctx.method}"
-                        
+
                         norm_api_path = APIEndpointNormalizer.normalize_path(api_path)
                         if norm_api_path not in original_paths:
                             is_documented = False
@@ -222,7 +248,7 @@ class SpectralScannerAdapter(IScanner):
                         location=loc,
                         api=api_ctx,
                         correlation_key=corr_key,
-                        raw_data=issue
+                        raw_data=issue,
                     )
                     findings.append(finding)
             except (json.JSONDecodeError, OSError) as e:
@@ -235,7 +261,7 @@ class SpectralScannerAdapter(IScanner):
                         os.remove(merged_file_path)
                     except Exception as e:
                         logger.error(f"Errore rimozione file temporaneo unito: {e}")
-                    
+
         logger.info(f"Spectral completato. Rilevate {len(findings)} deviazioni contrattuali.")
         return findings
 
@@ -250,7 +276,7 @@ class SpectralScannerAdapter(IScanner):
             bool: True se contiene firme OpenAPI, altrimenti False.
         """
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read(OPENAPI_PREVIEW_SIZE_BYTES)  # Legge i primi KB per efficienza
                 if "openapi:" in content or "swagger:" in content:
                     return True

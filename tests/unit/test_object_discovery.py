@@ -1,5 +1,7 @@
-import pytest
-from src.core.object_level_authorization.discovery.object_discovery import ObjectReferenceDiscoveryEngine
+from src.core.object_level_authorization.discovery.object_discovery import (
+    ObjectReferenceDiscoveryEngine,
+)
+
 
 def test_object_reference_discovery():
     request_data = {
@@ -9,15 +11,9 @@ def test_object_reference_discovery():
         "headers": {},
         "body_params": {
             "accountId": 999,
-            "nested": {
-                "ownerId": "owner-xyz",
-                "custom_id": "custom-val"
-            },
-            "items": [
-                {"orderId": 500},
-                {"someOtherField": "value"}
-            ]
-        }
+            "nested": {"ownerId": "owner-xyz", "custom_id": "custom-val"},
+            "items": [{"orderId": 500}, {"someOtherField": "value"}],
+        },
     }
 
     refs = ObjectReferenceDiscoveryEngine.extract_references(request_data)

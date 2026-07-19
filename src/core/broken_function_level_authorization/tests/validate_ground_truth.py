@@ -2,6 +2,7 @@
 """
 Validazione blind API5 detector contro fixture ground truth.
 """
+
 import sys
 from pathlib import Path
 from typing import Any
@@ -27,9 +28,10 @@ GROUND_TRUTH: dict[str, dict[str, Any]] = {
         ]
     },
     "secure_app": {
-        "expected_findings": []   # FPR = 0% richiesto
-    }
+        "expected_findings": []  # FPR = 0% richiesto
+    },
 }
+
 
 def _run_validation(verbose: bool = True) -> dict[str, Any]:
     results = {"TP": 0, "TN": 0, "FP": 0, "FN": 0}
@@ -42,7 +44,7 @@ def _run_validation(verbose: bool = True) -> dict[str, Any]:
         found_rule_ids = {f.rule_id for f in report.findings}
 
         if verbose:
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"Fixture: {app_name}")
             print(f"Found:   {sorted(found_rule_ids)}")
 
@@ -69,27 +71,37 @@ def _run_validation(verbose: bool = True) -> dict[str, Any]:
             else:
                 results["TN"] += 1
                 if verbose:
-                    print(f"  [TN] Secure app clean — correct")
+                    print("  [TN] Secure app clean — correct")
 
-    tpr = (results["TP"] / (results["TP"] + results["FN"])) * 100 if (results["TP"] + results["FN"]) > 0 else 0.0
-    fpr = (results["FP"] / (results["FP"] + results["TN"])) * 100 if (results["FP"] + results["TN"]) > 0 else 0.0
+    tpr = (
+        (results["TP"] / (results["TP"] + results["FN"])) * 100
+        if (results["TP"] + results["FN"]) > 0
+        else 0.0
+    )
+    fpr = (
+        (results["FP"] / (results["FP"] + results["TN"])) * 100
+        if (results["FP"] + results["TN"]) > 0
+        else 0.0
+    )
 
     if verbose:
-        print(f"\n{'='*60}")
-        print(f"=== Validation Results ===")
-        print(f"TP: {results['TP']} | TN: {results['TN']} | FP: {results['FP']} | FN: {results['FN']}")
+        print(f"\n{'=' * 60}")
+        print("=== Validation Results ===")
+        print(
+            f"TP: {results['TP']} | TN: {results['TN']} | FP: {results['FP']} | FN: {results['FN']}"
+        )
         print(f"TPR: {tpr:.1f}% | FPR: {fpr:.1f}%")
 
-        print(f"\n=== Acceptance Criteria ===")
+        print("\n=== Acceptance Criteria ===")
         tpr_ok = tpr >= 80.0
         fpr_ok = fpr == 0.0
         print(f"  {'✓' if tpr_ok else '✗'} TPR >= 80% → {tpr:.1f}%")
         print(f"  {'✓' if fpr_ok else '✗'} FPR = 0%  → {fpr:.1f}%")
 
         if tpr_ok and fpr_ok:
-            print(f"\n✅ API5 module READY — acceptance criteria met.")
+            print("\n✅ API5 module READY — acceptance criteria met.")
         else:
-            print(f"\n❌ API5 module NOT READY — gaps remain.")
+            print("\n❌ API5 module NOT READY — gaps remain.")
 
     return {
         "tpr": tpr,
@@ -99,10 +111,11 @@ def _run_validation(verbose: bool = True) -> dict[str, Any]:
         "false_positives": false_positives,
     }
 
+
 def run_validation(crapi_path: str | None = None):
     _run_validation(verbose=True)
     if crapi_path:
-        print(f"\n=== crAPI Findings (confidence >= 0.8) ===")
+        print("\n=== crAPI Findings (confidence >= 0.8) ===")
         crapi_report = detector.analyze(crapi_path)
         high_conf = [f for f in crapi_report.findings if f.confidence >= 0.8]
         if not high_conf:
@@ -112,8 +125,10 @@ def run_validation(crapi_path: str | None = None):
             print(f"    Evidence: {f.evidence}")
             print(f"    Missing:  {f.missing_guard}")
 
+
 if __name__ == "__main__":
     import sys
+
     crapi = None
     if "--crapi" in sys.argv:
         idx = sys.argv.index("--crapi")

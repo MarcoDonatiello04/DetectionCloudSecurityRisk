@@ -12,16 +12,14 @@ Supported patterns:
 
 from __future__ import annotations
 
-from typing import Optional
-
 from tree_sitter import Node
 
 from src.core.unrestricted_resource_consumption.models import ResourceConsumptionFinding
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _node_text(node: Node) -> str:
     return node.text.decode("utf-8", errors="replace") if node.text else ""
@@ -60,7 +58,8 @@ def _func_text(node: Node) -> str:
 # Flask / Python — request.files detection
 # ---------------------------------------------------------------------------
 
-def _body_accesses_request_files(body: Node) -> Optional[Node]:
+
+def _body_accesses_request_files(body: Node) -> Node | None:
     """Returns the node where request.files is accessed, if any."""
     subscripts = _collect_nodes(body, "subscript")
     for sub in subscripts:
@@ -113,7 +112,7 @@ def _body_has_size_check(body: Node) -> bool:
 
 def _analyze_python_upload_function(
     func_node: Node, file_path: str
-) -> Optional[ResourceConsumptionFinding]:
+) -> ResourceConsumptionFinding | None:
     body = func_node.child_by_field_name("body")
     if body is None:
         return None
@@ -176,6 +175,7 @@ def _analyze_python_upload_function(
 # JavaScript — Multer without limits
 # ---------------------------------------------------------------------------
 
+
 def _analyze_js_multer(root: Node, file_path: str) -> list[ResourceConsumptionFinding]:
     """
     Detects multer({ dest: '...' }) without limits: { fileSize: ... }.
@@ -192,43 +192,48 @@ def _analyze_js_multer(root: Node, file_path: str) -> list[ResourceConsumptionFi
         args = call.child_by_field_name("arguments")
         if args is None:
             # multer() with no args — definitely no limits
-            findings.append(ResourceConsumptionFinding(
-                rule_id="RC-002",
-                cwe_id="CWE-400",
-                category="missing_upload_size_limit",
-                severity="HIGH",
-                file_path=file_path,
-                line_number=call.start_point[0] + 1,
-                endpoint=None,
-                parameter="file",
-                evidence="multer() called without any configuration",
-                missing_guard="multer config missing limits: { fileSize: ... }",
-                confidence=0.9,
-                layer="ast",
-            ))
+            findings.append(
+                ResourceConsumptionFinding(
+                    rule_id="RC-002",
+                    cwe_id="CWE-400",
+                    category="missing_upload_size_limit",
+                    severity="HIGH",
+                    file_path=file_path,
+                    line_number=call.start_point[0] + 1,
+                    endpoint=None,
+                    parameter="file",
+                    evidence="multer() called without any configuration",
+                    missing_guard="multer config missing limits: { fileSize: ... }",
+                    confidence=0.9,
+                    layer="ast",
+                )
+            )
             continue
         args_text = _node_text(args)
         if "limits" not in args_text and "fileSize" not in args_text:
-            findings.append(ResourceConsumptionFinding(
-                rule_id="RC-002",
-                cwe_id="CWE-400",
-                category="missing_upload_size_limit",
-                severity="HIGH",
-                file_path=file_path,
-                line_number=call.start_point[0] + 1,
-                endpoint=None,
-                parameter="file",
-                evidence=f"multer config: {args_text[:100]}",
-                missing_guard="multer config missing limits: { fileSize: ... }",
-                confidence=0.9,
-                layer="ast",
-            ))
+            findings.append(
+                ResourceConsumptionFinding(
+                    rule_id="RC-002",
+                    cwe_id="CWE-400",
+                    category="missing_upload_size_limit",
+                    severity="HIGH",
+                    file_path=file_path,
+                    line_number=call.start_point[0] + 1,
+                    endpoint=None,
+                    parameter="file",
+                    evidence=f"multer config: {args_text[:100]}",
+                    missing_guard="multer config missing limits: { fileSize: ... }",
+                    confidence=0.9,
+                    layer="ast",
+                )
+            )
     return findings
 
 
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 class UploadRule:
     rule_id = "RC-002"

@@ -1,7 +1,10 @@
 # Cloud Security Risk Assessment & API Vulnerability Detection Platform
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
-[![Test Coverage](https://img.shields.io/badge/coverage-95%25-green.svg)](#)
+[![CI](https://github.com/MarcoDonatiello04/DetectionCloudSecurityRisk/actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-351%20passed-brightgreen.svg)](#qualita-del-codice-e-test)
+[![Coverage](https://img.shields.io/badge/coverage-76%25-green.svg)](#qualita-del-codice-e-test)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](#prerequisiti)
+[![Ruff](https://img.shields.io/badge/lint-ruff-261230.svg)](https://docs.astral.sh/ruff/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Una piattaforma unificata per l'analisi statica e dinamica della sicurezza delle API cloud e dell'infrastruttura (IaC). Lo strumento automatizza il rilevamento delle vulnerabilità a livello infrastrutturale e applicativo, correla i findings statici con prove empiriche di runtime, calcola un punteggio di rischio pesato, fornisce raccomandazioni di remediation immediate (offline e con AI locale) e offre una ricca interfaccia desktop (GUI PySide6) per la visualizzazione delle problematiche riscontrate e il catalogo degli endpoint.
@@ -111,11 +114,37 @@ make clean
 
 ---
 
-## Esecuzione dei Test Unitari
+## Qualita del Codice e Test
 
-Per lanciare i test unitari di validazione dell'event bus, del normalizzatore dei path e del motore di correlazione:
+Il progetto adotta un quality gate unico, condiviso tra ambiente locale e CI
+(GitHub Actions, `.github/workflows/ci.yml`). Tutta la configurazione degli
+strumenti risiede in un solo file, `pyproject.toml`.
+
+| Comando | Cosa fa |
+| --- | --- |
+| `make install` | Installa le dipendenze runtime (pinnate) e gli strumenti di sviluppo |
+| `make lint` | Analisi statica e verifica formattazione con **Ruff** |
+| `make format` | Applica fix automatici e formattazione |
+| `make test` | Esegue l'intera suite `pytest` con report di coverage |
+| `make check` | Quality gate completo: lint + test (identico alla CI) |
+
+**Stato attuale:** 351 test superati, 3 skippati, **76%** di copertura su
+`src/` e `remediation/`; `ruff check` e `ruff format --check` puliti su tutto
+il codice di progetto.
+
+### Organizzazione dei test
+- `tests/unit/` — test isolati (event bus, normalizzatore dei path, adapter).
+- `tests/integration/` — test che attraversano piu componenti reali.
+- `src/core/<vulnerabilita>/tests/` — test per singolo rilevatore OWASP, inclusi
+  i test di *ground truth* che confrontano l'output degli scanner con le
+  vulnerabilita note delle applicazioni bersaglio.
+- `test_targets/` — applicazioni vulnerabili e sicure usate come **input** degli
+  scanner. Sono escluse dalla raccolta di pytest (`norecursedirs`): non sono
+  test del progetto e i loro package inquinerebbero `sys.path`.
+
+Per eseguire un singolo modulo:
 ```bash
-.venv/bin/python3 -m pytest tests/unit/test_clean_arch.py
+.venv/bin/python -m pytest tests/unit/test_clean_arch.py
 ```
 
 ---
@@ -247,6 +276,27 @@ Per lanciare la Dashboard Desktop:
 ```bash
 python3 cloud_security_analyzer/launcher.py
 ```
+
+---
+
+## Stato del Progetto e Limiti Noti
+
+Il sistema e un **proof of concept** funzionante e riproducibile end-to-end
+sull'ambiente di riferimento descritto in questo README. I confini attuali sono
+dichiarati esplicitamente:
+
+- **Analisi vincolata all'ambiente di riferimento.** Gli scanner sono validati
+  contro i bersagli in `test_targets/` (incluso crAPI) e contro l'infrastruttura
+  emulata da LocalStack/Keycloak. L'esecuzione su una repository arbitraria e
+  possibile ma non garantita: l'inferenza automatica dello stack, dei percorsi di
+  configurazione e delle credenziali di test non e ancora generalizzata. E il
+  principale lavoro di estensione previsto.
+- **Fase dinamica dipendente dai container.** I test D-AST (BOLA, Broken
+  Authentication, BOPLA) richiedono la suite Docker attiva; senza di essa la
+  pipeline degrada alla sola analisi statica.
+- **Remediation con LLM opzionale.** In assenza di un server Ollama locale il
+  motore ricade su una knowledge base offline deterministica, quindi la suite di
+  test resta verde anche senza modello.
 
 ---
 

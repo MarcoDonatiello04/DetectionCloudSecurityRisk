@@ -1,8 +1,10 @@
-import threading
 import logging
-from typing import Dict, List, Callable, Any
-from src.domain.interfaces import IEventBus
+import threading
+from collections.abc import Callable
+from typing import Any
+
 from src.domain.events import DomainEvent
+from src.domain.interfaces import IEventBus
 
 logger = logging.getLogger("SecurityPlatform.EventBus")
 
@@ -12,12 +14,12 @@ class EventBus(IEventBus):
     Bus degli eventi in-memory e thread-safe.
     Gestisce la registrazione e il dispatch dei DomainEvent.
     """
-    
+
     def __init__(self):
         """
         Inizializza l'EventBus istanziando la struttura dei sottoscrittori e il lock.
         """
-        self._subscribers: Dict[str, List[Callable[[DomainEvent], None]]] = {}
+        self._subscribers: dict[str, list[Callable[[DomainEvent], None]]] = {}
         self._lock = threading.RLock()
 
     def subscribe(self, event_type: str, handler: Callable[[DomainEvent], None]) -> None:
@@ -33,11 +35,13 @@ class EventBus(IEventBus):
                 self._subscribers[event_type] = []
             if handler not in self._subscribers[event_type]:
                 self._subscribers[event_type].append(handler)
-                logger.debug(f"Handler {handler.__name__ if hasattr(handler, '__name__') else str(handler)} registrato per '{event_type}'")
+                logger.debug(
+                    f"Handler {handler.__name__ if hasattr(handler, '__name__') else str(handler)} registrato per '{event_type}'"
+                )
 
     def publish(self, event_type: str, event_data: Any) -> None:
         """
-        Pubblica un evento sul bus. Il payload viene racchiuso in un DomainEvent 
+        Pubblica un evento sul bus. Il payload viene racchiuso in un DomainEvent
         e inviato in modo sincrono a tutti gli handler registrati.
 
         Args:
@@ -46,19 +50,22 @@ class EventBus(IEventBus):
         """
         event = DomainEvent(name=event_type, payload=event_data)
         handlers = []
-        
+
         with self._lock:
             if event_type in self._subscribers:
                 # Creiamo una copia della lista per evitare problemi di mutazione concorrente durante l'esecuzione delle callback
                 handlers = list(self._subscribers[event_type])
-                
+
         if not handlers:
             logger.debug(f"Nessun handler registrato per l'evento '{event_type}'")
             return
-            
+
         logger.debug(f"Pubblicazione evento '{event_type}' a {len(handlers)} handler(s)")
         for handler in handlers:
             try:
                 handler(event)
             except Exception as e:
-                logger.error(f"Errore durante l'esecuzione dell'handler {handler} per l'evento '{event_type}': {e}", exc_info=True)
+                logger.error(
+                    f"Errore durante l'esecuzione dell'handler {handler} per l'evento '{event_type}': {e}",
+                    exc_info=True,
+                )

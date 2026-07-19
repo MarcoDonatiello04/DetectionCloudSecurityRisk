@@ -1,20 +1,28 @@
+import contextlib
+import json
 import os
 import re
-import json
 from pathlib import Path
-from typing import Dict, List, Set, Any, Optional, Tuple
+from typing import Any
 
 from loguru import logger
 
+from src.core.broken_authentication.ast_parser import (
+    EXTENSION_MAP,
+    IGNORE_DIRS,
+    get_parser_for_language,
+    is_text_file,
+)
+from src.core.broken_authentication.discovery import StackInfo
+from src.core.broken_object_property_level_access.discovery import PropertyDiscoveryEngine
+
 # Import models
 from src.core.broken_object_property_level_access.models import (
-    PropertyInventory, PropertyEvidence, PropertyAuthorizationGraph,
-    ObjectGraphNode, PropertyGraphNode
-)
-from src.core.broken_object_property_level_access.discovery import PropertyDiscoveryEngine
-from src.core.broken_authentication.discovery import StackInfo
-from src.core.broken_authentication.ast_parser import (
-    get_parser_for_language, IGNORE_DIRS, is_text_file, EXTENSION_MAP
+    ObjectGraphNode,
+    PropertyAuthorizationGraph,
+    PropertyEvidence,
+    PropertyGraphNode,
+    PropertyInventory,
 )
 from src.normalization.normalizer import APIEndpointNormalizer
 
@@ -27,13 +35,25 @@ class PropertyAuthorizationInferenceEngine:
     """
 
     AUTH_KEYWORDS = {
-        "current_user", "user", "role", "admin", "auth", "token", "caller",
-        "identity", "permissions", "permission", "scope", "can", "hasrole", "is_admin"
+        "current_user",
+        "user",
+        "role",
+        "admin",
+        "auth",
+        "token",
+        "caller",
+        "identity",
+        "permissions",
+        "permission",
+        "scope",
+        "can",
+        "hasrole",
+        "is_admin",
     }
 
     DECORATOR_PATTERN = re.compile(
         r"@\s*(?:roles_required|require_role|permission_required|secured|PreAuthorize|HasRole|Can|Authorize|check_auth)\b.*",
-        re.IGNORECASE
+        re.IGNORECASE,
     )
 
     @classmethod
@@ -44,11 +64,8 @@ class PropertyAuthorizationInferenceEngine:
 
     @classmethod
     def analyze_ast_authorization_contexts(
-        cls,
-        repo_path: str,
-        lang_name: str,
-        discovered_props: Dict[str, Set[str]]
-    ) -> Dict[str, Dict[str, List[str]]]:
+        cls, repo_path: str, lang_name: str, discovered_props: dict[str, set[str]]
+    ) -> dict[str, dict[str, list[str]]]:
         """
         Scans source files using tree-sitter or regex fallback to locate properties
         accessed within authorization checks (if conditions or decorated functions).
@@ -65,18 +82,19 @@ class PropertyAuthorizationInferenceEngine:
             return results
 
         source_files = []
+
         def collect(current_dir: Path):
             try:
                 for item in current_dir.iterdir():
                     if item.is_dir():
                         if item.name not in IGNORE_DIRS:
                             collect(item)
-                    elif item.is_file():
-                        if item.suffix in extensions:
-                            if is_text_file(item):
-                                source_files.append(item)
+                    elif item.is_file() and item.suffix in extensions:
+                        if is_text_file(item):
+                            source_files.append(item)
             except Exception:
                 pass
+
         collect(path)
 
         for file_path in source_files:
@@ -86,7 +104,7 @@ class PropertyAuthorizationInferenceEngine:
                     bytes_content = f.read()
 
                 tree_sitter_succeeded = False
-                
+
                 # 1. Try tree-sitter parsing first
                 try:
                     parser = get_parser_for_language(lang_key)
@@ -97,12 +115,16 @@ class PropertyAuthorizationInferenceEngine:
                         )
                         tree_sitter_succeeded = True
                 except Exception as ts_err:
-                    logger.debug(f"Tree-sitter auth scan failed for {rel_path} ({ts_err}). Fallback to regex...")
+                    logger.debug(
+                        f"Tree-sitter auth scan failed for {rel_path} ({ts_err}). Fallback to regex..."
+                    )
 
                 # 2. Fallback to regex line-by-line scanning
                 if not tree_sitter_succeeded:
                     content_str = bytes_content.decode("utf-8", errors="replace")
-                    cls._scan_text_for_auth_regex(content_str, file_path.suffix, discovered_props, results)
+                    cls._scan_text_for_auth_regex(
+                        content_str, file_path.suffix, discovered_props, results
+                    )
 
             except Exception as e:
                 logger.warning(f"Error scanning auth context in {rel_path}: {e}")
@@ -113,20 +135,20 @@ class PropertyAuthorizationInferenceEngine:
             cleaned_results[obj] = {}
             for prop, contexts in props.items():
                 if contexts:
-                    cleaned_results[obj][prop] = sorted(list(set(contexts)))
+                    cleaned_results[obj][prop] = sorted(set(contexts))
         return cleaned_results
 
     @classmethod
     def _traverse_ast_for_auth(
         cls,
         node,
-        discovered_props: Dict[str, Set[str]],
-        results: Dict[str, Dict[str, List[str]]],
-        lang_key: str
+        discovered_props: dict[str, set[str]],
+        results: dict[str, dict[str, list[str]]],
+        lang_key: str,
     ):
         """Recursively traverses the tree-sitter AST to extract properties in auth contexts."""
-        
-        def walk(n, active_decorators: List[str], active_conditions: List[str]):
+
+        def walk(n, active_decorators: list[str], active_conditions: list[str]):
             # 1. Update decorator context
             current_decorators = list(active_decorators)
             if n.type in ("decorator", "annotation"):
@@ -154,7 +176,7 @@ class PropertyAuthorizationInferenceEngine:
             # E.g., user.salary or self.is_admin
             is_prop_access = False
             prop_name = None
-            
+
             if lang_key == "python" and n.type == "attribute":
                 # Python attribute has children: identifier at the end
                 for child in reversed(n.children):
@@ -196,8 +218,8 @@ class PropertyAuthorizationInferenceEngine:
         cls,
         content: str,
         suffix: str,
-        discovered_props: Dict[str, Set[str]],
-        results: Dict[str, Dict[str, List[str]]]
+        discovered_props: dict[str, set[str]],
+        results: dict[str, dict[str, list[str]]],
     ):
         """Fallback regex scanning for authorization checks block proximity."""
         lines = content.split("\n")
@@ -227,12 +249,12 @@ class PropertyAuthorizationInferenceEngine:
                 # Extract condition
                 cond_text = ""
                 if ":" in line_strip:
-                    cond_text = line_strip[2:line_strip.index(":")].strip()
+                    cond_text = line_strip[2 : line_strip.index(":")].strip()
                 elif "{" in line_strip:
-                    cond_text = line_strip[2:line_strip.index("{")].strip()
+                    cond_text = line_strip[2 : line_strip.index("{")].strip()
                 else:
                     cond_text = line_strip[2:].strip()
-                
+
                 cond_text = cond_text.strip("()")
                 if cls._is_auth_expression(cond_text):
                     active_contexts = [f"if({cond_text})"]
@@ -245,16 +267,15 @@ class PropertyAuthorizationInferenceEngine:
                     for prop in props:
                         # Match property access, e.g. .prop_name or ->prop_name or just prop_name
                         pattern = r"[\.\-\>\b]" + re.escape(prop) + r"\b"
-                        if re.search(pattern, line_strip) or (prop in line_strip and cls._is_auth_expression(line_strip)):
+                        if re.search(pattern, line_strip) or (
+                            prop in line_strip and cls._is_auth_expression(line_strip)
+                        ):
                             results[obj_name][prop].extend(active_contexts)
 
     @classmethod
     def build_cross_model_occurrences(
-        cls,
-        repo_path: str,
-        lang_name: str,
-        discovered_props: Dict[str, Set[str]]
-    ) -> Dict[str, Dict[str, List[str]]]:
+        cls, repo_path: str, lang_name: str, discovered_props: dict[str, set[str]]
+    ) -> dict[str, dict[str, list[str]]]:
         """
         Analyzes original models to verify in which AST-derived DTOs/Entities/Models
         the properties are found.
@@ -270,39 +291,48 @@ class PropertyAuthorizationInferenceEngine:
             return results
 
         source_files = []
+
         def collect(current_dir: Path):
             try:
                 for item in current_dir.iterdir():
                     if item.is_dir():
                         if item.name not in IGNORE_DIRS:
                             collect(item)
-                    elif item.is_file():
-                        if item.suffix in extensions:
-                            if is_text_file(item):
-                                source_files.append(item)
+                    elif item.is_file() and item.suffix in extensions:
+                        if is_text_file(item):
+                            source_files.append(item)
             except Exception:
                 pass
+
         collect(path)
 
         for file_path in source_files:
             try:
-                with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+                with open(file_path, encoding="utf-8", errors="replace") as f:
                     content = f.read()
 
-                parsed_classes = PropertyDiscoveryEngine.extract_properties_via_regex(content, file_path.suffix)
-                
+                parsed_classes = PropertyDiscoveryEngine.extract_properties_via_regex(
+                    content, file_path.suffix
+                )
+
                 # Check tree-sitter if regex returned nothing or to enrich
                 try:
                     parser = get_parser_for_language(lang_key)
                     tree = parser.parse(content.encode("utf-8"))
                     if tree and tree.root_node:
                         if lang_key == "python":
-                            ast_classes = PropertyDiscoveryEngine._parse_python_ast(tree.root_node, content.encode("utf-8"))
+                            ast_classes = PropertyDiscoveryEngine._parse_python_ast(
+                                tree.root_node, content.encode("utf-8")
+                            )
                         elif lang_key in ("javascript", "typescript"):
-                            ast_classes = PropertyDiscoveryEngine._parse_typescript_ast(tree.root_node, content.encode("utf-8"))
+                            ast_classes = PropertyDiscoveryEngine._parse_typescript_ast(
+                                tree.root_node, content.encode("utf-8")
+                            )
                         elif lang_key == "go":
-                            ast_classes = PropertyDiscoveryEngine._parse_go_ast(tree.root_node, content.encode("utf-8"))
-                        
+                            ast_classes = PropertyDiscoveryEngine._parse_go_ast(
+                                tree.root_node, content.encode("utf-8")
+                            )
+
                         if ast_classes:
                             # Merge keeping unique
                             existing = {c[0] for c in parsed_classes}
@@ -325,7 +355,7 @@ class PropertyAuthorizationInferenceEngine:
         # Deduplicate raw class name lists
         for obj, props in results.items():
             for prop in props:
-                results[obj][prop] = sorted(list(set(results[obj][prop])))
+                results[obj][prop] = sorted(set(results[obj][prop]))
 
         return results
 
@@ -366,17 +396,17 @@ class PropertyAuthorizationInferenceEngine:
         cls,
         repo_path: str,
         inventory: PropertyInventory,
-        openapi_spec: Optional[Dict[str, Any]] = None,
-        runtime_traffic: Optional[List[Dict[str, Any]]] = None,
-        stack: Optional[StackInfo] = None
-    ) -> List[PropertyEvidence]:
+        openapi_spec: dict[str, Any] | None = None,
+        runtime_traffic: list[dict[str, Any]] | None = None,
+        stack: StackInfo | None = None,
+    ) -> list[PropertyEvidence]:
         """
         Runs the full Property Authorization Inference workflow.
         Collects AST auth contexts, read/write contexts, documentation issues,
         cross-model correlations, and computes the confidence for each property.
         """
         logger.info("Avvio BOPLA Property Authorization Inference Engine...")
-        
+
         # 1. Get discovered properties structure
         # inventory contains root model mapping Dict[str, ObjectProperties]
         inventory_dict = inventory.root
@@ -390,7 +420,7 @@ class PropertyAuthorizationInferenceEngine:
             lang = stack.linguaggio
         else:
             # guess language
-            for root, dirs, files in os.walk(repo_path):
+            for _root, dirs, files in os.walk(repo_path):
                 dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
                 for file in files:
                     if file.endswith(".go"):
@@ -404,7 +434,9 @@ class PropertyAuthorizationInferenceEngine:
                         break
 
         logger.info(f"BOPLA Inference: Analisi contesti autorizzativi AST per {lang}...")
-        ast_auth_contexts = cls.analyze_ast_authorization_contexts(repo_path, lang, discovered_props)
+        ast_auth_contexts = cls.analyze_ast_authorization_contexts(
+            repo_path, lang, discovered_props
+        )
 
         # 3. Extract Cross-Model Correlation
         logger.info("BOPLA Inference: Analisi cross-model (DTO/Entities/Models)...")
@@ -423,50 +455,60 @@ class PropertyAuthorizationInferenceEngine:
             # we link that component's properties to the path
             paths = openapi_spec.get("paths", {})
             for path, path_info in paths.items():
-                for method, op_info in path_info.items():
+                for method, _op_info in path_info.items():
                     method_upper = method.upper()
                     op_label = f"{method_upper} {APIEndpointNormalizer.normalize_path(path)}"
                     obj_name = PropertyDiscoveryEngine.get_object_name_from_path(path)
-                    
+
                     if obj_name in discovered_props:
                         # For GET request, all properties defined in the OpenAPI schema for this object
                         # are marked as read_endpoints
                         if method_upper == "GET":
                             for prop in discovered_props[obj_name]:
                                 # check if property is documented in components/schemas for this object
-                                openapi_objects = PropertyDiscoveryEngine.extract_openapi_properties(openapi_spec)
+                                openapi_objects = (
+                                    PropertyDiscoveryEngine.extract_openapi_properties(openapi_spec)
+                                )
                                 if prop in openapi_objects.get(obj_name, set()):
                                     read_ops[obj_name][prop].add(op_label)
                         # For write request (POST, PUT, PATCH, DELETE)
                         elif method_upper in ("POST", "PUT", "PATCH", "DELETE"):
                             for prop in discovered_props[obj_name]:
-                                openapi_objects = PropertyDiscoveryEngine.extract_openapi_properties(openapi_spec)
+                                openapi_objects = (
+                                    PropertyDiscoveryEngine.extract_openapi_properties(openapi_spec)
+                                )
                                 if prop in openapi_objects.get(obj_name, set()):
                                     write_ops[obj_name][prop].add(op_label)
 
         # 4b. Process Runtime Traffic
         if runtime_traffic:
-            logger.info(f"BOPLA Inference: Parsing traffico runtime ({len(runtime_traffic)} entry) per Read/Write...")
+            logger.info(
+                f"BOPLA Inference: Parsing traffico runtime ({len(runtime_traffic)} entry) per Read/Write..."
+            )
             for entry in runtime_traffic:
                 path = entry.get("path")
                 method = entry.get("method", "GET").upper()
                 if not path:
                     continue
-                
+
                 normalized_path = APIEndpointNormalizer.normalize_path(path)
                 op_label = f"{method} {normalized_path}"
                 obj_name = PropertyDiscoveryEngine.get_object_name_from_path(path)
-                
+
                 if obj_name in discovered_props:
                     if method == "GET":
-                        resp_body = entry.get("response_body") or entry.get("response") or entry.get("response_params")
+                        resp_body = (
+                            entry.get("response_body")
+                            or entry.get("response")
+                            or entry.get("response_params")
+                        )
                         if resp_body:
                             if isinstance(resp_body, str):
-                                try:
+                                with contextlib.suppress(Exception):
                                     resp_body = json.loads(resp_body)
-                                except Exception:
-                                    pass
-                            keys = PropertyDiscoveryEngine.extract_keys_from_json_recursive(resp_body)
+                            keys = PropertyDiscoveryEngine.extract_keys_from_json_recursive(
+                                resp_body
+                            )
                             for k in keys:
                                 if k in read_ops[obj_name]:
                                     read_ops[obj_name][k].add(op_label)
@@ -474,11 +516,11 @@ class PropertyAuthorizationInferenceEngine:
                         body_params = entry.get("body_params")
                         if body_params:
                             if isinstance(body_params, str):
-                                try:
+                                with contextlib.suppress(Exception):
                                     body_params = json.loads(body_params)
-                                except Exception:
-                                    pass
-                            keys = PropertyDiscoveryEngine.extract_keys_from_json_recursive(body_params)
+                            keys = PropertyDiscoveryEngine.extract_keys_from_json_recursive(
+                                body_params
+                            )
                             for k in keys:
                                 if k in write_ops[obj_name]:
                                     write_ops[obj_name][k].add(op_label)
@@ -488,7 +530,7 @@ class PropertyAuthorizationInferenceEngine:
         for obj, obj_props in inventory_dict.items():
             for p in obj_props.properties:
                 p_name = p.name
-                
+
                 found_ast = "ast" in p.sources
                 found_openapi = "openapi" in p.sources
                 found_runtime = "runtime" in p.sources
@@ -496,10 +538,12 @@ class PropertyAuthorizationInferenceEngine:
                 # Check documentation correlation warnings
                 doc_issues = []
                 if found_runtime and not found_openapi:
-                    doc_issues.append("Property observed at runtime but absent from API specification.")
+                    doc_issues.append(
+                        "Property observed at runtime but absent from API specification."
+                    )
 
-                read_list = sorted(list(read_ops[obj][p_name]))
-                write_list = sorted(list(write_ops[obj][p_name]))
+                read_list = sorted(read_ops[obj][p_name])
+                write_list = sorted(write_ops[obj][p_name])
                 auth_contexts = ast_auth_contexts.get(obj, {}).get(p_name, [])
                 cross_list = cross_models.get(obj, {}).get(p_name, [])
 
@@ -514,7 +558,7 @@ class PropertyAuthorizationInferenceEngine:
                     authorization_contexts=auth_contexts,
                     cross_model_occurrences=cross_list,
                     documentation_issues=doc_issues,
-                    confidence=0.0
+                    confidence=0.0,
                 )
                 # Compute confidence score
                 evidence.confidence = cls.calculate_confidence(evidence)
@@ -525,7 +569,9 @@ class PropertyAuthorizationInferenceEngine:
         return evidences
 
     @classmethod
-    def build_authorization_graph(cls, evidences: List[PropertyEvidence]) -> PropertyAuthorizationGraph:
+    def build_authorization_graph(
+        cls, evidences: list[PropertyEvidence]
+    ) -> PropertyAuthorizationGraph:
         """
         Builds the PropertyAuthorizationGraph hierarchy from inferred property evidences.
         """
@@ -541,7 +587,7 @@ class PropertyAuthorizationInferenceEngine:
                 property_name=prop,
                 read_operations=ev.read_endpoints,
                 write_operations=ev.write_endpoints,
-                authorization_contexts=ev.authorization_contexts
+                authorization_contexts=ev.authorization_contexts,
             )
             graph.objects[obj].properties[prop] = node
 

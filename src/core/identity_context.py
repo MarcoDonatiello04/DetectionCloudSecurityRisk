@@ -6,13 +6,13 @@ e il popolamento deterministico del database target (DatabaseSeeder) con tali UU
 Esteso per gestire 3 identità incrociate (User A, User B e l'amministratore User C).
 """
 
-import os
-import json
 import base64
+import json
 import logging
-import requests
+from typing import Any
+
 import jwt
-from typing import Dict, Any, List
+import requests
 
 # Configurazione logging
 logger = logging.getLogger("SecurityPlatform.IdentityContext")
@@ -39,7 +39,9 @@ def validate_url(url: str, param_name: str) -> None:
     Valida la struttura formale di un URL passato come parametro.
     """
     if not url or not (url.startswith("http://") or url.startswith("https://")):
-        raise ValueError(f"Parametro '{param_name}' non valido: deve iniziare con http:// o https://. Valore: {url}")
+        raise ValueError(
+            f"Parametro '{param_name}' non valido: deve iniziare con http:// o https://. Valore: {url}"
+        )
 
 
 class IdentityManager:
@@ -51,20 +53,18 @@ class IdentityManager:
     Estrae l'UUID reale dal claim standard 'sub' e memorizza il ruolo associato.
     """
 
-    def __init__(self, keycloak_url: str = DEFAULT_KEYCLOAK_URL, realm: str = DEFAULT_KEYCLOAK_REALM):
+    def __init__(
+        self, keycloak_url: str = DEFAULT_KEYCLOAK_URL, realm: str = DEFAULT_KEYCLOAK_REALM
+    ):
         validate_url(keycloak_url, "keycloak_url")
         self.token_url = f"{keycloak_url.rstrip('/')}/realms/{realm}/protocol/openid-connect/token"
         self.client_id = DEFAULT_CLIENT_ID
-        
-        # Mappa globale dell'orchestratore per memorizzare gli UUID e i ruoli
-        self.identity_map = {
-            "UUID_ALICE": None,
-            "UUID_BOB": None,
-            "UUID_CHARLIE": None
-        }
-        self.role_map = {} # Associa UUID -> Ruolo
 
-    def get_headers_for_identities(self) -> Dict[str, Dict[str, str]]:
+        # Mappa globale dell'orchestratore per memorizzare gli UUID e i ruoli
+        self.identity_map = {"UUID_ALICE": None, "UUID_BOB": None, "UUID_CHARLIE": None}
+        self.role_map = {}  # Associa UUID -> Ruolo
+
+    def get_headers_for_identities(self) -> dict[str, dict[str, str]]:
         """
         Ottiene i token JWT da Keycloak o genera token fittizi (fallback).
         Estrae l'UUID dal claim 'sub' e il ruolo decodificando il JWT.
@@ -72,14 +72,17 @@ class IdentityManager:
         identities = {
             "user_a": {"username": DEFAULT_USER_A_USERNAME, "password": DEFAULT_USER_A_PASSWORD},
             "user_b": {"username": DEFAULT_USER_B_USERNAME, "password": DEFAULT_USER_B_PASSWORD},
-            "admin_user": {"username": DEFAULT_USER_C_USERNAME, "password": DEFAULT_USER_C_PASSWORD}
+            "admin_user": {
+                "username": DEFAULT_USER_C_USERNAME,
+                "password": DEFAULT_USER_C_PASSWORD,
+            },
         }
-        
+
         headers_matrix = {
             "userA": {},
             "userB": {},
             "userC": {},  # Admin
-            "anonymous": {}  # Header vuoti per Broken Auth
+            "anonymous": {},  # Header vuoti per Broken Auth
         }
 
         for identity_key, credentials in identities.items():
@@ -91,12 +94,14 @@ class IdentityManager:
                 matrix_key = "userC"
 
             token = self._fetch_token(credentials["username"], credentials["password"])
-            
+
             if token:
                 logger.info(f"Ottenuto token JWT reale da Keycloak per {credentials['username']}")
                 headers_matrix[matrix_key] = {"Authorization": f"Bearer {token}"}
             else:
-                logger.warning(f"Keycloak offline per {identity_key}. Utilizzo di un JWT di fallback con UUID realistico.")
+                logger.warning(
+                    f"Keycloak offline per {identity_key}. Utilizzo di un JWT di fallback con UUID realistico."
+                )
                 token = self._generate_mock_jwt(credentials["username"])
                 headers_matrix[matrix_key] = {"Authorization": f"Bearer {token}"}
 
@@ -104,7 +109,7 @@ class IdentityManager:
             try:
                 payload = jwt.decode(token, options={"verify_signature": False})
                 sub_uuid = payload.get("sub")
-                
+
                 # Estrae il ruolo dal token
                 roles = payload.get("roles", [])
                 role = "user"
@@ -112,24 +117,32 @@ class IdentityManager:
                     role = "admin"
                 elif "manager" in roles:
                     role = "manager"
-                
+
                 if sub_uuid:
                     if identity_key == "user_a":
                         self.identity_map["UUID_ALICE"] = sub_uuid
-                        logger.info(f"IdentityManager: Estratto UUID_ALICE -> {sub_uuid} (Ruolo: {role})")
+                        logger.info(
+                            f"IdentityManager: Estratto UUID_ALICE -> {sub_uuid} (Ruolo: {role})"
+                        )
                     elif identity_key == "user_b":
                         self.identity_map["UUID_BOB"] = sub_uuid
-                        logger.info(f"IdentityManager: Estratto UUID_BOB -> {sub_uuid} (Ruolo: {role})")
+                        logger.info(
+                            f"IdentityManager: Estratto UUID_BOB -> {sub_uuid} (Ruolo: {role})"
+                        )
                     else:
                         self.identity_map["UUID_CHARLIE"] = sub_uuid
-                        logger.info(f"IdentityManager: Estratto UUID_CHARLIE -> {sub_uuid} (Ruolo: {role})")
-                    
+                        logger.info(
+                            f"IdentityManager: Estratto UUID_CHARLIE -> {sub_uuid} (Ruolo: {role})"
+                        )
+
                     # Memorizza l'UUID con il rispettivo ruolo per il controllo accessi
                     self.role_map[sub_uuid] = role
                 else:
                     logger.warning(f"Claim 'sub' non presente nel JWT per {identity_key}")
             except Exception as e:
-                logger.error(f"Errore durante l'estrazione dei dati dal JWT per {identity_key}: {e}")
+                logger.error(
+                    f"Errore durante l'estrazione dei dati dal JWT per {identity_key}: {e}"
+                )
 
         logger.info(f"Mappa delle identità globali completata: {self.identity_map}")
         logger.info(f"Mappa dei ruoli completata: {self.role_map}")
@@ -144,10 +157,12 @@ class IdentityManager:
             "grant_type": "password",
             "username": username,
             "password": password,
-            "scope": "openid"
+            "scope": "openid",
         }
         try:
-            response = requests.post(self.token_url, data=payload, timeout=HTTP_TIMEOUT_SHORT_SECONDS)
+            response = requests.post(
+                self.token_url, data=payload, timeout=HTTP_TIMEOUT_SHORT_SECONDS
+            )
             if response.status_code == 200:
                 return response.json().get("access_token", "")
         except Exception as e:
@@ -162,24 +177,20 @@ class IdentityManager:
         mock_uuids = {
             "user_a": "f81d4fae-7dec-11d0-a765-00a0c91e6bfa",
             "user_b": "f81d4fae-7dec-11d0-a765-00a0c91e6bfb",
-            "admin_user": "f81d4fae-7dec-11d0-a765-00a0c91e6bfc"
+            "admin_user": "f81d4fae-7dec-11d0-a765-00a0c91e6bfc",
         }
-        
-        mock_roles = {
-            "user_a": ["user"],
-            "user_b": ["user"],
-            "admin_user": ["admin"]
-        }
-        
+
+        mock_roles = {"user_a": ["user"], "user_b": ["user"], "admin_user": ["admin"]}
+
         sub_uuid = mock_uuids.get(username, "00000000-0000-0000-0000-000000000000")
         roles = mock_roles.get(username, ["user"])
-        
+
         header = {"alg": "HS256", "typ": "JWT"}
         payload = {
-            "sub": sub_uuid, 
-            "name": username, 
-            "preferred_username": username, 
-            "roles": roles
+            "sub": sub_uuid,
+            "name": username,
+            "preferred_username": username,
+            "roles": roles,
         }
         h_b64 = base64.urlsafe_b64encode(json.dumps(header).encode()).decode().rstrip("=")
         p_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
@@ -197,7 +208,13 @@ class DatabaseSeeder:
         validate_url(seed_url, "seed_url")
         self.seed_url = seed_url
 
-    def seed_target_application(self, dynamic_endpoints: List[Dict[str, Any]], uuid_alice: str, uuid_bob: str, uuid_charlie: str) -> bool:
+    def seed_target_application(
+        self,
+        dynamic_endpoints: list[dict[str, Any]],
+        uuid_alice: str,
+        uuid_bob: str,
+        uuid_charlie: str,
+    ) -> bool:
         """
         Popola il database Flask con le risorse di test ('orders', 'invoices', ecc.)
         associando le risorse a Alice (user_a), Bob (user_b) e Charlie (admin_user).
@@ -212,26 +229,30 @@ class DatabaseSeeder:
 
         # Identifica le risorse dinamiche dall'inventario
         resources = {ep["resource_name"] for ep in dynamic_endpoints}
-        
+
         # Costruisce il payload del seeding associando gli UUID agli utenti proprietari
         seed_payload = {}
         for res in resources:
             seed_payload[res] = {
                 uuid_alice: "user_a",
                 uuid_bob: "user_b",
-                uuid_charlie: "admin_user"
+                uuid_charlie: "admin_user",
             }
 
         logger.info(f"Esecuzione Context-Aware Seeding per risorse: {list(resources)}")
-        
+
         try:
-            response = requests.post(self.seed_url, json=seed_payload, timeout=HTTP_TIMEOUT_MEDIUM_SECONDS)
+            response = requests.post(
+                self.seed_url, json=seed_payload, timeout=HTTP_TIMEOUT_MEDIUM_SECONDS
+            )
             if response.status_code == 200:
                 logger.info("✅ Database Seeding completato con successo.")
                 return True
             else:
-                logger.warning(f"⚠️ Endpoint di seeding ha risposto con codice {response.status_code}.")
+                logger.warning(
+                    f"⚠️ Endpoint di seeding ha risposto con codice {response.status_code}."
+                )
         except Exception as e:
             logger.error(f"❌ Eccezione durante il seeding: {e}")
-            
+
         return False

@@ -5,7 +5,8 @@ Responsabilità:
 - Fornire metodi di conversione e formattazione dei dati per la GUI.
 """
 
-from typing import List, Dict, Any
+from typing import Any
+
 
 class RemediationModel:
     """
@@ -19,10 +20,10 @@ class RemediationModel:
         severity: str,
         description: str,
         impact: str,
-        remediation_steps: List[str],
+        remediation_steps: list[str],
         example: str,
         source: str = "knowledge_base",
-        confidence: float = 1.0
+        confidence: float = 1.0,
     ):
         """
         Inizializza l'oggetto con le informazioni dettagliate della remediation.
@@ -37,7 +38,7 @@ class RemediationModel:
         self.source = source  # "knowledge_base", "llm", "cache"
         self.confidence = confidence
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Serializza l'oggetto in un dizionario compatibile con JSON.
         """
@@ -50,11 +51,11 @@ class RemediationModel:
             "remediation_steps": self.remediation_steps,
             "example": self.example,
             "source": self.source,
-            "confidence": self.confidence
+            "confidence": self.confidence,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'RemediationModel':
+    def from_dict(cls, data: dict[str, Any]) -> "RemediationModel":
         """
         Istanzia un oggetto RemediationModel a partire da un dizionario serializzato.
         """
@@ -67,5 +68,5 @@ class RemediationModel:
             remediation_steps=data.get("remediation_steps", []),
             example=data.get("example", ""),
             source=data.get("source", "knowledge_base"),
-            confidence=data.get("confidence", 1.0)
+            confidence=data.get("confidence", 1.0),
         )

@@ -9,7 +9,6 @@ di una violazione BOLA (Orizzontale o Verticale).
 """
 
 import logging
-from typing import Optional
 
 logger = logging.getLogger("SecurityPlatform.BOLA.AccessControlMatrix")
 
@@ -17,41 +16,37 @@ logger = logging.getLogger("SecurityPlatform.BOLA.AccessControlMatrix")
 class AccessControlMatrix:
     """
     Rappresenta la Privilege Matrix gerarchica del sistema.
-    
+
     Pattern Strutturale: Privilege Matrix / Role-Based Policy
     """
 
-    HIERARCHY = {
-        "admin": 3,
-        "manager": 2,
-        "user": 1
-    }
+    HIERARCHY = {"admin": 3, "manager": 2, "user": 1}
 
     @classmethod
     def validate_access_legitimacy(
-        cls, 
-        requesting_role: str, 
-        owner_role: str, 
+        cls,
+        requesting_role: str,
+        owner_role: str,
         method: str = "GET",
         # Parametri legacy per retrocompatibilità con keyword arguments
-        requesting_user_role: Optional[str] = None,
-        resource_owner_role: Optional[str] = None
+        requesting_user_role: str | None = None,
+        resource_owner_role: str | None = None,
     ) -> str:
         """
         Valuta se l'operazione richiesta è legittima rispetto alle regole di business.
-        
+
         Regole di Business:
         - Un ruolo 'admin' ha accesso completo e legittimo a qualsiasi risorsa.
         - Un ruolo 'manager' ha accesso alle proprie risorse e a quelle degli utenti 'user', ma non degli 'admin'.
         - Un ruolo 'user' può accedere solo alle proprie risorse. Qualsiasi interazione
           su risorse di un altro 'user' (peer) è marcata come BOLA Orizzontale.
         - Un tentativo di accesso da ruolo inferiore a risorsa di ruolo superiore è marcato come BOLA Verticale.
-        
+
         Args:
             requesting_role (str): Il ruolo dell'utente che avvia la richiesta.
             owner_role (str): Il ruolo dell'utente proprietario della risorsa target.
             method (str): Il metodo HTTP dell'azione.
-            
+
         Returns:
             str: Verdetto formale: "LEGITTIMO", "BOLA_ORIZZONTALE" o "BOLA_VERTICALE".
         """
@@ -69,7 +64,9 @@ class AccessControlMatrix:
         if owner_role not in cls.HIERARCHY:
             owner_role = "user"
 
-        logger.debug(f"📐 [ROLE MATRIX] Valutazione: {req_role} su risorsa di {owner_role} tramite {method}")
+        logger.debug(
+            f"📐 [ROLE MATRIX] Valutazione: {req_role} su risorsa di {owner_role} tramite {method}"
+        )
 
         # 1. Accesso da parte di un Amministratore
         if req_role == "admin":

@@ -1,14 +1,20 @@
-from typing import Optional, Dict, Any, List
-from src.core.unrestricted_resource_consumption.models import ResourceConsumptionReport, ResourceConsumptionFinding
+from typing import Any
+
 from src.core.unrestricted_resource_consumption.layers.layer1_ast import analyze_ast
-from src.core.unrestricted_resource_consumption.layers.layer2_config import analyze_configs as analyze_config
+from src.core.unrestricted_resource_consumption.layers.layer2_config import (
+    analyze_configs as analyze_config,
+)
 from src.core.unrestricted_resource_consumption.layers.layer3_openapi import analyze_openapi
+from src.core.unrestricted_resource_consumption.models import (
+    ResourceConsumptionFinding,
+    ResourceConsumptionReport,
+)
 
 
 def _build_coverage_signals(
-    findings: List[ResourceConsumptionFinding],
-) -> Dict[str, List[str]]:
-    signals: Dict[str, List[str]] = {}
+    findings: list[ResourceConsumptionFinding],
+) -> dict[str, list[str]]:
+    signals: dict[str, list[str]] = {}
     for f in findings:
         signals.setdefault(f.category, [])
         if f.rule_id not in signals[f.category]:
@@ -17,9 +23,9 @@ def _build_coverage_signals(
 
 
 def _build_summary(
-    findings: List[ResourceConsumptionFinding],
-) -> Dict[str, Dict[str, int]]:
-    summary: Dict[str, Dict[str, int]] = {
+    findings: list[ResourceConsumptionFinding],
+) -> dict[str, dict[str, int]]:
+    summary: dict[str, dict[str, int]] = {
         "severity": {"HIGH": 0, "MEDIUM": 0, "LOW": 0, "INFO": 0},
         "category": {},
         "layer": {"ast": 0, "config": 0, "openapi": 0},
@@ -34,7 +40,7 @@ def _build_summary(
 
 def analyze(
     target_path: str,
-    openapi_spec: Optional[Dict[str, Any]] = None,
+    openapi_spec: dict[str, Any] | None = None,
     enrich_spec: bool = False,
 ) -> ResourceConsumptionReport:
     """
@@ -50,7 +56,7 @@ def analyze(
     Returns:
         ResourceConsumptionReport containing aggregated findings from all layers.
     """
-    findings: List[ResourceConsumptionFinding] = []
+    findings: list[ResourceConsumptionFinding] = []
 
     # Layer 1 — AST analysis (always executed)
     ast_findings = analyze_ast(target_path)

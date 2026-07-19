@@ -1,19 +1,21 @@
-import re
-import json
 import base64
-import requests
-import urllib.parse
-from typing import Dict, Any, List, Optional, Tuple, Set
+import contextlib
+import json
+import re
+from typing import Any
 
+import requests
 from loguru import logger
+
+from src.core.broken_object_property_level_access.discovery import PropertyDiscoveryEngine
 
 # Import models
 from src.core.broken_object_property_level_access.models import (
-    PropertyInventory, PropertyEvidence, PropertyAuthorizationGraph,
-    DynamicPropertyFinding, ObjectGraphNode, PropertyGraphNode
+    DynamicPropertyFinding,
+    PropertyAuthorizationGraph,
+    PropertyEvidence,
+    PropertyInventory,
 )
-from src.core.broken_object_property_level_access.discovery import PropertyDiscoveryEngine
-from src.normalization.normalizer import APIEndpointNormalizer
 
 
 class BOPLADynamicTester:
@@ -26,13 +28,13 @@ class BOPLADynamicTester:
         self,
         target_base_url: str,
         inventory: PropertyInventory,
-        evidences: List[PropertyEvidence],
+        evidences: list[PropertyEvidence],
         graph: PropertyAuthorizationGraph,
-        headers_matrix: Dict[str, Dict[str, str]],
-        proxies: Optional[Dict[str, str]] = None,
-        runtime_traffic: Optional[List[Dict[str, Any]]] = None,
-        openapi_spec: Optional[Dict[str, Any]] = None,
-        confidence_threshold: float = 0.4
+        headers_matrix: dict[str, dict[str, str]],
+        proxies: dict[str, str] | None = None,
+        runtime_traffic: list[dict[str, Any]] | None = None,
+        openapi_spec: dict[str, Any] | None = None,
+        confidence_threshold: float = 0.4,
     ):
         self.target_base_url = target_base_url.rstrip("/")
         self.inventory = inventory
@@ -45,14 +47,25 @@ class BOPLADynamicTester:
         self.confidence_threshold = confidence_threshold
 
         # Extract UUIDs from the standard tokens (Bearer sub claims) or use realistic fallbacks
-        self.uuid_alice = self.extract_sub_from_jwt(headers_matrix.get("userA", {}).get("Authorization")) or "f81d4fae-7dec-11d0-a765-00a0c91e6bfa"
-        self.uuid_bob = self.extract_sub_from_jwt(headers_matrix.get("userB", {}).get("Authorization")) or "f81d4fae-7dec-11d0-a765-00a0c91e6bfb"
-        self.uuid_charlie = self.extract_sub_from_jwt(headers_matrix.get("userC", {}).get("Authorization")) or "f81d4fae-7dec-11d0-a765-00a0c91e6bfc"
+        self.uuid_alice = (
+            self.extract_sub_from_jwt(headers_matrix.get("userA", {}).get("Authorization"))
+            or "f81d4fae-7dec-11d0-a765-00a0c91e6bfa"
+        )
+        self.uuid_bob = (
+            self.extract_sub_from_jwt(headers_matrix.get("userB", {}).get("Authorization"))
+            or "f81d4fae-7dec-11d0-a765-00a0c91e6bfb"
+        )
+        self.uuid_charlie = (
+            self.extract_sub_from_jwt(headers_matrix.get("userC", {}).get("Authorization"))
+            or "f81d4fae-7dec-11d0-a765-00a0c91e6bfc"
+        )
 
-        logger.info(f"BOPLA Dynamic Tester: Identità estratte - Alice (userA): {self.uuid_alice}, Bob (userB): {self.uuid_bob}, Admin (userC): {self.uuid_charlie}")
+        logger.info(
+            f"BOPLA Dynamic Tester: Identità estratte - Alice (userA): {self.uuid_alice}, Bob (userB): {self.uuid_bob}, Admin (userC): {self.uuid_charlie}"
+        )
 
     @staticmethod
-    def extract_sub_from_jwt(auth_header: Optional[str]) -> Optional[str]:
+    def extract_sub_from_jwt(auth_header: str | None) -> str | None:
         """
         Decodes the standard JWT without signature verification to extract the 'sub' UUID.
         """
@@ -61,6 +74,7 @@ class BOPLADynamicTester:
         token = auth_header.split(" ")[1]
         try:
             import jwt
+
             decoded = jwt.decode(token, options={"verify_signature": False})
             sub = decoded.get("sub")
             if sub:
@@ -92,12 +106,8 @@ class BOPLADynamicTester:
         return resolved
 
     def _send_request(
-        self,
-        method: str,
-        path: str,
-        headers: Dict[str, str],
-        json_data: Any = None
-    ) -> Tuple[Optional[int], str, Optional[Any]]:
+        self, method: str, path: str, headers: dict[str, str], json_data: Any = None
+    ) -> tuple[int | None, str, Any | None]:
         """
         Wraps HTTP requests using requests library, applying configured base URL and proxies.
         Returns a tuple: (status_code, raw_text_response, parsed_json_response)
@@ -106,30 +116,26 @@ class BOPLADynamicTester:
         # Resolve target full URL
         url = f"{self.target_base_url}{path}"
         try:
-            kwargs = {
-                "headers": headers,
-                "verify": False,
-                "timeout": 5
-            }
+            kwargs = {"headers": headers, "verify": False, "timeout": 5}
             if self.proxies:
                 kwargs["proxies"] = self.proxies
             if json_data is not None:
                 kwargs["json"] = json_data
 
             resp = requests.request(method, url, **kwargs)
-            
+
             json_parsed = None
-            try:
+            with contextlib.suppress(Exception):
                 json_parsed = resp.json()
-            except Exception:
-                pass
 
             return resp.status_code, resp.text, json_parsed
         except Exception as e:
             logger.error(f"Errore durante la chiamata HTTP {method} {url}: {e}")
             return None, str(e), None
 
-    def _generate_baseline_payload(self, object_name: str, target_property: str, tampered_value: Any) -> Dict[str, Any]:
+    def _generate_baseline_payload(
+        self, object_name: str, target_property: str, tampered_value: Any
+    ) -> dict[str, Any]:
         """
         Constructs a realistic payload for write endpoints using OpenAPI schemas and runtime traffic.
         """
@@ -137,9 +143,16 @@ class BOPLADynamicTester:
 
         # 1. Try OpenAPI spec components/schemas
         if self.openapi_spec:
-            schemas = self.openapi_spec.get("components", {}).get("schemas", {}) or self.openapi_spec.get("definitions", {})
+            schemas = self.openapi_spec.get("components", {}).get(
+                "schemas", {}
+            ) or self.openapi_spec.get("definitions", {})
             schema = None
-            for name in (object_name, f"{object_name}DTO", f"{object_name}Request", f"{object_name}Model"):
+            for name in (
+                object_name,
+                f"{object_name}DTO",
+                f"{object_name}Request",
+                f"{object_name}Model",
+            ):
                 if name in schemas:
                     schema = schemas[name]
                     break
@@ -163,13 +176,15 @@ class BOPLADynamicTester:
             for entry in self.runtime_traffic:
                 path = entry.get("path")
                 if path and PropertyDiscoveryEngine.get_object_name_from_path(path) == object_name:
-                    body = entry.get("body_params") or entry.get("response_body") or entry.get("response")
+                    body = (
+                        entry.get("body_params")
+                        or entry.get("response_body")
+                        or entry.get("response")
+                    )
                     if body:
                         if isinstance(body, str):
-                            try:
+                            with contextlib.suppress(Exception):
                                 body = json.loads(body)
-                            except Exception:
-                                pass
                         if isinstance(body, dict):
                             for k, v in body.items():
                                 payload[k] = v
@@ -179,7 +194,7 @@ class BOPLADynamicTester:
         payload[target_property] = tampered_value
         return payload
 
-    def _parse_endpoint_string(self, ep_str: str) -> Tuple[str, str]:
+    def _parse_endpoint_string(self, ep_str: str) -> tuple[str, str]:
         """
         Parses an operation string like 'GET /api/orders/{id}' into ('GET', '/api/orders/{id}').
         """
@@ -188,7 +203,7 @@ class BOPLADynamicTester:
             return parts[0].upper(), parts[1]
         return "GET", ep_str
 
-    def _extract_keys_recursive(self, data: Any) -> Set[str]:
+    def _extract_keys_recursive(self, data: Any) -> set[str]:
         """Recursively extracts keys from dictionary or list structure."""
         keys = set()
         if isinstance(data, dict):
@@ -200,7 +215,7 @@ class BOPLADynamicTester:
                 keys.update(self._extract_keys_recursive(item))
         return keys
 
-    def run_all_tests(self) -> List[DynamicPropertyFinding]:
+    def run_all_tests(self) -> list[DynamicPropertyFinding]:
         """Runs the entire BOPLA dynamic testing suite (T01 - T07)."""
         findings = []
         findings.extend(self.run_t01())
@@ -212,7 +227,7 @@ class BOPLADynamicTester:
         findings.extend(self.run_t07())
         return findings
 
-    def run_t01(self) -> List[DynamicPropertyFinding]:
+    def run_t01(self) -> list[DynamicPropertyFinding]:
         """
         T01 - Sensitive Property Exposure.
         Checks if standard users can retrieve sensitive properties.
@@ -233,14 +248,14 @@ class BOPLADynamicTester:
                     headers = self.headers_matrix.get("userA", {})
 
                     status, text, json_data = self._send_request("GET", test_path, headers)
-                    
+
                     if status and 200 <= status < 300 and json_data:
                         extracted_keys = self._extract_keys_recursive(json_data)
                         if ev.property in extracted_keys:
                             evidence_msg = [
                                 "Proprietà identificata come protetta nell'AST o Inference Engine.",
                                 f"Proprietà '{ev.property}' restituita nella risposta GET per l'utente standard userA.",
-                                f"Contesti autorizzativi noti: {ev.authorization_contexts}"
+                                f"Contesti autorizzativi noti: {ev.authorization_contexts}",
                             ]
                             findings.append(
                                 DynamicPropertyFinding(
@@ -253,13 +268,13 @@ class BOPLADynamicTester:
                                     response=text,
                                     response_code=status,
                                     verified=True,
-                                    confidence=ev.confidence
+                                    confidence=ev.confidence,
                                 )
                             )
 
         return findings
 
-    def run_t02(self) -> List[DynamicPropertyFinding]:
+    def run_t02(self) -> list[DynamicPropertyFinding]:
         """
         T02 - Unauthorized Property Modification.
         Tries to modify sensitive properties using a standard user role.
@@ -275,20 +290,28 @@ class BOPLADynamicTester:
                         continue
 
                     # Attempt modification
-                    test_value = 999999 if "salary" in ev.property.lower() or "price" in ev.property.lower() else "modified_via_t02"
-                    payload = self._generate_baseline_payload(ev.object_name, ev.property, test_value)
+                    test_value = (
+                        999999
+                        if "salary" in ev.property.lower() or "price" in ev.property.lower()
+                        else "modified_via_t02"
+                    )
+                    payload = self._generate_baseline_payload(
+                        ev.object_name, ev.property, test_value
+                    )
 
                     test_path = self._resolve_path(path, self.uuid_alice)
                     headers = self.headers_matrix.get("userA", {})
 
-                    status, text, json_data = self._send_request(method, test_path, headers, payload)
+                    status, text, json_data = self._send_request(
+                        method, test_path, headers, payload
+                    )
 
                     if status and 200 <= status < 300:
                         # Success response: now check if the change persisted or is reflected in response
                         is_modified = False
                         evidence_msg = [
                             f"Richiesta di scrittura {method} accettata con stato {status}.",
-                            "Proprietà inviata nel payload modificata con successo."
+                            "Proprietà inviata nel payload modificata con successo.",
                         ]
 
                         # Case A: reflected in body
@@ -296,19 +319,25 @@ class BOPLADynamicTester:
                             extracted_keys = self._extract_keys_recursive(json_data)
                             if ev.property in extracted_keys:
                                 is_modified = True
-                                evidence_msg.append(f"Valore modificato riflesso nella risposta di scrittura.")
+                                evidence_msg.append(
+                                    "Valore modificato riflesso nella risposta di scrittura."
+                                )
 
                         # Case B: check subsequent GET
                         for rd in ev.read_endpoints:
                             rmethod, rpath = self._parse_endpoint_string(rd)
                             if rmethod == "GET":
                                 gpath = self._resolve_path(rpath, self.uuid_alice)
-                                gstatus, gtext, gjson = self._send_request("GET", gpath, headers)
+                                gstatus, _gtext, gjson = self._send_request("GET", gpath, headers)
                                 if gstatus == 200 and gjson:
                                     # check if value is equal or key exists
-                                    if gjson.get(ev.property) == test_value or str(gjson.get(ev.property)) == str(test_value):
+                                    if gjson.get(ev.property) == test_value or str(
+                                        gjson.get(ev.property)
+                                    ) == str(test_value):
                                         is_modified = True
-                                        evidence_msg.append(f"Valore persistito verificato tramite successiva GET su {gpath}.")
+                                        evidence_msg.append(
+                                            f"Valore persistito verificato tramite successiva GET su {gpath}."
+                                        )
                                         break
 
                         if is_modified:
@@ -323,13 +352,13 @@ class BOPLADynamicTester:
                                     response=text,
                                     response_code=status,
                                     verified=True,
-                                    confidence=ev.confidence
+                                    confidence=ev.confidence,
                                 )
                             )
 
         return findings
 
-    def run_t03(self) -> List[DynamicPropertyFinding]:
+    def run_t03(self) -> list[DynamicPropertyFinding]:
         """
         T03 - Mass Assignment.
         Tries injecting fields that standard clients normally do not send.
@@ -342,9 +371,9 @@ class BOPLADynamicTester:
             # Criteria: present in AST/Runtime but not documented in OpenAPI schemas under request body,
             # or properties with high authorization context.
             is_mass_assignment_target = False
-            if ev.found_in_ast and not ev.found_in_openapi:
-                is_mass_assignment_target = True
-            elif ev.confidence >= self.confidence_threshold:
+            if (
+                ev.found_in_ast and not ev.found_in_openapi
+            ) or ev.confidence >= self.confidence_threshold:
                 is_mass_assignment_target = True
 
             if is_mass_assignment_target:
@@ -355,36 +384,46 @@ class BOPLADynamicTester:
 
                     # Try to write/inject property
                     test_value = 99999 if "salary" in ev.property.lower() else "mass_assigned_value"
-                    payload = self._generate_baseline_payload(ev.object_name, ev.property, test_value)
+                    payload = self._generate_baseline_payload(
+                        ev.object_name, ev.property, test_value
+                    )
 
                     test_path = self._resolve_path(path, self.uuid_alice)
                     headers = self.headers_matrix.get("userA", {})
 
-                    status, text, json_data = self._send_request(method, test_path, headers, payload)
+                    status, text, json_data = self._send_request(
+                        method, test_path, headers, payload
+                    )
 
                     if status and 200 <= status < 300:
                         evidence_msg = [
                             f"Mass assignment tentata su proprietà '{ev.property}' tramite {method}.",
-                            f"Server ha accettato la richiesta con status {status}."
+                            f"Server ha accettato la richiesta con status {status}.",
                         ]
-                        
+
                         # Verify reflection or persistence
                         is_success = False
                         if json_data:
                             extracted_keys = self._extract_keys_recursive(json_data)
                             if ev.property in extracted_keys:
                                 is_success = True
-                                evidence_msg.append("Proprietà riflessa nel corpo di risposta di scrittura.")
+                                evidence_msg.append(
+                                    "Proprietà riflessa nel corpo di risposta di scrittura."
+                                )
 
                         for rd in ev.read_endpoints:
                             rmethod, rpath = self._parse_endpoint_string(rd)
                             if rmethod == "GET":
                                 gpath = self._resolve_path(rpath, self.uuid_alice)
-                                gstatus, gtext, gjson = self._send_request("GET", gpath, headers)
+                                gstatus, _gtext, gjson = self._send_request("GET", gpath, headers)
                                 if gstatus == 200 and gjson:
-                                    if gjson.get(ev.property) == test_value or str(gjson.get(ev.property)) == str(test_value):
+                                    if gjson.get(ev.property) == test_value or str(
+                                        gjson.get(ev.property)
+                                    ) == str(test_value):
                                         is_success = True
-                                        evidence_msg.append(f"Valore persistito verificato via GET su {gpath}.")
+                                        evidence_msg.append(
+                                            f"Valore persistito verificato via GET su {gpath}."
+                                        )
                                         break
 
                         if is_success:
@@ -399,13 +438,13 @@ class BOPLADynamicTester:
                                     response=text,
                                     response_code=status,
                                     verified=True,
-                                    confidence=ev.confidence
+                                    confidence=ev.confidence,
                                 )
                             )
 
         return findings
 
-    def run_t04(self) -> List[DynamicPropertyFinding]:
+    def run_t04(self) -> list[DynamicPropertyFinding]:
         """
         T04 - Hidden Property Injection.
         Tries to inject undocumented properties (present in AST/Runtime but not OpenAPI).
@@ -422,18 +461,22 @@ class BOPLADynamicTester:
                         continue
 
                     test_value = 88888 if "salary" in ev.property.lower() else "hidden_injected"
-                    payload = self._generate_baseline_payload(ev.object_name, ev.property, test_value)
+                    payload = self._generate_baseline_payload(
+                        ev.object_name, ev.property, test_value
+                    )
 
                     test_path = self._resolve_path(path, self.uuid_alice)
                     headers = self.headers_matrix.get("userA", {})
 
-                    status, text, json_data = self._send_request(method, test_path, headers, payload)
+                    status, text, json_data = self._send_request(
+                        method, test_path, headers, payload
+                    )
 
                     if status and 200 <= status < 300:
                         evidence_msg = [
                             f"Iniezione di proprietà nascosta '{ev.property}' tentata via {method}.",
                             "Proprietà assente nella documentazione OpenAPI ma presente nel codice sorgente/AST.",
-                            f"Server ha accettato la richiesta (status {status})."
+                            f"Server ha accettato la richiesta (status {status}).",
                         ]
 
                         is_success = False
@@ -445,10 +488,12 @@ class BOPLADynamicTester:
                             rmethod, rpath = self._parse_endpoint_string(rd)
                             if rmethod == "GET":
                                 gpath = self._resolve_path(rpath, self.uuid_alice)
-                                gstatus, gtext, gjson = self._send_request("GET", gpath, headers)
+                                gstatus, _gtext, gjson = self._send_request("GET", gpath, headers)
                                 if gstatus == 200 and gjson and ev.property in gjson:
                                     is_success = True
-                                    evidence_msg.append("Proprietà osservata persistita nella risposta GET.")
+                                    evidence_msg.append(
+                                        "Proprietà osservata persistita nella risposta GET."
+                                    )
                                     break
 
                         if is_success:
@@ -463,13 +508,13 @@ class BOPLADynamicTester:
                                     response=text,
                                     response_code=status,
                                     verified=True,
-                                    confidence=ev.confidence
+                                    confidence=ev.confidence,
                                 )
                             )
 
         return findings
 
-    def run_t05(self) -> List[DynamicPropertyFinding]:
+    def run_t05(self) -> list[DynamicPropertyFinding]:
         """
         T05 - Read / Write Authorization Mismatch.
         Checks if properties hidden from GET responses can still be modified by clients.
@@ -486,18 +531,22 @@ class BOPLADynamicTester:
                         continue
 
                     test_value = "mismatch_write_test"
-                    payload = self._generate_baseline_payload(ev.object_name, ev.property, test_value)
+                    payload = self._generate_baseline_payload(
+                        ev.object_name, ev.property, test_value
+                    )
 
                     test_path = self._resolve_path(path, self.uuid_alice)
                     headers = self.headers_matrix.get("userA", {})
 
-                    status, text, json_data = self._send_request(method, test_path, headers, payload)
+                    status, text, _json_data = self._send_request(
+                        method, test_path, headers, payload
+                    )
 
                     if status and 200 <= status < 300:
                         evidence_msg = [
                             f"Rilevata proprietà '{ev.property}' scrivibile ({method}) ma non associata ad operazioni di lettura.",
                             f"Server ha accettato la modifica con status {status}.",
-                            "Questa discrepanza indica un potenziale bypass autorizzativo/mismatch di visibilità."
+                            "Questa discrepanza indica un potenziale bypass autorizzativo/mismatch di visibilità.",
                         ]
                         findings.append(
                             DynamicPropertyFinding(
@@ -510,13 +559,13 @@ class BOPLADynamicTester:
                                 response=text,
                                 response_code=status,
                                 verified=True,
-                                confidence=ev.confidence
+                                confidence=ev.confidence,
                             )
                         )
 
         return findings
 
-    def run_t06(self) -> List[DynamicPropertyFinding]:
+    def run_t06(self) -> list[DynamicPropertyFinding]:
         """
         T06 - Differential Response Analysis.
         Compares GET responses between a standard user (userA) and admin user (userC).
@@ -538,7 +587,9 @@ class BOPLADynamicTester:
             headers_admin = self.headers_matrix.get("userC")
 
             if not headers_user or not headers_admin:
-                logger.warning("BOPLA T06: Credenziali userA o userC mancanti. Salto analisi differenziale.")
+                logger.warning(
+                    "BOPLA T06: Credenziali userA o userC mancanti. Salto analisi differenziale."
+                )
                 break
 
             # Test using Alice's resource
@@ -546,8 +597,8 @@ class BOPLADynamicTester:
             # Admin accesses Alice's resource
             path_admin = self._resolve_path(path, self.uuid_alice)
 
-            status_u, text_u, json_u = self._send_request("GET", path_user, headers_user)
-            status_a, text_a, json_a = self._send_request("GET", path_admin, headers_admin)
+            status_u, _text_u, json_u = self._send_request("GET", path_user, headers_user)
+            status_a, _text_a, json_a = self._send_request("GET", path_admin, headers_admin)
 
             if status_u == 200 and status_a == 200 and json_u and json_a:
                 keys_u = self._extract_keys_recursive(json_u)
@@ -560,7 +611,7 @@ class BOPLADynamicTester:
                         evidence_msg = [
                             f"Analisi differenziale completata per endpoint GET {path_user}.",
                             f"L'amministratore (userC) riceve le seguenti proprietà aggiuntive: {list(diff_keys)}.",
-                            f"Proprietà '{diff_prop}' non è visibile per l'utente standard userA."
+                            f"Proprietà '{diff_prop}' non è visibile per l'utente standard userA.",
                         ]
                         # Verify if this property has high confidence of being protected
                         # Finding is valid as structural information mapping
@@ -575,13 +626,13 @@ class BOPLADynamicTester:
                                 response=f"User Keys: {list(keys_u)}\nAdmin Keys: {list(keys_a)}",
                                 response_code=200,
                                 verified=True,
-                                confidence=0.5
+                                confidence=0.5,
                             )
                         )
 
         return findings
 
-    def run_t07(self) -> List[DynamicPropertyFinding]:
+    def run_t07(self) -> list[DynamicPropertyFinding]:
         """
         T07 - Differential Update Analysis.
         Compares update authorization levels between standard and admin users.
@@ -600,21 +651,31 @@ class BOPLADynamicTester:
                     headers_admin = self.headers_matrix.get("userC")
 
                     if not headers_user or not headers_admin:
-                        logger.warning("BOPLA T07: Credenziali userA o userC mancanti. Analisi differenziale di scrittura saltata.")
+                        logger.warning(
+                            "BOPLA T07: Credenziali userA o userC mancanti. Analisi differenziale di scrittura saltata."
+                        )
                         break
 
                     test_value_admin = "admin_update_t07"
                     test_value_user = "user_update_t07"
 
-                    payload_admin = self._generate_baseline_payload(ev.object_name, ev.property, test_value_admin)
-                    payload_user = self._generate_baseline_payload(ev.object_name, ev.property, test_value_user)
+                    payload_admin = self._generate_baseline_payload(
+                        ev.object_name, ev.property, test_value_admin
+                    )
+                    payload_user = self._generate_baseline_payload(
+                        ev.object_name, ev.property, test_value_user
+                    )
 
                     test_path = self._resolve_path(path, self.uuid_alice)
 
                     # 1. Test Admin modification
-                    status_a, text_a, json_a = self._send_request(method, test_path, headers_admin, payload_admin)
+                    status_a, _text_a, _json_a = self._send_request(
+                        method, test_path, headers_admin, payload_admin
+                    )
                     # 2. Test User modification
-                    status_u, text_u, json_u = self._send_request(method, test_path, headers_user, payload_user)
+                    status_u, _text_u, _json_u = self._send_request(
+                        method, test_path, headers_user, payload_user
+                    )
 
                     # Analyze outcome
                     # If standard user succeeds (2xx) and admin succeeds (2xx):
@@ -624,7 +685,7 @@ class BOPLADynamicTester:
                             f"Analisi differenziale di scrittura completata per {method} {test_path} su proprietà '{ev.property}'.",
                             f"L'amministratore risponde con codice {status_a}.",
                             f"L'utente standard userA risponde con codice {status_u} (modifica accettata).",
-                            "Mancanza di controlli autorizzativi differenziali sul livello di scrittura della proprietà."
+                            "Mancanza di controlli autorizzativi differenziali sul livello di scrittura della proprietà.",
                         ]
                         findings.append(
                             DynamicPropertyFinding(
@@ -637,7 +698,7 @@ class BOPLADynamicTester:
                                 response=f"Admin Status: {status_a}, User Status: {status_u}",
                                 response_code=status_u,
                                 verified=True,
-                                confidence=ev.confidence
+                                confidence=ev.confidence,
                             )
                         )
                     else:
@@ -645,7 +706,7 @@ class BOPLADynamicTester:
                         evidence_msg = [
                             f"Analisi differenziale di scrittura completata per {method} {test_path} su proprietà '{ev.property}'.",
                             f"L'utente standard userA è stato correttamente respinto con codice {status_u}.",
-                            f"L'amministratore (userC) ha modificato con successo con codice {status_a}."
+                            f"L'amministratore (userC) ha modificato con successo con codice {status_a}.",
                         ]
                         findings.append(
                             DynamicPropertyFinding(
@@ -658,7 +719,7 @@ class BOPLADynamicTester:
                                 response=f"Admin Status: {status_a}, User Status: {status_u}",
                                 response_code=status_u,
                                 verified=False,
-                                confidence=ev.confidence
+                                confidence=ev.confidence,
                             )
                         )
 

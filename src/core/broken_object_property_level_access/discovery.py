@@ -1,25 +1,30 @@
+import contextlib
+import json
 import os
 import re
-import json
-import yaml
 from pathlib import Path
-from typing import Dict, List, Set, Any, Optional, Tuple
+from typing import Any
 
 from loguru import logger
 
-# Import models
-from src.core.broken_object_property_level_access.models import PropertyInventory, ObjectProperties, PropertyInfo
-
 # Reuse AST utilities from broken_authentication
 from src.core.broken_authentication.ast_parser import (
-    get_parser_for_language, UnsupportedLanguageException, IGNORE_DIRS, is_text_file,
-    GRAMMAR_MAP, EXTENSION_MAP
+    EXTENSION_MAP,
+    IGNORE_DIRS,
+    get_parser_for_language,
+    is_text_file,
 )
 from src.core.broken_authentication.discovery import StackInfo
 
+# Import models
+from src.core.broken_object_property_level_access.models import (
+    ObjectProperties,
+    PropertyInfo,
+    PropertyInventory,
+)
+
 # Reuse normalizer and object reference engine from normalizer and BOLA
 from src.normalization.normalizer import APIEndpointNormalizer
-from src.core.object_level_authorization.discovery.object_discovery import ObjectReferenceDiscoveryEngine
 
 
 class PropertyDiscoveryEngine:
@@ -41,11 +46,9 @@ class PropertyDiscoveryEngine:
         cleaned = name.strip()
         suffixes = ["DTO", "Request", "Response", "Model", "Entity", "class", "struct"]
         for suffix in suffixes:
-            if cleaned.endswith(suffix):
-                cleaned = cleaned[:-len(suffix)]
-            elif cleaned.lower().endswith(suffix.lower()):
-                cleaned = cleaned[:-len(suffix)]
-        
+            if cleaned.endswith(suffix) or cleaned.lower().endswith(suffix.lower()):
+                cleaned = cleaned[: -len(suffix)]
+
         # Capitalize and clean any leading/trailing underscores/spaces
         cleaned = cleaned.strip("_ ").strip()
         if cleaned:
@@ -63,14 +66,14 @@ class PropertyDiscoveryEngine:
         segments = [s for s in normalized.split("/") if s]
         if not segments:
             return "Unknown"
-        
+
         # Find the last segment that is not a placeholder/ID
         resource = "Unknown"
         for segment in reversed(segments):
             if segment != "{id}" and not segment.startswith("{") and not segment.endswith("}"):
                 resource = segment
                 break
-                
+
         # Singularize and capitalize
         name = resource.capitalize()
         if name.endswith("ies"):
@@ -82,11 +85,11 @@ class PropertyDiscoveryEngine:
                 name = name[:-2]
             else:
                 name = name[:-1]
-            
+
         return name
 
     @classmethod
-    def extract_openapi_properties(cls, openapi_spec: Dict[str, Any]) -> Dict[str, Set[str]]:
+    def extract_openapi_properties(cls, openapi_spec: dict[str, Any]) -> dict[str, set[str]]:
         """
         Extracts properties from OpenAPI schemas (components.schemas) and Swagger definitions.
         Returns a dict: {object_name: {property_names}}
@@ -118,7 +121,7 @@ class PropertyDiscoveryEngine:
         return results
 
     @classmethod
-    def extract_keys_from_json_recursive(cls, data: Any) -> Set[str]:
+    def extract_keys_from_json_recursive(cls, data: Any) -> set[str]:
         """
         Recursively extracts all property keys from a JSON dict or list of dicts.
         """
@@ -133,7 +136,9 @@ class PropertyDiscoveryEngine:
         return keys
 
     @classmethod
-    def extract_runtime_properties(cls, runtime_traffic: List[Dict[str, Any]]) -> Dict[str, Set[str]]:
+    def extract_runtime_properties(
+        cls, runtime_traffic: list[dict[str, Any]]
+    ) -> dict[str, set[str]]:
         """
         Extracts observed properties from request and response bodies in runtime traffic logs,
         mapping them to inferred objects based on endpoint paths.
@@ -157,20 +162,18 @@ class PropertyDiscoveryEngine:
             body_params = entry.get("body_params")
             if body_params:
                 if isinstance(body_params, str):
-                    try:
+                    with contextlib.suppress(Exception):
                         body_params = json.loads(body_params)
-                    except Exception:
-                        pass
                 observed_keys.update(cls.extract_keys_from_json_recursive(body_params))
 
             # Process response body (often has more detailed properties)
-            resp_body = entry.get("response_body") or entry.get("response") or entry.get("response_params")
+            resp_body = (
+                entry.get("response_body") or entry.get("response") or entry.get("response_params")
+            )
             if resp_body:
                 if isinstance(resp_body, str):
-                    try:
+                    with contextlib.suppress(Exception):
                         resp_body = json.loads(resp_body)
-                    except Exception:
-                        pass
                 observed_keys.update(cls.extract_keys_from_json_recursive(resp_body))
 
             if observed_keys:
@@ -181,7 +184,7 @@ class PropertyDiscoveryEngine:
         return results
 
     @classmethod
-    def _parse_python_ast(cls, node, source_bytes: bytes) -> List[Tuple[str, List[str]]]:
+    def _parse_python_ast(cls, node, source_bytes: bytes) -> list[tuple[str, list[str]]]:
         """Traverses Python tree-sitter AST nodes to find classes and their attributes."""
         classes = []
 
@@ -195,21 +198,23 @@ class PropertyDiscoveryEngine:
                 if name_node:
                     class_name = name_node.text.decode("utf-8", errors="replace")
                     properties = []
-                    
+
                     # Look for properties inside block
                     block_node = None
                     for child in n.children:
                         if child.type == "block":
                             block_node = child
                             break
-                    
+
                     if block_node:
                         for stmt in block_node.children:
                             # 1. Annotated assignment (name: str)
                             if stmt.type == "annotated_assignment":
                                 for sub in stmt.children:
                                     if sub.type == "identifier":
-                                        properties.append(sub.text.decode("utf-8", errors="replace"))
+                                        properties.append(
+                                            sub.text.decode("utf-8", errors="replace")
+                                        )
                                         break
                             # 2. Assignment (name = value)
                             elif stmt.type == "expression_statement":
@@ -217,7 +222,9 @@ class PropertyDiscoveryEngine:
                                     if sub.type == "assignment":
                                         for ssub in sub.children:
                                             if ssub.type == "identifier":
-                                                properties.append(ssub.text.decode("utf-8", errors="replace"))
+                                                properties.append(
+                                                    ssub.text.decode("utf-8", errors="replace")
+                                                )
                                                 break
                     if properties:
                         classes.append((class_name, properties))
@@ -229,7 +236,7 @@ class PropertyDiscoveryEngine:
         return classes
 
     @classmethod
-    def _parse_typescript_ast(cls, node, source_bytes: bytes) -> List[Tuple[str, List[str]]]:
+    def _parse_typescript_ast(cls, node, source_bytes: bytes) -> list[tuple[str, list[str]]]:
         """Traverses TS/JS tree-sitter AST nodes to find classes/interfaces and properties."""
         objects = []
 
@@ -243,19 +250,26 @@ class PropertyDiscoveryEngine:
                 if name_node:
                     obj_name = name_node.text.decode("utf-8", errors="replace")
                     properties = []
-                    
+
                     body_node = None
                     for child in n.children:
                         if child.type in ("class_body", "object_type", "interface_body"):
                             body_node = child
                             break
-                    
+
                     if body_node:
                         for member in body_node.children:
-                            if member.type in ("property_signature", "public_field_definition", "property_definition", "method_definition"):
+                            if member.type in (
+                                "property_signature",
+                                "public_field_definition",
+                                "property_definition",
+                                "method_definition",
+                            ):
                                 for sub in member.children:
                                     if sub.type == "property_identifier":
-                                        properties.append(sub.text.decode("utf-8", errors="replace"))
+                                        properties.append(
+                                            sub.text.decode("utf-8", errors="replace")
+                                        )
                                         break
                     if properties:
                         objects.append((obj_name, properties))
@@ -267,7 +281,7 @@ class PropertyDiscoveryEngine:
         return objects
 
     @classmethod
-    def _parse_go_ast(cls, node, source_bytes: bytes) -> List[Tuple[str, List[str]]]:
+    def _parse_go_ast(cls, node, source_bytes: bytes) -> list[tuple[str, list[str]]]:
         """Traverses Go tree-sitter AST nodes to find struct types and properties."""
         objects = []
 
@@ -283,7 +297,7 @@ class PropertyDiscoveryEngine:
                 if name_node and struct_node:
                     obj_name = name_node.text.decode("utf-8", errors="replace")
                     properties = []
-                    
+
                     fields_node = None
                     for child in struct_node.children:
                         if child.type == "field_declaration_list":
@@ -296,7 +310,10 @@ class PropertyDiscoveryEngine:
                                     if sub.type == "field_identifier":
                                         prop_name = sub.text.decode("utf-8", errors="replace")
                                         # Look for json tag override
-                                        json_tag = re.search(r'json:"([^",]+)', member.text.decode("utf-8", errors="replace"))
+                                        json_tag = re.search(
+                                            r'json:"([^",]+)',
+                                            member.text.decode("utf-8", errors="replace"),
+                                        )
                                         if json_tag:
                                             prop_name = json_tag.group(1)
                                         properties.append(prop_name)
@@ -311,7 +328,9 @@ class PropertyDiscoveryEngine:
         return objects
 
     @classmethod
-    def extract_properties_via_regex(cls, content: str, file_ext: str) -> List[Tuple[str, List[str]]]:
+    def extract_properties_via_regex(
+        cls, content: str, file_ext: str
+    ) -> list[tuple[str, list[str]]]:
         """
         Regex-based parsing fallback for Python, JS/TS, and Go models.
         """
@@ -324,51 +343,66 @@ class PropertyDiscoveryEngine:
                 if not lines:
                     continue
                 header = lines[0]
-                match = re.match(r'^([a-zA-Z0-9_]+)', header)
+                match = re.match(r"^([a-zA-Z0-9_]+)", header)
                 if not match:
                     continue
                 class_name = match.group(1)
                 properties = []
-                
+
                 for line in lines[1:]:
-                    if line.strip() and not line.startswith(" ") and not line.startswith("\t") and not line.startswith("#"):
+                    if (
+                        line.strip()
+                        and not line.startswith(" ")
+                        and not line.startswith("\t")
+                        and not line.startswith("#")
+                    ):
                         break
-                    field_match = re.match(r'^\s+([a-zA-Z0-9_]+)\s*(?::\s*[^=]+)?\s*(?:=\s*.+)?$', line)
+                    field_match = re.match(
+                        r"^\s+([a-zA-Z0-9_]+)\s*(?::\s*[^=]+)?\s*(?:=\s*.+)?$", line
+                    )
                     if field_match:
                         name = field_match.group(1)
-                        if name not in ("def", "class", "pass", "return", "import", "from", "logger"):
+                        if name not in (
+                            "def",
+                            "class",
+                            "pass",
+                            "return",
+                            "import",
+                            "from",
+                            "logger",
+                        ):
                             properties.append(name)
                 if properties:
                     results.append((class_name, properties))
 
         elif file_ext in (".ts", ".tsx", ".js", ".mjs", ".cjs"):
             # Match TypeScript/JavaScript classes, interfaces, type aliases
-            chunks = re.split(r'\b(interface|class|type)\s+', content)
+            chunks = re.split(r"\b(interface|class|type)\s+", content)
             for i in range(1, len(chunks), 2):
-                body = chunks[i+1]
+                body = chunks[i + 1]
                 lines = body.split("\n")
                 if not lines:
                     continue
                 header = lines[0]
-                name_match = re.match(r'^([a-zA-Z0-9_]+)', header)
+                name_match = re.match(r"^([a-zA-Z0-9_]+)", header)
                 if not name_match:
                     continue
                 obj_name = name_match.group(1)
                 properties = []
-                
+
                 brace_count = 0
                 started = False
                 for line in lines:
-                    if '{' in line:
-                        brace_count += line.count('{')
+                    if "{" in line:
+                        brace_count += line.count("{")
                         started = True
-                    if '}' in line:
-                        brace_count -= line.count('}')
-                    
-                    field_match = re.search(r'^\s*([a-zA-Z0-9_]+)\s*\??\s*:', line)
+                    if "}" in line:
+                        brace_count -= line.count("}")
+
+                    field_match = re.search(r"^\s*([a-zA-Z0-9_]+)\s*\??\s*:", line)
                     if field_match:
                         properties.append(field_match.group(1))
-                        
+
                     if started and brace_count <= 0:
                         break
                 if properties:
@@ -382,16 +416,18 @@ class PropertyDiscoveryEngine:
                 if not lines:
                     continue
                 header = lines[0]
-                struct_match = re.match(r'^([a-zA-Z0-9_]+)\s+struct\b', header)
+                struct_match = re.match(r"^([a-zA-Z0-9_]+)\s+struct\b", header)
                 if not struct_match:
                     continue
                 obj_name = struct_match.group(1)
                 properties = []
-                
+
                 for line in lines[1:]:
-                    if '}' in line:
+                    if "}" in line:
                         break
-                    field_match = re.match(r'^\s*([a-zA-Z0-9_]+)\s+([a-zA-Z0-9_\[\]\*\{\}]+)', line.strip())
+                    field_match = re.match(
+                        r"^\s*([a-zA-Z0-9_]+)\s+([a-zA-Z0-9_\[\]\*\{\}]+)", line.strip()
+                    )
                     if field_match:
                         prop_name = field_match.group(1)
                         json_tag = re.search(r'json:"([^",]+)', line)
@@ -404,7 +440,7 @@ class PropertyDiscoveryEngine:
         return results
 
     @classmethod
-    def extract_ast_properties(cls, repo_path: str, lang_name: str) -> Dict[str, Set[str]]:
+    def extract_ast_properties(cls, repo_path: str, lang_name: str) -> dict[str, set[str]]:
         """
         Scans source files in the repository to extract properties of classes/structs
         representing models/DTOs. Uses tree-sitter with a regex fallback.
@@ -417,24 +453,26 @@ class PropertyDiscoveryEngine:
         lang_key = lang_name.lower().strip()
         extensions = EXTENSION_MAP.get(lang_key)
         if not extensions:
-            logger.warning(f"Linguaggio '{lang_name}' non ha estensioni associate. Scansione AST saltata.")
+            logger.warning(
+                f"Linguaggio '{lang_name}' non ha estensioni associate. Scansione AST saltata."
+            )
             return results
 
         # 1. Collect all source files
         source_files = []
+
         def collect(current_dir: Path):
             try:
                 for item in current_dir.iterdir():
                     if item.is_dir():
                         if item.name not in IGNORE_DIRS:
                             collect(item)
-                    elif item.is_file():
-                        if item.suffix in extensions:
-                            if is_text_file(item):
-                                source_files.append(item)
+                    elif item.is_file() and item.suffix in extensions:
+                        if is_text_file(item):
+                            source_files.append(item)
             except Exception:
                 pass
-        
+
         collect(path)
 
         # 2. Parse each file
@@ -458,11 +496,13 @@ class PropertyDiscoveryEngine:
                             parsed_models = cls._parse_typescript_ast(tree.root_node, bytes_content)
                         elif lang_key == "go":
                             parsed_models = cls._parse_go_ast(tree.root_node, bytes_content)
-                        
+
                         if parsed_models:
                             tree_sitter_succeeded = True
                 except Exception as ast_err:
-                    logger.debug(f"Tree-sitter fallito o non configurato per {rel_path} ({ast_err}). Fallback a regex...")
+                    logger.debug(
+                        f"Tree-sitter fallito o non configurato per {rel_path} ({ast_err}). Fallback a regex..."
+                    )
 
                 # Fallback to regex if tree-sitter produced nothing or failed
                 if not tree_sitter_succeeded:
@@ -484,16 +524,16 @@ class PropertyDiscoveryEngine:
     def discover_properties(
         cls,
         repo_path: str,
-        openapi_spec: Optional[Dict[str, Any]] = None,
-        runtime_traffic: Optional[List[Dict[str, Any]]] = None,
-        stack: Optional[StackInfo] = None
+        openapi_spec: dict[str, Any] | None = None,
+        runtime_traffic: list[dict[str, Any]] | None = None,
+        stack: StackInfo | None = None,
     ) -> PropertyInventory:
         """
         Orchestrates property discovery across OpenAPI, AST, and Runtime traffic,
         correlates the findings, and constructs a PropertyInventory.
         """
         logger.info("Avvio BOPLA Property Discovery Engine...")
-        
+
         # 1. Run OpenAPI Discovery
         openapi_props = {}
         if openapi_spec:
@@ -508,7 +548,7 @@ class PropertyDiscoveryEngine:
             lang = stack.linguaggio
         else:
             # simple guess
-            for root, dirs, files in os.walk(repo_path):
+            for _root, dirs, files in os.walk(repo_path):
                 # ignore common directories
                 dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
                 for file in files:
@@ -528,7 +568,9 @@ class PropertyDiscoveryEngine:
         # 3. Run Runtime Traffic Discovery
         runtime_props = {}
         if runtime_traffic:
-            logger.info(f"BOPLA: Esecuzione scansione traffico runtime ({len(runtime_traffic)} entry)...")
+            logger.info(
+                f"BOPLA: Esecuzione scansione traffico runtime ({len(runtime_traffic)} entry)..."
+            )
             runtime_props = cls.extract_runtime_properties(runtime_traffic)
 
         # 4. Correlation & Inventory Building

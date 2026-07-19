@@ -18,23 +18,25 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from src.core.unrestricted_resource_consumption.layers.layer2_config import (
-    analyze_configs,
-    discover_config_files,
     _parse_docker_compose,
-    _parse_nginx_body_size,
-    _parse_nginx_timeout,
     _parse_env_body_size,
     _parse_gunicorn_timeout,
+    _parse_nginx_body_size,
+    _parse_nginx_timeout,
+    analyze_configs,
+    discover_config_files,
 )
 
 # ---------------------------------------------------------------------------
 # Fixture paths
 # ---------------------------------------------------------------------------
 
-FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent / "test_targets" / "unrestricted_resource_consumption"
+FIXTURES_DIR = (
+    Path(__file__).resolve().parent.parent.parent.parent.parent
+    / "test_targets"
+    / "unrestricted_resource_consumption"
+)
 VULN_DIR = FIXTURES_DIR / "vulnerable_app"
 SECURE_DIR = FIXTURES_DIR / "secure_app"
 
@@ -55,6 +57,7 @@ SECURE_ENV = SECURE_DIR / ".env"
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _rule_ids(findings) -> set[str]:
     return {f.rule_id for f in findings}
 
@@ -69,13 +72,12 @@ def _write_temp(tmp_path: Path, name: str, content: str) -> Path:
 # RC-007 — docker-compose.yml: no resource limits
 # ===========================================================================
 
-class TestRC007DockerCompose:
 
+class TestRC007DockerCompose:
     def test_tp_vulnerable_compose(self):
         """Vulnerable docker-compose: services without memory limits → RC-007"""
         findings = _parse_docker_compose(VULN_COMPOSE)
-        assert any(f.rule_id == "RC-007" for f in findings), \
-            f"Expected RC-007, got: {findings}"
+        assert any(f.rule_id == "RC-007" for f in findings), f"Expected RC-007, got: {findings}"
 
     def test_tn_secure_compose(self):
         """Secure docker-compose: all services have memory limits → no RC-007"""
@@ -126,8 +128,8 @@ class TestRC007DockerCompose:
 # RC-008 — nginx.conf: no client_max_body_size
 # ===========================================================================
 
-class TestRC008NginxBodySize:
 
+class TestRC008NginxBodySize:
     def test_tp_vulnerable_nginx(self):
         """Vulnerable nginx.conf: no client_max_body_size → RC-008"""
         findings = _parse_nginx_body_size(VULN_NGINX)
@@ -169,8 +171,8 @@ class TestRC008NginxBodySize:
 # RC-008 — .env: no MAX_CONTENT_LENGTH
 # ===========================================================================
 
-class TestRC008EnvBodySize:
 
+class TestRC008EnvBodySize:
     def test_tp_vulnerable_env(self):
         """Vulnerable .env: MAX_CONTENT_LENGTH absent → RC-008"""
         findings = _parse_env_body_size(VULN_ENV)
@@ -201,8 +203,8 @@ class TestRC008EnvBodySize:
 # RC-009 — nginx.conf: no proxy timeouts
 # ===========================================================================
 
-class TestRC009NginxTimeout:
 
+class TestRC009NginxTimeout:
     def test_tp_vulnerable_nginx(self):
         """Vulnerable nginx.conf: proxy_pass locations without timeouts → RC-009"""
         findings = _parse_nginx_timeout(VULN_NGINX)
@@ -240,8 +242,8 @@ class TestRC009NginxTimeout:
 # RC-009 — gunicorn.conf.py: timeout = 0
 # ===========================================================================
 
-class TestRC009Gunicorn:
 
+class TestRC009Gunicorn:
     def test_tp_timeout_zero(self):
         """gunicorn.conf.py with timeout = 0 → RC-009 HIGH"""
         findings = _parse_gunicorn_timeout(VULN_GUNICORN)
@@ -281,8 +283,8 @@ class TestRC009Gunicorn:
 # Integration — analyze_configs() end-to-end
 # ===========================================================================
 
-class TestAnalyzeConfigs:
 
+class TestAnalyzeConfigs:
     def test_returns_list(self):
         result = analyze_configs(str(VULN_DIR))
         assert isinstance(result, list)

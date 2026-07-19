@@ -1,2 +1,2 @@
 from .detector import analyze
-from .models import MisconfigReport, MisconfigFinding
+from .models import MisconfigFinding, MisconfigReport

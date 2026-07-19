@@ -1,8 +1,17 @@
 import logging
-from typing import List, Dict, Any, Set
-from src.domain.interfaces import IDetector
-from src.domain.entities import Finding, FindingSource, FindingCategory, Severity, APIContext, RuntimeEvidence, RiskContext
+from typing import Any
+
+from src.domain.entities import (
+    APIContext,
+    Finding,
+    FindingCategory,
+    FindingSource,
+    RiskContext,
+    RuntimeEvidence,
+    Severity,
+)
 from src.domain.events import EVENT_STATIC_SCAN_COMPLETED, EVENT_TRAFFIC_CAPTURED
+from src.domain.interfaces import IDetector
 from src.normalization.normalizer import APIEndpointNormalizer
 
 logger = logging.getLogger("SecurityPlatform.Plugins.ShadowAPIDetector")
@@ -20,7 +29,7 @@ class ShadowAPIDetectorPlugin(IDetector):
         Inizializza il ShadowAPIDetectorPlugin impostando un set vuoto per le rotte statiche note.
         """
         # Insieme degli endpoint statici noti in formato "METHOD:PATH"
-        self._static_routes: Set[str] = set()
+        self._static_routes: set[str] = set()
 
     @property
     def name(self) -> str:
@@ -33,7 +42,7 @@ class ShadowAPIDetectorPlugin(IDetector):
         return "Shadow-API-Hunter-Plugin"
 
     @property
-    def subscribed_events(self) -> List[str]:
+    def subscribed_events(self) -> list[str]:
         """
         Ritorna l'elenco degli eventi di dominio registrati su cui effettuare l'analisi.
 
@@ -42,7 +51,7 @@ class ShadowAPIDetectorPlugin(IDetector):
         """
         return [EVENT_STATIC_SCAN_COMPLETED, EVENT_TRAFFIC_CAPTURED]
 
-    def analyze(self, payload: Any) -> List[Finding]:
+    def analyze(self, payload: Any) -> list[Finding]:
         """
         Funge da coordinatore dell'analisi dei log statici e del traffico catturato.
 
@@ -52,8 +61,8 @@ class ShadowAPIDetectorPlugin(IDetector):
         Returns:
             List[Finding]: Lista dei Finding di sicurezza Shadow API individuati.
         """
-        findings: List[Finding] = []
-        
+        findings: list[Finding] = []
+
         # 1. Carica le rotte statiche note
         if "static_findings" in payload:
             logger.info("🕵️‍♂️ [Shadow API Plugin] Registrazione rotte statiche note...")
@@ -69,13 +78,15 @@ class ShadowAPIDetectorPlugin(IDetector):
 
         # 2. Cerca Shadow API confrontando il traffico reale
         elif "traffic" in payload:
-            logger.info("🕵️‍♂️ [Shadow API Plugin] Scansione traffico catturato per identificare rotte non documentate...")
+            logger.info(
+                "🕵️‍♂️ [Shadow API Plugin] Scansione traffico catturato per identificare rotte non documentate..."
+            )
             traffic = payload.get("traffic", [])
             findings.extend(self._hunt_shadow_apis(traffic))
 
         return findings
 
-    def _hunt_shadow_apis(self, traffic: List[Dict[str, Any]]) -> List[Finding]:
+    def _hunt_shadow_apis(self, traffic: list[dict[str, Any]]) -> list[Finding]:
         """
         Confronta gli indirizzi URL passati a runtime con l'inventario statico per individuare le Shadow API.
 
@@ -91,30 +102,31 @@ class ShadowAPIDetectorPlugin(IDetector):
         for req in traffic:
             method = req.get("method", "GET").upper()
             raw_path = req.get("path", "")
-            
+
             # Filtra path rumorosi o file statici standard
-            if any(term in raw_path.lower() for term in ["robots.txt", "favicon.ico", "sitemap.xml"]):
+            if any(
+                term in raw_path.lower() for term in ["robots.txt", "favicon.ico", "sitemap.xml"]
+            ):
                 continue
-                
+
             norm_path = APIEndpointNormalizer.normalize_path(raw_path)
             route_key = f"{method}:{norm_path}"
-            
+
             # Se la rotta a runtime NON è presente nell'insieme statico, è una Shadow API!
             if route_key not in self._static_routes and route_key not in seen_shadows:
                 seen_shadows.add(route_key)
                 logger.warning(f"🔥 Rilevata Shadow API non documentata: {method} {norm_path}")
-                
+
                 api_ctx = APIContext(
                     endpoint=norm_path,
                     method=method,
-                    base_url=req.get("full_url", "").replace(raw_path, "")
+                    base_url=req.get("full_url", "").replace(raw_path, ""),
                 )
-                
+
                 evidence = RuntimeEvidence(
-                    tested_url=req.get("full_url"),
-                    http_status=req.get("status")
+                    tested_url=req.get("full_url"), http_status=req.get("status")
                 )
-                
+
                 finding = Finding.create(
                     source=FindingSource.SHADOW_API,
                     category=FindingCategory.API_EXPOSURE,
@@ -129,8 +141,8 @@ class ShadowAPIDetectorPlugin(IDetector):
                     runtime_evidence=evidence,
                     risk_context=RiskContext(internet_exposed=True),
                     correlation_key=f"api:{method}:{norm_path}",
-                    raw_data=req
+                    raw_data=req,
                 )
                 findings.append(finding)
-                
+
         return findings

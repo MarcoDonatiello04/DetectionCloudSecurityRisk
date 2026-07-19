@@ -1,6 +1,8 @@
 import ast
 from pathlib import Path
+
 from src.core.unsafe_consumption.rules import blind_redirect_following
+
 
 def test_blind_redirect_following_vulnerable():
     code = """
@@ -12,7 +14,11 @@ requests.post(MEDICAL_API, json={"patient": patient_data}, allow_redirects=True)
     assert len(findings) == 1
     assert findings[0].rule_id == "UC-003"
     assert findings[0].severity == "HIGH"
-    assert findings[0].evidence == 'requests.post(MEDICAL_API, json={"patient": patient_data}, allow_redirects=True)'
+    assert (
+        findings[0].evidence
+        == 'requests.post(MEDICAL_API, json={"patient": patient_data}, allow_redirects=True)'
+    )
+
 
 def test_blind_redirect_following_secure():
     code = """

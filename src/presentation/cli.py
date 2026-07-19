@@ -1,26 +1,23 @@
-import os
 import argparse
 import logging
-import yaml
-from typing import List, Dict, Any
+import os
+from typing import Any
 
-from src.domain.entities import Finding
+import yaml
+
 from src.application.orchestrator import ScanPipelineOrchestrator
+from src.core.object_level_authorization.dynamic_orchestrator import DynamicOrchestrator
+from src.domain.entities import Finding
 from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
+from src.infrastructure.adapters.mitmproxy_adapter import MitmproxyClientAdapter
 from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
 from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
 from src.infrastructure.adapters.zap_adapter import ZapClientAdapter
-from src.infrastructure.adapters.mitmproxy_adapter import MitmproxyClientAdapter
 from src.infrastructure.persistence.report_repository import ReportRepository
-from src.core.object_level_authorization.dynamic_orchestrator import DynamicOrchestrator
 from src.normalization.normalizer import APIEndpointNormalizer
 
-
 # Configurazione logger
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 logger = logging.getLogger("SecurityPlatform.CLI")
 
 # Configurazione costanti di default del CLI
@@ -44,46 +41,48 @@ def parse_args() -> argparse.Namespace:
     Returns:
         argparse.Namespace: Gli argomenti parsati.
     """
-    parser = argparse.ArgumentParser(description="Security Platform Core - Unified Scanner & Detector CLI")
-    parser.add_argument(
-        "--target-dir", 
-        default=".", 
-        help="Directory contenente il codice o infrastruttura da scansionare"
+    parser = argparse.ArgumentParser(
+        description="Security Platform Core - Unified Scanner & Detector CLI"
     )
     parser.add_argument(
-        "--plugins-dir", 
-        default=DEFAULT_PLUGINS_DIR, 
-        help="Directory contenente i plugin dei detector"
+        "--target-dir",
+        default=".",
+        help="Directory contenente il codice o infrastruttura da scansionare",
     )
     parser.add_argument(
-        "--output-dir", 
-        default=DEFAULT_OUTPUT_DIR, 
-        help="Directory dove salvare i report dei findings"
+        "--plugins-dir",
+        default=DEFAULT_PLUGINS_DIR,
+        help="Directory contenente i plugin dei detector",
     )
     parser.add_argument(
-        "--traffic-file", 
+        "--output-dir",
+        default=DEFAULT_OUTPUT_DIR,
+        help="Directory dove salvare i report dei findings",
+    )
+    parser.add_argument(
+        "--traffic-file",
         default=DEFAULT_TRAFFIC_FILE,
-        help="File contenente il traffico catturato da mitmproxy"
+        help="File contenente il traffico catturato da mitmproxy",
     )
     parser.add_argument(
-        "--zap-url", 
-        default=DEFAULT_ZAP_URL, 
-        help="URL del daemon OWASP ZAP per stimolazione e scansione DAST"
+        "--zap-url",
+        default=DEFAULT_ZAP_URL,
+        help="URL del daemon OWASP ZAP per stimolazione e scansione DAST",
     )
     parser.add_argument(
         "--target-base-url",
         default=DEFAULT_TARGET_BASE_URL,
-        help="URL di base dell'API target per seeding e attacchi D-AST"
+        help="URL di base dell'API target per seeding e attacchi D-AST",
     )
     parser.add_argument(
         "--keycloak-url",
         default=DEFAULT_KEYCLOAK_URL,
-        help="URL di base del server Keycloak per acquisizione token"
+        help="URL di base del server Keycloak per acquisizione token",
     )
     parser.add_argument(
         "--assessment-mode",
         action="store_true",
-        help="Abilita la modalita' Assessment (senza seeding/snapshot/rollback)"
+        help="Abilita la modalita' Assessment (senza seeding/snapshot/rollback)",
     )
     return parser.parse_args()
 
@@ -93,7 +92,7 @@ def main() -> None:
     Funzione principale che esegue l'intera pipeline di security Discovery, Correlation, Seeding e D-AST.
     """
     args = parse_args()
-    
+
     logger.info("================================================================================")
     logger.info("🛡️  AVVIO SECURITY PLATFORM CORE - UNIFIED DISCOVERY PIPELINE")
     logger.info("================================================================================")
@@ -103,17 +102,16 @@ def main() -> None:
 
     # 1. Inizializza gli scanner core (adapters)
     # SpectralScannerAdapter: lancia Stoplight Spectral sul contratto OpenAPI del progetto
-    openapi_spec = os.path.abspath(DEFAULT_OPENAPI_SPEC_PATH)
+    os.path.abspath(DEFAULT_OPENAPI_SPEC_PATH)
     scanners = [
         CheckovScannerAdapter(),
         SemgrepScannerAdapter(),
         SpectralScannerAdapter(),  # Analisi conformità contratto OpenAPI
     ]
-    
+
     # 2. Inizializza l'orchestratore
     orchestrator = ScanPipelineOrchestrator(
-        plugins_dir=args.plugins_dir,
-        target_dir=args.target_dir
+        plugins_dir=args.plugins_dir, target_dir=args.target_dir
     )
 
     # 3. Carica il traffico a runtime (Mitmproxy adapter)
@@ -121,13 +119,15 @@ def main() -> None:
     traffic_path = args.traffic_file
     if not os.path.exists(traffic_path):
         traffic_path = DEFAULT_FALLBACK_TRAFFIC_FILE
-        
+
     mitm_adapter = MitmproxyClientAdapter(traffic_path)
     raw_traffic = mitm_adapter.load_captured_traffic()
 
     # Se non c'è traffico registrato (offline mode), simuliamo del traffico per permettere ai detector di girare
     if not raw_traffic:
-        logger.info("⚠️ Nessun traffico Mitmproxy trovato. Generazione scenario simulato per dimostrazione...")
+        logger.info(
+            "⚠️ Nessun traffico Mitmproxy trovato. Generazione scenario simulato per dimostrazione..."
+        )
         raw_traffic = [
             # Richiesta valida con token
             {
@@ -135,8 +135,10 @@ def main() -> None:
                 "path": "/users/42",
                 "full_url": "http://localhost:5000/users/42",
                 "status": 200,
-                "headers": {"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0Mn0.signature"},
-                "body_params": {}
+                "headers": {
+                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0Mn0.signature"
+                },
+                "body_params": {},
             },
             # Richiesta Shadow API (non documentata)
             {
@@ -145,14 +147,13 @@ def main() -> None:
                 "full_url": "http://localhost:5000/api/v1/debug/dump-database",
                 "status": 200,
                 "headers": {},
-                "body_params": {"raw_sql": "SELECT * FROM secrets"}
-            }
+                "body_params": {"raw_sql": "SELECT * FROM secrets"},
+            },
         ]
 
     # 4. Esecuzione pipeline
     correlated_findings = orchestrator.run_pipeline(
-        static_scanners=scanners,
-        raw_traffic_data=raw_traffic
+        static_scanners=scanners, raw_traffic_data=raw_traffic
     )
 
     # 5. Esecuzione scansione D-AST dinamica
@@ -162,7 +163,7 @@ def main() -> None:
             target_base_url=args.target_base_url,
             keycloak_url=args.keycloak_url,
             zap_proxy_url=args.zap_url,
-            assessment_mode=args.assessment_mode
+            assessment_mode=args.assessment_mode,
         )
         # Costruiamo l'inventario per ZAP basandoci sui findings provvisori
         api_inventory = []
@@ -170,29 +171,31 @@ def main() -> None:
             if f.api and f.api.endpoint:
                 api_inventory.append(f.to_dict())
 
-        dast_findings = dast_orchestrator.run_dast_pipeline(
-            api_inventory, 
-            output_dir=args.output_dir, 
-            raw_traffic=raw_traffic
-        ) or []
-        
+        dast_findings = (
+            dast_orchestrator.run_dast_pipeline(
+                api_inventory, output_dir=args.output_dir, raw_traffic=raw_traffic
+            )
+            or []
+        )
+
         # Recuperiamo gli alert da ZAP per integrarli nei findings correlati
         logger.info("📥 Recupero dei findings dinamici generati da OWASP ZAP...")
         zap_client = ZapClientAdapter(zap_url=args.zap_url)
         # ZAP scansiona mappando localhost a api-server per il container
-        zap_target_url = args.target_base_url.replace("localhost", "api-server").replace("127.0.0.1", "api-server")
+        zap_target_url = args.target_base_url.replace("localhost", "api-server").replace(
+            "127.0.0.1", "api-server"
+        )
         zap_findings = zap_client.scan(zap_target_url)
         logger.info(f"   - Trovati {len(zap_findings)} findings da OWASP ZAP.")
-        
+
         # Uniamo tutti i runtime findings (mitmproxy + zap + test differenziali di sbarramento)
         all_runtime = list(orchestrator.runtime_findings) + zap_findings + dast_findings
-        
+
         # Correliamo nuovamente l'intero set
         correlated_findings = orchestrator.correlation_engine.correlate(
-            orchestrator.static_findings,
-            all_runtime
+            orchestrator.static_findings, all_runtime
         )
-        
+
         # Ricalcoliamo i punteggi di rischio
         for f in correlated_findings:
             score = orchestrator.correlation_engine.calculate_risk_score(f)
@@ -214,17 +217,17 @@ def main() -> None:
     logger.info("================================================================================")
 
 
-def _parse_openapi_spec() -> List[Dict[str, Any]]:
+def _parse_openapi_spec() -> list[dict[str, Any]]:
     """Carica ed estrae le rotte definite nel file openapi.yaml."""
     spec_paths = [
         "test_targets/bola/openapi.yaml",
         "../test_targets/bola/openapi.yaml",
-        "./openapi.yaml"
+        "./openapi.yaml",
     ]
     for p in spec_paths:
         if os.path.exists(p):
             try:
-                with open(p, "r", encoding="utf-8") as f:
+                with open(p, encoding="utf-8") as f:
                     spec = yaml.safe_load(f)
                     paths = spec.get("paths", {})
                     endpoints = []
@@ -233,20 +236,22 @@ def _parse_openapi_spec() -> List[Dict[str, Any]]:
                             continue
                         for method in ["get", "post", "put", "delete", "patch", "options", "head"]:
                             if method in path_item:
-                                endpoints.append({
-                                    "path": path,
-                                    "method": method.upper(),
-                                    "summary": path_item[method].get("summary", ""),
-                                    "description": path_item[method].get("description", ""),
-                                    "documented": True
-                                })
+                                endpoints.append(
+                                    {
+                                        "path": path,
+                                        "method": method.upper(),
+                                        "summary": path_item[method].get("summary", ""),
+                                        "description": path_item[method].get("description", ""),
+                                        "documented": True,
+                                    }
+                                )
                     return endpoints
             except Exception as e:
                 logger.error(f"Errore caricamento spec OpenAPI da {p}: {e}")
     return []
 
 
-def _build_endpoint_catalog(findings: List[Finding]) -> List[Dict[str, Any]]:
+def _build_endpoint_catalog(findings: list[Finding]) -> list[dict[str, Any]]:
     """Costruisce il catalogo completo degli endpoint incrociando specifiche e findings."""
     # 1. Carica endpoint documentati in OpenAPI
     documented_endpoints = _parse_openapi_spec()
@@ -263,7 +268,7 @@ def _build_endpoint_catalog(findings: List[Finding]) -> List[Dict[str, Any]]:
             "shadow": False,
             "violations": [],
             "bola_status": "UNTESTED",  # UNTESTED, SAFE, VULNERABLE, POTENTIAL
-            "bola_findings": []
+            "bola_findings": [],
         }
 
     # 2. Analizza i findings per popolare violazioni, shadow api e bola
@@ -297,28 +302,30 @@ def _build_endpoint_catalog(findings: List[Finding]) -> List[Dict[str, Any]]:
                 "shadow": True,
                 "violations": [],
                 "bola_status": "UNTESTED",
-                "bola_findings": []
+                "bola_findings": [],
             }
 
         ep_entry = catalog[matched_key]
 
         # Spectral violations
         if f.source.value == "SPECTRAL":
-            ep_entry["violations"].append({
-                "rule_id": f.rule_id,
-                "title": f.title,
-                "description": f.description,
-                "severity": f.severity.value,
-                "line": f.location.start_line if f.location else None
-            })
+            ep_entry["violations"].append(
+                {
+                    "rule_id": f.rule_id,
+                    "title": f.title,
+                    "description": f.description,
+                    "severity": f.severity.value,
+                    "line": f.location.start_line if f.location else None,
+                }
+            )
 
         # BOLA / D-AST
         is_bola = (
-            f.category.value == "AUTHORIZATION" or 
-            f.category.value == "AUTHENTICATION" or
-            "bola" in f.title.lower() or 
-            "idor" in f.title.lower() or
-            f.source.value in ("ZAP_DAST", "RUNTIME_VALIDATOR")
+            f.category.value == "AUTHORIZATION"
+            or f.category.value == "AUTHENTICATION"
+            or "bola" in f.title.lower()
+            or "idor" in f.title.lower()
+            or f.source.value in ("ZAP_DAST", "RUNTIME_VALIDATOR")
         )
         if is_bola:
             ep_entry["bola_findings"].append(f.to_dict())
@@ -336,7 +343,7 @@ def _build_endpoint_catalog(findings: List[Finding]) -> List[Dict[str, Any]]:
         path = ep_entry["path"]
         is_dynamic = "{" in path or "<" in path or ":" in path or "id" in path.lower()
         ep_entry["is_dynamic"] = is_dynamic
-        
+
         # Controlla se abbiamo ricevuto evidenza di sbarramento (status 401 o 403) o se l'assertion engine lo ritiene sicuro
         has_blocking_evidence = False
         for f in ep_entry["bola_findings"]:
@@ -349,15 +356,14 @@ def _build_endpoint_catalog(findings: List[Finding]) -> List[Dict[str, Any]]:
                 if status in (401, 403):
                     has_blocking_evidence = True
                     break
-        
-        if is_dynamic:
-            if ep_entry["bola_status"] in ("UNTESTED", "SAFE"):
-                if ep_entry["bola_status"] == "SAFE" or has_blocking_evidence:
-                    ep_entry["bola_status"] = "SAFE"
-                else:
-                    ep_entry["bola_status"] = "UNTESTED"
 
-    return sorted(list(catalog.values()), key=lambda x: (x["path"], x["method"]))
+        if is_dynamic and ep_entry["bola_status"] in ("UNTESTED", "SAFE"):
+            if ep_entry["bola_status"] == "SAFE" or has_blocking_evidence:
+                ep_entry["bola_status"] = "SAFE"
+            else:
+                ep_entry["bola_status"] = "UNTESTED"
+
+    return sorted(catalog.values(), key=lambda x: (x["path"], x["method"]))
 
 
 if __name__ == "__main__":

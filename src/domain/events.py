@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -13,8 +13,9 @@ class DomainEvent:
         payload (Dict[str, Any]): I dati associati all'evento.
         timestamp (datetime): La data e ora di creazione dell'evento.
     """
+
     name: str
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
