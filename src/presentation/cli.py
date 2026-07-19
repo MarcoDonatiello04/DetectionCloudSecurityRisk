@@ -32,7 +32,7 @@ DEFAULT_ZAP_URL = "http://localhost:8090"
 DEFAULT_TARGET_BASE_URL = "http://localhost:5000"
 DEFAULT_KEYCLOAK_URL = "http://localhost:8080"
 
-DEFAULT_OPENAPI_SPEC_PATH = "fixtures/api_vulnerabilities/openapi.yaml"
+DEFAULT_OPENAPI_SPEC_PATH = "test_targets/bola/openapi.yaml"
 REPORT_FINDINGS_FILENAME = "unified_security_report.json"
 REPORT_INVENTORY_FILENAME = "unified_api_inventory.json"
 
@@ -217,8 +217,8 @@ def main() -> None:
 def _parse_openapi_spec() -> List[Dict[str, Any]]:
     """Carica ed estrae le rotte definite nel file openapi.yaml."""
     spec_paths = [
-        "fixtures/api_vulnerabilities/openapi.yaml",
-        "../fixtures/api_vulnerabilities/openapi.yaml",
+        "test_targets/bola/openapi.yaml",
+        "../test_targets/bola/openapi.yaml",
         "./openapi.yaml"
     ]
     for p in spec_paths:

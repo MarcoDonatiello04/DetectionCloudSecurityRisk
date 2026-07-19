@@ -133,10 +133,7 @@ Per lanciare i test unitari di validazione dell'event bus, del normalizzatore de
 ├── config/
 │   ├── environments/          # Contiene le variabili d'ambiente generate (.target_env)
 │   └── scanner_configs/       # Contiene le configurazioni degli scanner (rulesets)
-├── fixtures/api_vulnerabilities/              # Microservizi API vulnerabili di test
-│   ├── bola/                  # Microservizio Flask vulnerabile a BOLA
-│   └── generic_vulns/         # Codice sorgente della Lambda AWS vulnerabile
-├── fixtures/infrastructure_misconfiguration/  # File infrastrutturali di test
+├── fixtures/infrastructure_misconfiguration/  # File infrastrutturali IaC di test
 │   └── terraform/             # Configurazioni Terraform (vulnerable_infra.tf, main.tf)
 ├── remediation/               # Modulo offline di Remediation Intelligence
 │   ├── knowledge_base/        # Database locale delle remediation e cache locale
@@ -155,7 +152,14 @@ Per lanciare i test unitari di validazione dell'event bus, del normalizzatore de
 │   ├── normalization/         # Modulo di normalizzazione URL delle API
 │   ├── plugins/               # Plugin detector (bola_detector, shadow_api_detector)
 │   └── presentation/          # Esposizione API (FastAPI) e CLI di comando (cli.py)
-├── tests/                     # Test unitari
+├── test_targets/              # Target di test consolidati (tutti i moduli)
+│   ├── bola/                  # BOLA: microservizio Flask + openapi.yaml
+│   ├── broken_authentication/ # API2: vulnerable_app, secure_app, README, answer_key
+│   ├── security_misconfiguration/           # API8: vulnerable_app, secure_app
+│   ├── broken_function_level_authorization/ # API5: vulnerable_app, secure_app
+│   ├── unrestricted_resource_consumption/   # API4: vulnerable_app, secure_app
+│   └── docker-compose.yml     # Orchestrazione unificata di tutti i target
+├── tests/                     # Test unitari e di integrazione
 ├── output/                    # Destinazione dei report JSON (generati a runtime)
 ├── docker-compose.yml         # Servizi Docker (ZAP, Keycloak, Mitmproxy)
 ├── Makefile                   # Target per il workflow locale
@@ -180,7 +184,7 @@ Per lanciare i test unitari di validazione dell'event bus, del normalizzatore de
     "rule_id": "unauthenticated-api-route",
     "rule_name": "API Route Detection",
     "location": {
-      "file_path": "fixtures/api_vulnerabilities/bola/app.py",
+      "file_path": "test_targets/bola/app.py",
       "start_line": 112,
       "end_line": null,
       "code_snippet": null

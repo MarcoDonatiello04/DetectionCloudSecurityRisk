@@ -76,6 +76,17 @@ paths:
         '403':
           description: Forbidden
       summary: Admin-only endpoint (cookie-session protected)
+  /api/benchmark-report:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (fastapi)
+    put:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (python-semgrep)
   /api/bola-report:
     get:
       responses:
@@ -196,6 +207,18 @@ paths:
         '200':
           description: Risposta automatica
       summary: Discovered API Endpoint (python-semgrep)
+  /api/scan/all:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (fastapi, python-semgrep)
+  /api/scan/non-bola:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (fastapi, python-semgrep)
   /api/users/export_all:
     get:
       responses:
@@ -484,8 +507,20 @@ paths:
       security:
       - BearerAuth: []
       summary: Discovered API Endpoint (springboot)
+  /test:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (python-semgrep)
   /test/create-admin:
     post:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (fastapi, python-semgrep)
+  /unified-results:
+    get:
       responses:
         '200':
           description: Risposta automatica

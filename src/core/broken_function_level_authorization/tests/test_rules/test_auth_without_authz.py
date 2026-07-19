@@ -3,7 +3,7 @@ from tree_sitter import Parser, Language
 import tree_sitter_python as tspython
 from src.core.broken_function_level_authorization.rules.auth_without_authz import AuthWithoutAuthzRule
 
-FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent / "fixtures"
+FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent.parent / "test_targets" / "broken_function_level_authorization"
 
 def test_auth_without_authz_vulnerable():
     vuln_file = FIXTURES_DIR / "vulnerable_app" / "app.py"

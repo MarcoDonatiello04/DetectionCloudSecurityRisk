@@ -34,7 +34,7 @@ from src.core.unrestricted_resource_consumption.layers.layer2_config import (
 # Fixture paths
 # ---------------------------------------------------------------------------
 
-FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
+FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent / "test_targets" / "unrestricted_resource_consumption"
 VULN_DIR = FIXTURES_DIR / "vulnerable_app"
 SECURE_DIR = FIXTURES_DIR / "secure_app"
 

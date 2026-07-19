@@ -1,0 +1,204 @@
+[
+  {
+    "test_id": "T01",
+    "nome": "Manipolazione JWT",
+    "stato": "PASS",
+    "severita": "INFO",
+    "dettagli": "I token modificati o con algoritmo 'none' sono correttamente rifiutati.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T02",
+    "nome": "Token scaduto",
+    "stato": "FAIL",
+    "severita": "HIGH",
+    "dettagli": "L'applicazione accetta token scaduti (firma valida, exp=1).",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T03",
+    "nome": "Brute Force e Rate Limiting",
+    "stato": "FAIL",
+    "severita": "MEDIUM",
+    "dettagli": "Nessun meccanismo di rate limiting rilevato dopo 50 tentativi falliti.",
+    "category": "Authentication",
+    "dettagli_quantitativi": {
+      "attempts_before_block": 50,
+      "block_duration_seconds": null,
+      "ip_spoof_bypass": false
+    }
+  },
+  {
+    "test_id": "T04",
+    "nome": "Token Replay su endpoint diversi",
+    "stato": "PASS",
+    "severita": "INFO",
+    "dettagli": "Token con audience differente correttamente rifiutati.",
+    "category": "Authorization",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T05",
+    "nome": "Riuso Token Post-Logout",
+    "stato": "FAIL",
+    "severita": "HIGH",
+    "dettagli": "Il token è riutilizzabile anche dopo la chiamata di logout.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T06",
+    "nome": "Session Fixation",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "Impossibile ottenere un cookie di sessione prima del login. L'applicazione potrebbe usare sessioni client-side (cookie firmati) che non vengono emessi finché la sessione non viene scritta — il test di session fixation non è eseguibile in questa configurazione.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T07",
+    "nome": "Key Confusion (RS256 -> HS256)",
+    "stato": "PASS",
+    "severita": "INFO",
+    "dettagli": "I token con algoritmo alterato HS256/RS256 sono correttamente respinti.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T08",
+    "nome": "Privilege Escalation via Token",
+    "stato": "PASS",
+    "severita": "INFO",
+    "dettagli": "Modifiche di ruolo all'interno del token non hanno prodotto privilege escalation.",
+    "category": "Authorization",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T09",
+    "nome": "Cookie Flag di Sicurezza",
+    "stato": "FAIL",
+    "severita": "MEDIUM",
+    "dettagli": "Rilevati cookie senza flag di sicurezza (Secure): session=eyJ1c2VyIjoidGVzdHVzZXIifQ.aluoQw.dRloTQl9jmNo4d3yFPbTn53JP0s; HttpOnly; Path=/",
+    "category": "Security Misconfiguration",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T10",
+    "nome": "Informazioni Sensibili nelle Risposte",
+    "stato": "PASS",
+    "severita": "INFO",
+    "dettagli": "Nessun dettaglio sensibile o stack trace esposto nei messaggi di errore.",
+    "category": "Information Disclosure",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T11",
+    "nome": "Enumerazione Utenti",
+    "stato": "FAIL",
+    "severita": "MEDIUM",
+    "dettagli": "Status code diversi rilevati: utente inesistente (404) vs password errata (401). Segnale diretto di enumerazione utenti.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T12",
+    "nome": "Refresh Token Reuse",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "Nessun refresh token ottenuto dopo il login. Test ignorato.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T13",
+    "nome": "Refresh Token Rotation Validation",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "Nessun refresh token ottenuto dopo il login.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T14",
+    "nome": "Infinite Lifetime Refresh Token",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "Nessun refresh token ottenuto dopo il login.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T15",
+    "nome": "Parallel Refresh Abuse",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "Nessun refresh token ottenuto dopo il login.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T16",
+    "nome": "Password Reset Debole",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "Endpoint reset non rilevato.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T17",
+    "nome": "Validazione JWKS (Header Injection)",
+    "stato": "PASS",
+    "severita": "INFO",
+    "dettagli": "JWK/x5u header injection rifiutata correttamente.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T18",
+    "nome": "Sicurezza Flussi OAuth2/OIDC",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "Nessun Identity Provider OIDC configurato.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T19",
+    "nome": "Sicurezza Credenziali Non-JWT",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "Nessun meccanismo di autenticazione non-JWT rilevato.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T20",
+    "nome": "Bypass Rate Limiting via Spoofing Header IP",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "Rate limit non attivato durante il test preliminare (nessun 429 ricevuto dopo 8 tentativi). Impossibile verificare il bypass.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T21",
+    "nome": "MFA Testing (Bypass e OTP Debole)",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "Nessun endpoint o meccanismo MFA (Multi-Factor Authentication) rilevato nell'applicazione.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  },
+  {
+    "test_id": "T22",
+    "nome": "SAML/SSO Security Checks",
+    "stato": "INCONCLUSIVE",
+    "severita": "INFO",
+    "dettagli": "L'uso di SAML non è rilevato per questa applicazione. Test saltato.",
+    "category": "Authentication",
+    "dettagli_quantitativi": null
+  }
+]

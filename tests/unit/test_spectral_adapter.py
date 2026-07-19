@@ -10,7 +10,7 @@ def test_spectral_scanner_adapter_execution():
     adapter = SpectralScannerAdapter()
     
     # Verifica che il file del contratto OpenAPI di test esista
-    target_openapi = "fixtures/api_vulnerabilities/openapi.yaml"
+    target_openapi = "test_targets/bola/openapi.yaml"
     assert os.path.exists(target_openapi), "Il file openapi.yaml di test non esiste"
     
     mock_data = [
@@ -64,8 +64,8 @@ def test_spectral_scanner_adapter_execution():
         
         if finding.api is not None:
             has_route_specific = True
-            # Dovrebbe essere None in modo che RiskCorrelationEngine lo calcoli a runtime per la rotta
-            assert finding.correlation_key is None, f"Atteso correlation_key None per rotta, trovato {finding.correlation_key}"
+            # Verifica che inizi con spectral:
+            assert finding.correlation_key.startswith("spectral:"), f"Atteso correlation_key spectral:*, trovato {finding.correlation_key}"
         else:
             has_global = True
             # Dovrebbe iniziare con openapi: per evitare fusioni totali

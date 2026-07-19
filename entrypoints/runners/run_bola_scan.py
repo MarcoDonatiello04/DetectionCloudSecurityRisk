@@ -21,7 +21,7 @@ def main():
 
     # 2. Load OpenAPI specification
     openapi_spec = None
-    openapi_paths = ["fixtures/api_vulnerabilities/openapi.yaml", "openapi.yaml", "openapi.json"]
+    openapi_paths = ["test_targets/bola/openapi.yaml", "openapi.yaml", "openapi.json"]
     for path in openapi_paths:
         if os.path.exists(path):
             try:

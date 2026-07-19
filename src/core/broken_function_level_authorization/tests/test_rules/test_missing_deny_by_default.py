@@ -1,7 +1,7 @@
 from pathlib import Path
 from src.core.broken_function_level_authorization.rules.missing_deny_by_default import MissingDenyByDefaultRule
 
-FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent / "fixtures"
+FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent.parent / "test_targets" / "broken_function_level_authorization"
 
 def test_missing_deny_by_default_vulnerable():
     vuln_settings = FIXTURES_DIR / "vulnerable_app" / "settings.py"

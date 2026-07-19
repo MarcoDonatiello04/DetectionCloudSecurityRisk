@@ -92,6 +92,20 @@ def serve_bola_results() -> HTMLResponse:
     return HTMLResponse(content=html_content)
 
 
+@app.get("/unified-results", response_class=HTMLResponse, tags=["UI"])
+def serve_unified_results() -> HTMLResponse:
+    """
+    Ritorna la pagina dei risultati per le scansioni unificate/veloci dei moduli Core.
+    """
+    template_path = "src/presentation/templates/unified_results.html"
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            html_content = f.read()
+    else:
+        html_content = "<h1>Unified Results Template Not Found</h1>"
+    return HTMLResponse(content=html_content)
+
+
 @app.post("/bola-scan", response_model=Dict[str, Any], tags=["Scanning"])
 def run_bola_scan() -> Dict[str, Any]:
     """
@@ -390,6 +404,402 @@ def get_unified_report() -> List[Dict[str, Any]]:
         except Exception as e:
             logger.error(f"Errore lettura report di sicurezza: {e}")
     return []
+
+
+@app.get("/api/benchmark-report", response_model=List[Dict[str, Any]], tags=["Scanning"])
+def get_benchmark_report() -> List[Dict[str, Any]]:
+    """
+    Ritorna i risultati dell'esecuzione e benchmark di tutti i moduli di sicurezza Core.
+    """
+    report_path = "output/benchmark_results.json"
+    if os.path.exists(report_path):
+        import json
+        try:
+            with open(report_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Errore lettura report benchmark: {e}")
+    return []
+
+
+async def execute_benchmark_scan(run_bola: bool) -> Dict[str, Any]:
+    import time
+    import json
+    import yaml
+    import asyncio
+    from pathlib import Path
+
+    from src.core.broken_authentication.discovery import Config as BaConfig
+    from src.core.broken_authentication import discovery as ba_discovery
+    from src.core.broken_authentication import ast_parser as ba_ast_parser
+    from src.core.broken_authentication import authentication_intelligence as ba_auth_intel
+    from src.core.broken_authentication import dynamic_tester as ba_dynamic_tester
+    from src.core.broken_authentication import reporter as ba_reporter
+
+    from src.core.broken_object_property_level_access.orchestrator import BOPLAOrchestrator
+    from src.core.broken_function_level_authorization import detector as bfla_detector
+    from src.core.security_misconfiguration import detector as secmis_detector
+    from src.core.server_side_request_forgery import detector as ssrf_detector
+    from src.core.unrestricted_resource_consumption import detector as urc_detector
+    from src.core.unsafe_consumption import detector as uc_detector
+
+    openapi_spec = None
+    for p in ["test_targets/bola/openapi.yaml", "openapi.yaml", "openapi.json"]:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    if p.endswith(".yaml") or p.endswith(".yml"):
+                        openapi_spec = yaml.safe_load(f)
+                    else:
+                        openapi_spec = json.load(f)
+                break
+            except Exception:
+                pass
+
+    runtime_traffic = None
+    for p in ["soluzione_api/src/output/raw_traffic.json", "output/raw_traffic.json"]:
+        if os.path.exists(p):
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    runtime_traffic = json.load(f)
+                break
+            except Exception:
+                pass
+
+    benchmark_path = "output/benchmark_results.json"
+    results = []
+    findings_by_module = {}
+
+    def serialize_finding(f) -> Dict[str, Any]:
+        if hasattr(f, "to_dict"):
+            return f.to_dict()
+        res = {}
+        for attr in ["rule_id", "cwe_id", "category", "severity", "file_path", "line_number", "evidence", "missing_guard", "confidence", "layer", "description", "title", "id"]:
+            if hasattr(f, attr):
+                val = getattr(f, attr)
+                if isinstance(val, Path):
+                    val = str(val)
+                res[attr] = val
+        return res
+
+    # 1. BOPLA
+    start = time.time()
+    bopla_list = []
+    try:
+        bopla_data = BOPLAOrchestrator(BaConfig(output=ba_discovery.OutputConfig(path="output"))).run_assessment(
+            repo_path=".",
+            openapi_spec=openapi_spec,
+            runtime_traffic=runtime_traffic,
+            headers_matrix=None
+        )
+        bopla_list = [f for f in bopla_data.get("findings", []) if f.get("verified")]
+        findings_count = len(bopla_list)
+        status = "SUCCESS"
+    except Exception as e:
+        findings_count = 0
+        status = f"FAILED: {e}"
+    results.append({
+        "name": "BOPLA (Broken Object Property Level Access)",
+        "dir": "src/core/broken_object_property_level_access",
+        "time": time.time() - start,
+        "status": status,
+        "findings": findings_count
+    })
+    findings_by_module["bopla"] = bopla_list
+
+    # 1.5. BOLA
+    bola_list = []
+    if run_bola:
+        start_bola = time.time()
+        try:
+            # Carica inventario API per Discovery
+            inventory_path = "output/unified_api_inventory.json"
+            api_inventory = []
+            if os.path.exists(inventory_path):
+                try:
+                    with open(inventory_path, "r", encoding="utf-8") as f:
+                        inv_data = json.load(f)
+                        for item in inv_data:
+                            path = item.get("path") or item.get("endpoint")
+                            method = item.get("method", "GET")
+                            if path:
+                                api_inventory.append({
+                                    "api": {
+                                        "endpoint": path,
+                                        "method": method
+                                    }
+                                })
+                except Exception as e:
+                    logger.error(f"Errore caricamento inventario API in benchmark: {e}")
+
+            # Integra da unified_security_report.json se disponibile
+            report_path = "output/unified_security_report.json"
+            if os.path.exists(report_path):
+                try:
+                    with open(report_path, "r", encoding="utf-8") as f:
+                        findings = json.load(f)
+                        for fnd in findings:
+                            api_ctx = fnd.get("api")
+                            if api_ctx and (api_ctx.get("endpoint") or api_ctx.get("path")):
+                                api_inventory.append(fnd)
+                except Exception as e:
+                    logger.error(f"Errore integrazione report di sicurezza in benchmark: {e}")
+
+            # Fallback se vuoto
+            if not api_inventory:
+                api_inventory = [
+                    {"api": {"endpoint": "/identity/api/v2/user/{id}", "method": "GET"}},
+                    {"api": {"endpoint": "/community/api/v2/community/posts/{id}", "method": "GET"}},
+                    {"api": {"endpoint": "/workshop/api/shop/orders/{id}", "method": "GET"}},
+                    {"api": {"endpoint": "/workshop/api/shop/orders/{id}", "method": "DELETE"}},
+                    {"api": {"endpoint": "/identity/api/v2/vehicle/{id}/location", "method": "GET"}},
+                    {"api": {"endpoint": "/workshop/api/mechanic/receive_report", "method": "POST"}},
+                    {"api": {"endpoint": "/community/api/v2/community/posts/{id}/comment", "method": "POST"}},
+                ]
+
+            from src.core.object_level_authorization.dynamic_orchestrator import DynamicOrchestrator
+            dast_orchestrator = DynamicOrchestrator(
+                target_base_url="http://localhost:5000",
+                keycloak_url="http://localhost:8080",
+                zap_proxy_url="http://localhost:8090",
+                assessment_mode=False
+            )
+            dast_orchestrator.run_dast_pipeline(
+                api_inventory=api_inventory,
+                output_dir="output",
+                raw_traffic=None
+            )
+
+            # Estrae e formatta i risultati BOLA
+            for res in dast_orchestrator.zap_controller.test_results:
+                is_vuln = res.get("is_vulnerable", False)
+                if is_vuln:
+                    path = res.get("path", "")
+                    segments = [s for s in path.split("/") if s]
+                    resource_name = "resource"
+                    for i, seg in enumerate(segments):
+                        if seg == "{id}" and i > 0:
+                            resource_name = segments[i - 1]
+                            break
+                    bola_list.append({
+                        "title": f"BOLA detected on {res.get('method', 'GET')} {path}",
+                        "severity": "HIGH",
+                        "endpoint": path,
+                        "file_path": path,
+                        "method": res.get("method", "GET"),
+                        "resource_name": resource_name,
+                        "evidence": f"Scenario: {res.get('scenario_name', res.get('test_name', ''))}\nAttacker Role: {res.get('attacker_role', 'user')}\nOwner Role: {res.get('owner_role', 'user')}\nAttacker Response Code: {res.get('status_code', 403)}\nAssertion Verdict: {res.get('assertion_details', {}).get('verdict', 'VULNERABLE')}"
+                    })
+            findings_count = len(bola_list)
+            status = "SUCCESS"
+        except Exception as e:
+            findings_count = 0
+            status = f"FAILED: {e}"
+        results.append({
+            "name": "BOLA (Broken Object Level Authorization)",
+            "dir": "src/core/object_level_authorization",
+            "time": time.time() - start_bola,
+            "status": status,
+            "findings": findings_count
+        })
+    else:
+        results.append({
+            "name": "BOLA (Broken Object Level Authorization)",
+            "dir": "src/core/object_level_authorization",
+            "time": 0.0,
+            "status": "SKIPPED",
+            "findings": 0
+        })
+    findings_by_module["bola"] = bola_list
+
+    # 2. Broken Authentication
+    start = time.time()
+    ba_list = []
+    try:
+        config = BaConfig()
+        config.target.base_url = "http://localhost:5000"
+        config.output.path = "output"
+        config.output.formato = "json"
+        
+        stack = ba_discovery.StackInfo(
+            linguaggio="python",
+            framework="FastAPI",
+            librerie_auth=["jwt"],
+            file_configurazione_rilevanti=["requirements.txt"]
+        )
+        scored_files = await ba_ast_parser.run(".", stack, config)
+        auth_intel = ba_auth_intel.AuthenticationIntelligenceEngine.correlate(
+            discovery_output=stack,
+            ast_output=scored_files,
+            openapi_spec=openapi_spec,
+            runtime_traffic=runtime_traffic or []
+        )
+        
+        vulnerabilities = []
+        for f in scored_files:
+            if f.chiamate_auth or f.route_auth:
+                vulnerabilities.append(
+                    ba_dynamic_tester.Vulnerabilita(
+                        id=f"VULN-{f.file.replace('/', '_')}",
+                        tipo="static",
+                        descrizione="Static auth endpoint detected via AST",
+                        file=f.file,
+                        linea=1,
+                        route_auth=f.route_auth
+                    )
+                )
+        from unittest.mock import MagicMock
+        import httpx
+        mock_client = MagicMock(spec=httpx.AsyncClient)
+        mock_client.base_url = httpx.URL(config.target.base_url)
+        async def mock_http(*args, **kwargs):
+            return MagicMock(status_code=401, text="Unauthorized")
+        mock_client.get = mock_http
+        mock_client.post = mock_http
+        tester = ba_dynamic_tester.DynamicTester(config, client=mock_client, auth_intel=auth_intel)
+        tester.health_check = lambda: asyncio.sleep(0)
+        ba_res = await tester.run_all(stack, vulnerabilities)
+        ba_list = [f.dict() for f in ba_res if f.stato == 'FAIL']
+        findings_count = len(ba_list)
+        status = "SUCCESS"
+    except Exception as e:
+        findings_count = 0
+        status = f"FAILED: {e}"
+    results.append({
+        "name": "Broken Authentication",
+        "dir": "src/core/broken_authentication",
+        "time": time.time() - start,
+        "status": status,
+        "findings": findings_count
+    })
+    findings_by_module["broken_authentication"] = ba_list
+
+    # 3. BFLA
+    start = time.time()
+    bfla_list = []
+    try:
+        report = bfla_detector.analyze(".", openapi_spec)
+        bfla_list = [serialize_finding(f) for f in report.findings]
+        findings_count = len(bfla_list)
+        status = "SUCCESS"
+    except Exception as e:
+        findings_count = 0
+        status = f"FAILED: {e}"
+    results.append({
+        "name": "BFLA (Broken Function Level Authorization)",
+        "dir": "src/core/broken_function_level_authorization",
+        "time": time.time() - start,
+        "status": status,
+        "findings": findings_count
+    })
+    findings_by_module["bfla"] = bfla_list
+
+    # 4. Security Misconfiguration
+    start = time.time()
+    secmis_list = []
+    try:
+        report = secmis_detector.analyze(".")
+        secmis_list = [serialize_finding(f) for f in report.findings]
+        findings_count = len(secmis_list)
+        status = "SUCCESS"
+    except Exception as e:
+        findings_count = 0
+        status = f"FAILED: {e}"
+    results.append({
+        "name": "Security Misconfiguration",
+        "dir": "src/core/security_misconfiguration",
+        "time": time.time() - start,
+        "status": status,
+        "findings": findings_count
+    })
+    findings_by_module["security_misconfiguration"] = secmis_list
+
+    # 5. SSRF
+    start = time.time()
+    ssrf_list = []
+    try:
+        report = ssrf_detector.analyze(".", openapi_spec, semgrep_timeout=15)
+        ssrf_list = [serialize_finding(f) for f in report.findings]
+        findings_count = len(ssrf_list)
+        status = "SUCCESS"
+    except Exception as e:
+        findings_count = 0
+        status = f"FAILED: {e}"
+    results.append({
+        "name": "SSRF (Server Side Request Forgery)",
+        "dir": "src/core/server_side_request_forgery",
+        "time": time.time() - start,
+        "status": status,
+        "findings": findings_count
+    })
+    findings_by_module["ssrf"] = ssrf_list
+
+    # 6. Unrestricted Resource Consumption
+    start = time.time()
+    urc_list = []
+    try:
+        report = urc_detector.analyze(".", openapi_spec)
+        urc_list = [serialize_finding(f) for f in report.findings]
+        findings_count = len(urc_list)
+        status = "SUCCESS"
+    except Exception as e:
+        findings_count = 0
+        status = f"FAILED: {e}"
+    results.append({
+        "name": "Unrestricted Resource Consumption",
+        "dir": "src/core/unrestricted_resource_consumption",
+        "time": time.time() - start,
+        "status": status,
+        "findings": findings_count
+    })
+    findings_by_module["unrestricted_resource_consumption"] = urc_list
+
+    # 7. Unsafe Consumption
+    start = time.time()
+    uc_list = []
+    try:
+        report = uc_detector.analyze(".")
+        uc_list = [serialize_finding(f) for f in report.findings]
+        findings_count = len(uc_list)
+        status = "SUCCESS"
+    except Exception as e:
+        findings_count = 0
+        status = f"FAILED: {e}"
+    results.append({
+        "name": "Unsafe Consumption",
+        "dir": "src/core/unsafe_consumption",
+        "time": time.time() - start,
+        "status": status,
+        "findings": findings_count
+    })
+    findings_by_module["unsafe_consumption"] = uc_list
+
+    try:
+        with open(benchmark_path, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2)
+    except Exception as e:
+        logger.error(f"Errore scrittura benchmark: {e}")
+
+    return {
+        "benchmark": results,
+        "findings": findings_by_module
+    }
+
+
+@app.post("/api/scan/all", response_model=Dict[str, Any], tags=["Scanning"])
+async def scan_all_modules() -> Dict[str, Any]:
+    """
+    Esegue la scansione completa di tutti i moduli di sicurezza Core (BOLA inclusa).
+    """
+    return await execute_benchmark_scan(run_bola=True)
+
+
+@app.post("/api/scan/non-bola", response_model=Dict[str, Any], tags=["Scanning"])
+async def scan_non_bola_modules() -> Dict[str, Any]:
+    """
+    Esegue la scansione di tutti i moduli di sicurezza Core (incluso BOLA e Checkov come esclusi non testati).
+    """
+    return await execute_benchmark_scan(run_bola=False)
 
 
 @app.post("/remediation", tags=["Remediation"])

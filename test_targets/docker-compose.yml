@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  # Lotto 1: BOLA (Flask Target App)
+  bola:
+    image: python:3.11-slim
+    container_name: tesi-api-server-bola
+    volumes:
+      - ./bola:/app
+    working_dir: /app
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - KEYCLOAK_SERVER_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=myrealm
+    command: >
+      sh -c "pip install --no-cache-dir flask pyjwt cryptography requests && python -m flask run --host=0.0.0.0 --port=5000"
+    ports:
+      - "5000:5000"
+    networks:
+      - tesi-net
+
+  # Lotto 2: Broken Authentication Vulnerable App
+  broken_auth_vulnerable:
+    image: python:3.11-slim
+    container_name: tesi-broken-auth-vuln
+    volumes:
+      - ./broken_authentication/vulnerable_app:/app
+    working_dir: /app
+    command: sh -c "pip install --no-cache-dir flask pyjwt && python app.py"
+    ports:
+      - "5001:5001"
+    networks:
+      - tesi-net
+
+  # Lotto 2: Broken Authentication Secure App
+  broken_auth_secure:
+    image: python:3.11-slim
+    container_name: tesi-broken-auth-secure
+    volumes:
+      - ./broken_authentication/secure_app:/app
+    working_dir: /app
+    command: sh -c "pip install --no-cache-dir flask pyjwt && python app.py"
+    ports:
+      - "5002:5002"
+    networks:
+      - tesi-net
+
+  # Lotto 3: Security Misconfiguration Vulnerable App (Port 5003)
+  security_misconfig_vulnerable:
+    image: python:3.11-slim
+    container_name: tesi-security-misconfig-vuln
+    volumes:
+      - ./security_misconfiguration/vulnerable_app:/app
+    working_dir: /app
+    command: sh -c "pip install --no-cache-dir flask flask-cors fastapi && python app.py"
+    ports:
+      - "5003:5003"
+    networks:
+      - tesi-net
+
+  # Lotto 3: Security Misconfiguration Secure App (Port 5004)
+  security_misconfig_secure:
+    image: python:3.11-slim
+    container_name: tesi-security-misconfig-secure
+    volumes:
+      - ./security_misconfiguration/secure_app:/app
+    working_dir: /app
+    command: sh -c "pip install --no-cache-dir flask flask-cors fastapi && python app.py"
+    ports:
+      - "5004:5004"
+    networks:
+      - tesi-net
+
+  # Lotto 4: BFLA Vulnerable App (Port 5005)
+  bfla_vulnerable:
+    image: python:3.11-slim
+    container_name: tesi-bfla-vuln
+    volumes:
+      - ./broken_function_level_authorization/vulnerable_app:/app
+    working_dir: /app
+    command: sh -c "pip install --no-cache-dir flask && python app.py"
+    ports:
+      - "5005:5005"
+    networks:
+      - tesi-net
+
+  # Lotto 4: BFLA Secure App (Port 5006)
+  bfla_secure:
+    image: python:3.11-slim
+    container_name: tesi-bfla-secure
+    volumes:
+      - ./broken_function_level_authorization/secure_app:/app
+    working_dir: /app
+    command: sh -c "pip install --no-cache-dir flask && python app.py"
+    ports:
+      - "5006:5006"
+    networks:
+      - tesi-net
+
+  # Lotto 5: Resource Consumption Vulnerable App (Port 5007)
+  resource_consumption_vulnerable:
+    image: python:3.11-slim
+    container_name: tesi-resource-consumption-vuln
+    volumes:
+      - ./unrestricted_resource_consumption/vulnerable_app:/app
+    working_dir: /app
+    command: sh -c "pip install --no-cache-dir flask fastapi gunicorn && python app.py"
+    ports:
+      - "5007:5007"
+    networks:
+      - tesi-net
+
+  # Lotto 5: Resource Consumption Secure App (Port 5008)
+  resource_consumption_secure:
+    image: python:3.11-slim
+    container_name: tesi-resource-consumption-secure
+    volumes:
+      - ./unrestricted_resource_consumption/secure_app:/app
+    working_dir: /app
+    command: sh -c "pip install --no-cache-dir flask fastapi gunicorn && python app.py"
+    ports:
+      - "5008:5008"
+    networks:
+      - tesi-net
+
+networks:
+  tesi-net:
+    name: tesi-net
+    external: true

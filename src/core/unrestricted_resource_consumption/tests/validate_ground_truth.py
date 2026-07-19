@@ -30,7 +30,7 @@ from src.core.unrestricted_resource_consumption import detector  # noqa: E402
 # Ground truth
 # ---------------------------------------------------------------------------
 
-FIXTURES_DIR = Path(__file__).resolve().parent.parent / "fixtures"
+FIXTURES_DIR = PROJECT_ROOT / "test_targets" / "unrestricted_resource_consumption"
 
 # RC-006 is tracked as a known false-negative due to a tree-sitter 0.25
 # API issue (redis substring match) — documented in the skip reason.

@@ -63,7 +63,7 @@ async def check_target_reachability(url: str) -> bool:
 def load_openapi_spec(repo_path: str):
     openapi_spec = None
     openapi_paths = [
-        Path(repo_path) / "fixtures/api_vulnerabilities" / "openapi.yaml",
+        Path(repo_path) / "test_targets/bola" / "openapi.yaml",
         Path(repo_path) / "openapi.yaml",
         Path(repo_path) / "openapi.json"
     ]

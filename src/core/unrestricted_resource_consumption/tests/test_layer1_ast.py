@@ -32,7 +32,7 @@ from src.core.unrestricted_resource_consumption.rules.third_party_cost import Th
 # Fixtures — paths
 # ---------------------------------------------------------------------------
 
-FIXTURES_DIR = Path(__file__).parent.parent / "fixtures"
+FIXTURES_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent / "test_targets" / "unrestricted_resource_consumption"
 VULNERABLE_APP = FIXTURES_DIR / "vulnerable_app" / "app.py"
 SECURE_APP = FIXTURES_DIR / "secure_app" / "app.py"
 

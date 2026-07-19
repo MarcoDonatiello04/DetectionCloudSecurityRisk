@@ -20,7 +20,10 @@ def _walk_source_files(target_path: str):
         if path.suffix in (".py", ".js", ".ts"):
             yield path
         return
+    skip_dirs = {".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache", "dist", "build"}
     for p in path.rglob("*"):
+        if any(part in skip_dirs for part in p.parts):
+            continue
         if p.is_file() and p.suffix in (".py", ".js", ".ts"):
             yield p
 

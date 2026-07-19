@@ -1,0 +1,58 @@
+[
+  {
+    "name": "BOPLA (Broken Object Property Level Access)",
+    "dir": "src/core/broken_object_property_level_access",
+    "time": 0.30852293968200684,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "BOLA (Broken Object Level Authorization)",
+    "dir": "src/core/object_level_authorization",
+    "time": 0.0,
+    "status": "SKIPPED",
+    "findings": 0
+  },
+  {
+    "name": "Broken Authentication",
+    "dir": "src/core/broken_authentication",
+    "time": 1.303617000579834,
+    "status": "SUCCESS",
+    "findings": 1
+  },
+  {
+    "name": "BFLA (Broken Function Level Authorization)",
+    "dir": "src/core/broken_function_level_authorization",
+    "time": 1.977931022644043,
+    "status": "SUCCESS",
+    "findings": 27
+  },
+  {
+    "name": "Security Misconfiguration",
+    "dir": "src/core/security_misconfiguration",
+    "time": 1.574920892715454,
+    "status": "SUCCESS",
+    "findings": 24
+  },
+  {
+    "name": "SSRF (Server Side Request Forgery)",
+    "dir": "src/core/server_side_request_forgery",
+    "time": 5.716048717498779,
+    "status": "SUCCESS",
+    "findings": 7
+  },
+  {
+    "name": "Unrestricted Resource Consumption",
+    "dir": "src/core/unrestricted_resource_consumption",
+    "time": 2.7536699771881104,
+    "status": "SUCCESS",
+    "findings": 55
+  },
+  {
+    "name": "Unsafe Consumption",
+    "dir": "src/core/unsafe_consumption",
+    "time": 1.0657598972320557,
+    "status": "SUCCESS",
+    "findings": 4
+  }
+]

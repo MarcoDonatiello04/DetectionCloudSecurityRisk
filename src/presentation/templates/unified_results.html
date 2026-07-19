@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Scansione Moduli Core - Security Control Center</title>
+    <meta name="description" content="Report dettagliato della scansione di sicurezza core e tempi di esecuzione per tutti i moduli.">
+    <!-- Google Fonts: Inter per il testo e Outfit per i titoli -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Tema Scuro (Default) */
+            --bg-color: #060609;
+            --card-bg: rgba(12, 12, 20, 0.45);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --card-border-hover: rgba(120, 80, 255, 0.3);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --accent-purple: #7042ff;
+            --accent-blue: #00d2ff;
+            --accent-glow: rgba(112, 66, 255, 0.25);
+            --btn-bg: linear-gradient(135deg, #6236ff 0%, #9036ff 100%);
+            --btn-shadow: rgba(112, 66, 255, 0.4);
+            --dot-color: rgba(255, 255, 255, 0.08);
+
+            /* Elementi della lista */
+            --item-bg: rgba(255, 255, 255, 0.02);
+            --item-border: rgba(255, 255, 255, 0.06);
+            --item-bg-hover: rgba(255, 255, 255, 0.05);
+            --item-border-hover: rgba(255, 255, 255, 0.15);
+
+            /* Badges */
+            --bg-crit: #450a0a; --text-crit: #fca5a5; --border-crit: #991b1b;
+            --bg-high: #431407; --text-high: #fdba74; --border-high: #c2410c;
+            --bg-med: #422006; --text-med: #fde047; --border-med: #a16207;
+            --bg-low: #0c4a6e; --text-low: #7dd3fc; --border-low: #0369a1;
+        }
+
+        [data-theme="light"] {
+            /* Tema Chiaro */
+            --bg-color: #f5f6fa;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(0, 0, 0, 0.06);
+            --card-border-hover: rgba(98, 54, 255, 0.3);
+            --text-primary: #09090b;
+            --text-secondary: #71717a;
+            --accent-purple: #6236ff;
+            --accent-blue: #00a3ff;
+            --accent-glow: rgba(98, 54, 255, 0.12);
+            --btn-bg: linear-gradient(135deg, #6236ff 0%, #481ae6 100%);
+            --btn-shadow: rgba(98, 54, 255, 0.25);
+            --dot-color: rgba(0, 0, 0, 0.04);
+
+            /* Elementi della lista */
+            --item-bg: rgba(0, 0, 0, 0.02);
+            --item-border: rgba(0, 0, 0, 0.06);
+            --item-bg-hover: rgba(0, 0, 0, 0.04);
+            --item-border-hover: rgba(0, 0, 0, 0.12);
+
+            /* Badges */
+            --bg-crit: #fef2f2; --text-crit: #991b1b; --border-crit: #fca5a5;
+            --bg-high: #fff7ed; --text-high: #c2410c; --border-high: #ffedd5;
+            --bg-med: #fefce8; --text-med: #a16207; --border-med: #fef08a;
+            --bg-low: #f0f9ff; --text-low: #0369a1; --border-low: #bae6fd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(var(--dot-color) 1px, transparent 1px),
+                radial-gradient(var(--dot-color) 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Ambient Glows */
+        .glow-bg {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(80px);
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        .glow-top-left { top: -200px; left: -200px; }
+        .glow-bottom-right { bottom: -200px; right: -200px; }
+
+        header {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: var(--btn-bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px var(--btn-shadow);
+        }
+
+        .brand-logo svg {
+            width: 22px;
+            height: 22px;
+            fill: #ffffff;
+        }
+
+        .brand-info h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--text-primary) 30%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .theme-toggle-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(12px);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--card-border-hover);
+        }
+
+        main {
+            width: 100%;
+            max-width: 1000px;
+            z-index: 10;
+        }
+
+        .results-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 32px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            margin-bottom: 24px;
+        }
+
+        .results-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 18px;
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="light"] .btn-back {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--card-border-hover);
+        }
+
+        /* Warning Banner Styles */
+        .warning-banner {
+            background: rgba(249, 115, 22, 0.08);
+            border: 1px solid rgba(249, 115, 22, 0.25);
+            border-left: 4px solid #f97316;
+            border-radius: 16px;
+            padding: 18px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            color: var(--text-primary);
+        }
+
+        .warning-banner svg {
+            color: #f97316;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .warning-banner-text {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            width: 100%;
+        }
+
+        .warning-banner-title {
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 4px;
+            color: #f97316;
+        }
+
+        /* Loading Area */
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .scan-radar {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border: 2px dashed rgba(112, 66, 255, 0.3);
+            border-radius: 50%;
+            animation: rotate-radar 20s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        @keyframes rotate-radar {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .radar-pulse {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border: 1px solid rgba(112, 66, 255, 0.15);
+            border-radius: 50%;
+            animation: pulse-radar 3s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
+        }
+
+        @keyframes pulse-radar {
+            0% { transform: scale(0.5); opacity: 1; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+
+        .console-output {
+            width: 100%;
+            max-width: 700px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-family: monospace;
+            font-size: 0.78rem;
+            color: #00d2ff;
+            text-align: left;
+            margin-top: 24px;
+            max-height: 250px;
+            overflow-y: auto;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        /* Results view */
+        .results-view {
+            display: none;
+        }
+
+        .scan-meta-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        [data-theme="light"] .scan-meta-box {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .meta-item {
+            text-align: center;
+        }
+
+        .meta-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .meta-lbl {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        .search-bar-wrapper {
+            position: relative;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar-wrapper svg {
+            position: absolute;
+            left: 16px;
+            width: 18px;
+            height: 18px;
+            fill: var(--text-secondary);
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 12px 16px 12px 48px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 15px rgba(112,66,255,0.15);
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .module-card {
+            background: var(--item-bg);
+            border: 1px solid var(--item-border);
+            border-radius: 18px;
+            padding: 24px;
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 200px;
+        }
+
+        .module-card:hover {
+            background: var(--item-bg-hover);
+            border-color: var(--item-border-hover);
+            transform: translateY(-3px);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        .module-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+        }
+
+        .module-dir {
+            font-family: monospace;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            background: rgba(255,255,255,0.04);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 12px;
+            word-break: break-all;
+        }
+
+        [data-theme="light"] .module-dir {
+            background: rgba(0,0,0,0.04);
+        }
+
+        .module-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        [data-theme="light"] .module-stats {
+            border-top-color: rgba(0,0,0,0.05);
+        }
+
+        .stat-badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .stat-badge.success {
+            background: rgba(0, 230, 118, 0.1);
+            color: #00e676;
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .stat-badge.failed {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+            border: 1px solid rgba(255, 59, 48, 0.2);
+        }
+
+        .stat-badge.skipped {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .findings-count {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #b082ff;
+        }
+
+        .findings-count.zero {
+            color: var(--text-secondary);
+        }
+
+        /* Tabs Styles */
+        .findings-section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 40px 0 16px 0;
+            background: linear-gradient(90deg, var(--text-primary) 30%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        [data-theme="light"] .tabs-container {
+            border-bottom-color: rgba(0, 0, 0, 0.08);
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        [data-theme="light"] .tab-btn {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.06);
+        }
+
+        .tab-btn:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: rgba(112, 66, 255, 0.1);
+            border-color: var(--accent-purple);
+            color: #b082ff;
+            box-shadow: 0 0 15px rgba(112, 66, 255, 0.15);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Findings Lists */
+        .finding-item {
+            background: var(--item-bg);
+            border: 1px solid var(--item-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .finding-item:hover {
+            background: var(--item-bg-hover);
+            border-color: var(--item-border-hover);
+        }
+
+        .finding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 16px;
+        }
+
+        .finding-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .finding-location {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--accent-blue);
+            background: rgba(0, 210, 255, 0.05);
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .finding-detail-row {
+            margin-top: 10px;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+        }
+
+        .finding-detail-lbl {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-right: 6px;
+        }
+
+        .finding-evidence {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #ff9500;
+            margin-top: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        [data-theme="light"] .finding-evidence {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.05);
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-bg glow-top-left"></div>
+    <div class="glow-bg glow-bottom-right"></div>
+
+    <header>
+        <div class="brand">
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                </svg>
+            </div>
+            <div class="brand-info">
+                <h1>Cloud Risk Assessment Platform</h1>
+            </div>
+        </div>
+        
+        <button class="theme-toggle-btn" id="theme-toggle" aria-label="Cambia tema chiaro/scuro">
+            <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <span id="theme-text">Tema Chiaro</span>
+        </button>
+    </header>
+
+    <main>
+        <div class="results-card">
+            <div class="results-header-actions">
+                <h2 class="card-title" id="scan-title">Scansione Moduli Core in corso...</h2>
+                <a href="/" class="btn-back">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Torna Indietro
+                </a>
+            </div>
+
+            <!-- Loader Area during Scan -->
+            <div class="loader-container" id="loader-area">
+                <div class="scan-radar">
+                    <div class="radar-pulse"></div>
+                </div>
+                <p style="font-weight: 600;" id="loader-status">Avvio dell'orchestratore di sicurezza...</p>
+                <div class="console-output" id="console-log">
+                    [info] Inizializzazione pipeline dei moduli core...
+                </div>
+            </div>
+
+            <!-- Scan Results view -->
+            <div class="results-view" id="results-area">
+                <!-- Warning Banner -->
+                <div class="warning-banner">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <div class="warning-banner-text" id="warning-banner-text-content">
+                        <!-- Content will be programmatically set -->
+                    </div>
+                </div>
+
+                <div class="scan-meta-box">
+                    <div class="meta-item">
+                        <div class="meta-val" id="meta-total-time">0.00s</div>
+                        <div class="meta-lbl">Tempo Totale</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-val" id="meta-modules-count">0</div>
+                        <div class="meta-lbl">Moduli Analizzati</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-val" id="meta-findings-count">0</div>
+                        <div class="meta-lbl">Findings Rilevati</div>
+                    </div>
+                </div>
+
+                <div class="search-bar-wrapper">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <input type="text" class="search-input" id="search-modules" placeholder="Cerca modulo o cartella...">
+                </div>
+
+                <div class="modules-grid" id="modules-container">
+                    <!-- Module cards will be injected dynamically -->
+                </div>
+
+                <!-- Detailed list of findings grouped by module -->
+                <h3 class="findings-section-title">Dettaglio Vulnerabilità per Modulo</h3>
+
+                <!-- Tab Buttons -->
+                <div class="tabs-container" id="findings-tabs">
+                    <button class="tab-btn active" data-tab="bola" id="tab-bola-btn">BOLA</button>
+                    <button class="tab-btn" data-tab="bopla">BOPLA</button>
+                    <button class="tab-btn" data-tab="broken_authentication">Broken Auth</button>
+                    <button class="tab-btn" data-tab="bfla">BFLA</button>
+                    <button class="tab-btn" data-tab="security_misconfiguration">Security Misconfig</button>
+                    <button class="tab-btn" data-tab="ssrf">SSRF</button>
+                    <button class="tab-btn" data-tab="unrestricted_resource_consumption">Resource Consumption</button>
+                    <button class="tab-btn" data-tab="unsafe_consumption">Unsafe Consumption</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="tabs-contents-wrapper">
+                    <div class="tab-content active" id="tab-content-bola">
+                        <div class="findings-list" id="list-bola">
+                            <!-- BOLA findings here -->
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-content-bopla">
+                        <div class="findings-list" id="list-bopla">
+                            <!-- BOPLA findings here -->
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-content-broken_authentication">
+                        <div class="findings-list" id="list-broken_authentication">
+                            <!-- Broken Auth findings here -->
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-content-bfla">
+                        <div class="findings-list" id="list-bfla">
+                            <!-- BFLA findings here -->
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-content-security_misconfiguration">
+                        <div class="findings-list" id="list-security_misconfiguration">
+                            <!-- Sec Misconfig findings here -->
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-content-ssrf">
+                        <div class="findings-list" id="list-ssrf">
+                            <!-- SSRF findings here -->
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-content-unrestricted_resource_consumption">
+                        <div class="findings-list" id="list-unrestricted_resource_consumption">
+                            <!-- URC findings here -->
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-content-unsafe_consumption">
+                        <div class="findings-list" id="list-unsafe_consumption">
+                            <!-- UC findings here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Cloud Risk Assessment Platform | Scansione Moduli Core</p>
+    </footer>
+
+    <script>
+        // Tema Chiaro / Scuro Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeText = document.getElementById('theme-text');
+        const themeIcon = document.getElementById('theme-icon');
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            if (currentTheme === 'light') {
+                document.documentElement.removeAttribute('data-theme');
+                themeText.textContent = 'Tema Chiaro';
+                themeIcon.innerHTML = `
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                `;
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeText.textContent = 'Tema Scuro';
+                themeIcon.innerHTML = `
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                `;
+            }
+        });
+
+        // Setup Tab switching
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabButtons.forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                const tabId = btn.getAttribute('data-tab');
+                document.getElementById(`tab-content-${tabId}`).classList.add('active');
+            });
+        });
+
+        // Trigger automatico della scansione all'apertura
+        window.addEventListener('DOMContentLoaded', async () => {
+            const consoleLog = document.getElementById('console-log');
+            const loaderArea = document.getElementById('loader-area');
+            const resultsArea = document.getElementById('results-area');
+            const scanTitle = document.getElementById('scan-title');
+            const loaderStatus = document.getElementById('loader-status');
+            const warningText = document.getElementById('warning-banner-text-content');
+
+            // Parse query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const scanType = urlParams.get('scan_type') || 'non-bola';
+            const isFullScan = scanType === 'all';
+
+            // Configure Active Tab and Warning Banner dynamically
+            if (isFullScan) {
+                scanTitle.textContent = 'Risultati Scansione Unificata (Con BOLA)';
+                loaderStatus.textContent = 'Esecuzione scansione unificata di tutti i moduli (incluso BOLA) in corso...';
+                warningText.innerHTML = `
+                    <div class="warning-banner-title">Modulo Checkov Escluso</div>
+                    Il modulo <strong>Checkov</strong> (IaC Scanner) non è incluso in questa scansione in quanto considerato non testato a sufficienza.
+                    Nota: Il modulo <strong>BOLA</strong> è invece regolarmente eseguito in questa modalità.
+                `;
+                
+                document.getElementById('tab-bola-btn').classList.add('active');
+                document.getElementById('tab-content-bola').classList.add('active');
+            } else {
+                scanTitle.textContent = 'Risultati Scansione Veloce (Senza BOLA)';
+                loaderStatus.textContent = 'Esecuzione scansione veloce (escluso BOLA) in corso...';
+                warningText.innerHTML = `
+                    <div class="warning-banner-title">Controlli Esclusi per questa Sessione</div>
+                    I moduli <strong>Checkov</strong> (non testato a sufficienza) e <strong>BOLA</strong> (escluso su richiesta per velocizzare) non sono inclusi in questa scansione veloce.
+                    Nota: Il modulo principale di avvio di BOLA rimane accessibile in modalità indipendente.
+                `;
+                
+                document.getElementById('tab-bola-btn').style.display = 'none';
+                document.getElementById('tab-content-bola').style.display = 'none';
+                
+                document.querySelector('.tab-btn[data-tab="bopla"]').classList.add('active');
+                document.getElementById('tab-content-bopla').classList.add('active');
+                document.getElementById('tab-content-bola').classList.remove('active');
+            }
+
+            const logSteps = [
+                '[info] Caricamento configurazioni di sistema...',
+                isFullScan ? '[info] Avvio scansione BOLA in modalità veloce (endpoint pilota)...' : '[info] BOLA saltato su richiesta (scansione veloce)...',
+                '[info] Esecuzione scansione BOPLA...',
+                '[info] Avvio AST Parser ed elaborazione autenticazione...',
+                '[info] Esecuzione scansione BFLA sui controller delle API...',
+                '[info] Verifica di Security Misconfiguration e CORS...',
+                '[info] Scansione SSRF sui contratti OpenAPI...',
+                '[info] Verifica limitazioni di risorse e GraphQL batching...',
+                '[info] Controllo validazioni input e redirect non sicuri...',
+                '[info] Raccolta e aggregazione di tutti i findings...'
+            ];
+
+            let i = 0;
+            const logInterval = setInterval(() => {
+                if (i < logSteps.length) {
+                    consoleLog.innerHTML += `<br>${logSteps[i]}`;
+                    consoleLog.scrollTop = consoleLog.scrollHeight;
+                    i++;
+                } else {
+                    clearInterval(logInterval);
+                }
+            }, isFullScan ? 3000 : 1000);
+
+            try {
+                const endpoint = isFullScan ? '/api/scan/all' : '/api/scan/non-bola';
+                const response = await fetch(endpoint, { method: 'POST' });
+                const data = await response.json();
+                
+                clearInterval(logInterval);
+                loaderArea.style.display = 'none';
+                resultsArea.style.display = 'block';
+                
+                // Filter BOLA from the benchmark dashboard view card grid if it was skipped
+                let benchmarkData = data.benchmark;
+                if (!isFullScan) {
+                    benchmarkData = benchmarkData.filter(item => !item.name.includes("BOLA"));
+                }
+                
+                renderBenchmarkReport(benchmarkData);
+                renderFindingsLists(data.findings, isFullScan);
+
+            } catch (err) {
+                console.error("Errore durante la scansione:", err);
+                clearInterval(logInterval);
+                consoleLog.innerHTML += '<br>[warning] Impossibile completare la scansione. Carico dati cache...';
+                
+                // Fallback caricando il report di benchmark corrente
+                setTimeout(async () => {
+                    try {
+                        const resp = await fetch('/api/benchmark-report');
+                        const cacheData = await resp.json();
+                        // Filtra esclusi BOLA e Checkov se presenti nella cache
+                        const filtered = cacheData.filter(item => !item.name.includes("Checkov") && (isFullScan || !item.name.includes("BOLA")));
+                        loaderArea.style.display = 'none';
+                        resultsArea.style.display = 'block';
+                        renderBenchmarkReport(filtered);
+                        renderFindingsLists({}, isFullScan);
+                    } catch (e) {
+                        loaderArea.style.display = 'none';
+                        resultsArea.style.display = 'block';
+                        document.getElementById('modules-container').innerHTML = `
+                            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-secondary);">
+                                <p style="font-weight: 500;">Errore irreversibile nel caricamento dei dati.</p>
+                            </div>
+                        `;
+                    }
+                }, 1500);
+            }
+        });
+
+        function renderBenchmarkReport(benchmark) {
+            const container = document.getElementById('modules-container');
+            const metaTotalTime = document.getElementById('meta-total-time');
+            const metaModulesCount = document.getElementById('meta-modules-count');
+            const metaFindingsCount = document.getElementById('meta-findings-count');
+
+            container.innerHTML = '';
+
+            let totalTime = 0;
+            let totalFindings = 0;
+            let modulesCount = benchmark.length;
+
+            benchmark.forEach(item => {
+                totalTime += item.time;
+                totalFindings += item.findings;
+
+                const card = document.createElement('div');
+                card.className = 'module-card';
+                card.setAttribute('data-name', item.name.toLowerCase());
+                card.setAttribute('data-dir', item.dir.toLowerCase());
+
+                let timeStr = item.time >= 60 
+                    ? `${Math.floor(item.time / 60)}m ${(item.time % 60).toFixed(1)}s`
+                    : `${item.time.toFixed(2)}s`;
+
+                let statusClass = item.status === 'SUCCESS' ? 'success' : item.status === 'SKIPPED' ? 'skipped' : 'failed';
+                let findingsClass = item.findings > 0 ? 'findings-count' : 'findings-count zero';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="module-header">
+                            <span class="module-title">${item.name}</span>
+                        </div>
+                        <div class="module-dir">${item.dir}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">
+                            Tempo: <strong style="color: var(--text-primary); font-family: monospace;">${timeStr}</strong>
+                        </div>
+                        <div class="module-stats">
+                            <span class="stat-badge ${statusClass}">${item.status}</span>
+                            <span class="${findingsClass}">${item.findings} Findings</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            metaTotalTime.textContent = `${totalTime.toFixed(2)}s`;
+            metaModulesCount.textContent = modulesCount;
+            metaFindingsCount.textContent = totalFindings;
+        }
+
+        function escapeHtml(text) {
+            if (typeof text !== 'string') return '';
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function renderFindingsLists(findingsMap, isFullScan) {
+            if (!findingsMap) return;
+
+            const modules = [
+                { id: 'bola', name: 'BOLA' },
+                { id: 'bopla', name: 'BOPLA' },
+                { id: 'broken_authentication', name: 'Broken Authentication' },
+                { id: 'bfla', name: 'BFLA' },
+                { id: 'security_misconfiguration', name: 'Security Misconfiguration' },
+                { id: 'ssrf', name: 'SSRF' },
+                { id: 'unrestricted_resource_consumption', name: 'Unrestricted Resource Consumption' },
+                { id: 'unsafe_consumption', name: 'Unsafe Consumption' }
+            ];
+
+            modules.forEach(mod => {
+                // If it is BOLA and BOLA was skipped, skip rendering list content for it
+                if (mod.id === 'bola' && !isFullScan) return;
+
+                const listContainer = document.getElementById(`list-${mod.id}`);
+                const list = findingsMap[mod.id] || [];
+                
+                // Update tab count badge
+                const tabBtn = document.querySelector(`.tab-btn[data-tab="${mod.id}"]`);
+                if (tabBtn) {
+                    let displayName = mod.id === 'broken_authentication' ? 'Broken Auth' : mod.id === 'security_misconfiguration' ? 'Security Misconfig' : mod.id === 'unrestricted_resource_consumption' ? 'Resource Consumption' : mod.id === 'unsafe_consumption' ? 'Unsafe Consumption' : mod.id.toUpperCase();
+                    tabBtn.innerHTML = `${displayName} <span style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 2px 6px; font-size: 0.7rem; font-weight: 700; margin-left: 4px;">${list.length}</span>`;
+                }
+
+                listContainer.innerHTML = '';
+
+                if (list.length === 0) {
+                    listContainer.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px; filter: drop-shadow(0 0 8px rgba(0,230,118,0.2));">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg>
+                            <p style="font-weight: 500;">Nessuna vulnerabilità rilevata per questo modulo!</p>
+                            <span style="font-size: 0.8rem;">Il codice analizzato rispetta gli standard di sicurezza previsti.</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.forEach((f, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'finding-item';
+
+                    let severityClass = (f.severity || 'MEDIUM').toLowerCase();
+                    let severityColor = severityClass === 'critical' ? '#ff3b30' : severityClass === 'high' ? '#ff9500' : severityClass === 'medium' ? '#ffcc00' : '#007aff';
+                    
+                    let title = f.title || f.rule_id || f.test_id || `Finding #${idx + 1}`;
+                    let file = f.file_path || f.file || f.endpoint || 'N/A';
+                    let line = f.line_number || f.linea || '';
+                    let evidence = f.evidence || f.dettagli || f.request || '';
+                    
+                    let extraRowsHtml = '';
+                    if (f.cwe_id) {
+                        extraRowsHtml += `<div class="finding-detail-row"><span class="finding-detail-lbl">CWE:</span><code>${f.cwe_id}</code></div>`;
+                    }
+                    if (f.category) {
+                        extraRowsHtml += `<div class="finding-detail-row"><span class="finding-detail-lbl">Categoria:</span>${f.category}</div>`;
+                    }
+                    if (f.missing_guard) {
+                        extraRowsHtml += `<div class="finding-detail-row"><span class="finding-detail-lbl">Guardia Mancante:</span><span style="color:#ff3b30; font-family: monospace;">${f.missing_guard}</span></div>`;
+                    }
+                    if (f.property_name) {
+                        extraRowsHtml += `<div class="finding-detail-row"><span class="finding-detail-lbl">Proprietà:</span><code>${f.property_name}</code></div>`;
+                    }
+
+                    item.innerHTML = `
+                        <div class="finding-header">
+                            <span class="finding-title" style="border-left: 3px solid ${severityColor}; padding-left: 10px;">${title}</span>
+                            <span class="stat-badge" style="background: ${severityColor}15; color: ${severityColor}; border: 1px solid ${severityColor}30;">${f.severity || 'MEDIUM'}</span>
+                        </div>
+                        <div class="finding-location">${file}${line ? ` : Linea ${line}` : ''}</div>
+                        ${extraRowsHtml}
+                        ${evidence ? `<div class="finding-evidence">${escapeHtml(typeof evidence === 'object' ? JSON.stringify(evidence, null, 2) : String(evidence))}</div>` : ''}
+                    `;
+                    listContainer.appendChild(item);
+                });
+            });
+        }
+
+        // Live Search Input filter
+        const searchInput = document.getElementById('search-modules');
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.module-card');
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                const dir = card.getAttribute('data-dir');
+                if (name.includes(query) || dir.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1020,6 +1020,114 @@
             color: var(--text-secondary);
             line-height: 1.4;
         }
+
+        /* 5. Benchmark Table Card Styles */
+        .card-benchmark {
+            grid-column: span 12;
+            margin-top: 12px;
+        }
+
+        .benchmark-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="light"] .benchmark-table-wrapper {
+            border-color: rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .benchmark-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .benchmark-table th, .benchmark-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        
+        [data-theme="light"] .benchmark-table th, [data-theme="light"] .benchmark-table td {
+            border-bottom-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .benchmark-table th {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .benchmark-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .benchmark-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        
+        [data-theme="light"] .benchmark-table tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.01);
+        }
+
+        .benchmark-table td code {
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--accent-blue);
+            background: rgba(0, 210, 255, 0.08);
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .table-loading {
+            text-align: center;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .status-badge-success {
+            background: rgba(0, 230, 118, 0.12);
+            color: #00e676;
+            border: 1px solid rgba(0, 230, 118, 0.25);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.1);
+        }
+
+        .findings-count-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-primary);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        
+        [data-theme="light"] .findings-count-badge {
+            background: rgba(0, 0, 0, 0.02);
+            border-color: rgba(0, 0, 0, 0.06);
+        }
+        
+        .findings-count-badge.has-findings {
+            background: rgba(112, 66, 255, 0.12);
+            border-color: rgba(112, 66, 255, 0.25);
+            color: #b082ff;
+        }
     </style>
 </head>
 <body>
@@ -1189,6 +1297,33 @@
                 </div>
             </div>
         </section>
+
+        <!-- 5. Core Security Scanners & Execution Timings -->
+        <section class="card card-benchmark">
+            <div class="card-header-info">
+                <h2 class="card-title">Moduli di Sicurezza Core & Tempi di Esecuzione</h2>
+                <p class="card-desc">Resoconto dell'ultimo benchmark prestazionale e dei findings per ciascun motore di rilevamento in <code>src/core/</code>.</p>
+            </div>
+            
+            <div class="benchmark-table-wrapper">
+                <table class="benchmark-table">
+                    <thead>
+                        <tr>
+                            <th>Modulo di Sicurezza</th>
+                            <th>Directory Sorgente</th>
+                            <th>Tempo di Esecuzione</th>
+                            <th>Stato</th>
+                            <th>Findings Rilevati</th>
+                        </tr>
+                    </thead>
+                    <tbody id="benchmark-tbody">
+                        <tr>
+                            <td colspan="5" class="table-loading">Caricamento dati di benchmark...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
     <footer>
@@ -1208,47 +1343,41 @@
                 <button class="modal-close-btn" id="modal-close" aria-label="Chiudi">&times;</button>
             </div>
             <div class="modal-body">
-                <button class="modal-option-btn" id="btn-opt-terraform">
-                    <div class="modal-option-icon">
-                        <svg viewBox="0 0 100 100" width="22" height="22">
-                            <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="#FF5A09"/>
-                            <path d="M35,45 L47,57 L68,33" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                    <div class="modal-option-text">
-                        <span class="modal-option-title">Controlli Infrastruttura Terraform</span>
-                        <span class="modal-option-desc">Simula l'analisi di sicurezza delle configurazioni IaC con lo scanner Checkov.</span>
-                    </div>
-                </button>
-
-                <button class="modal-option-btn" id="btn-opt-api">
-                    <div class="modal-option-icon" style="color: var(--accent-blue);">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/>
-                        </svg>
-                    </div>
-                    <div class="modal-option-text">
-                        <span class="modal-option-title">Rischi API & D-AST (Semgrep / BOLA)</span>
-                        <span class="modal-option-desc">Simula l'analisi della sicurezza e rilevazione delle vulnerabilità degli endpoint API.</span>
-                    </div>
-                </button>
-
-                <button class="modal-option-btn" id="btn-opt-contract">
+                <!-- 1. Scansione Unificata (Tutti i Moduli) -->
+                <button class="modal-option-btn" id="btn-scan-all" style="border-color: var(--accent-purple);">
                     <div class="modal-option-icon" style="color: var(--accent-purple);">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                            <polyline points="10 9 9 9 8 9"/>
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
                         </svg>
                     </div>
                     <div class="modal-option-text">
-                        <span class="modal-option-title">Validazione Contratto OpenAPI (Spectral)</span>
-                        <span class="modal-option-desc">Simula l'analisi di conformità del contratto OpenAPI con Stoplight Spectral.</span>
+                        <span class="modal-option-title" style="color: var(--accent-purple); display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            Scansione Unificata (Tutti i Moduli)
+                            <span class="modal-badge-soon" style="background: rgba(112, 66, 255, 0.1); border-color: rgba(112, 66, 255, 0.3); color: var(--accent-purple);">LIVE</span>
+                        </span>
+                        <span class="modal-option-desc">Avvia il benchmark e la scansione completa di tutti i moduli (BOLA inclusa in modalità veloce).</span>
                     </div>
                 </button>
 
+                <!-- 2. Scansione Veloce (Escluso BOLA) -->
+                <button class="modal-option-btn" id="btn-scan-non-bola" style="border-color: var(--accent-blue);">
+                    <div class="modal-option-icon" style="color: var(--accent-blue);">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                        </svg>
+                    </div>
+                    <div class="modal-option-text">
+                        <span class="modal-option-title" style="color: var(--accent-blue); display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                            Scansione Veloce (Escluso BOLA)
+                            <span class="modal-badge-soon" style="background: rgba(0, 210, 255, 0.1); border-color: rgba(0, 210, 255, 0.3); color: var(--accent-blue);">VELOCE</span>
+                        </span>
+                        <span class="modal-option-desc">Esegui l'analisi di tutti i moduli core ad esclusione di BOLA (risparmia tempo di esecuzione).</span>
+                    </div>
+                </button>
+
+                <hr style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 8px 0;">
+
+                <!-- 3. Test Autorizzazione BOLA/IDOR -->
                 <button class="modal-option-btn" id="btn-opt-bola">
                     <div class="modal-option-icon" style="color: #f97316;">
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1261,8 +1390,39 @@
                         </svg>
                     </div>
                     <div class="modal-option-text">
-                        <span class="modal-option-title">Test Autorizzazione BOLA/IDOR</span>
-                        <span class="modal-option-desc">Esegui il test differenziale multi-utente per rilevare BOLA orizzontale, verticale e Broken Authentication.</span>
+                        <span class="modal-option-title">Test Autorizzazione BOLA/IDOR (Lab)</span>
+                        <span class="modal-option-desc">Esegui il test differenziale multi-utente completo per rilevare BOLA, IDOR e Broken Authentication.</span>
+                    </div>
+                </button>
+
+                <!-- 4. Controlli Infrastruttura Terraform -->
+                <button class="modal-option-btn" id="btn-opt-terraform">
+                    <div class="modal-option-icon">
+                        <svg viewBox="0 0 100 100" width="22" height="22">
+                            <polygon points="50,5 95,25 95,75 50,95 5,75 5,25" fill="#FF5A09"/>
+                            <path d="M35,45 L47,57 L68,33" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="modal-option-text">
+                        <span class="modal-option-title">Controlli Infrastruttura Terraform</span>
+                        <span class="modal-option-desc">Visualizza i risultati dell'analisi di sicurezza delle configurazioni IaC con Checkov.</span>
+                    </div>
+                </button>
+
+                <!-- 5. Validazione Contratto OpenAPI -->
+                <button class="modal-option-btn" id="btn-opt-contract">
+                    <div class="modal-option-icon" style="color: var(--accent-purple);">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10 9 9 9 8 9"/>
+                        </svg>
+                    </div>
+                    <div class="modal-option-text">
+                        <span class="modal-option-title">Validazione Contratto OpenAPI (Spectral)</span>
+                        <span class="modal-option-desc">Visualizza i risultati dell'analisi di conformità del contratto OpenAPI con Spectral.</span>
                     </div>
                 </button>
             </div>
@@ -1311,16 +1471,23 @@
             
             const toast = document.createElement('div');
             toast.className = 'toast';
+            
+            let iconSvg = '';
             if (type === 'warning') {
                 toast.style.borderLeftColor = 'var(--accent-purple)';
+                iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+            } else if (type === 'success') {
+                toast.style.borderLeftColor = '#00e676';
+                iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`;
+            } else if (type === 'error') {
+                toast.style.borderLeftColor = '#ff3b30';
+                iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+            } else {
+                iconSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
             }
-            
-            const iconSvg = type === 'warning' 
-                ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`
-                : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
                 
             toast.innerHTML = `
-                <div class="toast-icon">
+                <div class="toast-icon" style="color: ${type === 'success' ? '#00e676' : type === 'error' ? '#ff3b30' : 'var(--accent-purple)'}">
                     ${iconSvg}
                 </div>
                 <div class="toast-content">
@@ -1354,8 +1521,9 @@
         // Modal Controls
         const scanModal = document.getElementById('scan-modal');
         const modalClose = document.getElementById('modal-close');
+        const btnScanAll = document.getElementById('btn-scan-all');
+        const btnScanNonBola = document.getElementById('btn-scan-non-bola');
         const btnOptTerraform = document.getElementById('btn-opt-terraform');
-        const btnOptApi = document.getElementById('btn-opt-api');
         const btnOptContract = document.getElementById('btn-opt-contract');
         const btnOptBola = document.getElementById('btn-opt-bola');
 
@@ -1373,14 +1541,19 @@
             }
         });
 
+        btnScanAll.addEventListener('click', () => {
+            scanModal.classList.remove('active');
+            window.location.href = '/unified-results?scan_type=all';
+        });
+
+        btnScanNonBola.addEventListener('click', () => {
+            scanModal.classList.remove('active');
+            window.location.href = '/unified-results?scan_type=non-bola';
+        });
+
         btnOptTerraform.addEventListener('click', () => {
             scanModal.classList.remove('active');
             window.location.href = '/results';
-        });
-
-        btnOptApi.addEventListener('click', () => {
-            scanModal.classList.remove('active');
-            window.location.href = '/api-results';
         });
 
         btnOptContract.addEventListener('click', () => {
@@ -1417,13 +1590,59 @@
             }
         });
 
-        // Key Shortcut focus trigger
-        document.addEventListener('keydown', (e) => {
-            if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
-                e.preventDefault();
-                searchInput.focus();
+        // Fetch and Render Benchmark Report
+        async function loadBenchmarkReport() {
+            const tbody = document.getElementById('benchmark-tbody');
+            try {
+                const response = await fetch('/api/benchmark-report');
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="table-loading">Nessun dato di benchmark disponibile.</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = '';
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    // Format time
+                    let timeStr = '';
+                    if (item.time >= 60) {
+                        const mins = Math.floor(item.time / 60);
+                        const secs = (item.time % 60).toFixed(1);
+                        timeStr = `${item.time.toFixed(2)}s (~${mins}m ${secs}s)`;
+                    } else {
+                        timeStr = `${item.time.toFixed(3)}s`;
+                    }
+                    
+                    const findingsClass = item.findings > 0 ? 'findings-count-badge has-findings' : 'findings-count-badge';
+                    
+                    row.innerHTML = `
+                        <td style="font-weight: 600; color: var(--text-primary);">${item.name}</td>
+                        <td><code>${item.dir}</code></td>
+                        <td style="font-family: monospace; font-weight: 500; color: var(--accent-blue);">${timeStr}</td>
+                        <td>
+                            <span class="status-badge-success">
+                                <span style="width: 6px; height: 6px; background-color: #00e676; border-radius: 50%; display: inline-block;"></span>
+                                ${item.status}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="${findingsClass}">${item.findings}</span>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Errore durante il caricamento del benchmark:', error);
+                tbody.innerHTML = '<tr><td colspan="5" class="table-loading" style="color: #ff3b30;">Errore nel caricamento del benchmark.</td></tr>';
             }
-        });
+        }
+        
+        // Carica al caricamento della pagina
+        document.addEventListener('DOMContentLoaded', loadBenchmarkReport);
     </script>
 </body>
 </html>

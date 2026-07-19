@@ -13,7 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.core.broken_function_level_authorization import detector
 
-FIXTURES_DIR = Path(__file__).resolve().parent.parent / "fixtures"
+FIXTURES_DIR = PROJECT_ROOT / "test_targets" / "broken_function_level_authorization"
 
 GROUND_TRUTH: dict[str, dict[str, Any]] = {
     "vulnerable_app": {
