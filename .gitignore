@@ -56,3 +56,6 @@ output/repo_target/
 
 # Contratto OpenAPI unito, rigenerato da Spectral a ogni scansione
 output/openapi_merged.yaml
+
+# File temporaneo creato dallo Spectral adapter accanto a ogni openapi scansionato
+openapi_merged_temp.yaml
