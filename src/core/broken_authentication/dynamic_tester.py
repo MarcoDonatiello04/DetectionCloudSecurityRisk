@@ -51,6 +51,9 @@ class RisultatoTest(BaseModel):
     dettagli: str
     category: VulnerabilityCategory | None = None
     dettagli_quantitativi: dict[str, Any] | None = None
+    # Raccomandazione di remediation associata al finding. Senza questo campo
+    # pydantic scartava silenziosamente il valore passato dai singoli test.
+    raccomandazione: str | None = None
 
 
 # --- JWT Base64 Helpers ---
@@ -113,7 +116,7 @@ class DynamicTester:
     def _wrap_client_methods(self, client: httpx.AsyncClient):
         if hasattr(client, "_wrapped_for_audit"):
             return
-        client._wrapped_for_audit = True
+        client._wrapped_for_audit = True  # type: ignore[attr-defined]
 
         original_get = client.get
         original_post = client.post
@@ -704,7 +707,7 @@ class DynamicTester:
                 orig_payload = base64url_decode(parts[1])
             else:
                 # Construct a minimal payload if we only have the secret
-                orig_payload = {
+                orig_payload: dict[str, Any] = {
                     "sub": self.config.target.username or "testuser",
                     "role": "user",
                 }
@@ -1727,7 +1730,7 @@ class DynamicTester:
 
             success_count = 0
             for r in responses:
-                if not isinstance(r, Exception) and r.status_code in (200, 201):
+                if not isinstance(r, BaseException) and r.status_code in (200, 201):
                     success_count += 1
 
             if success_count > 1:

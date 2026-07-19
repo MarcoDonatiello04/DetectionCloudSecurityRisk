@@ -223,7 +223,7 @@ class ASTSignalCollector:
         # Safe decode helper
         node_text = ""
         with contextlib.suppress(Exception):
-            node_text = node.text.decode("utf-8", errors="replace").strip()
+            node_text = (node.text or b"").decode("utf-8", errors="replace").strip()
 
         if node_text:
             # 1. Imports Auth
@@ -470,9 +470,11 @@ class ASTSignalCollector:
                             ):
                                 for subchild in child.children:
                                     if subchild.type == "identifier":
-                                        func_name = subchild.text.decode(
-                                            "utf-8", errors="replace"
-                                        ).strip()
+                                        func_name = (
+                                            (subchild.text or b"")
+                                            .decode("utf-8", errors="replace")
+                                            .strip()
+                                        )
                                         break
                                 if func_name:
                                     break
@@ -494,9 +496,11 @@ class ASTSignalCollector:
                                 ):
                                     for subchild in sibling.children:
                                         if subchild.type == "identifier":
-                                            func_name = subchild.text.decode(
-                                                "utf-8", errors="replace"
-                                            ).strip()
+                                            func_name = (
+                                                (subchild.text or b"")
+                                                .decode("utf-8", errors="replace")
+                                                .strip()
+                                            )
                                             break
                                     if func_name:
                                         break

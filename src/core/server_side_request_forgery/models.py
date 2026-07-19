@@ -10,7 +10,7 @@ class SsrfFinding:
     category: str  # es. "direct_url_from_input", "insufficient_validation"
     severity: str  # "CRITICAL" | "HIGH" | "MEDIUM"
     file_path: str
-    line_number: int
+    line_number: int | None  # None per le finding a livello di contratto OpenAPI
     endpoint: str | None  # route associata se identificabile
     source: str  # dove entra l'input utente (es. "request.args.get('url')")
     sink: str  # dove finisce (es. "requests.get(url)")

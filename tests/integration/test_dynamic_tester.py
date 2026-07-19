@@ -29,7 +29,7 @@ def create_mock_client(get_responses=None, post_responses=None):
         if get_responses and path in get_responses:
             resp = get_responses[path]
             if callable(resp) and not isinstance(resp, (MagicMock, AsyncMock)):
-                return await resp(headers)
+                return await resp(headers)  # type: ignore[reportGeneralTypeIssues]
             return resp
         resp = MagicMock(status_code=404)
         resp.text = "Not Found"
@@ -43,7 +43,7 @@ def create_mock_client(get_responses=None, post_responses=None):
         if post_responses and path in post_responses:
             resp = post_responses[path]
             if callable(resp) and not isinstance(resp, (MagicMock, AsyncMock)):
-                return await resp(json, headers)
+                return await resp(json, headers)  # type: ignore[reportGeneralTypeIssues]
             return resp
         resp = MagicMock(status_code=404)
         resp.text = "Not Found"

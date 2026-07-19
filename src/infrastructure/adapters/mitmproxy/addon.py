@@ -2,7 +2,7 @@ import contextlib
 import json
 import os
 
-from mitmproxy import http
+from mitmproxy import http  # type: ignore[attr-defined]
 
 # Percorso di log di default per il container mitmproxy
 DEFAULT_TRAFFIC_LOG_PATH = "/home/mitmproxy/output/raw_traffic.json"

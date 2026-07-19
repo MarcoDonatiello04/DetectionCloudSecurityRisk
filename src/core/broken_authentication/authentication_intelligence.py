@@ -83,7 +83,7 @@ def _extract_path_from_route(route_str: str) -> str | None:
 
 class AuthenticationIntelligenceEngine:
     @staticmethod
-    def decode_token_claims(token: str) -> dict:
+    def decode_token_claims(token: str | None) -> dict:
         """Attempts to parse a token as a JWT and retrieve claims."""
         if not token:
             return {}

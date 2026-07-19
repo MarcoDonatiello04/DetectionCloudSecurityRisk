@@ -80,3 +80,23 @@ ignore = [
 
 [tool.ruff.format]
 quote-style = "double"
+
+# ---------------------------------------------------------------- pyright ----
+# Configurazione del type checker usato dall'IDE (Pylance/Pyright) in modalita
+# basic. Le sample-app in **/fixtures/ e i target in test_targets/ sono INPUT
+# degli scanner (analizzati come dati), non codice di progetto: vanno esclusi
+# dal type-checking come gia avviene per il linting.
+[tool.pyright]
+include = ["src", "remediation", "entrypoints", "tests"]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    ".venv",
+    "test_targets",
+    "fixtures",
+    "**/fixtures",
+    "output",
+]
+typeCheckingMode = "basic"
+venvPath = "."
+venv = ".venv"

@@ -40,7 +40,7 @@ def test_privileged_endpoint_no_role_check_vulnerable():
     assert role_finding.severity == "CRITICAL"
     assert role_finding.confidence == 0.75
 
-    debug_finding = next(f for f in findings if "debug" in f.endpoint)
+    debug_finding = next(f for f in findings if "debug" in (f.endpoint or ""))
     assert debug_finding.rule_id == "BF-001"
     assert debug_finding.severity == "CRITICAL"
     assert debug_finding.confidence == 0.95

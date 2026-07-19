@@ -211,9 +211,9 @@ class DatabaseSeeder:
     def seed_target_application(
         self,
         dynamic_endpoints: list[dict[str, Any]],
-        uuid_alice: str,
-        uuid_bob: str,
-        uuid_charlie: str,
+        uuid_alice: str | None,
+        uuid_bob: str | None,
+        uuid_charlie: str | None,
     ) -> bool:
         """
         Popola il database Flask con le risorse di test ('orders', 'invoices', ecc.)

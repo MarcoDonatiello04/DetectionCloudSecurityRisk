@@ -58,6 +58,8 @@ def test_spectral_scanner_adapter_execution():
         assert finding.rule_id is not None
         assert finding.description is not None
         # Verifica che il file di origine sia corretto
+        assert finding.location is not None
+        assert finding.correlation_key is not None
         assert target_openapi in finding.location.file_path
 
         if finding.api is not None:

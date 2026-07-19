@@ -28,11 +28,11 @@ def test_shadow_admin_function_vulnerable():
     # 2. /test/create-admin (HIGH)
     assert len(findings) == 2
 
-    debug_finding = next(f for f in findings if "debug" in f.endpoint)
+    debug_finding = next(f for f in findings if "debug" in (f.endpoint or ""))
     assert debug_finding.rule_id == "BF-006"
     assert debug_finding.severity == "HIGH"
 
-    test_finding = next(f for f in findings if "test" in f.endpoint)
+    test_finding = next(f for f in findings if "test" in (f.endpoint or ""))
     assert test_finding.rule_id == "BF-006"
     assert test_finding.severity == "HIGH"
 
@@ -55,4 +55,4 @@ def debug_token_info():
     f = findings[0]
     assert f.rule_id == "BF-006"
     assert f.severity == "LOW"
-    assert "debug" in f.endpoint
+    assert "debug" in (f.endpoint or "")

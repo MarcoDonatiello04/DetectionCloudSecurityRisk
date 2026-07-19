@@ -98,7 +98,7 @@ def test_documentation_correlation():
             ]
         }
     }
-    inventory = PropertyInventory(inv_data)
+    inventory = PropertyInventory.model_validate(inv_data)
 
     evidences = PropertyAuthorizationInferenceEngine.run_inference(
         repo_path=".", inventory=inventory, openapi_spec=mock_openapi, runtime_traffic=[]

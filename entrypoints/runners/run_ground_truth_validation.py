@@ -89,10 +89,11 @@ async def wait_for_app(base_url: str, proc: subprocess.Popen, timeout: int = 45)
         await asyncio.sleep(1)
     # On timeout, still log stderr
     stderr_out = ""
-    with contextlib.suppress(Exception):  # only works for seekable streams
-        proc.stderr.seek(0)
-    with contextlib.suppress(Exception):
-        stderr_out = proc.stderr.read(4096).decode("utf-8", errors="replace")
+    if proc.stderr is not None:
+        with contextlib.suppress(Exception):  # only works for seekable streams
+            proc.stderr.seek(0)
+        with contextlib.suppress(Exception):
+            stderr_out = proc.stderr.read(4096).decode("utf-8", errors="replace")
     if stderr_out:
         logger.error(f"Flask stderr on timeout:\n{stderr_out}")
     return False

@@ -81,8 +81,8 @@ def has_inline_role_check(body_text: str) -> bool:
 
 
 # Helper to extract text from a tree-sitter node
-def _node_text(node: Node) -> str:
-    return node.text.decode("utf-8", errors="replace") if node.text else ""
+def _node_text(node: Node | None) -> str:
+    return node.text.decode("utf-8", errors="replace") if node and node.text else ""
 
 
 # Helper to collect nodes of a specific type

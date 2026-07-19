@@ -34,8 +34,8 @@ from src.domain.entities import Finding
 from src.normalization.normalizer import APIEndpointNormalizer
 
 # Disabilita gli alert SSL di urllib3 per le richieste passanti dal proxy di ZAP
-requests.packages.urllib3.disable_warnings(
-    requests.packages.urllib3.exceptions.InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(  # type: ignore[attr-defined]
+    requests.packages.urllib3.exceptions.InsecureRequestWarning  # type: ignore[attr-defined]
 )
 
 # Configurazione logging
@@ -514,7 +514,7 @@ class DynamicOrchestrator:
         if self.assessment_mode or raw_traffic:
             logger.info("🔍 [Assessment Mode / Traffic Analysis] Esecuzione Ownership Inference...")
             inference_engine = OwnershipInferenceEngine()
-            inference_engine.analyze_traffic(raw_traffic)
+            inference_engine.analyze_traffic(raw_traffic or [])
 
             uuid_alice, uuid_bob, uuid_charlie, inferred_roles, inferred_headers = (
                 inference_engine.get_inferred_identities()
@@ -592,9 +592,11 @@ class DynamicOrchestrator:
             target_base_url=self.target_base_url,
             dynamic_endpoints=dynamic_eps,
             headers_matrix=headers_matrix,
-            uuid_alice=uuid_alice,
-            uuid_bob=uuid_bob,
-            uuid_charlie=uuid_charlie,
+            # In assessment mode gli UUID possono essere None (identita inferite dal
+            # traffico o assenti): la differential scan e i suoi consumatori lo gestiscono.
+            uuid_alice=uuid_alice,  # type: ignore[reportArgumentType]
+            uuid_bob=uuid_bob,  # type: ignore[reportArgumentType]
+            uuid_charlie=uuid_charlie,  # type: ignore[reportArgumentType]
             role_map=role_map,
             output_dir=output_dir,
             use_state_management=use_state_management,

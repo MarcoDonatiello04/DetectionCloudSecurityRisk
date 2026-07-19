@@ -14,7 +14,7 @@ from src.core.broken_object_property_level_access.models import (
 
 @pytest.fixture
 def mock_inventory():
-    return PropertyInventory(
+    return PropertyInventory.model_validate(
         {
             "User": {
                 "properties": [
