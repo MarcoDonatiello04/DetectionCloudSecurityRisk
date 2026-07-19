@@ -353,8 +353,8 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 2. Top-Right Card: Asset Discovery */
-        .card-asset-discovery {
+        /* 2. Top-Right Card: Panoramica Sicurezza */
+        .card-security-overview {
             grid-column: span 7;
             min-height: 360px;
             flex-direction: row;
@@ -362,7 +362,7 @@
             align-items: center;
         }
 
-        .card-asset-discovery .card-header-info {
+        .card-security-overview .card-header-info {
             width: 50%;
             margin-bottom: 0;
             display: flex;
@@ -370,110 +370,163 @@
             justify-content: center;
         }
 
-        .discovery-visual {
-            width: 45%;
-            height: 100%;
+        .overview-panel {
+            width: 48%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .overview-meta {
             display: flex;
             align-items: center;
-            justify-content: center;
-            position: relative;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
         }
 
-        /* Large glowing planet sphere */
-        .discovery-sphere {
-            width: 160px;
-            height: 160px;
-            background: var(--sphere-gradient);
-            border-radius: 50%;
-            position: relative;
-            box-shadow: 
-                0 0 40px rgba(98, 54, 255, 0.25),
-                inset -15px -15px 40px rgba(0,0,0,0.8),
-                inset 10px 10px 30px rgba(255,255,255,0.15);
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .overview-stat {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 14px;
+            padding: 12px 10px;
+            text-align: center;
+        }
+
+        .overview-stat-val {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            color: var(--text-primary);
+        }
+
+        .overview-stat-val.has-findings { color: #ff9f43; }
+
+        .overview-stat-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .overview-modules {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .overview-module {
             display: flex;
             align-items: center;
-            justify-content: center;
-            z-index: 2;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            font-size: 0.8rem;
         }
 
-        /* Glowing Shield Icon in front of sphere */
-        .shield-overlay {
-            width: 70px;
-            height: 70px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 18px;
+        .overview-module-name {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-primary);
+        }
+
+        .overview-badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 3px 8px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .badge-success { background: rgba(0, 230, 118, 0.15); color: #00e676; }
+        .badge-skipped { background: rgba(140, 140, 163, 0.15); color: var(--text-secondary); }
+        .badge-error   { background: rgba(255, 82, 82, 0.15); color: #ff5252; }
+        .badge-findings { background: rgba(255, 159, 67, 0.15); color: #ff9f43; }
+
+        .overview-actions {
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transform: translateZ(20px);
-            z-index: 5;
-            animation: float-shield 6s ease-in-out infinite;
+            gap: 12px;
         }
 
-        @keyframes float-shield {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-8px) rotate(2deg); }
-        }
-
-        .shield-overlay svg {
-            width: 34px;
-            height: 34px;
-            fill: #ffffff;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-        }
-
-        /* Orbiting rings */
-        .orbit-ring {
-            position: absolute;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .orbit-1 {
-            width: 250px;
-            height: 100px;
-            transform: rotate(-15deg);
-            z-index: 3;
-            animation: orbit-rotate-1 25s linear infinite;
-        }
-
-        .orbit-2 {
-            width: 270px;
-            height: 140px;
-            transform: rotate(30deg);
-            z-index: 1;
-            animation: orbit-rotate-2 35s linear infinite;
-        }
-
-        /* Orbit nodes */
-        .orbit-node {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
+        .btn-overview-rescan {
+            background: var(--btn-bg);
+            border: none;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px var(--btn-shadow);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            gap: 8px;
         }
 
-        .orbit-node svg {
-            width: 12px;
-            height: 12px;
-            fill: #ffffff;
+        .btn-overview-rescan:hover:not(:disabled) { transform: scale(1.04); }
+        .btn-overview-rescan:active:not(:disabled) { transform: scale(0.98); }
+        .btn-overview-rescan:disabled { opacity: 0.6; cursor: progress; box-shadow: none; }
+
+        .btn-overview-rescan svg { width: 14px; height: 14px; fill: currentColor; }
+        .btn-overview-rescan.is-running svg { animation: overview-spin 1s linear infinite; }
+
+        @keyframes overview-spin {
+            to { transform: rotate(360deg); }
         }
 
-        /* Position node 1 on Orbit 1 */
-        .node-api { top: 10%; left: 15%; background: rgba(0, 210, 255, 0.15); border-color: rgba(0, 210, 255, 0.3); }
-        /* Position node 2 on Orbit 2 */
-        .node-db { bottom: 20%; right: 10%; background: rgba(112, 66, 255, 0.15); border-color: rgba(112, 66, 255, 0.3); }
-        .node-lock { top: 30%; right: 15%; background: rgba(0, 230, 118, 0.15); border-color: rgba(0, 230, 118, 0.3); }
+        .btn-overview-secondary {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-primary);
+            box-shadow: none;
+        }
+
+        .btn-overview-secondary:hover:not(:disabled) {
+            border-color: var(--card-border-hover);
+        }
+
+        .overview-hint {
+            font-size: 0.72rem;
+            line-height: 1.4;
+            color: var(--text-secondary);
+        }
+
+        .overview-link {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .overview-link:hover { text-decoration: underline; }
+
+        .overview-empty {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
 
         /* 3. Bottom-Left Card: Search */
         .card-global-search {
@@ -758,20 +811,19 @@
             .card-scan-engine, .card-adapters {
                 grid-column: span 6;
             }
-            .card-asset-discovery, .card-global-search {
+            .card-security-overview, .card-global-search {
                 grid-column: span 6;
             }
-            .card-asset-discovery {
+            .card-security-overview {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 24px;
             }
-            .card-asset-discovery .card-header-info {
+            .card-security-overview .card-header-info {
                 width: 100%;
             }
-            .discovery-visual {
+            .overview-panel {
                 width: 100%;
-                margin: 20px 0;
             }
         }
 
@@ -1184,36 +1236,47 @@
             </div>
         </section>
 
-        <!-- 2. Cloud Asset Discovery Card -->
-        <section class="card card-asset-discovery">
+        <!-- 2. Panoramica Sicurezza: snapshot dell'ultima scansione unificata -->
+        <section class="card card-security-overview">
             <div class="card-header-info">
-                <h2 class="card-title">Asset Discovery</h2>
-                <p class="card-desc">Mappa e identifica automaticamente la superficie d'attacco, rilevando endpoint shadow API, credenziali esposte e database vulnerabili.</p>
+                <h2 class="card-title">Panoramica Sicurezza</h2>
+                <p class="card-desc">Riepilogo dell'ultima scansione unificata dei moduli Core: esito per modulo, findings rilevati e durata complessiva. Puoi rilanciare la scansione senza lasciare la dashboard.</p>
             </div>
             
-            <div class="discovery-visual">
-                <!-- Sphere orbits -->
-                <div class="orbit-ring orbit-1">
-                    <div class="orbit-node node-api" data-tooltip="API Target">
-                        <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
+            <div class="overview-panel">
+                <div class="overview-meta">
+                    <span id="overview-timestamp">Caricamento ultima scansione...</span>
+                    <a class="overview-link" href="/unified-results">Vista completa &rsaquo;</a>
+                </div>
+
+                <div class="overview-stats">
+                    <div class="overview-stat">
+                        <div class="overview-stat-val" id="overview-modules">-</div>
+                        <div class="overview-stat-label">Moduli</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="overview-stat-val" id="overview-findings">-</div>
+                        <div class="overview-stat-label">Findings</div>
+                    </div>
+                    <div class="overview-stat">
+                        <div class="overview-stat-val" id="overview-time">-</div>
+                        <div class="overview-stat-label">Durata</div>
                     </div>
                 </div>
-                <div class="orbit-ring orbit-2">
-                    <div class="orbit-node node-db" data-tooltip="Database Asset">
-                        <svg viewBox="0 0 24 24"><path d="M12 2C9.24 2 7 4.24 7 7v3H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2h-3V7c0-2.76-2.24-5-5-5zm3 8H9V7c0-1.66 1.34-3 3-3s3 1.34 3 3v3z"/></svg>
-                    </div>
-                    <div class="orbit-node node-lock" data-tooltip="Verified Safe">
-                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 15l-4-4 1.41-1.41L10 13.17l5.59-5.59L17 9l-7 7z"/></svg>
-                    </div>
+
+                <div class="overview-modules" id="overview-modules-list"></div>
+
+                <div class="overview-actions">
+                    <button class="btn-overview-rescan" id="btn-overview-quick" title="Esegue tutti i moduli Core tranne BOLA (circa 20 secondi)">
+                        <svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-8 8s3.58 8 8 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                        <span id="btn-overview-quick-label">Scansione rapida</span>
+                    </button>
+                    <button class="btn-overview-rescan btn-overview-secondary" id="btn-overview-full" title="Include i test dinamici BOLA: durata stimata 30 minuti o piu">
+                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                        <span id="btn-overview-full-label">Completa con BOLA</span>
+                    </button>
                 </div>
-                
-                <div class="discovery-sphere">
-                    <div class="shield-overlay">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 18c-3.41-.95-6-4.9-6-8.88V6.37l6-2.25 6 2.25v4.75c0 3.98-2.59 7.93-6 8.88z"/>
-                        </svg>
-                    </div>
-                </div>
+                <p class="overview-hint" id="overview-hint">La scansione rapida esclude BOLA (~20s). La completa include i test dinamici BOLA e richiede 30 minuti o piu.</p>
             </div>
         </section>
 
@@ -1643,6 +1706,131 @@
         
         // Carica al caricamento della pagina
         document.addEventListener('DOMContentLoaded', loadBenchmarkReport);
+
+        /* ---- Card "Panoramica Sicurezza": snapshot dell'ultima scansione unificata ---- */
+
+        function overviewBadge(module) {
+            const status = (module.status || '').toUpperCase();
+            if (status === 'SUCCESS') {
+                return module.findings > 0
+                    ? `<span class="overview-badge badge-findings">${module.findings} finding${module.findings === 1 ? '' : 's'}</span>`
+                    : '<span class="overview-badge badge-success">pulito</span>';
+            }
+            if (status === 'SKIPPED') {
+                return '<span class="overview-badge badge-skipped">saltato</span>';
+            }
+            return `<span class="overview-badge badge-error">${status || 'errore'}</span>`;
+        }
+
+        function renderOverview(data) {
+            const list = document.getElementById('overview-modules-list');
+            const stamp = document.getElementById('overview-timestamp');
+
+            if (!data.available || !data.modules.length) {
+                stamp.textContent = 'Nessuna scansione disponibile';
+                document.getElementById('overview-modules').textContent = '0';
+                document.getElementById('overview-findings').textContent = '0';
+                document.getElementById('overview-time').textContent = '-';
+                list.innerHTML = '<p class="overview-empty">Non risulta ancora nessuna scansione unificata. Avviane una con il pulsante qui sotto oppure esegui <code>make api-security</code>.</p>';
+                return;
+            }
+
+            const t = data.totals;
+            document.getElementById('overview-modules').textContent = `${t.executed}/${t.modules}`;
+            document.getElementById('overview-time').textContent = `${t.elapsed_seconds}s`;
+
+            const findingsEl = document.getElementById('overview-findings');
+            findingsEl.textContent = t.findings;
+            findingsEl.classList.toggle('has-findings', t.findings > 0);
+
+            if (data.generated_at) {
+                const d = new Date(data.generated_at);
+                stamp.textContent = `Ultima scansione: ${d.toLocaleString('it-IT', {
+                    day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                })}`;
+            } else {
+                stamp.textContent = 'Ultima scansione: data non disponibile';
+            }
+
+            list.innerHTML = data.modules.map(m => `
+                <div class="overview-module">
+                    <span class="overview-module-name" title="${m.dir || ''}">${m.name}</span>
+                    ${overviewBadge(m)}
+                </div>
+            `).join('');
+        }
+
+        async function loadOverview() {
+            try {
+                const resp = await fetch('/api/unified-summary');
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                renderOverview(await resp.json());
+            } catch (error) {
+                console.error('Errore nel caricamento della panoramica:', error);
+                document.getElementById('overview-timestamp').textContent = 'Panoramica non disponibile';
+                document.getElementById('overview-modules-list').innerHTML =
+                    '<p class="overview-empty">Impossibile contattare l\'API della piattaforma.</p>';
+            }
+        }
+
+        // La scansione completa include i test dinamici BOLA: sul target di riferimento
+        // richiede 30 minuti o piu, quindi va confermata esplicitamente dall'utente.
+        const OVERVIEW_SCANS = {
+            quick: {
+                endpoint: '/api/scan/non-bola',
+                btnId: 'btn-overview-quick',
+                labelId: 'btn-overview-quick-label',
+                running: 'Scansione rapida...',
+                status: 'Esecuzione dei moduli Core (BOLA escluso)...',
+                confirm: null
+            },
+            full: {
+                endpoint: '/api/scan/all',
+                btnId: 'btn-overview-full',
+                labelId: 'btn-overview-full-label',
+                running: 'BOLA in corso...',
+                status: 'Scansione completa con test dinamici BOLA in corso...',
+                confirm: 'La scansione completa esegue i test dinamici BOLA contro il target e richiede 30 minuti o piu.\n\nNon chiudere questa pagina durante l\'esecuzione. Vuoi procedere?'
+            }
+        };
+
+        async function runOverviewScan(kind) {
+            const scan = OVERVIEW_SCANS[kind];
+            if (scan.confirm && !window.confirm(scan.confirm)) return;
+
+            const buttons = Object.values(OVERVIEW_SCANS).map(s => document.getElementById(s.btnId));
+            const btn = document.getElementById(scan.btnId);
+            const label = document.getElementById(scan.labelId);
+            const previousLabel = label.textContent;
+
+            buttons.forEach(b => { b.disabled = true; });
+            btn.classList.add('is-running');
+            label.textContent = scan.running;
+            document.getElementById('overview-timestamp').textContent = scan.status;
+
+            try {
+                const resp = await fetch(scan.endpoint, { method: 'POST' });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                await resp.json();
+                await loadOverview();
+                await loadBenchmarkReport();
+            } catch (error) {
+                console.error('Errore durante la scansione unificata:', error);
+                document.getElementById('overview-timestamp').textContent =
+                    'Scansione non riuscita: controlla i log del server';
+            } finally {
+                buttons.forEach(b => { b.disabled = false; });
+                btn.classList.remove('is-running');
+                label.textContent = previousLabel;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOverview();
+            document.getElementById('btn-overview-quick').addEventListener('click', () => runOverviewScan('quick'));
+            document.getElementById('btn-overview-full').addEventListener('click', () => runOverviewScan('full'));
+        });
     </script>
 </body>
 </html>

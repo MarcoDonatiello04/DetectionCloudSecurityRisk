@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime
 from typing import Any
 
 from fastapi import Depends, FastAPI
@@ -425,6 +426,44 @@ def get_unified_report() -> list[dict[str, Any]]:
         except Exception as e:
             logger.error(f"Errore lettura report di sicurezza: {e}")
     return []
+
+
+@app.get("/api/unified-summary", response_model=dict[str, Any], tags=["Scanning"])
+def get_unified_summary() -> dict[str, Any]:
+    """
+    Ritorna una sintesi dell'ultima scansione unificata dei moduli Core.
+
+    Alimenta la card "Panoramica Sicurezza" della dashboard riusando lo stesso
+    report prodotto dalla pagina /unified-results, senza rieseguire la scansione.
+    Se nessuna scansione e stata ancora eseguita ritorna una sintesi vuota, cosi
+    che la dashboard resti utilizzabile su un checkout appena clonato.
+    """
+    report_path = "output/benchmark_results.json"
+    if not os.path.exists(report_path):
+        return {"available": False, "generated_at": None, "totals": {}, "modules": []}
+
+    import json
+
+    try:
+        with open(report_path, encoding="utf-8") as f:
+            modules = json.load(f)
+    except Exception as e:
+        logger.error(f"Errore lettura sintesi unificata: {e}")
+        return {"available": False, "generated_at": None, "totals": {}, "modules": []}
+
+    executed = [m for m in modules if m.get("status") != "SKIPPED"]
+    return {
+        "available": True,
+        "generated_at": datetime.fromtimestamp(os.path.getmtime(report_path)).isoformat(),
+        "totals": {
+            "modules": len(modules),
+            "executed": len(executed),
+            "findings": sum(m.get("findings", 0) for m in modules),
+            "failed": len([m for m in modules if m.get("status") not in ("SUCCESS", "SKIPPED")]),
+            "elapsed_seconds": round(sum(m.get("time", 0.0) for m in modules), 2),
+        },
+        "modules": modules,
+    }
 
 
 @app.get("/api/benchmark-report", response_model=list[dict[str, Any]], tags=["Scanning"])

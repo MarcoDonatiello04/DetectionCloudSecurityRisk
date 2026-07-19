@@ -37,3 +37,6 @@ htmlcov/
 output/raw_traffic.json
 output/findings_report.json
 output/bola_scan_results.json
+output/benchmark_results.json
+output/bopla/bopla_report.json
+output/bopla/bopla_report.md

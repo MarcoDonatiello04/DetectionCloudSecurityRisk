@@ -1,4 +1,4 @@
-.PHONY: install lint format test check setup-env iac-analysis api-security dashboard clean
+.PHONY: install lint format test check setup-env iac-analysis api-security stop-dashboard dashboard clean
 
 PY := .venv/bin/python
 
@@ -33,9 +33,32 @@ iac-analysis:
 api-security:
 	@bash entrypoints/operations/run_api_security.sh
 
-dashboard:
-	@echo "🚀 starting Security Dashboard on http://localhost:8000"
-	@PYTHONPATH=. .venv/bin/uvicorn src.presentation.rest_api:app --host 0.0.0.0 --port 8000 --reload
+DASHBOARD_PORT ?= 8000
+
+## Libera la porta della dashboard da eventuali istanze precedenti
+stop-dashboard:
+	@pids=$$(lsof -ti tcp:$(DASHBOARD_PORT) 2>/dev/null); \
+	if [ -n "$$pids" ]; then \
+		echo "=> Porta $(DASHBOARD_PORT) occupata dai processi: $$pids. Chiusura in corso..."; \
+		kill $$pids 2>/dev/null || true; \
+		for i in 1 2 3 4 5 6 7 8 9 10; do \
+			sleep 0.3; \
+			lsof -ti tcp:$(DASHBOARD_PORT) >/dev/null 2>&1 || break; \
+		done; \
+		pids=$$(lsof -ti tcp:$(DASHBOARD_PORT) 2>/dev/null); \
+		if [ -n "$$pids" ]; then \
+			echo "=> Terminazione forzata di: $$pids"; \
+			kill -9 $$pids 2>/dev/null || true; \
+			sleep 0.5; \
+		fi; \
+		echo "=> Porta $(DASHBOARD_PORT) liberata."; \
+	else \
+		echo "=> Porta $(DASHBOARD_PORT) gia libera."; \
+	fi
+
+dashboard: stop-dashboard
+	@echo "🚀 starting Security Dashboard on http://localhost:$(DASHBOARD_PORT)"
+	@PYTHONPATH=. .venv/bin/uvicorn src.presentation.rest_api:app --host 0.0.0.0 --port $(DASHBOARD_PORT) --reload
 
 
 clean:
