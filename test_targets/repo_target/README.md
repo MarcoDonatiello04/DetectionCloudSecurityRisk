@@ -14,7 +14,26 @@ I controlli si costruiscono in modo incrementale. Attualmente la repo copre:
 - **Discovery API / Semgrep (statico)** — il codice sorgente della repo, da cui
   Semgrep estrae l'inventario degli endpoint;
 - **Contratto OpenAPI / Spectral (statico)** — [`openapi.yaml`](openapi.yaml),
-  valutato rispetto al ruleset OWASP API Security.
+  valutato rispetto al ruleset OWASP API Security;
+- **Moduli Core non-BOLA (statici/offline)** — Broken Authentication, BOPLA,
+  BFLA, SSRF, URC (e gli altri) eseguiti sul codice della repo.
+
+## Moduli Core non-BOLA
+
+Il runner unificato dei moduli Core accetta `--repo-path`, quindi può puntare
+alla repo target invece che alla radice del progetto. Un target dedicato esegue
+tutti i moduli **tranne** BOLA (che ha il suo runner cooperante e richiede 30+
+minuti):
+
+```bash
+make core-modules-repo-target
+```
+
+Questi moduli (Broken Authentication, BOPLA, BFLA, SSRF, URC, Security
+Misconfiguration, Unsafe Consumption) sono statici o operano in modalità offline
+sul codice sorgente della repo, quindi non richiedono un ambiente attivo. È la
+dimostrazione — teorica quanto la copertura del codice della repo — che i
+controlli sono indipendenti dalla singola repository: cambia solo `--repo-path`.
 
 ## IaC: configurazione Terraform analizzata da Checkov
 

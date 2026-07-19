@@ -15,6 +15,7 @@ Unified runner script to execute all core security scanners:
 Measures execution time and checks for correctness.
 """
 
+import argparse
 import asyncio
 import json
 import os
@@ -88,9 +89,15 @@ def load_runtime_traffic(repo_path: str):
     return None
 
 
-async def run_broken_authentication(repo_path: str, openapi_spec, runtime_traffic, output_dir: str):
+async def run_broken_authentication(
+    repo_path: str,
+    openapi_spec,
+    runtime_traffic,
+    output_dir: str,
+    target_url: str = "http://localhost:5000",
+):
     config = ba_discovery.Config()
-    config.target.base_url = "http://localhost:5000"
+    config.target.base_url = target_url
     config.output.path = output_dir
     config.output.formato = "json"
 
@@ -173,8 +180,23 @@ async def run_broken_authentication(repo_path: str, openapi_spec, runtime_traffi
 
 
 async def main():
-    repo_path = "."
-    output_dir = "output/unified_run"
+    parser = argparse.ArgumentParser(description="Runner unificato dei moduli di sicurezza Core")
+    parser.add_argument(
+        "--repo-path", default=".", help="Directory sorgente da analizzare (target)"
+    )
+    parser.add_argument("--output-dir", default="output/unified_run")
+    parser.add_argument("--target-url", default="http://localhost:5000")
+    parser.add_argument("--keycloak-url", default="http://localhost:8080")
+    parser.add_argument("--zap-url", default="http://localhost:8090")
+    parser.add_argument(
+        "--skip-bola",
+        action="store_true",
+        help="Esclude il modulo BOLA (dinamico, richiede 30+ minuti e ambiente attivo)",
+    )
+    args = parser.parse_args()
+
+    repo_path = args.repo_path
+    output_dir = args.output_dir
     os.makedirs(output_dir, exist_ok=True)
 
     # Load specs
@@ -186,9 +208,9 @@ async def main():
             "name": "BOLA (Broken Object Level Authorization)",
             "dir": "object_level_authorization",
             "runner": lambda: DynamicOrchestrator(
-                target_base_url="http://localhost:5000",
-                keycloak_url="http://localhost:8080",
-                zap_proxy_url="http://localhost:8090",
+                target_base_url=args.target_url,
+                keycloak_url=args.keycloak_url,
+                zap_proxy_url=args.zap_url,
                 assessment_mode=True,  # Run in assessment mode to execute fast offline
             ).run_dast_pipeline(
                 api_inventory=[
@@ -216,7 +238,7 @@ async def main():
             "name": "Broken Authentication",
             "dir": "broken_authentication",
             "runner": lambda: run_broken_authentication(
-                repo_path, openapi_spec, runtime_traffic, output_dir
+                repo_path, openapi_spec, runtime_traffic, output_dir, args.target_url
             ),
             "is_async": True,
         },
@@ -252,10 +274,13 @@ async def main():
         },
     ]
 
+    if args.skip_bola:
+        modules = [m for m in modules if m["dir"] != "object_level_authorization"]
+
     results = []
 
     print("\n" + "=" * 90)
-    print("                     STARTING UNIFIED CORE MODULES EXECUTION")
+    print(f"          STARTING UNIFIED CORE MODULES EXECUTION (target: {repo_path})")
     print("=" * 90)
 
     for mod in modules:

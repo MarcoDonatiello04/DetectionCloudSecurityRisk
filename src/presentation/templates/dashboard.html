@@ -1488,6 +1488,20 @@
                         <span class="modal-option-desc">Visualizza i risultati dell'analisi di conformità del contratto OpenAPI con Spectral.</span>
                     </div>
                 </button>
+
+                <!-- 6. Analisi Codice API (Semgrep) -->
+                <button class="modal-option-btn" id="btn-opt-semgrep">
+                    <div class="modal-option-icon" style="color: var(--accent-blue);">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6"/>
+                            <polyline points="8 6 2 12 8 18"/>
+                        </svg>
+                    </div>
+                    <div class="modal-option-text">
+                        <span class="modal-option-title">Analisi Codice API (Semgrep)</span>
+                        <span class="modal-option-desc">Visualizza gli endpoint API scoperti e i rischi di autenticazione dall'analisi statica del codice con Semgrep.</span>
+                    </div>
+                </button>
             </div>
         </div>
     </div>
@@ -1589,6 +1603,7 @@
         const btnOptTerraform = document.getElementById('btn-opt-terraform');
         const btnOptContract = document.getElementById('btn-opt-contract');
         const btnOptBola = document.getElementById('btn-opt-bola');
+        const btnOptSemgrep = document.getElementById('btn-opt-semgrep');
 
         btnScan.addEventListener('click', () => {
             scanModal.classList.add('active');
@@ -1627,6 +1642,11 @@
         btnOptBola.addEventListener('click', () => {
             scanModal.classList.remove('active');
             window.location.href = '/bola-results';
+        });
+
+        btnOptSemgrep.addEventListener('click', () => {
+            scanModal.classList.remove('active');
+            window.location.href = '/api-results';
         });
 
         // Live Search Input filter

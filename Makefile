@@ -52,6 +52,13 @@ spectral-repo-target:
 	@PYTHONPATH=. $(PY) entrypoints/runners/run_spectral_repo_target.py \
 		--openapi test_targets/repo_target/openapi.yaml
 
+## Esegue i moduli Core non-BOLA (Broken Auth, BOPLA, BFLA, SSRF, URC, ...) sulla repo target
+core-modules-repo-target:
+	@PYTHONPATH=. $(PY) entrypoints/runners/run_unified_core_scanners.py \
+		--repo-path test_targets/repo_target \
+		--output-dir output/repo_target/core_modules \
+		--skip-bola
+
 ## Libera la porta della dashboard da eventuali istanze precedenti
 stop-dashboard:
 	@pids=$$(lsof -ti tcp:$(DASHBOARD_PORT) 2>/dev/null); \
