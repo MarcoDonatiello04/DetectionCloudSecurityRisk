@@ -29,6 +29,9 @@ testpaths = ["tests", "src", "remediation"]
 # i loro package inquinano sys.path e mascherano le dipendenze installate.
 norecursedirs = ["test_targets", "fixtures", "output", ".venv", "*.egg-info"]
 addopts = "-q --strict-markers --strict-config"
+# I test asincroni usano il marker esplicito @pytest.mark.asyncio (modalita strict).
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
 markers = [
     "integration: test che attraversano piu componenti reali",
     "requires_docker: test che richiedono i container della suite",
