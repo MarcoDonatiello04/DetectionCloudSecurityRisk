@@ -111,3 +111,17 @@ python3 -m pytest src/core/unrestricted_resource_consumption/tests/ -v
 | **Layer 1 — AST** | tree-sitter 0.25 (Python + JS), recursive node walk | `*.py`, `*.js`, `*.ts` |
 | **Layer 2 — Config** | PyYAML, stdlib `ast`, regex line-based | `docker-compose.yml`, `nginx.conf`, `gunicorn.conf.py`, `.env`, `settings.py` |
 | **Layer 3 — OpenAPI** | Pure dict traversal (no external parser) | Spec passata come dict (`openapi_spec` param) |
+
+---
+
+## Validazione su repo_target (2026-07-20)
+
+Endpoint reale `GET /api/projects` (`test_targets/repo_target/app.py`): parametro `limit` da
+utente usato per affettare la collezione senza tetto massimo.
+
+| Regola | Atteso | Esito |
+| :--- | :--- | :--- |
+| **RC-001** (unbounded pagination) | TP | ✅ finding su riga 98 (confidence 0.6) |
+
+RC-002 (upload), RC-004 (GraphQL batching): nessuna superficie applicabile nel target (nessun
+upload ne batching), quindi correttamente silenti.

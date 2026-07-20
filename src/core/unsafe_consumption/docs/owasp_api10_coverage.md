@@ -37,3 +37,21 @@
 # Dal root del progetto:
 python3 src/core/unsafe_consumption/tests/validate_ground_truth.py
 ```
+
+---
+
+## Aggiornamento validazione (2026-07-20)
+
+Rettifica: il modulo **passa** la ground truth, contrariamente a quanto indicato sopra.
+`validate_ground_truth.py` (output verbatim):
+
+| Metrica | Valore |
+| :--- | :--- |
+| TP | 3 (UC-001, UC-002, UC-003 su `fixtures/vulnerable_app`) |
+| TN | 1 (`fixtures/secure_app` pulito) |
+| TPR / FPR | 100% / 0% |
+
+**repo_target**: 0 finding. Documentato come **N/A** — `app.py` consuma dati esterni solo
+tramite l'endpoint `/import` con URL *variabile* controllato dall'utente; il detector UC-001
+identifica le API esterne tramite URL *costante*, quindi la superficie non e applicabile qui
+(lo stesso codice e coperto da **SS-001** del modulo SSRF).

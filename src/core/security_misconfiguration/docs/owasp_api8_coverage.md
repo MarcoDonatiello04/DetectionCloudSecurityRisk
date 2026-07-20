@@ -40,3 +40,18 @@
 # Dal root del progetto:
 python3 src/core/security_misconfiguration/tests/validate_ground_truth.py
 ```
+
+---
+
+## Validazione su repo_target (2026-07-20)
+
+`test_targets/repo_target/app.py` (Flask minimale) analizzato dal detector:
+
+| Regola | Atteso | Esito |
+| :--- | :--- | :--- |
+| **SC-004** (missing security headers) | TP | ✅ rilevato (nessun middleware header di sicurezza) |
+| **SC-002** (debug_mode) | TN | ✅ silente (`debug=False`) |
+| **SC-005** (hardcoded_secret) | TN | ✅ `KEYCLOAK_SERVER_URL/REALM` da env var non segnalati (config, non secret) |
+
+**SC-001** (cors_wildcard): il target non configura CORS affatto; la regola cerca un wildcard
+esplicito, quindi l'assenza di policy e fuori scope — limite noto documentato, non gap silenzioso.

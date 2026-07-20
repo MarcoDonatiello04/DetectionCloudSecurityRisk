@@ -2312,8 +2312,29 @@ class DynamicTester:
         # 1. Health check
         await self.health_check()
 
-        # 2. Endpoint Discovery
-        await self.discover_endpoints(stack, vulnerabilities)
+        # 2. Endpoint Discovery. Se il target non espone un endpoint di login
+        # (autenticazione delegata a un IdP esterno, es. Keycloak), i test dinamici
+        # non sono applicabili: si degrada a INCONCLUSIVE invece di sollevare eccezione.
+        try:
+            await self.discover_endpoints(stack, vulnerabilities)
+        except EndpointNotFoundException as exc:
+            logger.warning(
+                "Nessun endpoint di autenticazione nel target: test dinamici non applicabili (%s).",
+                exc,
+            )
+            return [
+                RisultatoTest(
+                    test_id="T00",
+                    nome="Discovery endpoint di autenticazione",
+                    stato="INCONCLUSIVE",
+                    severita="INFO",
+                    dettagli=(
+                        "Nessun endpoint di login individuato nel target (autenticazione "
+                        "delegata a un identity provider esterno). I test dinamici che "
+                        "richiedono una sessione autenticata non sono eseguibili."
+                    ),
+                )
+            ]
 
         # 3. Test execution sequence
         results: list[RisultatoTest] = []

@@ -16,7 +16,7 @@ Each category is assigned a weight based on vulnerability prevalence and risk im
 
 | Category | Associated CWEs | Weight | Status | Effective Coverage | Score | Details / Dynamic Tests |
 | :--- | :--- | :---: | :---: | :---: | :---: | :--- |
-| **1. Token Validation & Signatures** | CWE-347, CWE-327 | 15% | **Covered** | **Yes** (Pass/Fail mock tests) | 15.0% | **T01** (JWT signature validation)<br>**T02** (Expired token rejection)<br>**T07** (Key confusion RS256->HS256)<br>**T14** (JWKS Header Injection via jwk/x5u) |
+| **1. Token Validation & Signatures** | CWE-347, CWE-327 | 15% | **Covered** | **Yes** (Pass/Fail mock tests + static rule S01) | 15.0% | **T01** (JWT signature validation)<br>**T02** (Expired token rejection)<br>**T07** (Key confusion RS256->HS256)<br>**T14** (JWKS Header Injection via jwk/x5u)<br>**S01** (static AST — JWT signature bypass via manual payload decode, CWE-347) |
 | **2. Session & Token Management** | CWE-384, CWE-613 | 15% | **Covered** | **Yes** (Pass/Fail mock tests) | 15.0% | **T05** (Token reuse post logout)<br>**T06** (Session Fixation check)<br>**T12** (Invalid token refresh rejection)<br>**T16** (Refresh Token Rotation check) |
 | **3. Auth Flows & Credentials Security** | CWE-287, CWE-601 | 15% | **Covered** | **Yes** (Pass/Fail mock tests) | 15.0% | **T04** (Token Replay on diff aud/client)<br>**T15** (OAuth2/OIDC Flows state/PKCE checks)<br>**T17** (Non-JWT Credentials Security) |
 | **4. Brute Force & Rate Limiting** | CWE-307 | 15% | **Covered** | **Yes** (Pass/Fail & IP spoofing mock) | 15.0% | **T03** (Brute Force detection)<br>**T18** (Rate Limiting bypass via IP header spoofing) |
@@ -92,3 +92,45 @@ Alcuni CWE sono trasversali a più categorie interne. Di conseguenza, interventi
    - *Causa*: In `discover_endpoints` in `dynamic_tester.py`, se l'endpoint di login principale viene scoperto tramite l'Intelligence Engine (Fase 3), il ramo di ricerca automatica della documentazione OpenAPI in Fase 4 viene completamente saltato. Questo impedisce al modulo di mappare e testare gli endpoint secondari (come reset password, logout o OTP/MFA) non presenti nello stack statico originario.
    - *Ipotesi*: Ristrutturare `discover_endpoints` per eseguire sempre il parsing del file OpenAPI (se disponibile) indipendentemente dal fatto che l'endpoint di login sia già stato popolato staticamente.
 
+
+---
+
+## Regola Statica S01 — JWT Signature Bypass (validazione su repo_target)
+
+`src/core/broken_authentication/rules/jwt_signature_bypass.py` (regola AST, CWE-347).
+Rileva la decodifica manuale del payload JWT (split `.`, Base64, `json.loads`) senza
+verifica della firma — il pattern di fallback insicuro comune quando la validazione
+crittografica fallisce o l'IdP e irraggiungibile.
+
+Copre il caso in cui i test dinamici (T01/T07/T14) non sono eseguibili perche il
+target delega l'auth a un IdP esterno e non espone un endpoint di login proprio.
+
+| Fixture / Target | Atteso | Esito |
+| :--- | :--- | :--- |
+| `test_targets/repo_target/identity.py` (`_decode_payload_only`) | TP | ✅ finding S01 su riga 39 |
+| `src/core/broken_authentication/fixtures/secure_jwt_decode.py` (solo `jwt.decode`) | TN | ✅ nessun finding |
+
+Verificato da `src/core/broken_authentication/tests/test_jwt_signature_bypass.py` (3 test).
+
+> Nota: la scoperta empirica correlata (`make core-modules-repo-target`) e che il
+> modulo Broken Authentication su un target senza login ora degrada a **INCONCLUSIVE**
+> invece di sollevare `EndpointNotFoundException`.
+
+---
+
+## Rivalidazione crAPI (dopo i fix dei root cause)
+
+**Data**: 2026-07-20 — i due root cause documentati sopra risultano gia risolti nel codice:
+- `_login_and_get_token` e adattivo (schema-driven + fallback su alias `username/email/user/login`);
+- `discover_endpoints` esegue sempre il parsing OpenAPI quando lo spec e disponibile.
+
+Esito del run reale (`run_crapi_validation.py`, output verbatim):
+- **T03 (Brute Force / Rate Limiting)**: FAIL — rilevato (nessun rate limit dopo 50 tentativi).
+- **T21 (MFA Bypass / OTP)**: FAIL — **rilevato**, era un False Negative nella validazione precedente.
+- **T01/T02/T07/T14/T17 (firma/algoritmo/JWKS JWT)**: INCONCLUSIVE — il login non produce un token
+  di sessione perche le credenziali di test non sono registrate in questa istanza crAPI (limite
+  **ambientale**, non del key-mapping: la risoluzione adattiva identifica correttamente il claim
+  `email`). Questa categoria (CWE-347) e ora coperta **staticamente** dalla regola **S01**, che non
+  richiede una sessione autenticata.
+
+> Guardrail non distruttivi verificati nello stesso run: nessuna operazione distruttiva non prevista.

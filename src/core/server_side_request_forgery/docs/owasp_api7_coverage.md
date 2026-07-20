@@ -40,3 +40,19 @@
 # Dal root del progetto:
 python3 src/core/server_side_request_forgery/tests/validate_ground_truth.py
 ```
+
+---
+
+## Validazione su repo_target (2026-07-20)
+
+Endpoint reale `POST /api/projects/{id}/import` (`test_targets/repo_target/app.py`):
+URL da body utente passato a `requests.get` senza validazione, redirect seguiti.
+
+| Regola | Atteso | Esito |
+| :--- | :--- | :--- |
+| **SS-001** (direct_url_from_input) | TP | ✅ finding su riga 117 |
+| `POST /api/projects/{id}/import-safe` (allow-list + `allow_redirects=False`) | nessun FP | ✅ non segnalato |
+
+**SS-005** (cloud_metadata_access): non applicabile qui — la regola rileva l'accesso hardcoded
+all'IP metadata `169.254.169.254`, non un URL generico controllato dall'utente. Documentato come
+limite di superficie, non come gap del modulo.

@@ -66,13 +66,22 @@ def deduplicate_findings(findings: list[FunctionAuthzFinding]) -> list[FunctionA
             parts = endpoint_val.strip().split()
             path = parts[-1] if parts else ""
 
-        key = (finding.file_path, path)
+        # Chiave sul solo path: lo stesso endpoint rilevato da piu layer (AST +
+        # OpenAPI) va unito in un unico finding, non duplicato per file sorgente.
+        key = (path,)
         if key not in seen:
             seen[key] = finding
         else:
-            existing_priority = RULE_PRIORITY.get(seen[key].rule_id, 0)
+            existing = seen[key]
+            existing_priority = RULE_PRIORITY.get(existing.rule_id, 0)
             new_priority = RULE_PRIORITY.get(finding.rule_id, 0)
-            if new_priority > existing_priority:
+            # A parita di priorita, preferisci il finding con una riga concreta
+            # (layer AST) rispetto a quello del layer OpenAPI.
+            existing_has_line = existing.file_path != "openapi_spec"
+            new_has_line = finding.file_path != "openapi_spec"
+            if new_priority > existing_priority or (
+                new_priority == existing_priority and new_has_line and not existing_has_line
+            ):
                 seen[key] = finding
 
     return list(seen.values()) + config_findings
