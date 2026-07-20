@@ -17,6 +17,44 @@ components:
           scopes:
             openid: Access standard openid claims
 paths:
+  /api/projects:
+    get:
+      summary: Elenca tutti i progetti (vulnerabile a RC-001, paginazione non limitata)
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Collezione di progetti
+  /api/projects/{id}/import:
+    post:
+      summary: Importa dati da URL esterno (vulnerabile a SSRF, SS-001)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Import completato
+  /api/projects/{id}/import-safe:
+    post:
+      summary: Importa dati da URL esterno con allow-list (protetto)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Import completato
+        '403':
+          description: Host non consentito
   /api/projects/{id}:
     get:
       summary: Recupera un progetto per ID (vulnerabile a BOLA)

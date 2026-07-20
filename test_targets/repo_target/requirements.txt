@@ -1,3 +1,4 @@
 # Dipendenze del solo target cooperante (app Flask autonoma).
 flask>=3.0
 PyJWT[crypto]>=2.8
+requests>=2.31
