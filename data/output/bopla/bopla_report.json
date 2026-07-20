@@ -1,0 +1,718 @@
+{
+    "timestamp": "2026-07-20T01:54:06.166423",
+    "target_url": "http://localhost:5000",
+    "repository": "DetectionCloudSecurityRisk",
+    "score": 100,
+    "risk_level": "LOW",
+    "objects_discovered": 17,
+    "properties_discovered": 34,
+    "protected_properties": 0,
+    "tests_executed": 0,
+    "vulnerabilities_detected": 0,
+    "findings": [],
+    "graph": {
+        "objects": {
+            ".env": {
+                "object_name": ".env",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-charlie-uuid/.env",
+                            "PATCH /users/{id}/.env",
+                            "PATCH /vehicle/mock-charlie-uuid/.env",
+                            "PATCH /vehicle/{id}/.env",
+                            "POST /users/mock-charlie-uuid/.env",
+                            "POST /users/{id}/.env",
+                            "POST /vehicle/mock-charlie-uuid/.env",
+                            "POST /vehicle/{id}/.env",
+                            "PUT /users/mock-charlie-uuid/.env",
+                            "PUT /users/{id}/.env",
+                            "PUT /vehicle/mock-charlie-uuid/.env",
+                            "PUT /vehicle/{id}/.env"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-charlie-uuid/.env",
+                            "PATCH /users/{id}/.env",
+                            "PATCH /vehicle/mock-charlie-uuid/.env",
+                            "PATCH /vehicle/{id}/.env",
+                            "POST /users/mock-charlie-uuid/.env",
+                            "POST /users/{id}/.env",
+                            "POST /vehicle/mock-charlie-uuid/.env",
+                            "POST /vehicle/{id}/.env",
+                            "PUT /users/mock-charlie-uuid/.env",
+                            "PUT /users/{id}/.env",
+                            "PUT /vehicle/mock-charlie-uuid/.env",
+                            "PUT /vehicle/{id}/.env"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            ".htaccess": {
+                "object_name": ".htaccess",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-charlie-uuid/.htaccess",
+                            "PATCH /users/{id}/.htaccess",
+                            "PATCH /vehicle/mock-charlie-uuid/.htaccess",
+                            "PATCH /vehicle/{id}/.htaccess",
+                            "POST /users/mock-charlie-uuid/.htaccess",
+                            "POST /users/{id}/.htaccess",
+                            "POST /vehicle/mock-charlie-uuid/.htaccess",
+                            "POST /vehicle/{id}/.htaccess",
+                            "PUT /users/mock-charlie-uuid/.htaccess",
+                            "PUT /users/{id}/.htaccess",
+                            "PUT /vehicle/mock-charlie-uuid/.htaccess",
+                            "PUT /vehicle/{id}/.htaccess"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-charlie-uuid/.htaccess",
+                            "PATCH /users/{id}/.htaccess",
+                            "PATCH /vehicle/mock-charlie-uuid/.htaccess",
+                            "PATCH /vehicle/{id}/.htaccess",
+                            "POST /users/mock-charlie-uuid/.htaccess",
+                            "POST /users/{id}/.htaccess",
+                            "POST /vehicle/mock-charlie-uuid/.htaccess",
+                            "POST /vehicle/{id}/.htaccess",
+                            "PUT /users/mock-charlie-uuid/.htaccess",
+                            "PUT /users/{id}/.htaccess",
+                            "PUT /vehicle/mock-charlie-uuid/.htaccess",
+                            "PUT /vehicle/{id}/.htaccess"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Actuator": {
+                "object_name": "Actuator",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-charlie-uuid/actuator",
+                            "PATCH /users/{id}/actuator",
+                            "PATCH /users/{id}/actuator/{id}",
+                            "PATCH /vehicle/mock-charlie-uuid/actuator",
+                            "PATCH /vehicle/{id}/actuator",
+                            "POST /users/mock-charlie-uuid/actuator",
+                            "POST /users/{id}/actuator",
+                            "POST /users/{id}/actuator/{id}",
+                            "POST /vehicle/mock-charlie-uuid/actuator",
+                            "POST /vehicle/{id}/actuator",
+                            "PUT /users/mock-charlie-uuid/actuator",
+                            "PUT /users/{id}/actuator",
+                            "PUT /users/{id}/actuator/{id}",
+                            "PUT /vehicle/mock-charlie-uuid/actuator",
+                            "PUT /vehicle/{id}/actuator"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-charlie-uuid/actuator",
+                            "PATCH /users/{id}/actuator",
+                            "PATCH /users/{id}/actuator/{id}",
+                            "PATCH /vehicle/mock-charlie-uuid/actuator",
+                            "PATCH /vehicle/{id}/actuator",
+                            "POST /users/mock-charlie-uuid/actuator",
+                            "POST /users/{id}/actuator",
+                            "POST /users/{id}/actuator/{id}",
+                            "POST /vehicle/mock-charlie-uuid/actuator",
+                            "POST /vehicle/{id}/actuator",
+                            "PUT /users/mock-charlie-uuid/actuator",
+                            "PUT /users/{id}/actuator",
+                            "PUT /users/{id}/actuator/{id}",
+                            "PUT /vehicle/mock-charlie-uuid/actuator",
+                            "PUT /vehicle/{id}/actuator"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Document": {
+                "object_name": "Document",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/v2/profile/{id}/documents",
+                            "POST /api/v2/profile/{id}/documents",
+                            "PUT /api/v2/profile/{id}/documents"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/v2/profile/{id}/documents",
+                            "POST /api/v2/profile/{id}/documents",
+                            "PUT /api/v2/profile/{id}/documents"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Health": {
+                "object_name": "Health",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-charlie-uuid/actuator/health",
+                            "PATCH /users/{id}/actuator/health",
+                            "PATCH /vehicle/mock-charlie-uuid/actuator/health",
+                            "PATCH /vehicle/{id}/actuator/health",
+                            "POST /users/mock-charlie-uuid/actuator/health",
+                            "POST /users/{id}/actuator/health",
+                            "POST /vehicle/mock-charlie-uuid/actuator/health",
+                            "POST /vehicle/{id}/actuator/health",
+                            "PUT /users/mock-charlie-uuid/actuator/health",
+                            "PUT /users/{id}/actuator/health",
+                            "PUT /vehicle/mock-charlie-uuid/actuator/health",
+                            "PUT /vehicle/{id}/actuator/health"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-charlie-uuid/actuator/health",
+                            "PATCH /users/{id}/actuator/health",
+                            "PATCH /vehicle/mock-charlie-uuid/actuator/health",
+                            "PATCH /vehicle/{id}/actuator/health",
+                            "POST /users/mock-charlie-uuid/actuator/health",
+                            "POST /users/{id}/actuator/health",
+                            "POST /vehicle/mock-charlie-uuid/actuator/health",
+                            "POST /vehicle/{id}/actuator/health",
+                            "PUT /users/mock-charlie-uuid/actuator/health",
+                            "PUT /users/{id}/actuator/health",
+                            "PUT /vehicle/mock-charlie-uuid/actuator/health",
+                            "PUT /vehicle/{id}/actuator/health"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Location": {
+                "object_name": "Location",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /vehicle/mock-alice-uuid/location",
+                            "PATCH /vehicle/mock-charlie-uuid/location",
+                            "PATCH /vehicle/{id}/location",
+                            "POST /vehicle/mock-alice-uuid/location",
+                            "POST /vehicle/mock-charlie-uuid/location",
+                            "POST /vehicle/{id}/location",
+                            "PUT /vehicle/mock-alice-uuid/location",
+                            "PUT /vehicle/mock-charlie-uuid/location",
+                            "PUT /vehicle/{id}/location"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /vehicle/mock-alice-uuid/location",
+                            "PATCH /vehicle/mock-charlie-uuid/location",
+                            "PATCH /vehicle/{id}/location",
+                            "POST /vehicle/mock-alice-uuid/location",
+                            "POST /vehicle/mock-charlie-uuid/location",
+                            "POST /vehicle/{id}/location",
+                            "PUT /vehicle/mock-alice-uuid/location",
+                            "PUT /vehicle/mock-charlie-uuid/location",
+                            "PUT /vehicle/{id}/location"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Mock-alice-uuid": {
+                "object_name": "Mock-alice-uuid",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /admin/users/mock-alice-uuid",
+                            "PATCH /api/orders/mock-alice-uuid",
+                            "PATCH /api/v1/resources/mock-alice-uuid",
+                            "PATCH /api/v2/admin/videos/mock-alice-uuid",
+                            "PATCH /api/v2/user/videos/mock-alice-uuid",
+                            "PATCH /identity/api/v2/user/mock-alice-uuid",
+                            "PATCH /users/mock-alice-uuid",
+                            "PATCH /users/mock-alice-uuid/{id}",
+                            "POST /admin/users/mock-alice-uuid",
+                            "POST /api/orders/mock-alice-uuid",
+                            "POST /api/v1/resources/mock-alice-uuid",
+                            "POST /api/v2/admin/videos/mock-alice-uuid",
+                            "POST /api/v2/user/videos/mock-alice-uuid",
+                            "POST /identity/api/v2/user/mock-alice-uuid",
+                            "POST /users/mock-alice-uuid",
+                            "POST /users/mock-alice-uuid/{id}",
+                            "PUT /admin/users/mock-alice-uuid",
+                            "PUT /api/orders/mock-alice-uuid",
+                            "PUT /api/v1/resources/mock-alice-uuid",
+                            "PUT /api/v2/admin/videos/mock-alice-uuid",
+                            "PUT /api/v2/user/videos/mock-alice-uuid",
+                            "PUT /identity/api/v2/user/mock-alice-uuid",
+                            "PUT /users/mock-alice-uuid",
+                            "PUT /users/mock-alice-uuid/{id}"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /admin/users/mock-alice-uuid",
+                            "PATCH /api/orders/mock-alice-uuid",
+                            "PATCH /api/v1/resources/mock-alice-uuid",
+                            "PATCH /api/v2/admin/videos/mock-alice-uuid",
+                            "PATCH /api/v2/user/videos/mock-alice-uuid",
+                            "PATCH /identity/api/v2/user/mock-alice-uuid",
+                            "PATCH /users/mock-alice-uuid",
+                            "PATCH /users/mock-alice-uuid/{id}",
+                            "POST /admin/users/mock-alice-uuid",
+                            "POST /api/orders/mock-alice-uuid",
+                            "POST /api/v1/resources/mock-alice-uuid",
+                            "POST /api/v2/admin/videos/mock-alice-uuid",
+                            "POST /api/v2/user/videos/mock-alice-uuid",
+                            "POST /identity/api/v2/user/mock-alice-uuid",
+                            "POST /users/mock-alice-uuid",
+                            "POST /users/mock-alice-uuid/{id}",
+                            "PUT /admin/users/mock-alice-uuid",
+                            "PUT /api/orders/mock-alice-uuid",
+                            "PUT /api/v1/resources/mock-alice-uuid",
+                            "PUT /api/v2/admin/videos/mock-alice-uuid",
+                            "PUT /api/v2/user/videos/mock-alice-uuid",
+                            "PUT /identity/api/v2/user/mock-alice-uuid",
+                            "PUT /users/mock-alice-uuid",
+                            "PUT /users/mock-alice-uuid/{id}"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Mock-charlie-uuid": {
+                "object_name": "Mock-charlie-uuid",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /admin/users/mock-charlie-uuid",
+                            "PATCH /api/orders/mock-charlie-uuid",
+                            "PATCH /api/v1/resources/mock-charlie-uuid",
+                            "PATCH /api/v2/admin/videos/mock-charlie-uuid",
+                            "PATCH /api/v2/user/videos/mock-charlie-uuid",
+                            "PATCH /identity/api/v2/user/mock-charlie-uuid",
+                            "PATCH /users/mock-alice-uuid/mock-charlie-uuid",
+                            "PATCH /users/mock-charlie-uuid",
+                            "PATCH /users/mock-charlie-uuid/actuator/mock-charlie-uuid",
+                            "PATCH /users/mock-charlie-uuid/mock-charlie-uuid",
+                            "PATCH /users/mock-charlie-uuid/{id}",
+                            "PATCH /vehicle/mock-charlie-uuid",
+                            "PATCH /vehicle/mock-charlie-uuid/mock-charlie-uuid",
+                            "POST /admin/users/mock-charlie-uuid",
+                            "POST /api/orders/mock-charlie-uuid",
+                            "POST /api/v1/resources/mock-charlie-uuid",
+                            "POST /api/v2/admin/videos/mock-charlie-uuid",
+                            "POST /api/v2/user/videos/mock-charlie-uuid",
+                            "POST /identity/api/v2/user/mock-charlie-uuid",
+                            "POST /users/mock-alice-uuid/mock-charlie-uuid",
+                            "POST /users/mock-charlie-uuid",
+                            "POST /users/mock-charlie-uuid/actuator/mock-charlie-uuid",
+                            "POST /users/mock-charlie-uuid/mock-charlie-uuid",
+                            "POST /users/mock-charlie-uuid/{id}",
+                            "POST /vehicle/mock-charlie-uuid",
+                            "POST /vehicle/mock-charlie-uuid/mock-charlie-uuid",
+                            "PUT /admin/users/mock-charlie-uuid",
+                            "PUT /api/orders/mock-charlie-uuid",
+                            "PUT /api/v1/resources/mock-charlie-uuid",
+                            "PUT /api/v2/admin/videos/mock-charlie-uuid",
+                            "PUT /api/v2/user/videos/mock-charlie-uuid",
+                            "PUT /identity/api/v2/user/mock-charlie-uuid",
+                            "PUT /users/mock-alice-uuid/mock-charlie-uuid",
+                            "PUT /users/mock-charlie-uuid",
+                            "PUT /users/mock-charlie-uuid/actuator/mock-charlie-uuid",
+                            "PUT /users/mock-charlie-uuid/mock-charlie-uuid",
+                            "PUT /users/mock-charlie-uuid/{id}",
+                            "PUT /vehicle/mock-charlie-uuid",
+                            "PUT /vehicle/mock-charlie-uuid/mock-charlie-uuid"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /admin/users/mock-charlie-uuid",
+                            "PATCH /api/orders/mock-charlie-uuid",
+                            "PATCH /api/v1/resources/mock-charlie-uuid",
+                            "PATCH /api/v2/admin/videos/mock-charlie-uuid",
+                            "PATCH /api/v2/user/videos/mock-charlie-uuid",
+                            "PATCH /identity/api/v2/user/mock-charlie-uuid",
+                            "PATCH /users/mock-alice-uuid/mock-charlie-uuid",
+                            "PATCH /users/mock-charlie-uuid",
+                            "PATCH /users/mock-charlie-uuid/actuator/mock-charlie-uuid",
+                            "PATCH /users/mock-charlie-uuid/mock-charlie-uuid",
+                            "PATCH /users/mock-charlie-uuid/{id}",
+                            "PATCH /vehicle/mock-charlie-uuid",
+                            "PATCH /vehicle/mock-charlie-uuid/mock-charlie-uuid",
+                            "POST /admin/users/mock-charlie-uuid",
+                            "POST /api/orders/mock-charlie-uuid",
+                            "POST /api/v1/resources/mock-charlie-uuid",
+                            "POST /api/v2/admin/videos/mock-charlie-uuid",
+                            "POST /api/v2/user/videos/mock-charlie-uuid",
+                            "POST /identity/api/v2/user/mock-charlie-uuid",
+                            "POST /users/mock-alice-uuid/mock-charlie-uuid",
+                            "POST /users/mock-charlie-uuid",
+                            "POST /users/mock-charlie-uuid/actuator/mock-charlie-uuid",
+                            "POST /users/mock-charlie-uuid/mock-charlie-uuid",
+                            "POST /users/mock-charlie-uuid/{id}",
+                            "POST /vehicle/mock-charlie-uuid",
+                            "POST /vehicle/mock-charlie-uuid/mock-charlie-uuid",
+                            "PUT /admin/users/mock-charlie-uuid",
+                            "PUT /api/orders/mock-charlie-uuid",
+                            "PUT /api/v1/resources/mock-charlie-uuid",
+                            "PUT /api/v2/admin/videos/mock-charlie-uuid",
+                            "PUT /api/v2/user/videos/mock-charlie-uuid",
+                            "PUT /identity/api/v2/user/mock-charlie-uuid",
+                            "PUT /users/mock-alice-uuid/mock-charlie-uuid",
+                            "PUT /users/mock-charlie-uuid",
+                            "PUT /users/mock-charlie-uuid/actuator/mock-charlie-uuid",
+                            "PUT /users/mock-charlie-uuid/mock-charlie-uuid",
+                            "PUT /users/mock-charlie-uuid/{id}",
+                            "PUT /vehicle/mock-charlie-uuid",
+                            "PUT /vehicle/mock-charlie-uuid/mock-charlie-uuid"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Order": {
+                "object_name": "Order",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/orders/{id}",
+                            "PATCH /api/v1/orders/{id}",
+                            "POST /api/orders/{id}",
+                            "POST /api/v1/orders/{id}",
+                            "PUT /api/orders/{id}",
+                            "PUT /api/v1/orders/{id}"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/orders/{id}",
+                            "PATCH /api/v1/orders/{id}",
+                            "POST /api/orders/{id}",
+                            "POST /api/v1/orders/{id}",
+                            "PUT /api/orders/{id}",
+                            "PUT /api/v1/orders/{id}"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Profile": {
+                "object_name": "Profile",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/v2/profile/{id}",
+                            "POST /api/v2/profile/{id}",
+                            "PUT /api/v2/profile/{id}"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/v2/profile/{id}",
+                            "POST /api/v2/profile/{id}",
+                            "PUT /api/v2/profile/{id}"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Promote": {
+                "object_name": "Promote",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/v1/admin/users/{id}/promote",
+                            "POST /api/v1/admin/users/{id}/promote",
+                            "PUT /api/v1/admin/users/{id}/promote"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/v1/admin/users/{id}/promote",
+                            "POST /api/v1/admin/users/{id}/promote",
+                            "PUT /api/v1/admin/users/{id}/promote"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Resource": {
+                "object_name": "Resource",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/v1/resources/{id}",
+                            "POST /api/v1/resources/{id}",
+                            "PUT /api/v1/resources/{id}"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/v1/resources/{id}",
+                            "POST /api/v1/resources/{id}",
+                            "PUT /api/v1/resources/{id}"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Role": {
+                "object_name": "Role",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-alice-uuid/role",
+                            "PATCH /users/mock-charlie-uuid/role",
+                            "PATCH /users/{id}/role",
+                            "POST /users/mock-alice-uuid/role",
+                            "POST /users/mock-charlie-uuid/role",
+                            "POST /users/{id}/role",
+                            "PUT /users/mock-alice-uuid/role",
+                            "PUT /users/mock-charlie-uuid/role",
+                            "PUT /users/{id}/role"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-alice-uuid/role",
+                            "PATCH /users/mock-charlie-uuid/role",
+                            "PATCH /users/{id}/role",
+                            "POST /users/mock-alice-uuid/role",
+                            "POST /users/mock-charlie-uuid/role",
+                            "POST /users/{id}/role",
+                            "PUT /users/mock-alice-uuid/role",
+                            "PUT /users/mock-charlie-uuid/role",
+                            "PUT /users/{id}/role"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Trace.axd": {
+                "object_name": "Trace.axd",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-charlie-uuid/trace.axd",
+                            "PATCH /users/{id}/trace.axd",
+                            "PATCH /vehicle/mock-charlie-uuid/trace.axd",
+                            "PATCH /vehicle/{id}/trace.axd",
+                            "POST /users/mock-charlie-uuid/trace.axd",
+                            "POST /users/{id}/trace.axd",
+                            "POST /vehicle/mock-charlie-uuid/trace.axd",
+                            "POST /vehicle/{id}/trace.axd",
+                            "PUT /users/mock-charlie-uuid/trace.axd",
+                            "PUT /users/{id}/trace.axd",
+                            "PUT /vehicle/mock-charlie-uuid/trace.axd",
+                            "PUT /vehicle/{id}/trace.axd"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /users/mock-charlie-uuid/trace.axd",
+                            "PATCH /users/{id}/trace.axd",
+                            "PATCH /vehicle/mock-charlie-uuid/trace.axd",
+                            "PATCH /vehicle/{id}/trace.axd",
+                            "POST /users/mock-charlie-uuid/trace.axd",
+                            "POST /users/{id}/trace.axd",
+                            "POST /vehicle/mock-charlie-uuid/trace.axd",
+                            "POST /vehicle/{id}/trace.axd",
+                            "PUT /users/mock-charlie-uuid/trace.axd",
+                            "PUT /users/{id}/trace.axd",
+                            "PUT /vehicle/mock-charlie-uuid/trace.axd",
+                            "PUT /vehicle/{id}/trace.axd"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "User": {
+                "object_name": "User",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /admin/users/{id}",
+                            "PATCH /api/v1/users/{id}",
+                            "PATCH /identity/api/v2/user/{id}",
+                            "PATCH /users/{id}",
+                            "PATCH /users/{id}/{id}",
+                            "POST /admin/users/{id}",
+                            "POST /api/v1/users/{id}",
+                            "POST /identity/api/v2/user/{id}",
+                            "POST /users/{id}",
+                            "POST /users/{id}/{id}",
+                            "PUT /admin/users/{id}",
+                            "PUT /api/v1/users/{id}",
+                            "PUT /identity/api/v2/user/{id}",
+                            "PUT /users/{id}",
+                            "PUT /users/{id}/{id}"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /admin/users/{id}",
+                            "PATCH /api/v1/users/{id}",
+                            "PATCH /identity/api/v2/user/{id}",
+                            "PATCH /users/{id}",
+                            "PATCH /users/{id}/{id}",
+                            "POST /admin/users/{id}",
+                            "POST /api/v1/users/{id}",
+                            "POST /identity/api/v2/user/{id}",
+                            "POST /users/{id}",
+                            "POST /users/{id}/{id}",
+                            "PUT /admin/users/{id}",
+                            "PUT /api/v1/users/{id}",
+                            "PUT /identity/api/v2/user/{id}",
+                            "PUT /users/{id}",
+                            "PUT /users/{id}/{id}"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Vehicle": {
+                "object_name": "Vehicle",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /vehicle/{id}",
+                            "PATCH /vehicle/{id}/{id}",
+                            "POST /vehicle/{id}",
+                            "POST /vehicle/{id}/{id}",
+                            "PUT /vehicle/{id}",
+                            "PUT /vehicle/{id}/{id}"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /vehicle/{id}",
+                            "PATCH /vehicle/{id}/{id}",
+                            "POST /vehicle/{id}",
+                            "POST /vehicle/{id}/{id}",
+                            "PUT /vehicle/{id}",
+                            "PUT /vehicle/{id}/{id}"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Video": {
+                "object_name": "Video",
+                "properties": {
+                    "details": {
+                        "property_name": "details",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/v2/admin/videos/{id}",
+                            "PATCH /api/v2/user/videos/{id}",
+                            "POST /api/v2/admin/videos/{id}",
+                            "POST /api/v2/user/videos/{id}",
+                            "PUT /api/v2/admin/videos/{id}",
+                            "PUT /api/v2/user/videos/{id}"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PATCH /api/v2/admin/videos/{id}",
+                            "PATCH /api/v2/user/videos/{id}",
+                            "POST /api/v2/admin/videos/{id}",
+                            "POST /api/v2/user/videos/{id}",
+                            "PUT /api/v2/admin/videos/{id}",
+                            "PUT /api/v2/user/videos/{id}"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            }
+        }
+    }
+}

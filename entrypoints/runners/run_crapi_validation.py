@@ -9,7 +9,7 @@ import httpx
 # Add root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.core.broken_authentication import (
+from src.core.api2_broken_auth import (
     ast_parser,
     authentication_intelligence,
     discovery,

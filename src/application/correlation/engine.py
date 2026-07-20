@@ -5,23 +5,18 @@ from src.normalization.normalizer import APIEndpointNormalizer
 
 logger = logging.getLogger("SecurityPlatform.CorrelationEngine")
 
-# Pesi per il calcolo dello score di rischio complessivo (Formula: sev_score * 0.6 + conf * 0.2 + context * 0.2)
-RISK_WEIGHT_SEVERITY = 0.6
-RISK_WEIGHT_CONFIDENCE = 0.2
-RISK_WEIGHT_CONTEXT = 0.2
-
-# Moltiplicatori del punteggio di contesto di rischio
-CONTEXT_SCORE_INTERNET_EXPOSED = 4.0
-CONTEXT_SCORE_SENSITIVE_DATA = 4.0
-CONTEXT_SCORE_PUBLIC_RESOURCE = 2.0
-
-# Valori di punteggio di contesto di default basati sulla categoria di Finding
-DEFAULT_CONTEXT_AUTHENTICATION_AUTHORIZATION = 6.0
-DEFAULT_CONTEXT_OTHER = 3.0
-
-# Limite massimo e fattore di normalizzazione della confidenza
-MAX_RISK_SCORE = 10.0
-CONFIDENCE_NORMALIZER = 10.0
+from src.core.config import (
+    CONFIDENCE_NORMALIZER,
+    CONTEXT_SCORE_INTERNET_EXPOSED,
+    CONTEXT_SCORE_PUBLIC_RESOURCE,
+    CONTEXT_SCORE_SENSITIVE_DATA,
+    DEFAULT_CONTEXT_AUTHENTICATION_AUTHORIZATION,
+    DEFAULT_CONTEXT_OTHER,
+    MAX_RISK_SCORE,
+    RISK_WEIGHT_CONFIDENCE,
+    RISK_WEIGHT_CONTEXT,
+    RISK_WEIGHT_SEVERITY,
+)
 
 
 class RiskCorrelationEngine:
@@ -56,18 +51,18 @@ class RiskCorrelationEngine:
         self.correlated_findings = {}
 
         # 1. Indicizziamo prima i findings statici nel registro usando una chiave logica di risorsa
-        for sf in static_findings:
-            key = self._get_correlation_key(sf)
+        for static_finding in static_findings:
+            key = self._get_correlation_key(static_finding)
             if key not in self.correlated_findings:
-                self.correlated_findings[key] = sf
+                self.correlated_findings[key] = static_finding
             else:
                 # Se c'è già una vulnerabilità sulla stessa risorsa, uniamo le informazioni
                 existing = self.correlated_findings[key]
-                self._merge_findings(existing, sf)
+                self._merge_findings(existing, static_finding)
 
         # 2. Correliamo con i findings di runtime
-        for rf in runtime_findings:
-            key = self._get_correlation_key(rf)
+        for runtime_finding in runtime_findings:
+            key = self._get_correlation_key(runtime_finding)
 
             if key in self.correlated_findings:
                 existing = self.correlated_findings[key]
@@ -76,7 +71,7 @@ class RiskCorrelationEngine:
                 # Caso importante: avevamo previsto la vulnerabilità staticamente e ora l'abbiamo confermata a runtime!
                 # Aggiorniamo lo stato di convalida a CONFIRMED
                 existing.validation_status = ValidationStatus.CONFIRMED
-                existing.runtime_evidence = rf.runtime_evidence
+                existing.runtime_evidence = runtime_finding.runtime_evidence
 
                 # Boost della severity e confidence in quanto verificata empiricamente a runtime
                 if existing.severity.score < Severity.CRITICAL.score:
@@ -88,18 +83,17 @@ class RiskCorrelationEngine:
                     )
 
                 existing.confidence = 1.0
-                if rf.finding_id not in existing.related_findings:
-                    existing.related_findings.append(rf.finding_id)
+                if runtime_finding.finding_id not in existing.related_findings:
+                    existing.related_findings.append(runtime_finding.finding_id)
 
                 # Uniamo dati grezzi aggiuntivi
-                existing.raw_data[f"runtime_verification_{rf.finding_id}"] = rf.raw_data
+                existing.raw_data[f"runtime_verification_{runtime_finding.finding_id}"] = runtime_finding.raw_data
             else:
-                # Trovato a runtime ma non previsto dall'analisi statica (es: Shadow API o vulnerabilità zero-day)
-                # Lo registriamo come nuovo finding con validation_status = NOT_VALIDATED o CONFIRMED (in quanto testato direttamente)
-                rf.validation_status = ValidationStatus.CONFIRMED
-                rf.confidence = 0.9
-                self.correlated_findings[key] = rf
+                runtime_finding.validation_status = ValidationStatus.CONFIRMED
+                runtime_finding.confidence = 0.9
+                self.correlated_findings[key] = runtime_finding
 
+        logger.info(f"📊 Correlazione completata: {len(self.correlated_findings)} entità di rischio elaborate.")
         return list(self.correlated_findings.values())
 
     def calculate_risk_score(self, finding: Finding) -> float:

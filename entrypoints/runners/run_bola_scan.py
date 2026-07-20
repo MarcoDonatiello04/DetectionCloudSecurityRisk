@@ -8,8 +8,8 @@ import yaml
 # Add root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.core.broken_authentication.discovery import Config
-from src.core.broken_object_property_level_access.orchestrator import BOPLAOrchestrator
+from src.core.api2_broken_auth.discovery import Config
+from src.core.api3_bopla.orchestrator import BOPLAOrchestrator
 from src.core.identity_context import IdentityManager
 
 

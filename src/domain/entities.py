@@ -1,6 +1,6 @@
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -192,7 +192,7 @@ class Finding:
     tags: list[str] = field(default_factory=list)
     references: list[str] = field(default_factory=list)
     raw_data: dict[str, Any] = field(default_factory=dict)
-    detected_at: datetime = field(default_factory=datetime.utcnow)
+    detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     @classmethod
     def create(
@@ -325,3 +325,22 @@ class Finding:
             "raw_data": self.raw_data,
             "detected_at": self.detected_at.isoformat(),
         }
+
+
+@dataclass
+class ScanTarget:
+    """
+    Rappresenta in modo unificato il bersaglio o contesto di scansione.
+
+    Attributes:
+        target_path: Percorso del codice sorgente o della directory da analizzare.
+        target_url: URL base per attacchi o analisi dinamiche.
+        openapi_spec: Specifica OpenAPI / Swagger parsata (opzionale).
+        options: Opzioni aggiuntive o contestuali per i detector.
+    """
+
+    target_path: str | None = None
+    target_url: str | None = None
+    openapi_spec: dict[str, Any] | None = field(default_factory=dict)
+    options: dict[str, Any] = field(default_factory=dict)
+

@@ -41,18 +41,18 @@ logger.add(
 )
 
 # Import scanner modules
-from src.core.broken_authentication import ast_parser as ba_ast_parser
-from src.core.broken_authentication import authentication_intelligence as ba_auth_intel
-from src.core.broken_authentication import discovery as ba_discovery
-from src.core.broken_authentication import dynamic_tester as ba_dynamic_tester
-from src.core.broken_authentication import reporter as ba_reporter
-from src.core.broken_function_level_authorization import detector as bfla_detector
-from src.core.broken_object_property_level_access.orchestrator import BOPLAOrchestrator
-from src.core.object_level_authorization.dynamic_orchestrator import DynamicOrchestrator
-from src.core.security_misconfiguration import detector as secmis_detector
-from src.core.server_side_request_forgery import detector as ssrf_detector
-from src.core.unrestricted_resource_consumption import detector as urc_detector
-from src.core.unsafe_consumption import detector as uc_detector
+from src.core.api2_broken_auth import ast_parser as ba_ast_parser
+from src.core.api2_broken_auth import authentication_intelligence as ba_auth_intel
+from src.core.api2_broken_auth import discovery as ba_discovery
+from src.core.api2_broken_auth import dynamic_tester as ba_dynamic_tester
+from src.core.api2_broken_auth import reporter as ba_reporter
+from src.core.api5_bfla import detector as bfla_detector
+from src.core.api3_bopla.orchestrator import BOPLAOrchestrator
+from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
+from src.core.api7_security_misconfig import detector as secmis_detector
+from src.core.api8_ssrf import detector as ssrf_detector
+from src.core.api4_resource_consumption import detector as urc_detector
+from src.core.api10_unsafe_consumption import detector as uc_detector
 
 
 def load_openapi_spec(repo_path: str):

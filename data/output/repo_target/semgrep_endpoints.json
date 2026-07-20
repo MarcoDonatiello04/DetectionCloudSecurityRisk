@@ -1,0 +1,87 @@
+[
+  {
+    "method": "GET",
+    "endpoint": "/",
+    "requires_authentication": false
+  },
+  {
+    "method": "DELETE",
+    "endpoint": "/api/invoices/{id}",
+    "requires_authentication": false
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/invoices/{id}",
+    "requires_authentication": false
+  },
+  {
+    "method": "PATCH",
+    "endpoint": "/api/invoices/{id}",
+    "requires_authentication": false
+  },
+  {
+    "method": "PUT",
+    "endpoint": "/api/invoices/{id}",
+    "requires_authentication": false
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/projects",
+    "requires_authentication": false
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/projects/<id>/import",
+    "requires_authentication": false
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/projects/<id>/import-safe",
+    "requires_authentication": true
+  },
+  {
+    "method": "DELETE",
+    "endpoint": "/api/projects/{id}",
+    "requires_authentication": false
+  },
+  {
+    "method": "GET",
+    "endpoint": "/api/projects/{id}",
+    "requires_authentication": false
+  },
+  {
+    "method": "PATCH",
+    "endpoint": "/api/projects/{id}",
+    "requires_authentication": false
+  },
+  {
+    "method": "PUT",
+    "endpoint": "/api/projects/{id}",
+    "requires_authentication": false
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/projects/{id}/import",
+    "requires_authentication": false
+  },
+  {
+    "method": "POST",
+    "endpoint": "/api/projects/{id}/import-safe",
+    "requires_authentication": false
+  },
+  {
+    "method": "POST",
+    "endpoint": "/test/rollback",
+    "requires_authentication": false
+  },
+  {
+    "method": "POST",
+    "endpoint": "/test/seed",
+    "requires_authentication": false
+  },
+  {
+    "method": "POST",
+    "endpoint": "/test/snapshot",
+    "requires_authentication": false
+  }
+]

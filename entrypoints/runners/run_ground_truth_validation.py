@@ -53,14 +53,14 @@ sys.path.insert(0, str(PROJECT_ROOT))
 import yaml
 from loguru import logger
 
-from src.core.broken_authentication import (
+from src.core.api2_broken_auth import (
     ast_parser,
     dynamic_tester,
 )
-from src.core.broken_authentication.authentication_intelligence import (
+from src.core.api2_broken_auth.authentication_intelligence import (
     AuthenticationIntelligenceEngine,
 )
-from src.core.broken_authentication.discovery import Config, StackInfo, TargetConfig
+from src.core.api2_broken_auth.discovery import Config, StackInfo, TargetConfig
 
 
 # ---------------------------------------------------------------------------

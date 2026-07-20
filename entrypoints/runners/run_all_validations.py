@@ -66,7 +66,7 @@ def main():
             [
                 sys.executable,
                 "-m",
-                "src.presentation.cli",
+                "src.presentation.cli.main",
                 "--target-dir",
                 ".",
                 "--target-base-url",

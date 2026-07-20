@@ -23,6 +23,7 @@ include = ["src*", "remediation*"]
 # ---------------------------------------------------------------- pytest ----
 [tool.pytest.ini_options]
 minversion = "8.0"
+pythonpath = ["."]
 testpaths = ["tests", "src", "remediation"]
 # test_targets/ contiene applicazioni vulnerabili di terze parti (es. crAPI):
 # sono dati di input per gli scanner, non test del progetto. Se raccolte,

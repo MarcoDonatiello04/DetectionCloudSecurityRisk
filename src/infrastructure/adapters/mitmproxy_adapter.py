@@ -41,3 +41,7 @@ class MitmproxyClientAdapter:
         except (json.JSONDecodeError, OSError) as e:
             logger.error(f"Errore durante il caricamento del file di traffico: {e}", exc_info=True)
             return []
+
+
+MitmproxyAdapter = MitmproxyClientAdapter
+

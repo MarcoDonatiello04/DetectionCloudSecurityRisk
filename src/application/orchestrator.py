@@ -11,7 +11,7 @@ from src.domain.events import (
     EVENT_STATIC_SCAN_COMPLETED,
     EVENT_TRAFFIC_CAPTURED,
 )
-from src.domain.interfaces import IDetector, IScanner
+from src.domain.interfaces import IDetector, IEventBus, IScanner
 
 logger = logging.getLogger("SecurityPlatform.Orchestrator")
 
@@ -23,18 +23,26 @@ class ScanPipelineOrchestrator:
     invia i dati del traffico e coordina la correlazione finale dei rischi.
     """
 
-    def __init__(self, plugins_dir: str, target_dir: str):
+    def __init__(
+        self,
+        target_dir: str,
+        event_bus: IEventBus,
+        plugin_loader: PluginLoader,
+        correlation_engine: RiskCorrelationEngine,
+    ):
         """
-        Inizializza l'orchestratore impostando le cartelle dei plugin e del target di scansione.
+        Inizializza l'orchestratore con le sue dipendenze e imposta la cartella target.
 
         Args:
-            plugins_dir (str): Percorso della cartella contenente i plugin.
             target_dir (str): Percorso della cartella target da analizzare.
+            event_bus (IEventBus): Istanza del bus degli eventi.
+            plugin_loader (PluginLoader): Istanza del caricatore di plugin.
+            correlation_engine (RiskCorrelationEngine): Istanza del motore di correlazione.
         """
         self.target_dir = target_dir
-        self.event_bus = EventBus()
-        self.plugin_loader = PluginLoader(plugins_dir)
-        self.correlation_engine = RiskCorrelationEngine()
+        self.event_bus = event_bus
+        self.plugin_loader = plugin_loader
+        self.correlation_engine = correlation_engine
 
         # Stato condiviso durante l'esecuzione del pipeline
         self.detected_findings: list[Finding] = []
@@ -54,7 +62,7 @@ class ScanPipelineOrchestrator:
         finding = event.payload
         if isinstance(finding, Finding):
             self.detected_findings.append(finding)
-            logger.info(
+            logger.debug(
                 f"📥 Ricevuto Finding via Event Bus: [{finding.severity.value}] {finding.title} ({finding.finding_id})"
             )
 
@@ -109,7 +117,7 @@ class ScanPipelineOrchestrator:
             EVENT_STATIC_SCAN_COMPLETED,
             {
                 "target_dir": self.target_dir,
-                "static_findings": [f.to_dict() for f in self.static_findings],
+                "static_findings": [finding.to_dict() for finding in self.static_findings],
             },
         )
 
@@ -125,15 +133,15 @@ class ScanPipelineOrchestrator:
 
         # Dividiamo i findings catturati in statici (di origine Semgrep/Checkov/ecc) e runtime
         # I detector che lavorano sul traffico producono findings di tipo RUNTIME_VALIDATOR o SHADOW_API
-        for f in self.detected_findings:
-            if f.source in (
+        for finding in self.detected_findings:
+            if finding.source in (
                 FindingSource.RUNTIME_VALIDATOR,
                 FindingSource.SHADOW_API,
                 FindingSource.ZAP_DAST,
             ):
-                self.runtime_findings.append(f)
+                self.runtime_findings.append(finding)
             else:
-                self.static_findings.append(f)
+                self.static_findings.append(finding)
 
         # 5. Correlazione dei rischi e calcolo scoring pesato
         logger.info("⚙️ [Fase 4] Correlazione e Calcolo dei Rischi Centralizzato...")
@@ -142,16 +150,16 @@ class ScanPipelineOrchestrator:
         )
 
         # Ricalcola lo score di rischio per ciascun finding finale correlato
-        for f in correlated_results:
-            score = self.correlation_engine.calculate_risk_score(f)
-            f.raw_data["correlated_risk_score"] = score
+        for finding in correlated_results:
+            score = self.correlation_engine.calculate_risk_score(finding)
+            finding.raw_data["correlated_risk_score"] = score
 
         logger.info(f"🏆 Pipeline completata. Totale findings correlati: {len(correlated_results)}")
 
         # 6. Notifica conclusione pipeline
         self.event_bus.publish(
             EVENT_PIPELINE_COMPLETED,
-            {"correlated_findings": [f.to_dict() for f in correlated_results]},
+            {"correlated_findings": [finding.to_dict() for finding in correlated_results]},
         )
 
         return correlated_results
@@ -172,17 +180,17 @@ class ScanPipelineOrchestrator:
 
             for event_type in events:
                 # Creiamo una funzione adapter per convertire la callback dell'evento in chiamata a analyze
-                def make_handler(det=detector, ev_type=event_type):
+                def make_handler(detector_instance=detector, captured_event_type=event_type):
                     def handler(event) -> None:
-                        logger.debug(f"Esecuzione detector {det.name} su evento {ev_type}")
-                        findings = det.analyze(event.payload)
+                        logger.debug(f"Esecuzione detector {detector_instance.name} su evento {captured_event_type}")
+                        findings = detector_instance.analyze(event.payload)
                         if findings:
-                            for f in findings:
-                                self.event_bus.publish(EVENT_FINDING_DETECTED, f)
+                            for finding in findings:
+                                self.event_bus.publish(EVENT_FINDING_DETECTED, finding)
 
                     # Forniamo un nome leggibile per il debug del bus
                     handler.__name__ = (
-                        f"handler_{det.__class__.__name__}_{ev_type.replace('.', '_')}"
+                        f"handler_{detector_instance.__class__.__name__}_{captured_event_type.replace('.', '_')}"
                     )
                     return handler
 

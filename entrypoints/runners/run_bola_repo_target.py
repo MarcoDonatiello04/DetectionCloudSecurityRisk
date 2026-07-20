@@ -68,7 +68,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    from src.core.object_level_authorization.dynamic_orchestrator import DynamicOrchestrator
+    from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
 
     spec = _load_openapi(args.openapi)
     inventory = build_inventory_from_openapi(spec)

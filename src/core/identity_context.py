@@ -17,21 +17,20 @@ import requests
 # Configurazione logging
 logger = logging.getLogger("SecurityPlatform.IdentityContext")
 
-# Costanti di default ereditate dal framework
-DEFAULT_USER_A_USERNAME = "user_a"
-DEFAULT_USER_A_PASSWORD = "Password123!"
-DEFAULT_USER_B_USERNAME = "user_b"
-DEFAULT_USER_B_PASSWORD = "Password123!"
-DEFAULT_USER_C_USERNAME = "admin_user"
-DEFAULT_USER_C_PASSWORD = "Password123!"
-
-DEFAULT_CLIENT_ID = "security-platform-client"
-DEFAULT_KEYCLOAK_URL = "http://localhost:8080"
-DEFAULT_KEYCLOAK_REALM = "myrealm"
-DEFAULT_TARGET_BASE_URL = "http://localhost:5000"
-
-HTTP_TIMEOUT_SHORT_SECONDS = 3
-HTTP_TIMEOUT_MEDIUM_SECONDS = 5
+from src.core.config import (
+    DEFAULT_CLIENT_ID,
+    DEFAULT_KEYCLOAK_REALM,
+    DEFAULT_KEYCLOAK_URL,
+    DEFAULT_TARGET_BASE_URL,
+    DEFAULT_USER_A_PASSWORD,
+    DEFAULT_USER_A_USERNAME,
+    DEFAULT_USER_B_PASSWORD,
+    DEFAULT_USER_B_USERNAME,
+    DEFAULT_USER_C_PASSWORD,
+    DEFAULT_USER_C_USERNAME,
+    HTTP_TIMEOUT_MEDIUM_SECONDS,
+    HTTP_TIMEOUT_SHORT_SECONDS,
+)
 
 
 def validate_url(url: str, param_name: str) -> None:
@@ -192,10 +191,10 @@ class IdentityManager:
             "preferred_username": username,
             "roles": roles,
         }
-        h_b64 = base64.urlsafe_b64encode(json.dumps(header).encode()).decode().rstrip("=")
-        p_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+        header_b64 = base64.urlsafe_b64encode(json.dumps(header).encode()).decode().rstrip("=")
+        payload_b64 = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
         signature = "mocksignature"
-        return f"{h_b64}.{p_b64}.{signature}"
+        return f"{header_b64}.{payload_b64}.{signature}"
 
 
 class DatabaseSeeder:
@@ -228,12 +227,12 @@ class DatabaseSeeder:
             return False
 
         # Identifica le risorse dinamiche dall'inventario
-        resources = {ep["resource_name"] for ep in dynamic_endpoints}
+        resources = {endpoint["resource_name"] for endpoint in dynamic_endpoints}
 
         # Costruisce il payload del seeding associando gli UUID agli utenti proprietari
         seed_payload = {}
-        for res in resources:
-            seed_payload[res] = {
+        for resource in resources:
+            seed_payload[resource] = {
                 uuid_alice: "user_a",
                 uuid_bob: "user_b",
                 uuid_charlie: "admin_user",

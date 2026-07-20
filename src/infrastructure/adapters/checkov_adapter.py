@@ -8,9 +8,7 @@ from src.domain.interfaces import IScanner
 
 logger = logging.getLogger("SecurityPlatform.CheckovAdapter")
 
-# Configurazione default di esecuzione per Checkov
-DEFAULT_TIMEOUT_SECONDS = 60
-DEFAULT_CHECKOV_CONFIG = ".checkov.yaml"
+from src.core.config import DEFAULT_CHECKOV_CONFIG, DEFAULT_SCAN_TIMEOUT_SECONDS as DEFAULT_TIMEOUT_SECONDS
 
 
 class CheckovScannerAdapter(IScanner):
@@ -152,3 +150,7 @@ class CheckovScannerAdapter(IScanner):
             logger.error(f"Errore nel parsing dell'output di Checkov: {e}", exc_info=True)
 
         return []
+
+
+CheckovAdapter = CheckovScannerAdapter
+

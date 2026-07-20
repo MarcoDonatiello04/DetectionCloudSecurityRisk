@@ -16,8 +16,7 @@ from src.domain.interfaces import IScanner
 
 logger = logging.getLogger("SecurityPlatform.ZapAdapter")
 
-# Configurazione default di esecuzione per ZAP Daemon
-DEFAULT_ZAP_URL = "http://localhost:8090"
+from src.core.config import DEFAULT_ZAP_URL
 SPIDER_POLL_INTERVAL_SECONDS = 1
 
 
@@ -145,3 +144,9 @@ class ZapClientAdapter(IScanner):
             logger.error(f"Errore recupero alert da ZAP: {e}", exc_info=True)
 
         return findings
+
+
+ZapScannerAdapter = ZapClientAdapter
+ZapAdapter = ZapClientAdapter
+
+

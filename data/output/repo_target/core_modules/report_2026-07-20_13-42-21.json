@@ -1,0 +1,69 @@
+{
+  "timestamp": "2026-07-20 13:42:21",
+  "repository": "repo_target",
+  "stack": {
+    "linguaggio": "python",
+    "framework": "FastAPI",
+    "librerie_auth": [
+      "jwt"
+    ],
+    "identity_provider": null,
+    "file_configurazione_rilevanti": [
+      "requirements.txt"
+    ],
+    "discovery_methods": {},
+    "non_jwt_mechanisms": [],
+    "crawled_routes": {}
+  },
+  "vulnerabilita_statiche": [],
+  "test_dinamici": [
+    {
+      "test_id": "T00",
+      "test_nome": "Discovery endpoint di autenticazione",
+      "risultato": "INCONCLUSIVE",
+      "dettaglio": "Nessun endpoint di login individuato nel target (autenticazione delegata a un identity provider esterno). I test dinamici che richiedono una sessione autenticata non sono eseguibili.",
+      "raccomandazione": "Verify security configurations.",
+      "category": null,
+      "dettagli_quantitativi": null
+    }
+  ],
+  "auth_intel": {
+    "authentication_type": "OAuth2",
+    "identity_provider": null,
+    "login_endpoint": null,
+    "refresh_endpoint": null,
+    "logout_endpoint": null,
+    "jwt_claims": [
+      "sub"
+    ],
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "permissions": [],
+    "auth_middlewares": [],
+    "protected_endpoints": {},
+    "auth_functions": [],
+    "confidence_score": 0.6,
+    "idp_metadata": {},
+    "jwks_validation_enabled": true,
+    "oauth_flows_metadata": {
+      "redirect_uri_checked": false,
+      "state_checked": false,
+      "pkce_checked": false
+    },
+    "non_jwt_mechanisms": [],
+    "refresh_token_rotation": false,
+    "saml_detected": false,
+    "jwt_secret": null,
+    "refresh_token_supported": false,
+    "mfa_detected": null,
+    "mfa_type": null,
+    "mfa_confidence": 0.0,
+    "rate_limiting_detected": false,
+    "rate_limit_threshold": null,
+    "authentication_score": null
+  },
+  "request_audit_log": [],
+  "auth_strategy": null
+}

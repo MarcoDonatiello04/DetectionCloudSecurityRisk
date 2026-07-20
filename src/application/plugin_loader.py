@@ -2,9 +2,10 @@ import importlib.util
 import logging
 import os
 import sys
+from typing import Any
 
 from src.domain.exceptions import PluginLoadException
-from src.domain.interfaces import IDetector, IRemediation
+from src.domain.interfaces import IDetector, IRemediation, IVulnerabilityDetector
 
 logger = logging.getLogger("SecurityPlatform.PluginLoader")
 
@@ -12,33 +13,36 @@ logger = logging.getLogger("SecurityPlatform.PluginLoader")
 class PluginLoader:
     """
     Manager responsabile del caricamento dinamico dei moduli Python contenenti
-    le classi concrete di IDetector o IRemediation.
+    le classi concrete di IVulnerabilityDetector, IDetector o IRemediation.
     """
 
-    def __init__(self, plugins_dir: str):
+    def __init__(self, plugins_dir: str | None = None):
         """
         Inizializza il PluginLoader registrando il percorso dei plugin.
 
         Args:
-            plugins_dir (str): Percorso della directory dei plugin.
+            plugins_dir (str | None): Percorso della directory dei plugin/detector.
         """
+        if not plugins_dir:
+            plugins_dir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "core"
+            )
         self.plugins_dir = os.path.abspath(plugins_dir)
-        # Assicuriamo che la directory dei plugin sia nel PYTHONPATH
         if self.plugins_dir not in sys.path:
             sys.path.insert(0, self.plugins_dir)
 
-    def load_detectors(self) -> list[IDetector]:
+    def load_detectors(self) -> list[Any]:
         """
-        Trova e istanzia tutti i detector concreti all'interno della cartella dei plugin.
+        Trova e istanzia tutti i detector concreti all'interno della cartella dei detector.
 
         Returns:
-            List[IDetector]: Lista di istanze concrete di IDetector caricate.
+            List[Any]: Lista di istanze concrete di IVulnerabilityDetector o IDetector caricate.
 
         Raises:
             PluginLoadException: Se si verifica un errore durante l'istanziazione di un detector.
         """
-        detectors: list[IDetector] = []
-        detectors_dir = os.path.join(self.plugins_dir, "detectors")
+        detectors: list[Any] = []
+        detectors_dir = self.plugins_dir
 
         if not os.path.exists(detectors_dir):
             logger.warning(f"La directory dei detector {detectors_dir} non esiste.")
@@ -52,25 +56,26 @@ class PluginLoader:
                     module_name = file[:-3]
 
                     try:
-                        # Caricamento dinamico del file sorgente
                         spec = importlib.util.spec_from_file_location(module_name, filepath)
                         if spec and spec.loader:
                             module = importlib.util.module_from_spec(spec)
                             spec.loader.exec_module(module)
 
-                            # Cerca classi che ereditano da IDetector
                             for attribute_name in dir(module):
                                 attribute = getattr(module, attribute_name)
                                 if (
                                     isinstance(attribute, type)
-                                    and issubclass(attribute, IDetector)
-                                    and attribute is not IDetector
+                                    and (
+                                        issubclass(attribute, IVulnerabilityDetector)
+                                        or issubclass(attribute, IDetector)
+                                    )
+                                    and attribute not in (IVulnerabilityDetector, IDetector)
                                 ):
                                     try:
                                         detector_instance = attribute()
                                         detectors.append(detector_instance)
-                                        logger.info(
-                                            f"Caricato con successo il Detector Plugin: {detector_instance.name} ({attribute_name})"
+                                        logger.debug(
+                                            f"Caricato Detector Plugin: {detector_instance.name} ({attribute_name})"
                                         )
                                     except Exception as ex:
                                         raise PluginLoadException(
@@ -85,6 +90,7 @@ class PluginLoader:
                             f"Errore generico durante il caricamento del modulo {filepath}: {e}"
                         )
 
+        logger.info(f"🔌 Caricati con successo {len(detectors)} detector plugin da {detectors_dir}.")
         return detectors
 
     def load_remediations(self) -> dict[str, IRemediation]:

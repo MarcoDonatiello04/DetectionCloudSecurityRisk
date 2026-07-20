@@ -8,9 +8,9 @@ from unittest.mock import MagicMock, patch
 # Add root directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.core.broken_object_property_level_access.discovery import PropertyDiscoveryEngine
-from src.core.broken_object_property_level_access.dynamic_tester import BOPLADynamicTester
-from src.core.broken_object_property_level_access.property_inference import (
+from src.core.api3_bopla.discovery import PropertyDiscoveryEngine
+from src.core.api3_bopla.dynamic_tester import BOPLADynamicTester
+from src.core.api3_bopla.property_inference import (
     PropertyAuthorizationInferenceEngine,
 )
 

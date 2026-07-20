@@ -18,9 +18,7 @@ from src.normalization.normalizer import APIEndpointNormalizer
 
 logger = logging.getLogger("SecurityPlatform.SemgrepAdapter")
 
-# Configurazione default di esecuzione per Semgrep
-DEFAULT_SEMGREP_RULESET_PATH = "config/scanner_configs/route-detect.yaml"
-DEFAULT_SEMGREP_OUTPUT_FILE = "semgrep_routes_discovered.json"
+from src.core.config import DEFAULT_SEMGREP_OUTPUT_FILE, DEFAULT_SEMGREP_RULESET_PATH
 SEMGREP_TIMEOUT_SECONDS = 30
 
 # Parametri di parsing euristico del codice
@@ -381,3 +379,7 @@ class SemgrepScannerAdapter(IScanner):
                     "framework": "springboot",
                 }
             )
+
+
+SemgrepAdapter = SemgrepScannerAdapter
+

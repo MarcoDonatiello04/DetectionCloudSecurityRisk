@@ -3,9 +3,9 @@
 entrypoints/runners/run_all_security_tests.py
 ==================================
 Unified runner script to execute all three security scanner modules:
-1. Broken Authentication Scanner (src.core.broken_authentication)
-2. BOPLA (Broken Object Property Level Authorization) Scanner (src.core.broken_object_property_level_access)
-3. BOLA (Broken Object Level Authorization) Scanner (src.core.object_level_authorization)
+1. Broken Authentication Scanner (src.core.api2_broken_auth)
+2. BOPLA (Broken Object Property Level Authorization) Scanner (src.core.api3_bopla)
+3. BOLA (Broken Object Level Authorization) Scanner (src.core.api1_bola)
 """
 
 import argparse
@@ -34,14 +34,14 @@ logger.add(
 )
 
 # Import scanner modules
-from src.core.broken_authentication import ast_parser as ba_ast_parser
-from src.core.broken_authentication import authentication_intelligence as ba_auth_intel
-from src.core.broken_authentication import discovery as ba_discovery
-from src.core.broken_authentication import dynamic_tester as ba_dynamic_tester
-from src.core.broken_authentication import reporter as ba_reporter
-from src.core.broken_object_property_level_access.orchestrator import BOPLAOrchestrator
+from src.core.api2_broken_auth import ast_parser as ba_ast_parser
+from src.core.api2_broken_auth import authentication_intelligence as ba_auth_intel
+from src.core.api2_broken_auth import discovery as ba_discovery
+from src.core.api2_broken_auth import dynamic_tester as ba_dynamic_tester
+from src.core.api2_broken_auth import reporter as ba_reporter
+from src.core.api3_bopla.orchestrator import BOPLAOrchestrator
 from src.core.identity_context import IdentityManager
-from src.core.object_level_authorization.dynamic_orchestrator import DynamicOrchestrator
+from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
 
 
 def parse_args():

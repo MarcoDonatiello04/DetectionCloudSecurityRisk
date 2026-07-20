@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 
@@ -16,7 +16,7 @@ class DomainEvent:
 
     name: str
     payload: dict[str, Any]
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 # Tipi di eventi standardizzati per la pipeline di sicurezza

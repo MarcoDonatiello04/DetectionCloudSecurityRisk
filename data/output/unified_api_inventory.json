@@ -1,0 +1,4104 @@
+[
+  {
+    "method": "GET",
+    "path": "/admin",
+    "summary": "Admin Area",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 22
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 22
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 22
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 22
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 22
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-a106e5499994",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 22,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/admin",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/admin:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/admin",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 8
+            },
+            "end": {
+              "line": 26,
+              "character": 25
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.668663"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/orders/{order_id}",
+    "summary": "Get order details",
+    "description": "Retrieve details for a specific order. Volontariamente vulnerabile a BOLA.",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 28
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 28
+      }
+    ],
+    "bola_status": "UNTESTED",
+    "bola_findings": [],
+    "is_dynamic": true
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/settings",
+    "summary": "Admin - read settings (BFLA + misconfiguration)",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 51
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 51
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 51
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 51
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 51
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-e2a943105993",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask]: GET /api/v1/admin/settings non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/admin/settings",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:GET:/api/v1/admin/settings",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "GET",
+          "path": "/api/v1/admin/settings",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask",
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436371"
+      },
+      {
+        "finding_id": "spectral-e73a49ea97bd",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 51,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/admin/settings",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/admin/settings:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/admin/settings",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 51,
+              "character": 8
+            },
+            "end": {
+              "line": 55,
+              "character": 62
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.668747"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/settings",
+    "summary": "Admin - write settings (BFLA vulnerable)",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 56
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 56
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 56
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 56
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 56
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-237520e722b9",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask, python-semgrep]: POST /api/v1/admin/settings non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/admin/settings",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:POST:/api/v1/admin/settings",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "POST",
+          "path": "/api/v1/admin/settings",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask, python-semgrep",
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436381"
+      },
+      {
+        "finding_id": "spectral-e54bf49c325b",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 56,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/admin/settings",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/admin/settings:POST:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/admin/settings",
+            "post"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 56,
+              "character": 9
+            },
+            "end": {
+              "line": 65,
+              "character": 55
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.668807"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/users",
+    "summary": "Admin - list all users (BFLA vulnerable, no role check)",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 67
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 67
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 67
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 67
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 67
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-4ebaefd38e82",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask, python-semgrep]: GET /api/v1/admin/users non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/admin/users",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:GET:/api/v1/admin/users",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "GET",
+          "path": "/api/v1/admin/users",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask, python-semgrep",
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436347"
+      },
+      {
+        "finding_id": "spectral-e3c52f13977a",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 67,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/admin/users",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/admin/users:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/admin/users",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 67,
+              "character": 8
+            },
+            "end": {
+              "line": 71,
+              "character": 70
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.668866"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/users/{user_id}/promote",
+    "summary": "Admin - promote user to admin (BFLA vulnerable)",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 73
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 73
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 73
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 73
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 73
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-d71c81a0f350",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask]: POST /api/v1/admin/users/{user_id}/promote non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/admin/users/{user_id}/promote",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:POST:/api/v1/admin/users/{id}/promote",
+        "related_findings": [
+          "semgrep-959379626752"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "POST",
+          "path": "/api/v1/admin/users/{user_id}/promote",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask",
+          "merged_semgrep-959379626752": {
+            "method": "POST",
+            "path": "/api/v1/admin/users/{id}/promote",
+            "file": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/api_gateway.py",
+            "auth_detected": false,
+            "framework": "python-semgrep"
+          },
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436360"
+      },
+      {
+        "finding_id": "spectral-16d5fdfa3271",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 73,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/admin/users/{user_id}/promote",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/admin/users/{user_id}/promote:POST:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/admin/users/{user_id}/promote",
+            "post"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 73,
+              "character": 9
+            },
+            "end": {
+              "line": 83,
+              "character": 62
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.668930"
+      }
+    ],
+    "is_dynamic": true
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/login",
+    "summary": "Login - no rate limit, no brute force protection",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 85
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 85
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 85
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 85
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 85
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-6090d1c92c9a",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask, python-semgrep]: POST /api/v1/auth/login non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/auth/login",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:POST:/api/v1/auth/login",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "POST",
+          "path": "/api/v1/auth/login",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask, python-semgrep",
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436321"
+      },
+      {
+        "finding_id": "spectral-3e399cdeda9a",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 85,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/auth/login",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/auth/login:POST:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/auth/login",
+            "post"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 85,
+              "character": 9
+            },
+            "end": {
+              "line": 101,
+              "character": 63
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.668987"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/reset-password",
+    "summary": "Reset password - no token validation",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 103
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 103
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 103
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 103
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 103
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-bc1c17768aaf",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask, python-semgrep]: POST /api/v1/auth/reset-password non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/auth/reset-password",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:POST:/api/v1/auth/reset-password",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "POST",
+          "path": "/api/v1/auth/reset-password",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask, python-semgrep",
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436331"
+      },
+      {
+        "finding_id": "spectral-52ff2390c617",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 103,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/auth/reset-password",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/auth/reset-password:POST:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/auth/reset-password",
+            "post"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 103,
+              "character": 9
+            },
+            "end": {
+              "line": 115,
+              "character": 51
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669044"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/debug/dump-database",
+    "summary": "Endpoint POST rilevato (Non Documentato)",
+    "description": "Rilevato a runtime (Classificazione: RUNTIME_ONLY, Confidence: 0.7).",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 117
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 117
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 117
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-57844575b85d",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 117,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/debug/dump-database",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/debug/dump-database:POST:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/debug/dump-database",
+            "post"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 117,
+              "character": 9
+            },
+            "end": {
+              "line": 130,
+              "character": 55
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669090"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/export/data",
+    "summary": "Export data - no pagination, no rate limit (URC vulnerable)",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 132
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 132
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 132
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 132
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 132
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-77ea972499c6",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask, python-semgrep]: GET /api/v1/export/data non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/export/data",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:GET:/api/v1/export/data",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "GET",
+          "path": "/api/v1/export/data",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask, python-semgrep",
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436391"
+      },
+      {
+        "finding_id": "spectral-8e8a87615f8a",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 132,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/export/data",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/export/data:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/export/data",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 132,
+              "character": 8
+            },
+            "end": {
+              "line": 141,
+              "character": 74
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669135"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/orders/{order_id}",
+    "summary": "Delete order - no authorization check",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 143
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 143
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 143
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 143
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 143
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-7e24e151db54",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask]: DELETE /api/v1/orders/{order_id} non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/orders/{order_id}",
+          "method": "DELETE",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:DELETE:/api/v1/orders/{id}",
+        "related_findings": [
+          "semgrep-766275b01a29"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "DELETE",
+          "path": "/api/v1/orders/{order_id}",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask",
+          "merged_semgrep-766275b01a29": {
+            "method": "DELETE",
+            "path": "/api/v1/orders/{id}",
+            "file": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/api_gateway.py",
+            "auth_detected": false,
+            "framework": "python-semgrep"
+          },
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436309"
+      },
+      {
+        "finding_id": "spectral-928a78734b3c",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 143,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/orders/{order_id}",
+          "method": "DELETE",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/orders/{order_id}:DELETE:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/orders/{order_id}",
+            "delete"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 143,
+              "character": 11
+            },
+            "end": {
+              "line": 153,
+              "character": 52
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669189"
+      }
+    ],
+    "is_dynamic": true
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/orders/{order_id}",
+    "summary": "Get order - no ownership check",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 154
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 154
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 154
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 154
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 154
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-05269973dd23",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask]: GET /api/v1/orders/{order_id} non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/orders/{order_id}",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:GET:/api/v1/orders/{id}",
+        "related_findings": [
+          "semgrep-082355b77fdd"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "GET",
+          "path": "/api/v1/orders/{order_id}",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask",
+          "merged_semgrep-082355b77fdd": {
+            "method": "GET",
+            "path": "/api/v1/orders/{id}",
+            "file": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/api_gateway.py",
+            "auth_detected": false,
+            "framework": "python-semgrep"
+          },
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436298"
+      },
+      {
+        "finding_id": "spectral-b2cc978a30ef",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 154,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/orders/{order_id}",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/orders/{order_id}:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/orders/{order_id}",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 154,
+              "character": 8
+            },
+            "end": {
+              "line": 164,
+              "character": 45
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669243"
+      }
+    ],
+    "is_dynamic": true
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/search",
+    "summary": "Endpoint Rilevato",
+    "description": "L'endpoint API [flask, python-semgrep]: GET /api/v1/search non sembra richiedere controlli di autenticazione a livello statico.",
+    "documented": false,
+    "shadow": true,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Discovered API] operation-description",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 166
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Discovered API] operation-operationId",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 166
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Discovered API] operation-tags",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 166
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Discovered API] owasp-api2-operation-security",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 166
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Discovered API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 166
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-cf67c230a671",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask, python-semgrep]: GET /api/v1/search non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/search",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:GET:/api/v1/search",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "GET",
+          "path": "/api/v1/search",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask, python-semgrep",
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436401"
+      },
+      {
+        "finding_id": "spectral-7ccda92d41f0",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Discovered API] owasp-api2-operation-security",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 166,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/search",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/search:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/search",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 166,
+              "character": 8
+            },
+            "end": {
+              "line": 170,
+              "character": 62
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669302"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/users/{user_id}",
+    "summary": "Delete user - no authorization check",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 172
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 172
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 172
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 172
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 172
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-5d3e0e3f1fa5",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask]: DELETE /api/v1/users/{user_id} non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/users/{user_id}",
+          "method": "DELETE",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:DELETE:/api/v1/users/{id}",
+        "related_findings": [
+          "semgrep-575542ec021e"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "DELETE",
+          "path": "/api/v1/users/{user_id}",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask",
+          "merged_semgrep-575542ec021e": {
+            "method": "DELETE",
+            "path": "/api/v1/users/{id}",
+            "file": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/api_gateway.py",
+            "auth_detected": false,
+            "framework": "python-semgrep"
+          },
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436287"
+      },
+      {
+        "finding_id": "spectral-78ab1f70bb51",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 172,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/users/{user_id}",
+          "method": "DELETE",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/users/{user_id}:DELETE:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/users/{user_id}",
+            "delete"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 172,
+              "character": 11
+            },
+            "end": {
+              "line": 182,
+              "character": 51
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669356"
+      }
+    ],
+    "is_dynamic": true
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/users/{user_id}",
+    "summary": "Get user by ID - BOLA vulnerable (no ownership check)",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 183
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 183
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 183
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 183
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 183
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-235e31dcf2e1",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask]: GET /api/v1/users/{user_id} non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/users/{user_id}",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:GET:/api/v1/users/{id}",
+        "related_findings": [
+          "semgrep-d337d78dbaf1"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "GET",
+          "path": "/api/v1/users/{user_id}",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask",
+          "merged_semgrep-d337d78dbaf1": {
+            "method": "GET",
+            "path": "/api/v1/users/{id}",
+            "file": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/api_gateway.py",
+            "auth_detected": false,
+            "framework": "python-semgrep"
+          },
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436240"
+      },
+      {
+        "finding_id": "spectral-ebb28503a3c3",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 183,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/users/{user_id}",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/users/{user_id}:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/users/{user_id}",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 183,
+              "character": 8
+            },
+            "end": {
+              "line": 193,
+              "character": 68
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669409"
+      }
+    ],
+    "is_dynamic": true
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/users/{user_id}",
+    "summary": "Update user - BOLA vulnerable",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 194
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 194
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 194
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 194
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 194
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-79344fab77c8",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask]: PUT /api/v1/users/{user_id} non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/users/{user_id}",
+          "method": "PUT",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:PUT:/api/v1/users/{id}",
+        "related_findings": [
+          "semgrep-b503d8e1d60e"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "PUT",
+          "path": "/api/v1/users/{user_id}",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask",
+          "merged_semgrep-b503d8e1d60e": {
+            "method": "PUT",
+            "path": "/api/v1/users/{id}",
+            "file": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/api_gateway.py",
+            "auth_detected": false,
+            "framework": "python-semgrep"
+          },
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436273"
+      },
+      {
+        "finding_id": "spectral-54ff587cad4f",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 194,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v1/users/{user_id}",
+          "method": "PUT",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v1/users/{user_id}:PUT:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v1/users/{user_id}",
+            "put"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 194,
+              "character": 8
+            },
+            "end": {
+              "line": 209,
+              "character": 44
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669467"
+      }
+    ],
+    "is_dynamic": true
+  },
+  {
+    "method": "GET",
+    "path": "/api/v2/profile/{user_id}",
+    "summary": "User profile v2 - legacy version still exposed",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 211
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 211
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 211
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 211
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 211
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-3ba8fa28cfc3",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask]: GET /api/v2/profile/{user_id} non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v2/profile/{user_id}",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:GET:/api/v2/profile/{id}",
+        "related_findings": [
+          "semgrep-3f00f635ea45"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "GET",
+          "path": "/api/v2/profile/{user_id}",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask",
+          "merged_semgrep-3f00f635ea45": {
+            "method": "GET",
+            "path": "/api/v2/profile/{id}",
+            "file": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/api_gateway.py",
+            "auth_detected": false,
+            "framework": "python-semgrep"
+          },
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436411"
+      },
+      {
+        "finding_id": "spectral-34e152533c43",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 211,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v2/profile/{user_id}",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v2/profile/{user_id}:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v2/profile/{user_id}",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 211,
+              "character": 8
+            },
+            "end": {
+              "line": 221,
+              "character": 61
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669524"
+      }
+    ],
+    "is_dynamic": true
+  },
+  {
+    "method": "GET",
+    "path": "/api/v2/profile/{user_id}/documents",
+    "summary": "User documents - no ownership check",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 223
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 223
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 223
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 223
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 223
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-378cdabfb01c",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [flask]: GET /api/v2/profile/{user_id}/documents non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "api_gateway.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v2/profile/{user_id}/documents",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:GET:/api/v2/profile/{id}/documents",
+        "related_findings": [
+          "semgrep-cc9c378a593f"
+        ],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "GET",
+          "path": "/api/v2/profile/{user_id}/documents",
+          "file": "api_gateway.py",
+          "auth_detected": false,
+          "framework": "flask",
+          "merged_semgrep-cc9c378a593f": {
+            "method": "GET",
+            "path": "/api/v2/profile/{id}/documents",
+            "file": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/api_gateway.py",
+            "auth_detected": false,
+            "framework": "python-semgrep"
+          },
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436421"
+      },
+      {
+        "finding_id": "spectral-66102a04bde9",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 223,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/api/v2/profile/{user_id}/documents",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/api/v2/profile/{user_id}/documents:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/api/v2/profile/{user_id}/documents",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 223,
+              "character": 8
+            },
+            "end": {
+              "line": 233,
+              "character": 50
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669580"
+      }
+    ],
+    "is_dynamic": true
+  },
+  {
+    "method": "GET",
+    "path": "/debug",
+    "summary": "Debug endpoint",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 235
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 235
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 235
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 235
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 235
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-4246f44e58a5",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 235,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/debug",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/debug:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/debug",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 235,
+              "character": 8
+            },
+            "end": {
+              "line": 239,
+              "character": 29
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669631"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/login",
+    "summary": "Endpoint GET rilevato (Non Documentato)",
+    "description": "Rilevato a runtime (Classificazione: CONFIRMED, Confidence: 1.0).",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 241
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 241
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 241
+      },
+      {
+        "rule_id": "operation-success-response",
+        "title": "[Documented API] operation-success-response",
+        "description": "Violazione su API già documentata: Operation must have at least one \"2xx\" or \"3xx\" response.",
+        "severity": "MEDIUM",
+        "line": 243
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-823aa0d7e4c7",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 241,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/login",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/login:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/login",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 241,
+              "character": 8
+            },
+            "end": {
+              "line": 246,
+              "character": 54
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669673"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "POST",
+    "path": "/login",
+    "summary": "Login endpoint",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 247
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 247
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 247
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 247
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 247
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-f73f9be5d284",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 247,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/login",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/login:POST:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/login",
+            "post"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 247,
+              "character": 9
+            },
+            "end": {
+              "line": 261,
+              "character": 29
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669724"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/notes",
+    "summary": "Endpoint GET rilevato (Non Documentato)",
+    "description": "Rilevato a runtime (Classificazione: CONFIRMED, Confidence: 1.0).",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 263
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 263
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 263
+      },
+      {
+        "rule_id": "operation-success-response",
+        "title": "[Documented API] operation-success-response",
+        "description": "Violazione su API già documentata: Operation must have at least one \"2xx\" or \"3xx\" response.",
+        "severity": "MEDIUM",
+        "line": 265
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-87592a051b5b",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 263,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/notes",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/notes:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/notes",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 263,
+              "character": 8
+            },
+            "end": {
+              "line": 268,
+              "character": 54
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669765"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "POST",
+    "path": "/notes",
+    "summary": "Add a note",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 269
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 269
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 269
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 269
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 269
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-94ccbffe7ff8",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 269,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/notes",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/notes:POST:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/notes",
+            "post"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 269,
+              "character": 9
+            },
+            "end": {
+              "line": 283,
+              "character": 25
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669811"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/robots.txt",
+    "summary": "Endpoint GET rilevato (Non Documentato)",
+    "description": "Rilevato a runtime (Classificazione: RUNTIME_ONLY, Confidence: 0.7).",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 285
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 285
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 285
+      },
+      {
+        "rule_id": "operation-success-response",
+        "title": "[Documented API] operation-success-response",
+        "description": "Violazione su API già documentata: Operation must have at least one \"2xx\" or \"3xx\" response.",
+        "severity": "MEDIUM",
+        "line": 288
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-e1c39c9bce69",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 285,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/robots.txt",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/robots.txt:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/robots.txt",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 285,
+              "character": 8
+            },
+            "end": {
+              "line": 291,
+              "character": 54
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669851"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/search",
+    "summary": "Search endpoint - no rate limit",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 293
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 293
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 293
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 293
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 293
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-5c15b32f3b9d",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 293,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/search",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/search:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/search",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 293,
+              "character": 8
+            },
+            "end": {
+              "line": 306,
+              "character": 46
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669898"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/sitemap.xml",
+    "summary": "Endpoint GET rilevato (Non Documentato)",
+    "description": "Rilevato a runtime (Classificazione: RUNTIME_ONLY, Confidence: 0.7).",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 308
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 308
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 308
+      },
+      {
+        "rule_id": "operation-success-response",
+        "title": "[Documented API] operation-success-response",
+        "description": "Violazione su API già documentata: Operation must have at least one \"2xx\" or \"3xx\" response.",
+        "severity": "MEDIUM",
+        "line": 311
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-1aa6d16b2521",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 308,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/sitemap.xml",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/sitemap.xml:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/sitemap.xml",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 308,
+              "character": 8
+            },
+            "end": {
+              "line": 314,
+              "character": 54
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669936"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/test",
+    "summary": "Endpoint Rilevato",
+    "description": "L'endpoint API [python-semgrep]: GET /test non sembra richiedere controlli di autenticazione a livello statico.",
+    "documented": false,
+    "shadow": true,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Discovered API] operation-description",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 316
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Discovered API] operation-operationId",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 316
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Discovered API] operation-tags",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 316
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Discovered API] owasp-api2-operation-security",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 316
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Discovered API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 316
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "semgrep-b4b0abe9b853",
+        "source": "SEMGREP",
+        "category": "AUTHENTICATION",
+        "title": "Endpoint API non protetto rilevato (Statico)",
+        "description": "L'endpoint API [python-semgrep]: GET /test non sembra richiedere controlli di autenticazione a livello statico.",
+        "severity": "MEDIUM",
+        "confidence": 0.8,
+        "rule_id": "unauthenticated-api-route",
+        "rule_name": "API Route Detection",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/app.py",
+          "start_line": null,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/test",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": false
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "api:GET:/test",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "method": "GET",
+          "path": "/test",
+          "file": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/app.py",
+          "auth_detected": false,
+          "framework": "python-semgrep",
+          "correlated_risk_score": 5.5
+        },
+        "detected_at": "2026-07-19T14:49:16.436511"
+      },
+      {
+        "finding_id": "spectral-9fea674d65b5",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Discovered API] owasp-api2-operation-security",
+        "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 316,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/test",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/test:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/test",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 316,
+              "character": 8
+            },
+            "end": {
+              "line": 320,
+              "character": 55
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.669987"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/upload",
+    "summary": "Endpoint GET rilevato (Non Documentato)",
+    "description": "Rilevato a runtime (Classificazione: CONFIRMED, Confidence: 1.0).",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 322
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 322
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 322
+      },
+      {
+        "rule_id": "operation-success-response",
+        "title": "[Documented API] operation-success-response",
+        "description": "Violazione su API già documentata: Operation must have at least one \"2xx\" or \"3xx\" response.",
+        "severity": "MEDIUM",
+        "line": 324
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-35ba5f2494d7",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 322,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/upload",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/upload:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/upload",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 322,
+              "character": 8
+            },
+            "end": {
+              "line": 327,
+              "character": 54
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.670027"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "POST",
+    "path": "/upload",
+    "summary": "Upload file",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 328
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 328
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 328
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 328
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 328
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-147907463c9c",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 328,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/upload",
+          "method": "POST",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/upload:POST:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/upload",
+            "post"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 328,
+              "character": 9
+            },
+            "end": {
+              "line": 342,
+              "character": 26
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.670073"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/users",
+    "summary": "Get list of users",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 344
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 344
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 344
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 344
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 344
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-96557e5ba2ac",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 344,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/users",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/users:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/users",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 344,
+              "character": 8
+            },
+            "end": {
+              "line": 348,
+              "character": 32
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.670122"
+      }
+    ],
+    "is_dynamic": false
+  },
+  {
+    "method": "GET",
+    "path": "/users/{id}",
+    "summary": "Get user by ID",
+    "description": "",
+    "documented": true,
+    "shadow": false,
+    "violations": [
+      {
+        "rule_id": "operation-description",
+        "title": "[Documented API] operation-description",
+        "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+        "severity": "MEDIUM",
+        "line": 350
+      },
+      {
+        "rule_id": "operation-operationId",
+        "title": "[Documented API] operation-operationId",
+        "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+        "severity": "MEDIUM",
+        "line": 350
+      },
+      {
+        "rule_id": "operation-tags",
+        "title": "[Documented API] operation-tags",
+        "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+        "severity": "MEDIUM",
+        "line": 350
+      },
+      {
+        "rule_id": "owasp-api2-operation-security",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "line": 350
+      },
+      {
+        "rule_id": "owasp-api9-documented-endpoint",
+        "title": "[Documented API] owasp-api9-documented-endpoint",
+        "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+        "severity": "MEDIUM",
+        "line": 350
+      }
+    ],
+    "bola_status": "POTENTIAL",
+    "bola_findings": [
+      {
+        "finding_id": "spectral-7a4c3bebda62",
+        "source": "SPECTRAL",
+        "category": "AUTHENTICATION",
+        "title": "[Documented API] owasp-api2-operation-security",
+        "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+        "severity": "HIGH",
+        "confidence": 1.0,
+        "rule_id": "owasp-api2-operation-security",
+        "rule_name": "owasp-api2-operation-security",
+        "resource_type": null,
+        "resource_name": null,
+        "resource_id": null,
+        "location": {
+          "file_path": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi.yaml",
+          "start_line": 350,
+          "end_line": null,
+          "code_snippet": null
+        },
+        "api": {
+          "endpoint": "/users/{id}",
+          "method": "GET",
+          "base_url": null,
+          "api_version": null,
+          "requires_authentication": null
+        },
+        "validation_status": "NOT_VALIDATED",
+        "runtime_evidence": null,
+        "risk_context": null,
+        "correlation_key": "spectral:/users/{id}:GET:owasp-api2-operation-security",
+        "related_findings": [],
+        "owasp_api_category": null,
+        "cwe_id": null,
+        "cve_id": null,
+        "remediation": null,
+        "tags": [],
+        "references": [],
+        "raw_data": {
+          "code": "owasp-api2-operation-security",
+          "path": [
+            "paths",
+            "/users/{id}",
+            "get"
+          ],
+          "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+          "severity": 0,
+          "range": {
+            "start": {
+              "line": 350,
+              "character": 8
+            },
+            "end": {
+              "line": 360,
+              "character": 29
+            }
+          },
+          "source": "/Users/marcodonatiello/Desktop/DetectionCloudSecurityRisk/test_targets/bola/openapi_merged_temp.yaml",
+          "correlated_risk_score": 7.4
+        },
+        "detected_at": "2026-07-19T14:49:18.670170"
+      }
+    ],
+    "is_dynamic": true
+  }
+]

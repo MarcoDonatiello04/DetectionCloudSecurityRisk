@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable
 from typing import Any
 
-from src.domain.entities import Finding
+from src.domain.entities import Finding, ScanTarget
 
 
 class IScanner(ABC):
@@ -26,7 +26,7 @@ class IScanner(ABC):
 
 class IDetector(ABC):
     """
-    Interfaccia astratta per i detector dinamici o logici (es: BOLA Analyzer, Shadow API Hunter).
+    Interfaccia astratta legacy per i detector dinamici o logici.
     """
 
     @property
@@ -52,6 +52,42 @@ class IDetector(ABC):
             List[Finding]: Lista di Finding generati dall'analisi.
         """
         pass
+
+
+class IVulnerabilityDetector(ABC):
+    """
+    Interfaccia astratta standardizzata per tutti i detector di vulnerabilità del sistema.
+    """
+
+    @property
+    @abstractmethod
+    def detector_id(self) -> str:
+        """
+        Restituisce l'identificatore unico del detector (es: 'API1_BOLA', 'API2_BROKEN_AUTH').
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """
+        Restituisce un nome sintetico e leggibile del detector.
+        """
+        pass
+
+    @abstractmethod
+    def analyze(self, target: ScanTarget) -> list[Finding]:
+        """
+        Esegue l'analisi sul bersaglio specificato e restituisce la lista di findings individuate.
+
+        Args:
+            target (ScanTarget): Il bersaglio della scansione.
+
+        Returns:
+            list[Finding]: Lista di Finding generati dall'analisi.
+        """
+        pass
+
 
 
 class IRemediation(ABC):

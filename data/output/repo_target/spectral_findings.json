@@ -1,0 +1,1304 @@
+[
+  {
+    "finding_id": "spectral-9da2ce091c18",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] oas3-api-servers",
+    "description": "Violazione su API già documentata: OpenAPI \"servers\" must be present and non-empty array.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "oas3-api-servers",
+    "rule_name": "oas3-api-servers",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 0,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": null,
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "openapi:openapi.yaml:oas3-api-servers",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "oas3-api-servers",
+      "path": [],
+      "message": "OpenAPI \"servers\" must be present and non-empty array.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 67,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465076"
+  },
+  {
+    "finding_id": "spectral-56ac674d98bf",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] info-contact",
+    "description": "Violazione su API già documentata: Info object must have \"contact\" object.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "info-contact",
+    "rule_name": "info-contact",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 9,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": null,
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "openapi:openapi.yaml:info-contact",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "info-contact",
+      "path": [
+        "info"
+      ],
+      "message": "Info object must have \"contact\" object.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 9,
+          "character": 5
+        },
+        "end": {
+          "line": 17,
+          "character": 16
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465431"
+  },
+  {
+    "finding_id": "spectral-1792ec47dc66",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-description",
+    "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-description",
+    "rule_name": "operation-description",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 21,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/invoices/{id}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/invoices/{id}:GET:operation-description",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-description",
+      "path": [
+        "paths",
+        "/api/invoices/{id}",
+        "get"
+      ],
+      "message": "Operation \"description\" must be present and non-empty string.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 8
+        },
+        "end": {
+          "line": 33,
+          "character": 79
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465508"
+  },
+  {
+    "finding_id": "spectral-4ea0e8ece93e",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-operationId",
+    "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-operationId",
+    "rule_name": "operation-operationId",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 21,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/invoices/{id}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/invoices/{id}:GET:operation-operationId",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-operationId",
+      "path": [
+        "paths",
+        "/api/invoices/{id}",
+        "get"
+      ],
+      "message": "Operation must have \"operationId\".",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 8
+        },
+        "end": {
+          "line": 33,
+          "character": 79
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465531"
+  },
+  {
+    "finding_id": "spectral-e78eec0d853e",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tags",
+    "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tags",
+    "rule_name": "operation-tags",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 21,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/invoices/{id}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/invoices/{id}:GET:operation-tags",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tags",
+      "path": [
+        "paths",
+        "/api/invoices/{id}",
+        "get"
+      ],
+      "message": "Operation must have non-empty \"tags\" array.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 8
+        },
+        "end": {
+          "line": 33,
+          "character": 79
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465551"
+  },
+  {
+    "finding_id": "spectral-7e060ece1555",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 21,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/invoices/{id}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/invoices/{id}:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/api/invoices/{id}",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 8
+        },
+        "end": {
+          "line": 33,
+          "character": 79
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465748"
+  },
+  {
+    "finding_id": "spectral-afa2fe450d26",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 21,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/invoices/{id}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/invoices/{id}:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/invoices/{id}",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 21,
+          "character": 8
+        },
+        "end": {
+          "line": 33,
+          "character": 79
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465791"
+  },
+  {
+    "finding_id": "spectral-f82e00a6762e",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-description",
+    "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-description",
+    "rule_name": "operation-description",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 35,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "DELETE",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:DELETE:operation-description",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-description",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "delete"
+      ],
+      "message": "Operation \"description\" must be present and non-empty string.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 35,
+          "character": 11
+        },
+        "end": {
+          "line": 45,
+          "character": 62
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465811"
+  },
+  {
+    "finding_id": "spectral-19fd15f652eb",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-operationId",
+    "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-operationId",
+    "rule_name": "operation-operationId",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 35,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "DELETE",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:DELETE:operation-operationId",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-operationId",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "delete"
+      ],
+      "message": "Operation must have \"operationId\".",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 35,
+          "character": 11
+        },
+        "end": {
+          "line": 45,
+          "character": 62
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465833"
+  },
+  {
+    "finding_id": "spectral-a3fa45a6bdf4",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tags",
+    "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tags",
+    "rule_name": "operation-tags",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 35,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "DELETE",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:DELETE:operation-tags",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tags",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "delete"
+      ],
+      "message": "Operation must have non-empty \"tags\" array.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 35,
+          "character": 11
+        },
+        "end": {
+          "line": 45,
+          "character": 62
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465861"
+  },
+  {
+    "finding_id": "spectral-1416ed689ee4",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 35,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "DELETE",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:DELETE:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "delete"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 35,
+          "character": 11
+        },
+        "end": {
+          "line": 45,
+          "character": 62
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465885"
+  },
+  {
+    "finding_id": "spectral-eb99ee881c6c",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 35,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "DELETE",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:DELETE:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "delete"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 35,
+          "character": 11
+        },
+        "end": {
+          "line": 45,
+          "character": 62
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465927"
+  },
+  {
+    "finding_id": "spectral-302c788dabb3",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-description",
+    "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-description",
+    "rule_name": "operation-description",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 46,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:GET:operation-description",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-description",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "get"
+      ],
+      "message": "Operation \"description\" must be present and non-empty string.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 8
+        },
+        "end": {
+          "line": 56,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465965"
+  },
+  {
+    "finding_id": "spectral-92351210e17c",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-operationId",
+    "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-operationId",
+    "rule_name": "operation-operationId",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 46,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:GET:operation-operationId",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-operationId",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "get"
+      ],
+      "message": "Operation must have \"operationId\".",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 8
+        },
+        "end": {
+          "line": 56,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.465991"
+  },
+  {
+    "finding_id": "spectral-e74328c25803",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tags",
+    "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tags",
+    "rule_name": "operation-tags",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 46,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:GET:operation-tags",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tags",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "get"
+      ],
+      "message": "Operation must have non-empty \"tags\" array.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 8
+        },
+        "end": {
+          "line": 56,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.466007"
+  },
+  {
+    "finding_id": "spectral-fc5ace13f872",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 46,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 8
+        },
+        "end": {
+          "line": 56,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.466020"
+  },
+  {
+    "finding_id": "spectral-30fc5498d721",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 46,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 46,
+          "character": 8
+        },
+        "end": {
+          "line": 56,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.466033"
+  },
+  {
+    "finding_id": "spectral-694fb61e589c",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-description",
+    "description": "Violazione su API già documentata: Operation \"description\" must be present and non-empty string.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-description",
+    "rule_name": "operation-description",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 57,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "PUT",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:PUT:operation-description",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-description",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "put"
+      ],
+      "message": "Operation \"description\" must be present and non-empty string.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 57,
+          "character": 8
+        },
+        "end": {
+          "line": 67,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.466045"
+  },
+  {
+    "finding_id": "spectral-88ab1f209c97",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-operationId",
+    "description": "Violazione su API già documentata: Operation must have \"operationId\".",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-operationId",
+    "rule_name": "operation-operationId",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 57,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "PUT",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:PUT:operation-operationId",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-operationId",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "put"
+      ],
+      "message": "Operation must have \"operationId\".",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 57,
+          "character": 8
+        },
+        "end": {
+          "line": 67,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.466056"
+  },
+  {
+    "finding_id": "spectral-8587081c2c3d",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tags",
+    "description": "Violazione su API già documentata: Operation must have non-empty \"tags\" array.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tags",
+    "rule_name": "operation-tags",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 57,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "PUT",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:PUT:operation-tags",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tags",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "put"
+      ],
+      "message": "Operation must have non-empty \"tags\" array.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 57,
+          "character": 8
+        },
+        "end": {
+          "line": 67,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.466068"
+  },
+  {
+    "finding_id": "spectral-bb23020bd94c",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 57,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "PUT",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:PUT:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "put"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 57,
+          "character": 8
+        },
+        "end": {
+          "line": 67,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.466079"
+  },
+  {
+    "finding_id": "spectral-612f8e463d37",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API già documentata: Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "test_targets/repo_target/openapi.yaml",
+      "start_line": 57,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/projects/{id}",
+      "method": "PUT",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "validation_status": "NOT_VALIDATED",
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/projects/{id}:PUT:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/projects/{id}",
+        "put"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 57,
+          "character": 8
+        },
+        "end": {
+          "line": 67,
+          "character": 63
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/test_targets/repo_target/openapi_merged_temp.yaml"
+    },
+    "detected_at": "2026-07-19T23:14:31.466093"
+  }
+]

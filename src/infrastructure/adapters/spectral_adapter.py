@@ -283,3 +283,7 @@ class SpectralScannerAdapter(IScanner):
         except Exception:
             pass
         return False
+
+
+SpectralAdapter = SpectralScannerAdapter
+

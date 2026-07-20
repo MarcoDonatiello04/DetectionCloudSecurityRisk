@@ -1,0 +1,16 @@
+{
+    "timestamp": "2026-07-20T13:42:21.032960",
+    "target_url": "http://localhost:5000",
+    "repository": "repo_target",
+    "score": 100,
+    "risk_level": "LOW",
+    "objects_discovered": 0,
+    "properties_discovered": 0,
+    "protected_properties": 0,
+    "tests_executed": 0,
+    "vulnerabilities_detected": 0,
+    "findings": [],
+    "graph": {
+        "objects": {}
+    }
+}
