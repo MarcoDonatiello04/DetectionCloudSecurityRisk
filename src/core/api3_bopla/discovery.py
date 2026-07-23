@@ -7,7 +7,7 @@ from typing import Any
 
 from loguru import logger
 
-# Reuse AST utilities from broken_authentication
+# Reuse AST utilities from api2_broken_auth
 from src.core.api2_broken_auth.ast_parser import (
     EXTENSION_MAP,
     IGNORE_DIRS,

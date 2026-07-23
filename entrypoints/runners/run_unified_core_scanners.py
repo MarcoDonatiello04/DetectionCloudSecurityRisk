@@ -41,17 +41,17 @@ logger.add(
 )
 
 # Import scanner modules
+from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
 from src.core.api2_broken_auth import ast_parser as ba_ast_parser
 from src.core.api2_broken_auth import authentication_intelligence as ba_auth_intel
 from src.core.api2_broken_auth import discovery as ba_discovery
 from src.core.api2_broken_auth import dynamic_tester as ba_dynamic_tester
 from src.core.api2_broken_auth import reporter as ba_reporter
-from src.core.api5_bfla import detector as bfla_detector
 from src.core.api3_bopla.orchestrator import BOPLAOrchestrator
-from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
+from src.core.api4_resource_consumption import detector as urc_detector
+from src.core.api5_bfla import detector as bfla_detector
 from src.core.api7_security_misconfig import detector as secmis_detector
 from src.core.api8_ssrf import detector as ssrf_detector
-from src.core.api4_resource_consumption import detector as urc_detector
 from src.core.api10_unsafe_consumption import detector as uc_detector
 
 
@@ -206,7 +206,7 @@ async def main():
     modules = [
         {
             "name": "BOLA (Broken Object Level Authorization)",
-            "dir": "object_level_authorization",
+            "dir": "api1_bola",
             "runner": lambda: DynamicOrchestrator(
                 target_base_url=args.target_url,
                 keycloak_url=args.keycloak_url,
@@ -223,7 +223,7 @@ async def main():
         },
         {
             "name": "BOPLA (Broken Object Property Level Access)",
-            "dir": "broken_object_property_level_access",
+            "dir": "api3_bopla",
             "runner": lambda: BOPLAOrchestrator(
                 ba_discovery.Config(output=ba_discovery.OutputConfig(path=output_dir))
             ).run_assessment(
@@ -236,7 +236,7 @@ async def main():
         },
         {
             "name": "Broken Authentication",
-            "dir": "broken_authentication",
+            "dir": "api2_broken_auth",
             "runner": lambda: run_broken_authentication(
                 repo_path, openapi_spec, runtime_traffic, output_dir, args.target_url
             ),
@@ -244,38 +244,38 @@ async def main():
         },
         {
             "name": "BFLA (Broken Function Level Authorization)",
-            "dir": "broken_function_level_authorization",
+            "dir": "api5_bfla",
             "runner": lambda: bfla_detector.analyze(repo_path, openapi_spec),
             "is_async": False,
         },
         {
             "name": "Security Misconfiguration",
-            "dir": "security_misconfiguration",
+            "dir": "api7_security_misconfig",
             "runner": lambda: secmis_detector.analyze(repo_path),
             "is_async": False,
         },
         {
             "name": "SSRF (Server Side Request Forgery)",
-            "dir": "server_side_request_forgery",
+            "dir": "api8_ssrf",
             "runner": lambda: ssrf_detector.analyze(repo_path, openapi_spec, semgrep_timeout=15),
             "is_async": False,
         },
         {
             "name": "Unrestricted Resource Consumption",
-            "dir": "unrestricted_resource_consumption",
+            "dir": "api4_resource_consumption",
             "runner": lambda: urc_detector.analyze(repo_path, openapi_spec),
             "is_async": False,
         },
         {
             "name": "Unsafe Consumption",
-            "dir": "unsafe_consumption",
+            "dir": "api10_unsafe_consumption",
             "runner": lambda: uc_detector.analyze(repo_path),
             "is_async": False,
         },
     ]
 
     if args.skip_bola:
-        modules = [m for m in modules if m["dir"] != "object_level_authorization"]
+        modules = [m for m in modules if m["dir"] != "api1_bola"]
 
     results = []
 

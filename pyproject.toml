@@ -75,7 +75,6 @@ ignore = [
 # prima di importare i moduli del progetto.
 "entrypoints/**" = ["E402"]
 "**/validate_ground_truth.py" = ["E402"]
-"src/core/object_level_authorization/dynamic_orchestrator.py" = ["E402"]
 "tests/**" = ["B011", "E402"]
 "**/tests/**" = ["B011", "E402"]
 

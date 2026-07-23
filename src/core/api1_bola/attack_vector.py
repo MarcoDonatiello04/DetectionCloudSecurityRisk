@@ -1,7 +1,7 @@
 """
 Requirements Analysis Document (RAD) & Object Design Document (ODD) Academic Alignment
 Modulo: Attack Vector / Stimolatore Dinamico BOLA (ContextAwareAttackGenerator)
-Percorso: src/core/object_level_authorization/attack_vector.py
+Percorso: src/core/api1_bola/attack_vector.py
 
 Questo modulo implementa il generatore di attacchi sensibile al contesto per il
 rilevamento di BOLA. Gestisce la decodifica dei token JWT reali per estrarre il claim 'sub'

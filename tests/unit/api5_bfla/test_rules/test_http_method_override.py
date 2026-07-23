@@ -8,11 +8,7 @@ from src.core.api5_bfla.rules.http_method_override import (
 )
 
 PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").exists())
-FIXTURES_DIR = (
-    PROJECT_ROOT
-    / "data/test_targets"
-    / "broken_function_level_authorization"
-)
+FIXTURES_DIR = PROJECT_ROOT / "data/test_targets" / "broken_function_level_authorization"
 
 
 def test_http_method_override_vulnerable():

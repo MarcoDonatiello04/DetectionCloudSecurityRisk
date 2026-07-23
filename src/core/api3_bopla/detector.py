@@ -1,5 +1,3 @@
-from typing import Any
-
 from src.core.api3_bopla.orchestrator import BOPLAOrchestrator
 from src.domain.entities import Finding, ScanTarget
 from src.domain.interfaces import IVulnerabilityDetector

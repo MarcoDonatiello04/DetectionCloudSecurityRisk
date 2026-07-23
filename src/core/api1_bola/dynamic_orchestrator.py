@@ -28,10 +28,28 @@ from typing import Any
 import requests
 from zapv2 import ZAPv2
 
+from src.core.api1_bola.assertion_engine import APIAssertionEngine
+from src.core.api1_bola.attack_vector import ContextAwareAttackGenerator
+from src.core.api1_bola.discovery.object_discovery import (
+    ObjectReferenceDiscoveryEngine,
+)
+from src.core.api1_bola.discovery.ownership_inference import (
+    OwnershipInferenceEngine,
+)
+from src.core.api1_bola.state_manager import APIStateEngine
+from src.core.config import (
+    DEFAULT_KEYCLOAK_URL,
+    DEFAULT_TARGET_BASE_URL,
+    ZAP_POLL_INTERVAL_SECONDS,
+)
+from src.core.config import (
+    DEFAULT_ZAP_URL as DEFAULT_ZAP_PROXY_URL,
+)
+from src.core.identity_context import DatabaseSeeder, IdentityManager
 from src.domain.entities import Finding
+from src.normalization.normalizer import APIEndpointNormalizer
 
 # Allineamento con il sistema di Discovery centralizzato della Core Pipeline
-from src.normalization.normalizer import APIEndpointNormalizer
 
 # Disabilita gli alert SSL di urllib3 per le richieste passanti dal proxy di ZAP
 requests.packages.urllib3.disable_warnings(  # type: ignore[attr-defined]
@@ -83,25 +101,6 @@ RISK_LEVEL_MEDIUM = "MEDIUM"
 RISK_LEVEL_LOW = "LOW"
 RISK_LEVEL_INFO = "INFO"
 
-from src.core.config import (
-    DEFAULT_CLIENT_ID,
-    DEFAULT_KEYCLOAK_REALM,
-    DEFAULT_KEYCLOAK_URL,
-    DEFAULT_TARGET_BASE_URL,
-    DEFAULT_USER_A_PASSWORD,
-    DEFAULT_USER_A_USERNAME,
-    DEFAULT_USER_B_PASSWORD,
-    DEFAULT_USER_B_USERNAME,
-    DEFAULT_ZAP_URL as DEFAULT_ZAP_PROXY_URL,
-    HTTP_TIMEOUT_MEDIUM_SECONDS,
-    HTTP_TIMEOUT_SHORT_SECONDS,
-    SEED_END_USER_A,
-    SEED_END_USER_B,
-    SEED_START_USER_A,
-    SEED_START_USER_B,
-    ZAP_POLL_INTERVAL_SECONDS,
-)
-
 
 # ─── FUNZIONI DI VALIDAZIONE DELL'INPUT ──────────────────────────────────────
 
@@ -138,17 +137,6 @@ def validate_api_inventory(inventory: list[dict[str, Any]]) -> None:
 
 
 # ─── CLASSI PRINCIPALI DEL FLUSSO ───────────────────────────────────────────
-
-from src.core.identity_context import DatabaseSeeder, IdentityManager
-from src.core.api1_bola.assertion_engine import APIAssertionEngine
-from src.core.api1_bola.attack_vector import ContextAwareAttackGenerator
-from src.core.api1_bola.discovery.object_discovery import (
-    ObjectReferenceDiscoveryEngine,
-)
-from src.core.api1_bola.discovery.ownership_inference import (
-    OwnershipInferenceEngine,
-)
-from src.core.api1_bola.state_manager import APIStateEngine
 
 
 class ZapController:

@@ -14,9 +14,6 @@ from typing import Any
 import jwt
 import requests
 
-# Configurazione logging
-logger = logging.getLogger("SecurityPlatform.IdentityContext")
-
 from src.core.config import (
     DEFAULT_CLIENT_ID,
     DEFAULT_KEYCLOAK_REALM,
@@ -31,6 +28,9 @@ from src.core.config import (
     HTTP_TIMEOUT_MEDIUM_SECONDS,
     HTTP_TIMEOUT_SHORT_SECONDS,
 )
+
+# Configurazione logging
+logger = logging.getLogger("SecurityPlatform.IdentityContext")
 
 
 def validate_url(url: str, param_name: str) -> None:

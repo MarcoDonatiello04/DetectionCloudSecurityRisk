@@ -25,7 +25,9 @@ def run_validation(crapi_path: str | None = None):
     results = {"TP": 0, "TN": 0, "FP": 0, "FN": 0}
 
     for app_name, ground_truth in GROUND_TRUTH.items():
-        fixture_path = PROJECT_ROOT / "src" / "core" / "server_side_request_forgery" / "fixtures" / app_name
+        fixture_path = (
+            PROJECT_ROOT / "src" / "core" / "server_side_request_forgery" / "fixtures" / app_name
+        )
         report = detector.analyze(str(fixture_path))
         found_rule_ids = {f.rule_id for f in report.findings}
 

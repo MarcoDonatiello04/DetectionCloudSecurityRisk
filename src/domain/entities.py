@@ -343,4 +343,3 @@ class ScanTarget:
     target_url: str | None = None
     openapi_spec: dict[str, Any] | None = field(default_factory=dict)
     options: dict[str, Any] = field(default_factory=dict)
-

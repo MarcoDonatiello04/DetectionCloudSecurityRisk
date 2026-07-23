@@ -8,11 +8,7 @@ from src.core.api5_bfla.rules.auth_without_authz import (
 )
 
 PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").exists())
-FIXTURES_DIR = (
-    PROJECT_ROOT
-    / "data/test_targets"
-    / "broken_function_level_authorization"
-)
+FIXTURES_DIR = PROJECT_ROOT / "data/test_targets" / "broken_function_level_authorization"
 
 
 def test_auth_without_authz_vulnerable():

@@ -1,7 +1,7 @@
 """
 Requirements Analysis Document (RAD) & Object Design Document (ODD) Academic Alignment
 Modulo: Privilege Matrix / Controllo Accessi BOLA (AccessControlMatrix)
-Percorso: src/core/object_level_authorization/role_matrix.py
+Percorso: src/core/api1_bola/role_matrix.py
 
 Questo modulo implementa la Privilege Matrix di controllo degli accessi. Definisce
 la logica di business gerarchica per determinare la legittimità o la classificazione

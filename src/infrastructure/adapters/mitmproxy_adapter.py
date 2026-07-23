@@ -44,4 +44,3 @@ class MitmproxyClientAdapter:
 
 
 MitmproxyAdapter = MitmproxyClientAdapter
-

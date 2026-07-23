@@ -3,12 +3,12 @@ import logging
 import os
 import subprocess
 
+from src.core.config import DEFAULT_CHECKOV_CONFIG
+from src.core.config import DEFAULT_SCAN_TIMEOUT_SECONDS as DEFAULT_TIMEOUT_SECONDS
 from src.domain.entities import CodeLocation, Finding, FindingCategory, FindingSource, Severity
 from src.domain.interfaces import IScanner
 
 logger = logging.getLogger("SecurityPlatform.CheckovAdapter")
-
-from src.core.config import DEFAULT_CHECKOV_CONFIG, DEFAULT_SCAN_TIMEOUT_SECONDS as DEFAULT_TIMEOUT_SECONDS
 
 
 class CheckovScannerAdapter(IScanner):
@@ -153,4 +153,3 @@ class CheckovScannerAdapter(IScanner):
 
 
 CheckovAdapter = CheckovScannerAdapter
-

@@ -2,7 +2,7 @@ def extract_resource_name_from_path(path: str) -> str:
     """
     Estrae logicamente il nome della risorsa da un endpoint REST.
     Se il path termina in o contiene '{id}', restituisce il segmento precedente.
-    
+
     Esempi:
         /api/users/{id} -> users
         /api/posts/{id}/comments -> posts (o comments a seconda del design, ma ci fermiamo a prima di id)

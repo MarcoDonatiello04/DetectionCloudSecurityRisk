@@ -2,7 +2,6 @@ import logging
 from typing import Any
 
 from src.application.correlation.engine import RiskCorrelationEngine
-from src.application.event_bus import EventBus
 from src.application.plugin_loader import PluginLoader
 from src.domain.entities import Finding, FindingSource
 from src.domain.events import (
@@ -182,16 +181,16 @@ class ScanPipelineOrchestrator:
                 # Creiamo una funzione adapter per convertire la callback dell'evento in chiamata a analyze
                 def make_handler(detector_instance=detector, captured_event_type=event_type):
                     def handler(event) -> None:
-                        logger.debug(f"Esecuzione detector {detector_instance.name} su evento {captured_event_type}")
+                        logger.debug(
+                            f"Esecuzione detector {detector_instance.name} su evento {captured_event_type}"
+                        )
                         findings = detector_instance.analyze(event.payload)
                         if findings:
                             for finding in findings:
                                 self.event_bus.publish(EVENT_FINDING_DETECTED, finding)
 
                     # Forniamo un nome leggibile per il debug del bus
-                    handler.__name__ = (
-                        f"handler_{detector_instance.__class__.__name__}_{captured_event_type.replace('.', '_')}"
-                    )
+                    handler.__name__ = f"handler_{detector_instance.__class__.__name__}_{captured_event_type.replace('.', '_')}"
                     return handler
 
                 self.event_bus.subscribe(event_type, make_handler())

@@ -4,6 +4,8 @@ from pathlib import Path
 from src.core.api8_ssrf import normalizer, semgrep_runner
 from src.core.api8_ssrf.layers import layer3_openapi
 from src.core.api8_ssrf.models import SsrfFinding, SsrfReport
+from src.domain.entities import Finding, ScanTarget
+from src.domain.interfaces import IVulnerabilityDetector
 
 logger = logging.getLogger(__name__)
 
@@ -81,10 +83,6 @@ def _build_summary(findings: list[SsrfFinding]) -> dict:
     }
 
 
-from src.domain.entities import Finding, ScanTarget
-from src.domain.interfaces import IVulnerabilityDetector
-
-
 class Api8SsrfDetector(IVulnerabilityDetector):
     """
     Rilevatore di vulnerabilità OWASP API8: Server-Side Request Forgery (SSRF).
@@ -102,4 +100,3 @@ class Api8SsrfDetector(IVulnerabilityDetector):
         target_path = target.target_path or "."
         report = analyze(target_path, openapi_spec=target.openapi_spec)
         return report.findings
-

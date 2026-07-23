@@ -54,7 +54,9 @@ class BOPLAOrchestrator:
             objects_count = len(inventory.root)
             properties_count = sum(len(o.properties) for o in inventory.root.values())
 
-            logger.info(f"Property Discovery completato: {objects_count} oggetti scoperti, {properties_count} proprietà lette.")
+            logger.info(
+                f"Property Discovery completato: {objects_count} oggetti scoperti, {properties_count} proprietà lette."
+            )
         except Exception as e:
             logger.error(
                 f"Errore durante Property Discovery: {e}. Inizializzazione inventario vuoto."
@@ -80,7 +82,9 @@ class BOPLAOrchestrator:
                     1 for ev in evidences if ev.confidence >= 0.4 or ev.authorization_contexts
                 )
 
-            logger.info(f"Property Authorization Inference completato: {protected_count} proprietà protette inferite.")
+            logger.info(
+                f"Property Authorization Inference completato: {protected_count} proprietà protette inferite."
+            )
         except Exception as e:
             logger.error(f"Errore durante Property Authorization Inference: {e}")
 

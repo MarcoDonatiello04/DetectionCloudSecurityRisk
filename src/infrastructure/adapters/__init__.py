@@ -14,6 +14,8 @@ from src.infrastructure.adapters.zap_adapter import (
 __all__ = [
     "CheckovAdapter",
     "CheckovScannerAdapter",
+    "MitmproxyAdapter",
+    "MitmproxyClientAdapter",
     "SemgrepAdapter",
     "SemgrepScannerAdapter",
     "SpectralAdapter",
@@ -21,6 +23,4 @@ __all__ = [
     "ZapAdapter",
     "ZapClientAdapter",
     "ZapScannerAdapter",
-    "MitmproxyAdapter",
-    "MitmproxyClientAdapter",
 ]

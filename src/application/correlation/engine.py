@@ -1,10 +1,5 @@
 import logging
 
-from src.domain.entities import Finding, FindingCategory, Severity, ValidationStatus
-from src.normalization.normalizer import APIEndpointNormalizer
-
-logger = logging.getLogger("SecurityPlatform.CorrelationEngine")
-
 from src.core.config import (
     CONFIDENCE_NORMALIZER,
     CONTEXT_SCORE_INTERNET_EXPOSED,
@@ -17,6 +12,10 @@ from src.core.config import (
     RISK_WEIGHT_CONTEXT,
     RISK_WEIGHT_SEVERITY,
 )
+from src.domain.entities import Finding, FindingCategory, Severity, ValidationStatus
+from src.normalization.normalizer import APIEndpointNormalizer
+
+logger = logging.getLogger("SecurityPlatform.CorrelationEngine")
 
 
 class RiskCorrelationEngine:
@@ -87,13 +86,17 @@ class RiskCorrelationEngine:
                     existing.related_findings.append(runtime_finding.finding_id)
 
                 # Uniamo dati grezzi aggiuntivi
-                existing.raw_data[f"runtime_verification_{runtime_finding.finding_id}"] = runtime_finding.raw_data
+                existing.raw_data[f"runtime_verification_{runtime_finding.finding_id}"] = (
+                    runtime_finding.raw_data
+                )
             else:
                 runtime_finding.validation_status = ValidationStatus.CONFIRMED
                 runtime_finding.confidence = 0.9
                 self.correlated_findings[key] = runtime_finding
 
-        logger.info(f"📊 Correlazione completata: {len(self.correlated_findings)} entità di rischio elaborate.")
+        logger.info(
+            f"📊 Correlazione completata: {len(self.correlated_findings)} entità di rischio elaborate."
+        )
         return list(self.correlated_findings.values())
 
     def calculate_risk_score(self, finding: Finding) -> float:

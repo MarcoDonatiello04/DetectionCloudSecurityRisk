@@ -6,15 +6,11 @@ from typing import Any
 from fastapi import Depends, FastAPI
 from fastapi.responses import HTMLResponse
 
-from src.application.remediation.remediation_engine import RemediationEngine
-from src.application.orchestrator import ScanPipelineOrchestrator
-from src.application.event_bus import EventBus
-from src.application.plugin_loader import PluginLoader
 from src.application.correlation.engine import RiskCorrelationEngine
-from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
-from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
-from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
-from src.infrastructure.persistence.report_repository import ReportRepository
+from src.application.event_bus import EventBus
+from src.application.orchestrator import ScanPipelineOrchestrator
+from src.application.plugin_loader import PluginLoader
+from src.application.remediation.remediation_engine import RemediationEngine
 from src.core.config import (
     DEFAULT_KEYCLOAK_URL,
     DEFAULT_PLUGINS_DIR,
@@ -24,6 +20,10 @@ from src.core.config import (
 from src.core.utilities.file_io import safe_read_json
 from src.core.utilities.openapi_parser import load_openapi_spec
 from src.core.utilities.url_utils import extract_resource_name_from_path
+from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
+from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
+from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
+from src.infrastructure.persistence.report_repository import ReportRepository
 
 logging.basicConfig(
     level=logging.INFO,
@@ -395,7 +395,7 @@ def get_unified_summary() -> dict[str, Any]:
     """Ritorna una sintesi dell'ultima scansione unificata dei moduli Core."""
     report_path = "output/benchmark_results.json"
     modules = safe_read_json(report_path, None)
-    
+
     if modules is None:
         return {"available": False, "generated_at": None, "totals": {}, "modules": []}
 
@@ -426,18 +426,16 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     import time
     from pathlib import Path
 
-    import yaml
-
     from src.core.api2_broken_auth import ast_parser as ba_ast_parser
     from src.core.api2_broken_auth import authentication_intelligence as ba_auth_intel
     from src.core.api2_broken_auth import discovery as ba_discovery
     from src.core.api2_broken_auth import dynamic_tester as ba_dynamic_tester
     from src.core.api2_broken_auth.discovery import Config as BaConfig
-    from src.core.api5_bfla import detector as bfla_detector
     from src.core.api3_bopla.orchestrator import BOPLAOrchestrator
+    from src.core.api4_resource_consumption import detector as urc_detector
+    from src.core.api5_bfla import detector as bfla_detector
     from src.core.api7_security_misconfig import detector as secmis_detector
     from src.core.api8_ssrf import detector as ssrf_detector
-    from src.core.api4_resource_consumption import detector as urc_detector
     from src.core.api10_unsafe_consumption import detector as uc_detector
 
     openapi_spec = load_openapi_spec()
@@ -497,7 +495,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     results.append(
         {
             "name": "BOPLA (Broken Object Property Level Access)",
-            "dir": "src/core/broken_object_property_level_access",
+            "dir": "src/core/api3_bopla",
             "time": time.time() - start,
             "status": status,
             "findings": findings_count,
@@ -623,7 +621,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
         results.append(
             {
                 "name": "BOLA (Broken Object Level Authorization)",
-                "dir": "src/core/object_level_authorization",
+                "dir": "src/core/api1_bola",
                 "time": time.time() - start_bola,
                 "status": status,
                 "findings": findings_count,
@@ -633,7 +631,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
         results.append(
             {
                 "name": "BOLA (Broken Object Level Authorization)",
-                "dir": "src/core/object_level_authorization",
+                "dir": "src/core/api1_bola",
                 "time": 0.0,
                 "status": "SKIPPED",
                 "findings": 0,
@@ -701,7 +699,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     results.append(
         {
             "name": "Broken Authentication",
-            "dir": "src/core/broken_authentication",
+            "dir": "src/core/api2_broken_auth",
             "time": time.time() - start,
             "status": status,
             "findings": findings_count,
@@ -723,7 +721,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     results.append(
         {
             "name": "BFLA (Broken Function Level Authorization)",
-            "dir": "src/core/broken_function_level_authorization",
+            "dir": "src/core/api5_bfla",
             "time": time.time() - start,
             "status": status,
             "findings": findings_count,
@@ -745,7 +743,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     results.append(
         {
             "name": "Security Misconfiguration",
-            "dir": "src/core/security_misconfiguration",
+            "dir": "src/core/api7_security_misconfig",
             "time": time.time() - start,
             "status": status,
             "findings": findings_count,
@@ -767,7 +765,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     results.append(
         {
             "name": "SSRF (Server Side Request Forgery)",
-            "dir": "src/core/server_side_request_forgery",
+            "dir": "src/core/api8_ssrf",
             "time": time.time() - start,
             "status": status,
             "findings": findings_count,
@@ -789,7 +787,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     results.append(
         {
             "name": "Unrestricted Resource Consumption",
-            "dir": "src/core/unrestricted_resource_consumption",
+            "dir": "src/core/api4_resource_consumption",
             "time": time.time() - start,
             "status": status,
             "findings": findings_count,
@@ -811,7 +809,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     results.append(
         {
             "name": "Unsafe Consumption",
-            "dir": "src/core/unsafe_consumption",
+            "dir": "src/core/api10_unsafe_consumption",
             "time": time.time() - start,
             "status": status,
             "findings": findings_count,

@@ -31,11 +31,7 @@ from src.core.api4_resource_consumption.rules.upload import UploadRule
 # ---------------------------------------------------------------------------
 
 PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").exists())
-FIXTURES_DIR = (
-    PROJECT_ROOT
-    / "data/test_targets"
-    / "unrestricted_resource_consumption"
-)
+FIXTURES_DIR = PROJECT_ROOT / "data/test_targets" / "unrestricted_resource_consumption"
 VULNERABLE_APP = FIXTURES_DIR / "vulnerable_app" / "app.py"
 SECURE_APP = FIXTURES_DIR / "secure_app" / "app.py"
 

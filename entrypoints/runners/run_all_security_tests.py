@@ -34,6 +34,7 @@ logger.add(
 )
 
 # Import scanner modules
+from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
 from src.core.api2_broken_auth import ast_parser as ba_ast_parser
 from src.core.api2_broken_auth import authentication_intelligence as ba_auth_intel
 from src.core.api2_broken_auth import discovery as ba_discovery
@@ -41,7 +42,6 @@ from src.core.api2_broken_auth import dynamic_tester as ba_dynamic_tester
 from src.core.api2_broken_auth import reporter as ba_reporter
 from src.core.api3_bopla.orchestrator import BOPLAOrchestrator
 from src.core.identity_context import IdentityManager
-from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
 
 
 def parse_args():

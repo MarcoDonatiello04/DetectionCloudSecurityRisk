@@ -1,7 +1,7 @@
 """
 Requirements Analysis Document (RAD) & Object Design Document (ODD) Academic Alignment
 Modulo: State Manager BOLA (APIStateEngine)
-Percorso: src/core/object_level_authorization/state_manager.py
+Percorso: src/core/api1_bola/state_manager.py
 
 Questo modulo implementa il componente 'APIStateEngine' deputato a garantire
 l'idempotenza e la consistenza dello stato dell'applicazione target durante

@@ -36,7 +36,9 @@ def main():
             print(f"    Confidence: {f.confidence}")
         return
 
-    PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").exists())
+    PROJECT_ROOT = next(
+        p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").exists()
+    )
     fixtures_dir = PROJECT_ROOT / "src" / "core" / "unsafe_consumption" / "fixtures"
     tp_count = 0
     fn_count = 0

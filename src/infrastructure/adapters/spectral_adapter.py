@@ -286,4 +286,3 @@ class SpectralScannerAdapter(IScanner):
 
 
 SpectralAdapter = SpectralScannerAdapter
-

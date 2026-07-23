@@ -11,6 +11,8 @@ from src.core.api7_security_misconfig.rules import (
     missing_security_headers,
     verbose_error_handler,
 )
+from src.domain.entities import Finding, ScanTarget
+from src.domain.interfaces import IVulnerabilityDetector
 
 logger = logging.getLogger(__name__)
 
@@ -101,10 +103,6 @@ def _build_summary(findings: list[MisconfigFinding]) -> dict:
             for cat in ("MISCONFIGURATION", "SECRETS")
         },
     }
-
-
-from src.domain.entities import Finding, ScanTarget
-from src.domain.interfaces import IVulnerabilityDetector
 
 
 class Api7SecurityMisconfigDetector(IVulnerabilityDetector):

@@ -80,20 +80,20 @@ def main():
         ),
         (
             "API8 Security Misconfiguration Ground Truth",
-            [sys.executable, "src/core/security_misconfiguration/tests/validate_ground_truth.py"],
+            [sys.executable, "tests/unit/api7_security_misconfig/validate_ground_truth.py"],
         ),
         (
             "API5 Broken Function Level Authorization Ground Truth",
             [
                 sys.executable,
-                "src/core/broken_function_level_authorization/tests/validate_ground_truth.py",
+                "tests/unit/api5_bfla/validate_ground_truth.py",
             ],
         ),
         (
             "API4 Unrestricted Resource Consumption Ground Truth",
             [
                 sys.executable,
-                "src/core/unrestricted_resource_consumption/tests/validate_ground_truth.py",
+                "tests/unit/api4_resource_consumption/validate_ground_truth.py",
             ],
         ),
     ]

@@ -33,11 +33,7 @@ from src.core.api4_resource_consumption.layers.layer2_config import (
 # ---------------------------------------------------------------------------
 
 PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").exists())
-FIXTURES_DIR = (
-    PROJECT_ROOT
-    / "data/test_targets"
-    / "unrestricted_resource_consumption"
-)
+FIXTURES_DIR = PROJECT_ROOT / "data/test_targets" / "unrestricted_resource_consumption"
 VULN_DIR = FIXTURES_DIR / "vulnerable_app"
 SECURE_DIR = FIXTURES_DIR / "secure_app"
 

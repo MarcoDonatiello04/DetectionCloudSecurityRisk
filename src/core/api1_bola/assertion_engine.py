@@ -1,7 +1,7 @@
 """
 Requirements Analysis Document (RAD) & Object Design Document (ODD) Academic Alignment
 Modulo: Assertion Engine / Validatore Semantico BOLA (APIAssertionEngine)
-Percorso: src/core/object_level_authorization/assertion_engine.py
+Percorso: src/core/api1_bola/assertion_engine.py
 
 Questo modulo implementa il motore di validazione semantica a runtime per BOLA,
 utilizzando il paradigma del Differential Testing. Analizza le risposte HTTP (livello 7 OSI)

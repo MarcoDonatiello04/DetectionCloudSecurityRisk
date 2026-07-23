@@ -90,7 +90,9 @@ class PluginLoader:
                             f"Errore generico durante il caricamento del modulo {filepath}: {e}"
                         )
 
-        logger.info(f"🔌 Caricati con successo {len(detectors)} detector plugin da {detectors_dir}.")
+        logger.info(
+            f"🔌 Caricati con successo {len(detectors)} detector plugin da {detectors_dir}."
+        )
         return detectors
 
     def load_remediations(self) -> dict[str, IRemediation]:

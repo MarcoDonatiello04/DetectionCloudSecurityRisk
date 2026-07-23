@@ -1,5 +1,3 @@
-from typing import Any
-
 from src.core.api2_broken_auth.dynamic_tester import DynamicTester
 from src.domain.entities import Finding, ScanTarget
 from src.domain.interfaces import IVulnerabilityDetector

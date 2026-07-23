@@ -140,9 +140,14 @@ def test_llm_fallback_and_caching(mock_kb_dir):
         target_identifier="/login",
     )
 
-    with patch.object(
-        engine.llm_provider, "generate_remediation", return_value=mock_llm_response
-    ) as mock_gen:
+    with (
+        patch.object(
+            engine.llm_provider, "generate_remediation", return_value=mock_llm_response
+        ) as mock_gen,
+        # Simula un LLM reale disponibile: la source label dipende da get_available_model
+        # (un modello "Simulato" darebbe "offline_simulator"), non dal solo generate_remediation.
+        patch.object(engine.llm_provider, "get_available_model", return_value="llama3.1"),
+    ):
         # First call: cache miss, LLM queried
         res1 = engine.get_remediation(finding)
 

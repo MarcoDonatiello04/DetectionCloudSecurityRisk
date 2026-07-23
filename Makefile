@@ -82,7 +82,7 @@ stop-dashboard:
 
 dashboard: stop-dashboard
 	@echo "🚀 starting Security Dashboard on http://localhost:$(DASHBOARD_PORT)"
-	@PYTHONPATH=. .venv/bin/uvicorn src.presentation.rest_api:app --host 0.0.0.0 --port $(DASHBOARD_PORT) --reload
+	@PYTHONPATH=. .venv/bin/uvicorn src.presentation.api.server:app --host 0.0.0.0 --port $(DASHBOARD_PORT) --reload
 
 
 clean:

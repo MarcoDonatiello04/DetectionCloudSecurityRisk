@@ -1,5 +1,3 @@
-from typing import Any
-
 from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
 from src.domain.entities import Finding, ScanTarget
 from src.domain.interfaces import IVulnerabilityDetector

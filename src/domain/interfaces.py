@@ -89,7 +89,6 @@ class IVulnerabilityDetector(ABC):
         pass
 
 
-
 class IRemediation(ABC):
     """
     Interfaccia astratta per i moduli di remediation automatica.

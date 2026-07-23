@@ -5,6 +5,7 @@ import re
 import subprocess
 from typing import Any
 
+from src.core.config import DEFAULT_SEMGREP_OUTPUT_FILE, DEFAULT_SEMGREP_RULESET_PATH
 from src.domain.entities import (
     APIContext,
     CodeLocation,
@@ -18,7 +19,7 @@ from src.normalization.normalizer import APIEndpointNormalizer
 
 logger = logging.getLogger("SecurityPlatform.SemgrepAdapter")
 
-from src.core.config import DEFAULT_SEMGREP_OUTPUT_FILE, DEFAULT_SEMGREP_RULESET_PATH
+
 SEMGREP_TIMEOUT_SECONDS = 30
 
 # Parametri di parsing euristico del codice
@@ -382,4 +383,3 @@ class SemgrepScannerAdapter(IScanner):
 
 
 SemgrepAdapter = SemgrepScannerAdapter
-

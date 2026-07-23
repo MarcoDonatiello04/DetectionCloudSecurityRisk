@@ -9,8 +9,8 @@ from src.application.orchestrator import ScanPipelineOrchestrator
 from src.application.plugin_loader import PluginLoader
 
 __all__ = [
-    "ScanPipelineOrchestrator",
     "EventBus",
     "PluginLoader",
     "RiskCorrelationEngine",
+    "ScanPipelineOrchestrator",
 ]

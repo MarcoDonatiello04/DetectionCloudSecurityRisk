@@ -4,6 +4,7 @@ import urllib.parse
 
 from zapv2 import ZAPv2
 
+from src.core.config import DEFAULT_ZAP_URL
 from src.domain.entities import (
     APIContext,
     Finding,
@@ -16,7 +17,7 @@ from src.domain.interfaces import IScanner
 
 logger = logging.getLogger("SecurityPlatform.ZapAdapter")
 
-from src.core.config import DEFAULT_ZAP_URL
+
 SPIDER_POLL_INTERVAL_SECONDS = 1
 
 
@@ -148,5 +149,3 @@ class ZapClientAdapter(IScanner):
 
 ZapScannerAdapter = ZapClientAdapter
 ZapAdapter = ZapClientAdapter
-
-

@@ -3,31 +3,11 @@ import logging
 import os
 from typing import Any
 
-import yaml
-
-from src.application.orchestrator import ScanPipelineOrchestrator
-from src.application.event_bus import EventBus
-from src.application.plugin_loader import PluginLoader
 from src.application.correlation.engine import RiskCorrelationEngine
+from src.application.event_bus import EventBus
+from src.application.orchestrator import ScanPipelineOrchestrator
+from src.application.plugin_loader import PluginLoader
 from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
-from src.domain.entities import Finding
-from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
-from src.infrastructure.adapters.mitmproxy_adapter import MitmproxyClientAdapter
-from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
-from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
-from src.infrastructure.adapters.zap_adapter import ZapClientAdapter
-from src.infrastructure.persistence.report_repository import ReportRepository
-from src.normalization.normalizer import APIEndpointNormalizer
-from src.core.utilities.openapi_parser import load_openapi_spec
-
-# Configurazione logger
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)-8s] %(name)-35s: %(message)s",
-    datefmt="%H:%M:%S",
-)
-logger = logging.getLogger("SecurityPlatform.CLI")
-
 from src.core.config import (
     DEFAULT_FALLBACK_TRAFFIC_FILE,
     DEFAULT_KEYCLOAK_URL,
@@ -40,6 +20,23 @@ from src.core.config import (
     REPORT_FINDINGS_FILENAME,
     REPORT_INVENTORY_FILENAME,
 )
+from src.core.utilities.openapi_parser import load_openapi_spec
+from src.domain.entities import Finding
+from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
+from src.infrastructure.adapters.mitmproxy_adapter import MitmproxyClientAdapter
+from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
+from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
+from src.infrastructure.adapters.zap_adapter import ZapClientAdapter
+from src.infrastructure.persistence.report_repository import ReportRepository
+from src.normalization.normalizer import APIEndpointNormalizer
+
+# Configurazione logger
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)-8s] %(name)-35s: %(message)s",
+    datefmt="%H:%M:%S",
+)
+logger = logging.getLogger("SecurityPlatform.CLI")
 
 
 def parse_args() -> argparse.Namespace:
@@ -230,9 +227,6 @@ def main() -> None:
     logger.info("================================================================================")
     logger.info(f"🏆 PIPELINE COMPLETATA. Report salvato in '{args.output_dir}/'")
     logger.info("================================================================================")
-
-
-
 
 
 def _build_endpoint_catalog(findings: list[Finding]) -> list[dict[str, Any]]:
