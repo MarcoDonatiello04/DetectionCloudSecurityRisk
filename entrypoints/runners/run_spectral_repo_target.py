@@ -11,7 +11,7 @@ Prerequisito: Node.js/npx (per @stoplight/spectral-cli via npx).
 
 Esempio:
   PYTHONPATH=. .venv/bin/python entrypoints/runners/run_spectral_repo_target.py \
-      --openapi test_targets/repo_target/openapi.yaml
+      --openapi data/test_targets/repo_target/openapi.yaml
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Runner Spectral su repository target cooperante")
-    parser.add_argument("--openapi", default="test_targets/repo_target/openapi.yaml")
+    parser.add_argument("--openapi", default="data/test_targets/repo_target/openapi.yaml")
     parser.add_argument("--output", default="output/repo_target/spectral_findings.json")
     args = parser.parse_args()
 

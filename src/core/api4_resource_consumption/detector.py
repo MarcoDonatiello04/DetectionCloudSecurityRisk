@@ -9,8 +9,6 @@ from src.core.api4_resource_consumption.models import (
     ResourceConsumptionFinding,
     ResourceConsumptionReport,
 )
-from src.domain.entities import Finding, ScanTarget
-from src.domain.interfaces import IVulnerabilityDetector
 
 
 def _build_coverage_signals(
@@ -79,22 +77,3 @@ def analyze(
         coverage_signals=_build_coverage_signals(findings),
         summary=_build_summary(findings),
     )
-
-
-class Api4ResourceConsumptionDetector(IVulnerabilityDetector):
-    """
-    Rilevatore di vulnerabilità OWASP API4: Unrestricted Resource Consumption.
-    """
-
-    @property
-    def detector_id(self) -> str:
-        return "API4_RESOURCE_CONSUMPTION"
-
-    @property
-    def name(self) -> str:
-        return "Unrestricted Resource Consumption Detector"
-
-    def analyze(self, target: ScanTarget) -> list[Finding]:
-        target_path = target.target_path or "."
-        report = analyze(target_path, openapi_spec=target.openapi_spec)
-        return report.findings

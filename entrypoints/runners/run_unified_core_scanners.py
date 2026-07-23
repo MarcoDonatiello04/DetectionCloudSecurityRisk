@@ -57,7 +57,7 @@ from src.core.api10_unsafe_consumption import detector as uc_detector
 
 def load_openapi_spec(repo_path: str):
     openapi_paths = [
-        Path(repo_path) / "test_targets/bola" / "openapi.yaml",
+        Path(repo_path) / "data/test_targets/bola" / "openapi.yaml",
         Path(repo_path) / "openapi.yaml",
         Path(repo_path) / "openapi.json",
     ]

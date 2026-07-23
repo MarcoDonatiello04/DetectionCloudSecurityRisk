@@ -13,7 +13,7 @@ echo -e "${BLUE}   [FASE 2] IaC Provisioning & Security Scan             ${NC}"
 echo -e "${BLUE}=========================================================${NC}"
 
 # Directory della configurazione Terraform, ora ospitata nella repo target cooperante
-TERRAFORM_DIR="test_targets/repo_target/terraform"
+TERRAFORM_DIR="data/test_targets/repo_target/terraform"
 PROJECT_ROOT="$(pwd)"
 
 # 1. Provisioning con Terraform

@@ -10,7 +10,7 @@ dinamica va poi ad attaccare, e ora combaciano con l'OpenAPI del target.
 
 Esempio:
   PYTHONPATH=. .venv/bin/python entrypoints/runners/run_semgrep_repo_target.py \
-      --target test_targets/repo_target
+      --target data/test_targets/repo_target
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Runner Semgrep su repository target cooperante")
-    parser.add_argument("--target", default="test_targets/repo_target")
+    parser.add_argument("--target", default="data/test_targets/repo_target")
     parser.add_argument(
         "--output", default="output/repo_target/semgrep_endpoints.json", help="Report JSON"
     )

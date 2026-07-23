@@ -24,11 +24,11 @@ include = ["src*", "remediation*"]
 [tool.pytest.ini_options]
 minversion = "8.0"
 pythonpath = ["."]
-testpaths = ["tests", "src", "remediation"]
-# test_targets/ contiene applicazioni vulnerabili di terze parti (es. crAPI):
-# sono dati di input per gli scanner, non test del progetto. Se raccolte,
-# i loro package inquinano sys.path e mascherano le dipendenze installate.
-norecursedirs = ["test_targets", "fixtures", "output", ".venv", "*.egg-info"]
+testpaths = ["tests", "src"]
+# data/ ospita target vendored (crAPI), fixture e output: sono dati di input per
+# gli scanner, non test del progetto. Se raccolti, i loro package inquinano
+# sys.path e mascherano le dipendenze installate.
+norecursedirs = ["data", "test_targets", "fixtures", "output", ".venv", "*.egg-info"]
 addopts = "-q --strict-markers --strict-config"
 # I test asincroni usano il marker esplicito @pytest.mark.asyncio (modalita strict).
 asyncio_mode = "strict"
@@ -44,7 +44,7 @@ filterwarnings = ["ignore::DeprecationWarning"]
 [tool.ruff]
 target-version = "py310"
 line-length = 100
-extend-exclude = ["test_targets", "fixtures", "output", "crapi_repo"]
+extend-exclude = ["data", "test_targets", "fixtures", "output", "crapi_repo"]
 
 [tool.ruff.lint]
 select = [
@@ -87,15 +87,15 @@ quote-style = "double"
 # degli scanner (analizzati come dati), non codice di progetto: vanno esclusi
 # dal type-checking come gia avviene per il linting.
 [tool.pyright]
-include = ["src", "remediation", "entrypoints", "tests"]
+include = ["src", "entrypoints", "tests"]
 exclude = [
     "**/node_modules",
     "**/__pycache__",
     ".venv",
-    "test_targets",
-    "fixtures",
+    "data",
+    "**/test_targets",
     "**/fixtures",
-    "output",
+    "**/output",
 ]
 typeCheckingMode = "basic"
 venvPath = "."

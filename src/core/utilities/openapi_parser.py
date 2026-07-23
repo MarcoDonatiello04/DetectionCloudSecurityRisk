@@ -24,8 +24,8 @@ def load_openapi_spec(
     """
     if not search_paths:
         search_paths = [
-            "test_targets/bola/openapi.yaml",
-            "../test_targets/bola/openapi.yaml",
+            "data/test_targets/bola/openapi.yaml",
+            "../data/test_targets/bola/openapi.yaml",
             "./openapi.yaml",
             "openapi.json",
         ]

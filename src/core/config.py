@@ -12,7 +12,7 @@ DEFAULT_PLUGINS_DIR = os.getenv("PLUGINS_DIR", "src/plugins")
 DEFAULT_OUTPUT_DIR = os.getenv("OUTPUT_DIR", "output")
 DEFAULT_TRAFFIC_FILE = os.getenv("TRAFFIC_FILE", "soluzione_api/src/output/raw_traffic.json")
 DEFAULT_FALLBACK_TRAFFIC_FILE = "output/raw_traffic.json"
-DEFAULT_OPENAPI_SPEC_PATH = os.getenv("OPENAPI_SPEC_PATH", "test_targets/bola/openapi.yaml")
+DEFAULT_OPENAPI_SPEC_PATH = os.getenv("OPENAPI_SPEC_PATH", "data/test_targets/bola/openapi.yaml")
 
 REPORT_FINDINGS_FILENAME = "unified_security_report.json"
 REPORT_INVENTORY_FILENAME = "unified_api_inventory.json"

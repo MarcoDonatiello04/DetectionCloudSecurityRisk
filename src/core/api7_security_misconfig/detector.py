@@ -11,8 +11,6 @@ from src.core.api7_security_misconfig.rules import (
     missing_security_headers,
     verbose_error_handler,
 )
-from src.domain.entities import Finding, ScanTarget
-from src.domain.interfaces import IVulnerabilityDetector
 
 logger = logging.getLogger(__name__)
 
@@ -103,22 +101,3 @@ def _build_summary(findings: list[MisconfigFinding]) -> dict:
             for cat in ("MISCONFIGURATION", "SECRETS")
         },
     }
-
-
-class Api7SecurityMisconfigDetector(IVulnerabilityDetector):
-    """
-    Rilevatore di vulnerabilità OWASP API7: Security Misconfiguration.
-    """
-
-    @property
-    def detector_id(self) -> str:
-        return "API7_SECURITY_MISCONFIG"
-
-    @property
-    def name(self) -> str:
-        return "Security Misconfiguration Detector"
-
-    def analyze(self, target: ScanTarget) -> list[Finding]:
-        target_path = target.target_path or "."
-        report = analyze(target_path)
-        return report.findings

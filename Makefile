@@ -36,26 +36,26 @@ api-security:
 DASHBOARD_PORT ?= 8000
 REPO_TARGET_URL ?= http://localhost:5000
 
-## Esegue la scansione BOLA su una repository target cooperante (vedi test_targets/repo_target)
+## Esegue la scansione BOLA su una repository target cooperante (vedi data/test_targets/repo_target)
 bola-repo-target:
 	@PYTHONPATH=. $(PY) entrypoints/runners/run_bola_repo_target.py \
 		--target-url $(REPO_TARGET_URL) \
-		--openapi test_targets/repo_target/openapi.yaml
+		--openapi data/test_targets/repo_target/openapi.yaml
 
 ## Estrae l'inventario degli endpoint (Semgrep) dalla repo target cooperante
 semgrep-repo-target:
 	@PYTHONPATH=. $(PY) entrypoints/runners/run_semgrep_repo_target.py \
-		--target test_targets/repo_target
+		--target data/test_targets/repo_target
 
 ## Analizza il contratto OpenAPI della repo target (Spectral, ruleset OWASP)
 spectral-repo-target:
 	@PYTHONPATH=. $(PY) entrypoints/runners/run_spectral_repo_target.py \
-		--openapi test_targets/repo_target/openapi.yaml
+		--openapi data/test_targets/repo_target/openapi.yaml
 
 ## Esegue i moduli Core non-BOLA (Broken Auth, BOPLA, BFLA, SSRF, URC, ...) sulla repo target
 core-modules-repo-target:
 	@PYTHONPATH=. $(PY) entrypoints/runners/run_unified_core_scanners.py \
-		--repo-path test_targets/repo_target \
+		--repo-path data/test_targets/repo_target \
 		--output-dir output/repo_target/core_modules \
 		--skip-bola
 
@@ -88,7 +88,7 @@ dashboard: stop-dashboard
 clean:
 	@echo "=> Cleaning up environment..."
 	@docker compose down -v
-	@rm -rf test_targets/repo_target/terraform/.terraform
-	@rm -f test_targets/repo_target/terraform/*.tfstate*
+	@rm -rf data/test_targets/repo_target/terraform/.terraform
+	@rm -f data/test_targets/repo_target/terraform/*.tfstate*
 	@rm -f config/environments/.target_env
 	@echo "=> Cleanup complete."

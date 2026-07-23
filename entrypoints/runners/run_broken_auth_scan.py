@@ -52,7 +52,7 @@ async def main():
     print("\n=== FASE 3: Authentication Intelligence Engine ===")
     # Load openapi.yaml if available
     openapi_spec = None
-    openapi_paths = ["test_targets/bola/openapi.yaml", "openapi.json", "swagger.json"]
+    openapi_paths = ["data/test_targets/bola/openapi.yaml", "openapi.json", "swagger.json"]
     for path in openapi_paths:
         if os.path.exists(path):
             try:

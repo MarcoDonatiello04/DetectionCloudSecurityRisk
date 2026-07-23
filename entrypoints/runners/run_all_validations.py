@@ -3,7 +3,7 @@
 entrypoints/runners/run_all_validations.py
 ==========================================
 Unified validation runner that runs:
-1. Main CLI Pipeline on `bola` (test_targets/bola)
+1. Main CLI Pipeline on `bola` (data/test_targets/bola)
 2. Broken Authentication Ground Truth Validation
 3. API8 (Security Misconfiguration) Ground Truth Validation
 4. API5 (Broken Function Level Authorization) Ground Truth Validation

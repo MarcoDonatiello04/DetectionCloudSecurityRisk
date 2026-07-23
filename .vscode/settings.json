@@ -3,8 +3,7 @@
   "python.analysis.pythonPath": "${workspaceFolder}/.venv/bin/python",
   "python.analysis.extraPaths": [
     "${workspaceFolder}",
-    "${workspaceFolder}/src",
-    "${workspaceFolder}/remediation"
+    "${workspaceFolder}/src"
   ],
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoSearchPaths": true,
@@ -12,5 +11,17 @@
   "python.envFile": "${workspaceFolder}/.env",
   "terminal.integrated.env.osx": {
     "PYTHONPATH": "${workspaceFolder}"
-  }
+  },
+
+  "//": "Il progetto e Python. I servizi Java/Gradle sotto crAPI sono un target di scansione vendored (gira in Docker), non codice da compilare: import Java/Gradle disabilitato per evitare build fallite dell'estensione Java.",
+  "java.import.gradle.enabled": false,
+  "java.import.maven.enabled": false,
+  "java.import.exclusions": [
+    "**/node_modules/**",
+    "**/.metadata/**",
+    "**/test_targets/**",
+    "**/data/test_targets/**",
+    "**/crapi_repo/**"
+  ],
+  "java.configuration.updateBuildConfiguration": "disabled"
 }

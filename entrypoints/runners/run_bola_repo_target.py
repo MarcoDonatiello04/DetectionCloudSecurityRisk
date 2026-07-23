@@ -1,7 +1,7 @@
 """
 Runner BOLA su una repository target cooperante.
 
-Esegue lo stesso orchestratore D-AST usato per `test_targets/bola`, ma puntato a
+Esegue lo stesso orchestratore D-AST usato per `data/test_targets/bola`, ma puntato a
 un target arbitrario che rispetti il contratto cooperante (endpoint
 /test/seed, /test/snapshot, /test/rollback e fiducia nell'identity provider
 Keycloak condiviso). Gli endpoint da attaccare sono ricavati dalla specifica
@@ -16,7 +16,7 @@ Prerequisiti a runtime (come per il BOLA classico):
 Esempio:
   PYTHONPATH=. .venv/bin/python entrypoints/runners/run_bola_repo_target.py \
       --target-url http://localhost:5000 \
-      --openapi test_targets/repo_target/openapi.yaml
+      --openapi data/test_targets/repo_target/openapi.yaml
 """
 
 from __future__ import annotations
@@ -59,7 +59,7 @@ def main() -> int:
     parser.add_argument("--target-url", default="http://localhost:5000")
     parser.add_argument("--keycloak-url", default="http://localhost:8080")
     parser.add_argument("--zap-url", default="http://localhost:8090")
-    parser.add_argument("--openapi", default="test_targets/repo_target/openapi.yaml")
+    parser.add_argument("--openapi", default="data/test_targets/repo_target/openapi.yaml")
     parser.add_argument("--output-dir", default="output/repo_target")
     parser.add_argument(
         "--assessment-mode",

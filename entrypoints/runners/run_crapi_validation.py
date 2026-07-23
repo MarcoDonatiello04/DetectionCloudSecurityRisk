@@ -19,7 +19,7 @@ from src.core.api2_broken_auth import (
 
 
 async def main():
-    repo_path = "test_targets/crapi_repo"
+    repo_path = "data/test_targets/crapi_repo"
     config = discovery.Config()
 
     # Configure base target URL to crAPI ingress gateway
@@ -56,7 +56,7 @@ async def main():
 
     print("\n=== [3] FASE 3: Authentication Intelligence Engine ===")
     openapi_spec = None
-    openapi_path = "test_targets/crapi_repo/openapi-spec/crapi-openapi-spec.json"
+    openapi_path = "data/test_targets/crapi_repo/openapi-spec/crapi-openapi-spec.json"
     if os.path.exists(openapi_path):
         try:
             with open(openapi_path, encoding="utf-8") as f:

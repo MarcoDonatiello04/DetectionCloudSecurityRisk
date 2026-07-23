@@ -12,8 +12,6 @@ from src.core.api10_unsafe_consumption.rules import (
     http_instead_of_https,
     unvalidated_external_data,
 )
-from src.domain.entities import Finding, ScanTarget
-from src.domain.interfaces import IVulnerabilityDetector
 
 logger = logging.getLogger(__name__)
 
@@ -99,22 +97,3 @@ def _build_summary(findings: list[UnsafeConsumptionFinding]) -> dict:
             for cat in {f.category for f in findings}
         },
     }
-
-
-class Api10UnsafeConsumptionDetector(IVulnerabilityDetector):
-    """
-    Rilevatore di vulnerabilità OWASP API10: Unsafe Consumption of APIs.
-    """
-
-    @property
-    def detector_id(self) -> str:
-        return "API10_UNSAFE_CONSUMPTION"
-
-    @property
-    def name(self) -> str:
-        return "Unsafe Consumption Detector"
-
-    def analyze(self, target: ScanTarget) -> list[Finding]:
-        target_path = target.target_path or "."
-        report = analyze(target_path)
-        return report.findings

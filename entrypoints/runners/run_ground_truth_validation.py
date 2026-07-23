@@ -33,8 +33,8 @@ from pathlib import Path
 # Paths — all relative to project root
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-VULN_APP_DIR = PROJECT_ROOT / "test_targets/broken_authentication" / "vulnerable_app"
-SECURE_APP_DIR = PROJECT_ROOT / "test_targets/broken_authentication" / "secure_app"
+VULN_APP_DIR = PROJECT_ROOT / "data/test_targets/broken_authentication" / "vulnerable_app"
+SECURE_APP_DIR = PROJECT_ROOT / "data/test_targets/broken_authentication" / "secure_app"
 OUTPUT_DIR = PROJECT_ROOT / "validation_results"
 
 VULN_PORT = 5001

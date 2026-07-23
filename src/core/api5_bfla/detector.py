@@ -11,8 +11,6 @@ from src.core.api5_bfla.models import (
     FunctionAuthzFinding,
     FunctionAuthzReport,
 )
-from src.domain.entities import Finding, ScanTarget
-from src.domain.interfaces import IVulnerabilityDetector
 
 
 def _build_coverage_signals(
@@ -150,22 +148,3 @@ def analyze_content(content: str, filename: str = "app.py") -> FunctionAuthzRepo
         file_path = Path(tmpdir) / filename
         file_path.write_text(content, encoding="utf-8")
         return analyze(str(tmpdir))
-
-
-class Api5BflaDetector(IVulnerabilityDetector):
-    """
-    Rilevatore di vulnerabilità OWASP API5: Broken Function Level Authorization (BFLA).
-    """
-
-    @property
-    def detector_id(self) -> str:
-        return "API5_BFLA"
-
-    @property
-    def name(self) -> str:
-        return "Broken Function Level Authorization Detector"
-
-    def analyze(self, target: ScanTarget) -> list[Finding]:
-        target_path = target.target_path or "."
-        report = analyze(target_path, openapi_spec=target.openapi_spec)
-        return report.findings
