@@ -1,6 +1,6 @@
 from src.application.correlation.engine import RiskCorrelationEngine
 from src.application.event_bus import EventBus
-from src.domain.entities import Finding, FindingCategory, FindingSource, Severity, ValidationStatus
+from src.domain.entities import Finding, FindingCategory, FindingSource, Severity
 from src.normalization.normalizer import APIEndpointNormalizer
 
 
@@ -62,8 +62,8 @@ def test_risk_correlation():
     assert len(correlated) == 1
     corr_finding = correlated[0]
 
-    # Dovrebbe essere convalidato (CONFIRMED)
-    assert corr_finding.validation_status == ValidationStatus.CONFIRMED
+    # Riscontro empirico associato al finding
+    assert corr_finding.runtime_evidence is not None
     # Severity elevata da HIGH a CRITICAL
     assert corr_finding.severity == Severity.CRITICAL
     assert corr_finding.confidence == 1.0

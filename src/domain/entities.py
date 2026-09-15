@@ -87,16 +87,36 @@ class FindingSource(Enum):
     ZAP_DAST = "ZAP_DAST"
 
 
-class ValidationStatus(Enum):
+class FindingNature(Enum):
     """
-    Rappresenta lo stato di convalida empirica di un Finding.
+    Natura del rischio modellato dal Finding, indipendente dallo scanner sorgente.
+
+    - EXPOSURE: la configurazione apre un varco sfruttabile direttamente da un attaccante
+      (ACL pubblica, policy IAM con privilegi jolly, endpoint senza autenticazione, segreto
+      cablato).
+    - HARDENING: linea di difesa in profondità o requisito di conformità non soddisfatto
+      (logging, versioning, notifiche, lifecycle) che da solo non costituisce un accesso.
+
+    Un Finding privo di natura (None) è "non classificato" e mantiene il comportamento storico.
     """
 
-    NOT_VALIDATED = "NOT_VALIDATED"
-    CONFIRMED = "CONFIRMED"
-    FALSE_POSITIVE = "FALSE_POSITIVE"
-    PARTIALLY_CONFIRMED = "PARTIALLY_CONFIRMED"
-    ERROR = "ERROR"
+    EXPOSURE = "EXPOSURE"
+    HARDENING = "HARDENING"
+
+    @property
+    def rank(self) -> int:
+        """
+        Ordine di precedenza in fase di aggregazione per risorsa: prima le esposizioni,
+        poi i finding non classificati (rank 1, vedi ``Finding.nature_rank``), infine l'hardening.
+
+        Returns:
+            int: Posizione ordinale (0 = massima priorità).
+        """
+        return _NATURE_RANK[self]
+
+
+_NATURE_RANK = {FindingNature.EXPOSURE: 0, FindingNature.HARDENING: 2}
+NATURE_RANK_UNCLASSIFIED = 1
 
 
 @dataclass(frozen=True)
@@ -177,7 +197,6 @@ class Finding:
     location: CodeLocation | None = None
     api: APIContext | None = None
 
-    validation_status: ValidationStatus = ValidationStatus.NOT_VALIDATED
     runtime_evidence: RuntimeEvidence | None = None
     risk_context: RiskContext | None = None
 
@@ -193,6 +212,31 @@ class Finding:
     references: list[str] = field(default_factory=list)
     raw_data: dict[str, Any] = field(default_factory=dict)
     detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+    # Natura del rischio (esposizione vs irrobustimento). None = non classificato.
+    nature: FindingNature | None = None
+
+    @property
+    def is_directly_exploitable(self) -> bool:
+        """
+        Indica se il Finding rappresenta un varco d'accesso sfruttabile direttamente,
+        anziché una mancata linea di difesa in profondità.
+
+        Returns:
+            bool: True se la natura è EXPOSURE.
+        """
+        return self.nature == FindingNature.EXPOSURE
+
+    @property
+    def nature_rank(self) -> int:
+        """
+        Rank di precedenza usato dal motore di correlazione per scegliere la voce
+        rappresentativa di una risorsa: EXPOSURE (0) < non classificato (1) < HARDENING (2).
+
+        Returns:
+            int: Posizione ordinale della natura.
+        """
+        return self.nature.rank if self.nature else NATURE_RANK_UNCLASSIFIED
 
     @classmethod
     def create(
@@ -292,7 +336,6 @@ class Finding:
             }
             if self.api
             else None,
-            "validation_status": self.validation_status.value,
             "runtime_evidence": {
                 "tested_url": self.runtime_evidence.tested_url,
                 "http_status": self.runtime_evidence.http_status,
@@ -320,6 +363,7 @@ class Finding:
             "cwe_id": self.cwe_id,
             "cve_id": self.cve_id,
             "remediation": self.remediation,
+            "nature": self.nature.value if self.nature else None,
             "tags": self.tags,
             "references": self.references,
             "raw_data": self.raw_data,

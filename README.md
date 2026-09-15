@@ -26,6 +26,7 @@ La piattaforma è progettata seguendo una **Clean Architecture** event-driven e 
    - **Mitmproxy Addon**: Intercetta ed estrae il traffico di rete reale a runtime per raccogliere evidenze di chiamate non autorizzate o endpoint non documentati (Shadow APIs).
 4. **Risk Correlation & Scoring**:
    - **RiskCorrelationEngine**: Unisce i findings statici e dinamici mediante chiavi basate su URL normalizzati (tramite `APIEndpointNormalizer`). In presenza di verifiche empiriche positive (es: exploit confermato a runtime), eleva la severità a `CRITICAL` o `HIGH` e ricalcola il punteggio di rischio normalizzato (0-10) in base al contesto.
+   - **Esposizione vs Irrobustimento** (`FindingNature`, [ADR-004](docs/adr/adr-004-finding-nature.md)): ogni controllo Checkov è classificato dal catalogo `config/scanner_configs/checkov-policy-catalog.yaml` come `EXPOSURE` (varco sfruttabile: ACL pubblica, policy IAM `*`, endpoint senza autorizzazione, segreto cablato) o `HARDENING` (difesa in profondità: logging, versioning, lifecycle, notifiche). La voce aggregata per risorsa è sempre l'esposizione di severità maggiore — mai il primo controllo incontrato — e l'hardening non riceve il bonus di contesto nel punteggio.
 
 ---
 
@@ -259,7 +260,6 @@ PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
       "api_version": null,
       "requires_authentication": false
     },
-    "validation_status": "CONFIRMED",
     "runtime_evidence": {
       "tested_url": "http://localhost:5000/api/orders/100",
       "http_status": 200,

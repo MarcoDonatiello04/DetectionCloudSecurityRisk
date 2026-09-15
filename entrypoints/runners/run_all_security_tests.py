@@ -349,11 +349,7 @@ def print_unified_summary(ba_results, bopla_data, bola_findings):
     # 3. BOLA Summary
     print("\n[+] 3. BOLA (Broken Object Level Authorization)")
     if bola_findings is not None:
-        vulnerable = sum(
-            1
-            for f in bola_findings
-            if f.validation_status.value == "CONFIRMED" and f.rule_id != "dynamic-test-secure"
-        )
+        vulnerable = sum(1 for f in bola_findings if f.rule_id != "dynamic-test-secure")
         secure = sum(1 for f in bola_findings if f.rule_id == "dynamic-test-secure")
         print(f"    - Total endpoints evaluated: {len(bola_findings)}")
         print(f"    - Confirmed BOLA Vulnerable: {vulnerable}")

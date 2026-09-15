@@ -391,6 +391,26 @@
         .severity-badge.medium { background: var(--bg-med); color: var(--text-med); border-color: var(--border-med); }
         .severity-badge.low { background: var(--bg-low); color: var(--text-low); border-color: var(--border-low); }
 
+        /* Natura del rischio: esposizione sfruttabile vs irrobustimento (difesa in profondità) */
+        .nature-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        .nature-badge.exposure { background: var(--bg-high); color: var(--text-high); border-color: var(--border-high); }
+        .nature-badge.hardening { background: var(--bg-low); color: var(--text-low); border-color: var(--border-low); }
+
+        .finding-aggregated {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
         .toggle-arrow {
             color: var(--text-secondary);
             transition: transform 0.25s ease;
@@ -837,7 +857,20 @@
 
             let crit = 0, high = 0, med = 0, low = 0;
 
-            findings.forEach(f => {
+            // Prioritizzazione: prima le esposizioni sfruttabili, poi i non classificati,
+            // infine l'hardening; a parità di natura, per severità decrescente.
+            const natureRank = { 'EXPOSURE': 0, 'HARDENING': 2 };
+            const severityRank = { 'critical': 0, 'high': 1, 'medium': 2, 'low': 3, 'info': 4 };
+            const sorted = [...findings].sort((a, b) => {
+                const na = natureRank[a.nature] ?? 1;
+                const nb = natureRank[b.nature] ?? 1;
+                if (na !== nb) return na - nb;
+                const sa = severityRank[(a.severity || 'medium').toLowerCase()] ?? 2;
+                const sb = severityRank[(b.severity || 'medium').toLowerCase()] ?? 2;
+                return sa - sb;
+            });
+
+            sorted.forEach(f => {
                 try {
                     const sev = (f.severity || 'medium').toLowerCase();
                     let badgeClass = 'medium';
@@ -852,6 +885,23 @@
                     const lineStr = line ? `L${line}` : '';
                     const ruleCode = f.rule_id ? `${f.rule_id} • ` : '';
 
+                    // Badge di natura (assente per i finding non classificati)
+                    let natureHtml = '';
+                    if (f.nature === 'EXPOSURE') {
+                        natureHtml = `<span class="nature-badge exposure" title="Varco sfruttabile direttamente da un attaccante">Esposizione</span>`;
+                    } else if (f.nature === 'HARDENING') {
+                        natureHtml = `<span class="nature-badge hardening" title="Linea di difesa in profondità mancante">Hardening</span>`;
+                    }
+
+                    // Controlli assorbiti sulla stessa risorsa (sotto-elementi informativi)
+                    const aggregated = (f.raw_data && Array.isArray(f.raw_data.aggregated_checks)) ? f.raw_data.aggregated_checks : [];
+                    const hardeningCount = aggregated.filter(c => c.nature === 'HARDENING').length;
+                    let aggregatedHtml = '';
+                    if (aggregated.length > 0) {
+                        const detail = hardeningCount > 0 ? ` (${hardeningCount} di hardening)` : '';
+                        aggregatedHtml = `<span class="finding-aggregated" title="${escapeHtml(aggregated.map(c => c.rule_id + ': ' + c.title).join('\n'))}">+${aggregated.length} controlli sulla stessa risorsa${detail}</span>`;
+                    }
+
                     const item = document.createElement('div');
                     item.className = 'finding-item';
                     item.dataset.loaded = "false";
@@ -861,9 +911,10 @@
                         <div class="finding-row">
                             <div class="finding-meta">
                                 <span class="finding-title">${f.title}</span>
-                                <span class="finding-path" title="${fullPath}">${ruleCode}${filename} ${lineStr}</span>
+                                <span class="finding-path" title="${fullPath}">${ruleCode}${filename} ${lineStr}${aggregatedHtml}</span>
                             </div>
                             <div class="finding-badge-container">
+                                ${natureHtml}
                                 <span class="severity-badge ${badgeClass}">${sev}</span>
                                 <div class="toggle-arrow">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

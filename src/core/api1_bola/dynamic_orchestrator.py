@@ -602,7 +602,6 @@ class DynamicOrchestrator:
             FindingSource,
             RuntimeEvidence,
             Severity,
-            ValidationStatus,
         )
 
         dast_findings = []
@@ -652,7 +651,6 @@ class DynamicOrchestrator:
                     runtime_evidence=evidence,
                     correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}",
                 )
-                finding.validation_status = ValidationStatus.CONFIRMED
             else:
                 finding = Finding.create(
                     source=FindingSource.RUNTIME_VALIDATOR,
@@ -673,7 +671,6 @@ class DynamicOrchestrator:
                     runtime_evidence=evidence,
                     correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}",
                 )
-                finding.validation_status = ValidationStatus.CONFIRMED
 
             dast_findings.append(finding)
 

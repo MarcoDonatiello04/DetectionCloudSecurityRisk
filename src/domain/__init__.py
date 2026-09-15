@@ -8,12 +8,12 @@ from src.domain.entities import (
     CodeLocation,
     Finding,
     FindingCategory,
+    FindingNature,
     FindingSource,
     RiskContext,
     RuntimeEvidence,
     ScanTarget,
     Severity,
-    ValidationStatus,
 )
 from src.domain.events import (
     EVENT_FINDING_DETECTED,
@@ -45,6 +45,7 @@ __all__ = [
     "DomainEvent",
     "Finding",
     "FindingCategory",
+    "FindingNature",
     "FindingSource",
     "IDetector",
     "IEventBus",
@@ -58,5 +59,4 @@ __all__ = [
     "ScanTarget",
     "SecurityPlatformException",
     "Severity",
-    "ValidationStatus",
 ]

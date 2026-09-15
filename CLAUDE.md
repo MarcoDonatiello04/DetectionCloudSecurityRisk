@@ -57,10 +57,10 @@ Le scansioni senza BOLA (statiche + D-AST leggero) impiegano circa 15-20 secondi
 
 Clean Architecture event-driven, quattro fasi logiche:
 
-1. **Discovery & Static Analysis (IaC & AST)** — `src/infrastructure/adapters/`: `checkov_adapter.py` (Terraform misconfiguration), `semgrep_adapter.py` (mapping rotte API + stato auth), `spectral_adapter.py` (contratti OpenAPI vs OWASP API Top 10).
+1. **Discovery & Static Analysis (IaC & AST)** — `src/infrastructure/adapters/`: `checkov_adapter.py` (Terraform misconfiguration; natura e severità di ogni controllo vengono dal catalogo semantico `config/scanner_configs/checkov-policy-catalog.yaml` tramite `checkov_policy_catalog.py` — le parole chiave operano sul nome ufficiale del controllo, non sull'ID opaco `CKV_AWS_53`; senza catalogo tutto resta "non classificato/MEDIUM"), `semgrep_adapter.py` (mapping rotte API + stato auth), `spectral_adapter.py` (contratti OpenAPI vs OWASP API Top 10).
 2. **Dynamic Seeding** — popola deterministicamente lo stato dell'app target (utenti `user_a`/`user_b` su Keycloak) prima degli attacchi attivi, per evitare race condition.
 3. **Attack & Runtime Stimulation (D-AST)** — `zap_adapter.py` (differential scan con token di `user_a` vs `user_b` vs anonimo per BOLA/Broken Auth) e `src/infrastructure/adapters/mitmproxy/addon.py` (cattura traffico reale per scovare Shadow API).
-4. **Risk Correlation & Scoring** — `src/application/correlation/engine.py`: unisce findings statici e dinamici tramite chiavi su URL normalizzati (`src/normalization/normalizer.py`, classe `APIEndpointNormalizer`); in presenza di conferma empirica runtime eleva la severità e ricalcola il risk score (0-10, vedi `docs/adr/adr-001-risk-scoring.md` per la formula pesata).
+4. **Risk Correlation & Scoring** — `src/application/correlation/engine.py`: unisce findings statici e dinamici tramite chiavi su URL normalizzati (`src/normalization/normalizer.py`, classe `APIEndpointNormalizer`); in presenza di conferma empirica runtime eleva la severità e ricalcola il risk score (0-10, vedi `docs/adr/adr-001-risk-scoring.md` per la formula pesata). Quando più findings condividono la stessa risorsa, la voce rappresentativa è scelta per **natura** (`FindingNature`: `EXPOSURE` > non classificato > `HARDENING`) e poi per severità, mai "il primo incontrato"; i controlli assorbiti restano in `raw_data["aggregated_checks"]`. I finding `HARDENING` non ricevono il bonus di contesto (`DEFAULT_CONTEXT_HARDENING`). Vedi `docs/adr/adr-004-finding-nature.md`.
 
 ### Layer principali (`src/`)
 

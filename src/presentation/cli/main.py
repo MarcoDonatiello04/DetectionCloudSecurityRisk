@@ -311,7 +311,10 @@ def _build_endpoint_catalog(findings: list[Finding]) -> list[dict[str, Any]]:
                 if ep_entry["bola_status"] not in ("VULNERABLE", "POTENTIAL"):
                     ep_entry["bola_status"] = "SAFE"
             else:
-                if f.validation_status.value == "CONFIRMED":
+                if (
+                    f.source.value in ("ZAP_DAST", "RUNTIME_VALIDATOR")
+                    or f.runtime_evidence is not None
+                ):
                     ep_entry["bola_status"] = "VULNERABLE"
                 elif ep_entry["bola_status"] not in ("VULNERABLE", "SAFE"):
                     ep_entry["bola_status"] = "POTENTIAL"

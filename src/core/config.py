@@ -22,6 +22,10 @@ BOLA_RESULTS_FILENAME = "bola_scan_results.json"
 DEFAULT_SEMGREP_RULESET_PATH = "config/scanner_configs/route-detect.yaml"
 DEFAULT_SEMGREP_OUTPUT_FILE = "semgrep_routes_discovered.json"
 DEFAULT_CHECKOV_CONFIG = ".checkov.yaml"
+# Catalogo semantico delle policy Checkov (natura EXPOSURE/HARDENING + severità di base)
+DEFAULT_CHECKOV_POLICY_CATALOG = os.getenv(
+    "CHECKOV_POLICY_CATALOG", "config/scanner_configs/checkov-policy-catalog.yaml"
+)
 
 # ─── SERVIZI E URL (MICROSERVIZI / CONTAINERS / PROXY) ───────────────────────
 DEFAULT_KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "http://localhost:8080")
@@ -68,6 +72,9 @@ CONTEXT_SCORE_PUBLIC_RESOURCE = 2.0
 
 DEFAULT_CONTEXT_AUTHENTICATION_AUTHORIZATION = 6.0
 DEFAULT_CONTEXT_OTHER = 3.0
+# I finding di irrobustimento (nature=HARDENING) non ricevono il bonus di esposizione:
+# una linea di difesa mancante non è di per sé un vettore d'accesso.
+DEFAULT_CONTEXT_HARDENING = 0.0
 
 MAX_RISK_SCORE = 10.0
 CONFIDENCE_NORMALIZER = 10.0
