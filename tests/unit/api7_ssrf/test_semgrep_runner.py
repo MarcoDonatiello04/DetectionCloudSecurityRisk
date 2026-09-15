@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.core.api8_ssrf.semgrep_runner import (
+from src.core.api7_ssrf.semgrep_runner import (
     SemgrepExecutionError,
     SemgrepTimeoutError,
     check_semgrep_available,
@@ -19,7 +19,7 @@ def test_semgrep_available():
 
 
 PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").exists())
-SSRF_DIR = PROJECT_ROOT / "src" / "core" / "api8_ssrf"
+SSRF_DIR = PROJECT_ROOT / "src" / "core" / "api7_ssrf"
 
 
 def test_run_semgrep_on_vulnerable_fixture():

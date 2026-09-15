@@ -19,7 +19,6 @@
       "code_snippet": null
     },
     "api": null,
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "openapi:openapi.yaml:oas3-api-servers",
@@ -69,7 +68,6 @@
       "code_snippet": null
     },
     "api": null,
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "openapi:openapi.yaml:info-contact",
@@ -127,7 +125,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/invoices/{id}:GET:operation-description",
@@ -187,7 +184,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/invoices/{id}:GET:operation-operationId",
@@ -247,7 +243,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/invoices/{id}:GET:operation-tags",
@@ -307,7 +302,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/invoices/{id}:GET:owasp-api2-operation-security",
@@ -367,7 +361,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/invoices/{id}:GET:owasp-api9-documented-endpoint",
@@ -427,7 +420,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:DELETE:operation-description",
@@ -487,7 +479,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:DELETE:operation-operationId",
@@ -547,7 +538,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:DELETE:operation-tags",
@@ -607,7 +597,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:DELETE:owasp-api2-operation-security",
@@ -667,7 +656,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:DELETE:owasp-api9-documented-endpoint",
@@ -727,7 +715,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:GET:operation-description",
@@ -787,7 +774,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:GET:operation-operationId",
@@ -847,7 +833,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:GET:operation-tags",
@@ -907,7 +892,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:GET:owasp-api2-operation-security",
@@ -967,7 +951,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:GET:owasp-api9-documented-endpoint",
@@ -1027,7 +1010,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:PUT:operation-description",
@@ -1087,7 +1069,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:PUT:operation-operationId",
@@ -1147,7 +1128,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:PUT:operation-tags",
@@ -1207,7 +1187,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:PUT:owasp-api2-operation-security",
@@ -1267,7 +1246,6 @@
       "api_version": null,
       "requires_authentication": null
     },
-    "validation_status": "NOT_VALIDATED",
     "runtime_evidence": null,
     "risk_context": null,
     "correlation_key": "spectral:/api/projects/{id}:PUT:owasp-api9-documented-endpoint",

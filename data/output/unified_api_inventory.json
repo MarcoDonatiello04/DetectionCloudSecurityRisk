@@ -71,7 +71,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/admin:GET:owasp-api2-operation-security",
@@ -208,7 +207,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/api/v1/admin/settings",
@@ -255,7 +253,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/admin/settings:GET:owasp-api2-operation-security",
@@ -365,7 +362,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:POST:/api/v1/admin/settings",
@@ -412,7 +408,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/admin/settings:POST:owasp-api2-operation-security",
@@ -522,7 +517,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/api/v1/admin/users",
@@ -569,7 +563,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/admin/users:GET:owasp-api2-operation-security",
@@ -679,7 +672,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:POST:/api/v1/admin/users/{id}/promote",
@@ -735,7 +727,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/admin/users/{user_id}/promote:POST:owasp-api2-operation-security",
@@ -845,7 +836,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:POST:/api/v1/auth/login",
@@ -892,7 +882,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/auth/login:POST:owasp-api2-operation-security",
@@ -1002,7 +991,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:POST:/api/v1/auth/reset-password",
@@ -1049,7 +1037,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/auth/reset-password:POST:owasp-api2-operation-security",
@@ -1145,7 +1132,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/debug/dump-database:POST:owasp-api2-operation-security",
@@ -1255,7 +1241,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/api/v1/export/data",
@@ -1302,7 +1287,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/export/data:GET:owasp-api2-operation-security",
@@ -1412,7 +1396,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:DELETE:/api/v1/orders/{id}",
@@ -1468,7 +1451,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/orders/{order_id}:DELETE:owasp-api2-operation-security",
@@ -1578,7 +1560,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/api/v1/orders/{id}",
@@ -1634,7 +1615,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/orders/{order_id}:GET:owasp-api2-operation-security",
@@ -1744,7 +1724,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/api/v1/search",
@@ -1791,7 +1770,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/search:GET:owasp-api2-operation-security",
@@ -1901,7 +1879,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:DELETE:/api/v1/users/{id}",
@@ -1957,7 +1934,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/users/{user_id}:DELETE:owasp-api2-operation-security",
@@ -2067,7 +2043,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/api/v1/users/{id}",
@@ -2123,7 +2098,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/users/{user_id}:GET:owasp-api2-operation-security",
@@ -2233,7 +2207,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:PUT:/api/v1/users/{id}",
@@ -2289,7 +2262,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v1/users/{user_id}:PUT:owasp-api2-operation-security",
@@ -2399,7 +2371,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/api/v2/profile/{id}",
@@ -2455,7 +2426,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v2/profile/{user_id}:GET:owasp-api2-operation-security",
@@ -2565,7 +2535,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/api/v2/profile/{id}/documents",
@@ -2621,7 +2590,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/api/v2/profile/{user_id}/documents:GET:owasp-api2-operation-security",
@@ -2731,7 +2699,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/debug:GET:owasp-api2-operation-security",
@@ -2834,7 +2801,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/login:GET:owasp-api2-operation-security",
@@ -2944,7 +2910,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/login:POST:owasp-api2-operation-security",
@@ -3047,7 +3012,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/notes:GET:owasp-api2-operation-security",
@@ -3157,7 +3121,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/notes:POST:owasp-api2-operation-security",
@@ -3260,7 +3223,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/robots.txt:GET:owasp-api2-operation-security",
@@ -3370,7 +3332,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/search:GET:owasp-api2-operation-security",
@@ -3473,7 +3434,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/sitemap.xml:GET:owasp-api2-operation-security",
@@ -3583,7 +3543,6 @@
           "api_version": null,
           "requires_authentication": false
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "api:GET:/test",
@@ -3630,7 +3589,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/test:GET:owasp-api2-operation-security",
@@ -3733,7 +3691,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/upload:GET:owasp-api2-operation-security",
@@ -3843,7 +3800,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/upload:POST:owasp-api2-operation-security",
@@ -3953,7 +3909,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/users:GET:owasp-api2-operation-security",
@@ -4063,7 +4018,6 @@
           "api_version": null,
           "requires_authentication": null
         },
-        "validation_status": "NOT_VALIDATED",
         "runtime_evidence": null,
         "risk_context": null,
         "correlation_key": "spectral:/users/{id}:GET:owasp-api2-operation-security",

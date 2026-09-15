@@ -1,4 +1,4 @@
-from src.core.api8_ssrf.normalizer import (
+from src.core.api7_ssrf.normalizer import (
     _compute_confidence,
     _detect_allow_redirects,
     _detect_validation_type,

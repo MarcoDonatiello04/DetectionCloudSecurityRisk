@@ -80,7 +80,7 @@ def main():
         ),
         (
             "API8 Security Misconfiguration Ground Truth",
-            [sys.executable, "tests/unit/api7_security_misconfig/validate_ground_truth.py"],
+            [sys.executable, "tests/unit/api8_security_misconfig/validate_ground_truth.py"],
         ),
         (
             "API5 Broken Function Level Authorization Ground Truth",

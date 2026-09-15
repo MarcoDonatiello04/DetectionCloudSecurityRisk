@@ -1,9 +1,9 @@
 import logging
 from pathlib import Path
 
-from src.core.api8_ssrf import normalizer, semgrep_runner
-from src.core.api8_ssrf.layers import layer3_openapi
-from src.core.api8_ssrf.models import SsrfFinding, SsrfReport
+from src.core.api7_ssrf import normalizer, semgrep_runner
+from src.core.api7_ssrf.layers import layer3_openapi
+from src.core.api7_ssrf.models import SsrfFinding, SsrfReport
 
 logger = logging.getLogger(__name__)
 

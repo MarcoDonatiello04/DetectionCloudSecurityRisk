@@ -50,8 +50,8 @@ from src.core.api2_broken_auth import reporter as ba_reporter
 from src.core.api3_bopla.orchestrator import BOPLAOrchestrator
 from src.core.api4_resource_consumption import detector as urc_detector
 from src.core.api5_bfla import detector as bfla_detector
-from src.core.api7_security_misconfig import detector as secmis_detector
-from src.core.api8_ssrf import detector as ssrf_detector
+from src.core.api7_ssrf import detector as ssrf_detector
+from src.core.api8_security_misconfig import detector as secmis_detector
 from src.core.api10_unsafe_consumption import detector as uc_detector
 
 
@@ -250,13 +250,13 @@ async def main():
         },
         {
             "name": "Security Misconfiguration",
-            "dir": "api7_security_misconfig",
+            "dir": "api8_security_misconfig",
             "runner": lambda: secmis_detector.analyze(repo_path),
             "is_async": False,
         },
         {
             "name": "SSRF (Server Side Request Forgery)",
-            "dir": "api8_ssrf",
+            "dir": "api7_ssrf",
             "runner": lambda: ssrf_detector.analyze(repo_path, openapi_spec, semgrep_timeout=15),
             "is_async": False,
         },

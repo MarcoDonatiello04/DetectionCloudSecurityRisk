@@ -1,7 +1,7 @@
 import os
 import re
 
-from src.core.api8_ssrf.models import SsrfFinding
+from src.core.api7_ssrf.models import SsrfFinding
 
 
 def normalize_semgrep_output(semgrep_json: dict, target_path: str) -> list[SsrfFinding]:

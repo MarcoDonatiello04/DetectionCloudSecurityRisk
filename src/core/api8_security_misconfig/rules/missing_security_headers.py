@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from src.core.api7_security_misconfig.models import MisconfigFinding
+from src.core.api8_security_misconfig.models import MisconfigFinding
 
 SECURITY_HEADER_SIGNALS = [
     "Talisman(",

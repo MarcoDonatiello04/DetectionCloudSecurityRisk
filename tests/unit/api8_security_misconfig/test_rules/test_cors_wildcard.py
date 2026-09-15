@@ -1,7 +1,7 @@
 import ast
 from pathlib import Path
 
-from src.core.api7_security_misconfig.rules.cors_wildcard import analyze
+from src.core.api8_security_misconfig.rules.cors_wildcard import analyze
 
 
 def test_cors_wildcard_python_flask():

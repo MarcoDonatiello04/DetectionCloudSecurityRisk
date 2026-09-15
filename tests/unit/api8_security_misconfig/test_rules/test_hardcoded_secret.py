@@ -1,7 +1,7 @@
 import ast
 from pathlib import Path
 
-from src.core.api7_security_misconfig.rules.hardcoded_secret import analyze
+from src.core.api8_security_misconfig.rules.hardcoded_secret import analyze
 
 
 def test_hardcoded_secret():

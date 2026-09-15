@@ -434,8 +434,8 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     from src.core.api3_bopla.orchestrator import BOPLAOrchestrator
     from src.core.api4_resource_consumption import detector as urc_detector
     from src.core.api5_bfla import detector as bfla_detector
-    from src.core.api7_security_misconfig import detector as secmis_detector
-    from src.core.api8_ssrf import detector as ssrf_detector
+    from src.core.api7_ssrf import detector as ssrf_detector
+    from src.core.api8_security_misconfig import detector as secmis_detector
     from src.core.api10_unsafe_consumption import detector as uc_detector
 
     openapi_spec = load_openapi_spec()
@@ -743,7 +743,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     results.append(
         {
             "name": "Security Misconfiguration",
-            "dir": "src/core/api7_security_misconfig",
+            "dir": "src/core/api8_security_misconfig",
             "time": time.time() - start,
             "status": status,
             "findings": findings_count,
@@ -765,7 +765,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     results.append(
         {
             "name": "SSRF (Server Side Request Forgery)",
-            "dir": "src/core/api8_ssrf",
+            "dir": "src/core/api7_ssrf",
             "time": time.time() - start,
             "status": status,
             "findings": findings_count,

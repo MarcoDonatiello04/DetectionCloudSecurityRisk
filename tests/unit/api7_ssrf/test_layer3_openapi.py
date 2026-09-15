@@ -1,4 +1,4 @@
-from src.core.api8_ssrf.layers.layer3_openapi import analyze_openapi
+from src.core.api7_ssrf.layers.layer3_openapi import analyze_openapi
 
 
 def test_analyze_openapi_parameters():

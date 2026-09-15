@@ -1,6 +1,6 @@
 import logging
 
-from src.core.api8_ssrf.models import SsrfFinding
+from src.core.api7_ssrf.models import SsrfFinding
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ PROJECT_ROOT = next(p for p in Path(__file__).resolve().parents if (p / "pyproje
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.core.api7_security_misconfig import detector
+from src.core.api8_security_misconfig import detector
 
 GROUND_TRUTH = {
     "vulnerable_app": {

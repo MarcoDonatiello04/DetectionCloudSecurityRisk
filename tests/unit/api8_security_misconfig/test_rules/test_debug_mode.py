@@ -1,7 +1,7 @@
 import ast
 from pathlib import Path
 
-from src.core.api7_security_misconfig.rules.debug_mode import analyze
+from src.core.api8_security_misconfig.rules.debug_mode import analyze
 
 
 def test_debug_mode_flask():

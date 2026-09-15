@@ -2,7 +2,7 @@ import ast
 import math
 from pathlib import Path
 
-from src.core.api7_security_misconfig.models import MisconfigFinding
+from src.core.api8_security_misconfig.models import MisconfigFinding
 
 SENSITIVE_VAR_NAMES = {
     "secret",

@@ -1,4 +1,4 @@
-from src.core.api7_security_misconfig.rules.missing_security_headers import analyze_global
+from src.core.api8_security_misconfig.rules.missing_security_headers import analyze_global
 
 
 def test_security_headers_signals(tmp_path):

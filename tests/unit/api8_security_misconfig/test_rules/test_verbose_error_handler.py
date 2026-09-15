@@ -1,7 +1,7 @@
 import ast
 from pathlib import Path
 
-from src.core.api7_security_misconfig.rules.verbose_error_handler import analyze
+from src.core.api8_security_misconfig.rules.verbose_error_handler import analyze
 
 
 def test_verbose_errorhandler():

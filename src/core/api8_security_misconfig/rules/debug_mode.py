@@ -1,7 +1,7 @@
 import ast
 from pathlib import Path
 
-from src.core.api7_security_misconfig.models import MisconfigFinding
+from src.core.api8_security_misconfig.models import MisconfigFinding
 
 
 def analyze(tree: ast.AST | None, file_path: Path, content: str) -> list[MisconfigFinding]:

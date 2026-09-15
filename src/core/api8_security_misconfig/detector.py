@@ -3,8 +3,8 @@ import logging
 from collections.abc import Generator
 from pathlib import Path
 
-from src.core.api7_security_misconfig.models import MisconfigFinding, MisconfigReport
-from src.core.api7_security_misconfig.rules import (
+from src.core.api8_security_misconfig.models import MisconfigFinding, MisconfigReport
+from src.core.api8_security_misconfig.rules import (
     cors_wildcard,
     debug_mode,
     hardcoded_secret,
