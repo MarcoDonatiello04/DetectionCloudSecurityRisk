@@ -24,6 +24,7 @@ from src.core.utilities.url_utils import extract_resource_name_from_path
 from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
 from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
 from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
+from src.infrastructure.llm.ollama_adapter import OllamaAdapter
 from src.infrastructure.persistence.report_repository import ReportRepository
 
 logging.basicConfig(
@@ -32,7 +33,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 logger = logging.getLogger("SecurityPlatform.API")
-remediation_engine = RemediationEngine()
+remediation_engine = RemediationEngine(llm_provider=OllamaAdapter())
 
 
 app = FastAPI(

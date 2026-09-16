@@ -1,3 +1,8 @@
+import re
+from pathlib import Path
+
+import pytest
+
 from src.application.correlation.engine import RiskCorrelationEngine
 from src.application.event_bus import EventBus
 from src.domain.entities import Finding, FindingCategory, FindingSource, Severity
@@ -67,3 +72,24 @@ def test_risk_correlation():
     # Severity elevata da HIGH a CRITICAL
     assert corr_finding.severity == Severity.CRITICAL
     assert corr_finding.confidence == 1.0
+
+
+SRC_ROOT = Path(__file__).resolve().parents[2] / "src"
+_OUTER_LAYERS = re.compile(
+    r"^\s*(from|import)\s+src\.(infrastructure|presentation)\b", re.MULTILINE
+)
+
+
+@pytest.mark.parametrize("layer", ["domain", "application"])
+def test_inner_layers_do_not_import_outer_layers(layer):
+    """
+    Regola di dipendenza della Clean Architecture: dominio e applicazione non conoscono
+    infrastruttura e presentazione. Le realizzazioni concrete (adapter, provider LLM)
+    arrivano dal composition root tramite le interfacce di dominio.
+    """
+    offenders = [
+        str(path.relative_to(SRC_ROOT))
+        for path in (SRC_ROOT / layer).rglob("*.py")
+        if _OUTER_LAYERS.search(path.read_text(encoding="utf-8"))
+    ]
+    assert offenders == []

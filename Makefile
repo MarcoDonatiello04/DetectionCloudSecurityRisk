@@ -19,7 +19,7 @@ format:
 
 ## Esegue la suite di test con coverage
 test:
-	@$(PY) -m pytest --cov=src --cov=remediation --cov-report=term-missing
+	@$(PY) -m pytest --cov=src --cov-report=term-missing
 
 ## Quality gate completo (lo stesso della CI)
 check: lint test

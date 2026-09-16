@@ -131,8 +131,8 @@ strumenti risiede in un solo file, `pyproject.toml`.
 | `make test` | Esegue l'intera suite `pytest` con report di coverage |
 | `make check` | Quality gate completo: lint + test (identico alla CI) |
 
-**Stato attuale:** 351 test superati, 3 skippati, **76%** di copertura su
-`src/` e `remediation/`; `ruff check` e `ruff format --check` puliti su tutto
+**Stato attuale:** 390 test superati, 3 skippati, **73%** di copertura su
+`src/`; `ruff check` e `ruff format --check` puliti su tutto
 il codice di progetto.
 
 ### Organizzazione dei test
@@ -198,19 +198,15 @@ PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
 ├── config/
 │   ├── environments/          # Contiene le variabili d'ambiente generate (.target_env)
 │   └── scanner_configs/       # Contiene le configurazioni degli scanner (rulesets)
-├── remediation/               # Modulo offline di Remediation Intelligence
-│   ├── knowledge_base/        # Database locale delle remediation e cache locale
-│   ├── models/                # Modelli dei dati del modulo di remediation
-│   ├── llm_provider.py        # Integrazione offline con LLM locale (Ollama)
-│   └── remediation_engine.py  # Motore di raccomandazione ed elaborazione fallback
 ├── entrypoints/               # Punti di ingresso eseguibili
 │   ├── operations/            # Script bash di orchestrazione della pipeline
 │   └── runners/               # Runner Python per singoli moduli e validazioni
 ├── src/                       # Codice sorgente dell'Orchestratore di Sicurezza (Python)
-│   ├── application/           # Logica applicativa, Event Bus e Risk engine
+│   ├── application/           # Logica applicativa, Event Bus, Risk engine e RemediationEngine
 │   ├── core/                  # Logica principale D-AST (dynamic_orchestrator.py)
-│   ├── domain/                # Entità di dominio ed eccezioni (entities.py, events.py)
-│   ├── infrastructure/        # Adattatori infrastrutturali per gli scanner esterni
+│   ├── domain/                # Entità, eventi e porte (entities.py, events.py, interfaces.py)
+│   ├── infrastructure/        # Adapter per gli scanner esterni, provider LLM (llm/ollama_adapter.py)
+│   │                          # e knowledge base delle remediation (llm/knowledge_base/)
 │   ├── normalization/         # Modulo di normalizzazione URL delle API
 │   ├── plugins/               # Plugin detector (bola_detector, shadow_api_detector)
 │   └── presentation/          # API FastAPI, dashboard web e template HTML

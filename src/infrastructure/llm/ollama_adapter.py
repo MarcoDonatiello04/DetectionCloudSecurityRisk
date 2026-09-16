@@ -14,13 +14,14 @@ from typing import Any
 import requests
 
 from src.core.config import DEFAULT_OLLAMA_URL
+from src.domain.interfaces import ILlmProvider
 
 logger = logging.getLogger("SecurityPlatform.Remediation.LlmProvider")
 
 
-class LlmProvider:
+class OllamaAdapter(ILlmProvider):
     """
-    Gestore delle richieste dirette all'istanza locale di Ollama con simulatore locale integrato.
+    Realizzazione di ILlmProvider basata sull'istanza locale di Ollama, con simulatore offline integrato.
     """
 
     def __init__(self, base_url: str = DEFAULT_OLLAMA_URL):
@@ -359,4 +360,5 @@ resource "aws_s3_bucket_public_access_block" "block" {
             }
 
 
-OllamaAdapter = LlmProvider
+# Alias storico
+LlmProvider = OllamaAdapter

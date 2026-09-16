@@ -4,7 +4,7 @@ Responsabilità:
 - Ricevere un finding di sicurezza (o modello GUI).
 - Cercare la remediation nella Knowledge Base locale.
 - Gestire la cache locale delle remediation (local_cache.json).
-- Interrogare Ollama in caso di cache miss.
+- Interrogare il provider LLM iniettato (ILlmProvider) in caso di cache miss.
 - Gestire gli errori e fornire fallback leggibili offline.
 """
 
@@ -13,8 +13,8 @@ import logging
 import os
 from typing import Any
 
-from src.infrastructure.llm.models.remediation_model import RemediationModel
-from src.infrastructure.llm.ollama_adapter import LlmProvider
+from src.domain.interfaces import ILlmProvider
+from src.domain.remediation_model import RemediationModel
 
 logger = logging.getLogger("SecurityPlatform.Remediation.Engine")
 
@@ -24,7 +24,14 @@ class RemediationEngine:
     Engine centrale di coordinamento per la remediation automatica offline.
     """
 
-    def __init__(self, kb_directory: str | None = None):
+    def __init__(self, llm_provider: ILlmProvider | None = None, kb_directory: str | None = None):
+        """
+        Args:
+            llm_provider: realizzazione di ILlmProvider fornita dal composition root.
+                Se None, la fase di generazione LLM viene saltata e il motore
+                si limita a knowledge base, cache e fallback.
+            kb_directory: directory della knowledge base locale.
+        """
         if not kb_directory:
             kb_directory = os.path.join(
                 os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
@@ -40,7 +47,7 @@ class RemediationEngine:
         self.cloud_path = os.path.join(self.kb_directory, "cloud_remediation.json")
         self.cache_path = os.path.join(self.kb_directory, "local_cache.json")
 
-        self.llm_provider = LlmProvider()
+        self.llm_provider = llm_provider
 
         # Carica in memoria i database locali
         self.checkov_kb = self._load_json_db(self.checkov_path)
@@ -111,14 +118,16 @@ class RemediationEngine:
                 finding_id, severity, self.cache_kb[search_key], "cache", confidence=0.9
             )
 
-        # ─── FASE 3: GENERAZIONE FALLBACK TRAMITE LLM OLLAMA LOCALE ───
-        llm_data = self.llm_provider.generate_remediation(
-            finding_id=search_key,
-            title=title,
-            category=category,
-            source=source,
-            description=description,
-        )
+        # ─── FASE 3: GENERAZIONE FALLBACK TRAMITE PROVIDER LLM ───
+        llm_data = None
+        if self.llm_provider is not None:
+            llm_data = self.llm_provider.generate_remediation(
+                finding_id=search_key,
+                title=title,
+                category=category,
+                source=source,
+                description=description,
+            )
 
         if llm_data:
             # Salva in cache
@@ -170,7 +179,7 @@ class RemediationEngine:
         if search_key in self.cache_kb:
             return "cache"
 
-        if self.llm_provider.get_available_model():
+        if self.llm_provider is not None and self.llm_provider.get_available_model():
             return "llm"
 
         return "fallback"

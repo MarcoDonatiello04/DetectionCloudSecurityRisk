@@ -145,3 +145,33 @@ class IEventBus(ABC):
             handler (Callable[[Any], None]): La callback da invocare quando l'evento viene emesso.
         """
         pass
+
+
+class ILlmProvider(ABC):
+    """
+    Porta verso un modello linguistico che genera indicazioni correttive.
+    Il livello applicativo dipende solo da questo contratto; la realizzazione
+    (es. Ollama locale) vive nell'infrastruttura e viene iniettata dal
+    composition root.
+    """
+
+    @abstractmethod
+    def get_available_model(self) -> str | None:
+        """
+        Restituisce il nome del modello utilizzabile, o None se nessun modello
+        è disponibile.
+        """
+        pass
+
+    @abstractmethod
+    def generate_remediation(
+        self, finding_id: str, title: str, category: str, source: str, description: str
+    ) -> dict[str, Any] | None:
+        """
+        Genera una remediation strutturata per il finding descritto.
+
+        Returns:
+            dict | None: dizionario con chiavi title, description, impact,
+            remediation_steps, example; None se la generazione fallisce.
+        """
+        pass

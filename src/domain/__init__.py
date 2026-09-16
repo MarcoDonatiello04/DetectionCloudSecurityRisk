@@ -30,10 +30,12 @@ from src.domain.exceptions import (
 from src.domain.interfaces import (
     IDetector,
     IEventBus,
+    ILlmProvider,
     IRemediation,
     IScanner,
     IVulnerabilityDetector,
 )
+from src.domain.remediation_model import RemediationModel
 
 __all__ = [
     "EVENT_FINDING_DETECTED",
@@ -49,11 +51,13 @@ __all__ = [
     "FindingSource",
     "IDetector",
     "IEventBus",
+    "ILlmProvider",
     "IRemediation",
     "IScanner",
     "IVulnerabilityDetector",
     "InvalidFindingException",
     "PluginLoadException",
+    "RemediationModel",
     "RiskContext",
     "RuntimeEvidence",
     "ScanTarget",

@@ -12,7 +12,7 @@ Piattaforma unificata per l'analisi statica e dinamica della sicurezza di API cl
 make install          # dipendenze runtime + ruff/pytest-cov
 make lint              # ruff check + ruff format --check
 make format             # ruff check --fix + ruff format
-make test               # pytest con coverage (src + remediation)
+make test               # pytest con coverage su src
 make check              # lint + test (identico alla CI)
 
 make setup-env          # provisioning Keycloak (realm, client, utenti user_a/user_b)
@@ -64,7 +64,7 @@ Clean Architecture event-driven, quattro fasi logiche:
 
 ### Layer principali (`src/`)
 
-- `domain/` — entità (`entities.py`, es. `Finding`), eventi (`events.py`), eccezioni, interfacce astratte (`interfaces.py`: `IScanner`, `IDetector`, `IRemediation`, `IEventBus`).
+- `domain/` — entità (`entities.py`, es. `Finding`), eventi (`events.py`), eccezioni, interfacce astratte (`interfaces.py`: `IScanner`, `IDetector`, `IRemediation`, `IEventBus`, `ILlmProvider`), modello `RemediationModel` (`remediation_model.py`).
 - `application/` — `event_bus.py` (in-memory event bus thread-safe), `orchestrator.py` (coordina le fasi), `plugin_loader.py` (carica i plugin/detector dinamici a runtime), `correlation/engine.py` (risk correlation engine).
 - `infrastructure/adapters/` — un adapter per ogni tool esterno, traduce l'output grezzo (JSON/XML) nel modello di dominio unificato `Finding`.
 - `core/<vulnerabilita>/` — un modulo autosufficiente per ciascun rilevatore OWASP (`object_level_authorization` = BOLA, `broken_authentication`, `broken_function_level_authorization`, `broken_object_property_level_access` = BOPLA, `security_misconfiguration`, `server_side_request_forgery`, `unrestricted_resource_consumption`, `unsafe_consumption`), ciascuno con proprie `rules/`, `fixtures/` e `tests/`.
@@ -79,9 +79,9 @@ Le credenziali (Keycloak, AWS/LocalStack) e gli endpoint dinamici vengono gestit
 - `config/environments/.target_env` — generato automaticamente dallo script di provisioning Terraform (contiene l'URL invoke di API Gateway estratto dagli output).
 - `.env` (da `.env.example`) — parametri fissi/di default.
 
-### `remediation/`
+### Remediation Intelligence
 
-Modulo offline di Remediation Intelligence: `remediation_engine.py` estrae raccomandazioni da una knowledge base locale (`knowledge_base/`) oppure, se disponibile un server Ollama locale, genera risposte via LLM (`llm_provider.py`). Senza Ollama il motore ricade sulla knowledge base deterministica (i test restano verdi in entrambi i casi).
+Modulo offline di Remediation Intelligence: `src/application/remediation/remediation_engine.py` estrae raccomandazioni da una knowledge base locale (`src/infrastructure/llm/knowledge_base/`) oppure genera risposte via LLM. Il motore dipende solo dalla porta `ILlmProvider` (`src/domain/interfaces.py`) e riceve la realizzazione concreta dal composition root (`server.py` inietta `OllamaAdapter`, `src/infrastructure/llm/ollama_adapter.py`); senza provider iniettato, o con Ollama offline, ricade sulla knowledge base deterministica (i test restano verdi in entrambi i casi). `RemediationModel` è un modello di dominio (`src/domain/remediation_model.py`).
 
 ## Organizzazione dei test
 

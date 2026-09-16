@@ -5,6 +5,17 @@ import pytest
 
 from src.application.remediation.remediation_engine import RemediationEngine
 from src.domain.entities import Finding, FindingCategory, FindingSource, Severity
+from src.domain.interfaces import ILlmProvider
+
+
+class FakeLlmProvider(ILlmProvider):
+    """Doppio di test di ILlmProvider: nessuna rete, nessun Ollama."""
+
+    def get_available_model(self):
+        return None
+
+    def generate_remediation(self, finding_id, title, category, source, description):
+        return None
 
 
 @pytest.fixture
@@ -51,7 +62,7 @@ def mock_kb_dir(tmp_path):
 
 
 def test_kb_priority_checkov(mock_kb_dir):
-    engine = RemediationEngine(kb_directory=str(mock_kb_dir))
+    engine = RemediationEngine(llm_provider=FakeLlmProvider(), kb_directory=str(mock_kb_dir))
 
     finding = Finding.create(
         source=FindingSource.CHECKOV,
@@ -75,7 +86,7 @@ def test_kb_priority_checkov(mock_kb_dir):
 
 
 def test_kb_priority_owasp(mock_kb_dir):
-    engine = RemediationEngine(kb_directory=str(mock_kb_dir))
+    engine = RemediationEngine(llm_provider=FakeLlmProvider(), kb_directory=str(mock_kb_dir))
 
     finding = Finding.create(
         source=FindingSource.RUNTIME_VALIDATOR,
@@ -97,7 +108,7 @@ def test_kb_priority_owasp(mock_kb_dir):
 
 
 def test_kb_priority_cloud(mock_kb_dir):
-    engine = RemediationEngine(kb_directory=str(mock_kb_dir))
+    engine = RemediationEngine(llm_provider=FakeLlmProvider(), kb_directory=str(mock_kb_dir))
 
     finding = Finding.create(
         source=FindingSource.SEMGREP,
@@ -118,7 +129,7 @@ def test_kb_priority_cloud(mock_kb_dir):
 
 
 def test_llm_fallback_and_caching(mock_kb_dir):
-    engine = RemediationEngine(kb_directory=str(mock_kb_dir))
+    engine = RemediationEngine(llm_provider=FakeLlmProvider(), kb_directory=str(mock_kb_dir))
 
     # Mock LLM provider response
     mock_llm_response = {
@@ -173,7 +184,7 @@ def test_llm_fallback_and_caching(mock_kb_dir):
 
 
 def test_emergency_fallback_when_offline(mock_kb_dir):
-    engine = RemediationEngine(kb_directory=str(mock_kb_dir))
+    engine = RemediationEngine(llm_provider=FakeLlmProvider(), kb_directory=str(mock_kb_dir))
 
     finding = Finding.create(
         source=FindingSource.SEMGREP,
@@ -199,7 +210,7 @@ def test_emergency_fallback_when_offline(mock_kb_dir):
 
 
 def test_get_remediation_source_fast(mock_kb_dir):
-    engine = RemediationEngine(kb_directory=str(mock_kb_dir))
+    engine = RemediationEngine(llm_provider=FakeLlmProvider(), kb_directory=str(mock_kb_dir))
 
     finding_kb = Finding.create(
         source=FindingSource.CHECKOV,
@@ -232,3 +243,26 @@ def test_get_remediation_source_fast(mock_kb_dir):
 
     with patch.object(engine.llm_provider, "get_available_model", return_value=None):
         assert engine.get_remediation_source_fast(finding_llm) == "fallback"
+
+
+def test_engine_without_llm_provider_skips_generation(mock_kb_dir):
+    """Senza provider iniettato il motore non tenta alcuna generazione e ricade sul fallback."""
+    engine = RemediationEngine(kb_directory=str(mock_kb_dir))
+
+    finding = Finding.create(
+        source=FindingSource.SEMGREP,
+        category=FindingCategory.RATE_LIMITING,
+        title="No Rate Limiting",
+        description="Endpoint lacks rate limit controls",
+        severity=Severity.MEDIUM,
+        confidence=0.6,
+        rule_id="NO_RATE_LIMIT_NO_PROVIDER",
+        target_identifier="/login",
+        remediation="Ensure rate limits are enforced.",
+    )
+
+    assert engine.llm_provider is None
+    assert engine.get_remediation_source_fast(finding) == "fallback"
+    res = engine.get_remediation(finding)
+    assert res.source == "knowledge_base_fallback"
+    assert res.remediation_steps == ["Ensure rate limits are enforced."]
