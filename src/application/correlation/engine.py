@@ -1,18 +1,8 @@
 import logging
 from typing import Any
 
-from src.core.config import (
-    CONFIDENCE_NORMALIZER,
-    CONTEXT_SCORE_INTERNET_EXPOSED,
-    CONTEXT_SCORE_PUBLIC_RESOURCE,
-    CONTEXT_SCORE_SENSITIVE_DATA,
-    DEFAULT_CONTEXT_HARDENING,
-    DEFAULT_CONTEXT_OTHER,
-    MAX_RISK_SCORE,
-    RISK_WEIGHT_CONFIDENCE,
-    RISK_WEIGHT_CONTEXT,
-    RISK_WEIGHT_SEVERITY,
-)
+from src.core.config import RiskScoringConfig
+from src.core.risk_config import get_risk_scoring_config
 from src.domain.entities import Finding, FindingNature, RuntimeEvidence, Severity
 from src.normalization.normalizer import APIEndpointNormalizer
 
@@ -35,11 +25,16 @@ class RiskCorrelationEngine:
     _AGGREGATED_CHECKS_KEY = "aggregated_checks"
     _MERGED_PREFIX = "merged_"
 
-    def __init__(self):
+    def __init__(self, scoring_config: RiskScoringConfig | None = None):
         """
         Inizializza il RiskCorrelationEngine impostando il dizionario dei findings correlati.
+
+        Args:
+            scoring_config (RiskScoringConfig | None): Parametri della formula di rischio;
+                se None usa la configurazione condivisa (config/risk_scoring.yaml).
         """
         self.correlated_findings: dict[str, Finding] = {}
+        self.scoring = scoring_config or get_risk_scoring_config()
 
     def correlate(
         self, static_findings: list[Finding], runtime_findings: list[Finding]
@@ -128,7 +123,7 @@ class RiskCorrelationEngine:
     def calculate_risk_score(self, finding: Finding) -> float:
         """
         Calcola un punteggio di rischio numerico normalizzato (0.0 - 10.0).
-        Formula: (Severità * 0.6) + (Confidenza * 0.2) + (ContextMultiplier * 0.2)
+        Formula: min(10, 0.6·S + 0.2·(10·C) + 0.2·X) con i pesi di ``self.scoring`` (ADR-005).
 
         Args:
             finding (Finding): Il Finding su cui calcolare il punteggio di rischio.
@@ -136,40 +131,41 @@ class RiskCorrelationEngine:
         Returns:
             float: Il punteggio complessivo di rischio calcolato.
         """
-        sev_score = finding.severity.score
+        cfg = self.scoring
+        sev_score = cfg.severity_scores.get(finding.severity.value, 0.0)
 
         # Conferma empirica (exploit riuscito a runtime): la confidenza è massima
         # indipendentemente da quella dichiarata dall'adapter.
         confidence = finding.confidence
         if finding.risk_context and finding.risk_context.exploitable:
             confidence = 1.0
-        conf_score = confidence * CONFIDENCE_NORMALIZER
+        conf_score = confidence * cfg.confidence_normalizer
 
         # Moltiplicatore di contesto (es: esposto a internet, dati sensibili)
         context_score = 0.0
         if finding.nature == FindingNature.HARDENING:
             # Una linea di difesa mancante non è un vettore d'accesso: nessun bonus di
             # esposizione, così un bucket privato senza log non gonfia il punteggio.
-            context_score = DEFAULT_CONTEXT_HARDENING
+            context_score = cfg.default_context_hardening
         elif finding.risk_context:
             if finding.risk_context.internet_exposed:
-                context_score += CONTEXT_SCORE_INTERNET_EXPOSED
+                context_score += cfg.context_internet_exposed
             if finding.risk_context.sensitive_data_detected:
-                context_score += CONTEXT_SCORE_SENSITIVE_DATA
+                context_score += cfg.context_sensitive_data
             if finding.risk_context.public_resource:
-                context_score += CONTEXT_SCORE_PUBLIC_RESOURCE
+                context_score += cfg.context_public_resource
         else:
             # Nessun contesto dichiarato dalla sorgente: valore di ripiego uniforme,
             # senza regole implicite per categoria.
-            context_score = DEFAULT_CONTEXT_OTHER
+            context_score = cfg.default_context_other
 
         # Calcolo pesato
         risk_score = (
-            (sev_score * RISK_WEIGHT_SEVERITY)
-            + (conf_score * RISK_WEIGHT_CONFIDENCE)
-            + (context_score * RISK_WEIGHT_CONTEXT)
+            (sev_score * cfg.weight_severity)
+            + (conf_score * cfg.weight_confidence)
+            + (context_score * cfg.weight_context)
         )
-        return round(min(risk_score, MAX_RISK_SCORE), 2)
+        return round(min(risk_score, cfg.max_risk_score), 2)
 
     def _get_correlation_key(self, finding: Finding) -> str:
         """

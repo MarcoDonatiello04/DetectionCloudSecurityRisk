@@ -361,13 +361,13 @@ def test_risk_score_separates_exposure_from_hardening():
         "CKV_AWS_18", "access logging", Severity.LOW, FindingNature.HARDENING
     )
 
-    # 0.6*9.0 + 0.2*10 + 0.2*(4+2) = 8.6
-    assert engine.calculate_risk_score(public_acl) == pytest.approx(8.6)
-    # 0.6*7.0 + 0.2*10 + 0.2*3 = 6.8
+    # CRITICAL, C=1, X=4+2: 0.6*10.0 + 0.2*10 + 0.2*6 = 9.2
+    assert engine.calculate_risk_score(public_acl) == pytest.approx(9.2)
+    # HIGH senza contesto, C=1, X=3: 0.6*7.0 + 0.2*10 + 0.2*3 = 6.8
     assert engine.calculate_risk_score(iam_wildcard) == pytest.approx(6.8)
-    # Comportamento storico invariato per i finding non classificati: 5.3
+    # MEDIUM non classificato, C=1, X=3: 0.6*4.5 + 0.2*10 + 0.2*3 = 5.3
     assert engine.calculate_risk_score(unclassified) == pytest.approx(5.3)
-    # 0.6*2.0 + 0.2*10 + 0.2*0 = 3.2: nessun bonus di contesto per l'hardening
+    # LOW hardening, C=1, X=0: 0.6*2.0 + 0.2*10 + 0.2*0 = 3.2 (nessun bonus di contesto)
     assert engine.calculate_risk_score(missing_logs) == pytest.approx(3.2)
 
 

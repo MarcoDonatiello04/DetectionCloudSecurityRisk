@@ -5,12 +5,8 @@ import re
 import subprocess
 from typing import Any
 
-from src.core.config import (
-    CONFIDENCE_SEMGREP_INFERRED_ABSENCE,
-    CONFIDENCE_SEMGREP_POSITIVE_MATCH,
-    DEFAULT_SEMGREP_OUTPUT_FILE,
-    DEFAULT_SEMGREP_RULESET_PATH,
-)
+from src.core.config import DEFAULT_SEMGREP_OUTPUT_FILE, DEFAULT_SEMGREP_RULESET_PATH
+from src.core.risk_config import get_risk_scoring_config
 from src.domain.entities import (
     APIContext,
     CodeLocation,
@@ -88,6 +84,7 @@ class SemgrepScannerAdapter(IScanner):
         deduplicated = self._deduplicate_endpoints()
         SemgrepScannerAdapter.discovered_endpoints_cache = deduplicated
 
+        scoring = get_risk_scoring_config()
         for ep in deduplicated:
             method = ep["method"]
             path = ep["path"]
@@ -123,9 +120,9 @@ class SemgrepScannerAdapter(IScanner):
                 severity=severity,
                 # Un decoratore/handler di autenticazione trovato è un riscontro positivo;
                 # la sua assenza è solo dedotta dall'analisi statica.
-                confidence=CONFIDENCE_SEMGREP_POSITIVE_MATCH
+                confidence=scoring.confidence_semgrep_positive_match
                 if auth_detected
-                else CONFIDENCE_SEMGREP_INFERRED_ABSENCE,
+                else scoring.confidence_semgrep_inferred_absence,
                 rule_id="api-route-discovery" if auth_detected else "unauthenticated-api-route",
                 target_identifier=f"{method}:{path}",
                 rule_name="API Route Detection",

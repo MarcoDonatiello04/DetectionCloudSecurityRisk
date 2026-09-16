@@ -4,13 +4,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
-# ─── PUNTEGGI DI SEVERITÀ DI DEFAULT ─────────────────────────────────────────
-
-SEVERITY_SCORE_CRITICAL = 9.0
-SEVERITY_SCORE_HIGH = 7.0
-SEVERITY_SCORE_MEDIUM = 4.5
-SEVERITY_SCORE_LOW = 2.0
-SEVERITY_SCORE_INFO = 0.0
+from src.core.risk_config import get_risk_scoring_config
 
 
 class Severity(Enum):
@@ -27,19 +21,13 @@ class Severity(Enum):
     @property
     def score(self) -> float:
         """
-        Ritorna il punteggio di severità numerico standard per il calcolo del rischio.
+        Ritorna il punteggio di severità numerico per il calcolo del rischio, letto dalla
+        configurazione condivisa del risk scoring (config/risk_scoring.yaml, ADR-005).
 
         Returns:
             float: Punteggio numerico assegnato alla severità.
         """
-        mapping = {
-            Severity.CRITICAL: SEVERITY_SCORE_CRITICAL,
-            Severity.HIGH: SEVERITY_SCORE_HIGH,
-            Severity.MEDIUM: SEVERITY_SCORE_MEDIUM,
-            Severity.LOW: SEVERITY_SCORE_LOW,
-            Severity.INFO: SEVERITY_SCORE_INFO,
-        }
-        return mapping.get(self, 0.0)
+        return get_risk_scoring_config().severity_scores.get(self.value, 0.0)
 
 
 class FindingCategory(Enum):

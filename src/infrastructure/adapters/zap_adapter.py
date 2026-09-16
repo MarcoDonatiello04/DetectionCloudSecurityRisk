@@ -4,7 +4,8 @@ import urllib.parse
 
 from zapv2 import ZAPv2
 
-from src.core.config import CONFIDENCE_BY_ZAP_LEVEL, DEFAULT_ZAP_URL
+from src.core.config import DEFAULT_ZAP_URL
+from src.core.risk_config import get_risk_scoring_config
 from src.domain.entities import (
     APIContext,
     Finding,
@@ -107,7 +108,9 @@ class ZapClientAdapter(IScanner):
                 if zap_confidence == "False Positive":
                     logger.debug(f"Alert ZAP '{alert_name}' su {url} scartato: False Positive.")
                     continue
-                confidence = CONFIDENCE_BY_ZAP_LEVEL.get(zap_confidence, 0.7)
+                confidence = get_risk_scoring_config().confidence_by_zap_level.get(
+                    zap_confidence, 0.7
+                )
 
                 # Mappatura della severità ZAP (High, Medium, Low, Informational)
                 risk = alert.get("risk", "Informational")

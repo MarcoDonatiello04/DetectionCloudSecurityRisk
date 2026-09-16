@@ -1,0 +1,53 @@
+# ============================================================================
+# Parametri del risk scoring (ADR-005)
+# ----------------------------------------------------------------------------
+# Formula:  R = min(max_risk_score, wS·S + wC·(C·confidence_normalizer) + wX·X)
+#   S = punteggio della severità (severity_scores)
+#   C = confidenza della segnalazione, 0.0-1.0 (dichiarata dalla sorgente,
+#       forzata a 1.0 in caso di conferma empirica a runtime)
+#   X = contributo di contesto: somma dei flag del RiskContext, oppure
+#       default_other se la sorgente non ha dichiarato alcun contesto;
+#       sempre default_hardening (0) per i finding di natura HARDENING.
+#
+# Ogni chiave è opzionale: se assente vale il default di src/core/config.py.
+# Il percorso del file è sovrascrivibile con la variabile RISK_SCORING_CONFIG.
+# ============================================================================
+version: 1
+
+weights:
+  severity: 0.6
+  confidence: 0.2
+  context: 0.2
+
+# CRITICAL vale 10 così che il massimo teorico sia esattamente max_risk_score
+severity_scores:
+  CRITICAL: 10.0
+  HIGH: 7.0
+  MEDIUM: 4.5
+  LOW: 2.0
+  INFO: 0.0
+
+context:
+  internet_exposed: 4.0
+  sensitive_data: 4.0
+  public_resource: 2.0
+  default_other: 3.0        # nessun RiskContext dichiarato, qualunque categoria
+  default_hardening: 0.0    # natura HARDENING: mai bonus di contesto
+
+max_risk_score: 10.0
+confidence_normalizer: 10.0
+
+# Confidenza C assegnata dagli adapter in base alla sorgente
+confidence:
+  catalog_match:            # Checkov: precisione della regola del catalogo policy
+    exact: 1.0
+    prefix: 0.9
+    keyword: 0.8
+    default: 0.6
+  zap_level:                # ZAP: livello dichiarato dall'alert (False Positive scartato)
+    User Confirmed: 1.0
+    High: 0.9
+    Medium: 0.7
+    Low: 0.5
+  semgrep_positive_match: 0.95    # decoratore/handler di autenticazione trovato
+  semgrep_inferred_absence: 0.7   # assenza di autenticazione dedotta
