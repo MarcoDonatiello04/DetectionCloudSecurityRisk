@@ -6,7 +6,6 @@ from src.core.config import (
     CONTEXT_SCORE_INTERNET_EXPOSED,
     CONTEXT_SCORE_PUBLIC_RESOURCE,
     CONTEXT_SCORE_SENSITIVE_DATA,
-    DEFAULT_CONTEXT_AUTHENTICATION_AUTHORIZATION,
     DEFAULT_CONTEXT_HARDENING,
     DEFAULT_CONTEXT_OTHER,
     MAX_RISK_SCORE,
@@ -14,7 +13,7 @@ from src.core.config import (
     RISK_WEIGHT_CONTEXT,
     RISK_WEIGHT_SEVERITY,
 )
-from src.domain.entities import Finding, FindingCategory, FindingNature, RuntimeEvidence, Severity
+from src.domain.entities import Finding, FindingNature, RuntimeEvidence, Severity
 from src.normalization.normalizer import APIEndpointNormalizer
 
 logger = logging.getLogger("SecurityPlatform.CorrelationEngine")
@@ -160,11 +159,9 @@ class RiskCorrelationEngine:
             if finding.risk_context.public_resource:
                 context_score += CONTEXT_SCORE_PUBLIC_RESOURCE
         else:
-            # Default basato sulla categoria
-            if finding.category in (FindingCategory.AUTHENTICATION, FindingCategory.AUTHORIZATION):
-                context_score = DEFAULT_CONTEXT_AUTHENTICATION_AUTHORIZATION
-            else:
-                context_score = DEFAULT_CONTEXT_OTHER
+            # Nessun contesto dichiarato dalla sorgente: valore di ripiego uniforme,
+            # senza regole implicite per categoria.
+            context_score = DEFAULT_CONTEXT_OTHER
 
         # Calcolo pesato
         risk_score = (

@@ -17,6 +17,7 @@ from src.domain.entities import (
     Finding,
     FindingCategory,
     FindingSource,
+    RiskContext,
     Severity,
 )
 from src.domain.interfaces import IScanner
@@ -130,6 +131,8 @@ class SemgrepScannerAdapter(IScanner):
                 rule_name="API Route Detection",
                 location=CodeLocation(file_path=file),
                 api=api_ctx,
+                # Una rotta senza autenticazione è raggiungibile da chiunque: esposta a Internet
+                risk_context=None if auth_detected else RiskContext(internet_exposed=True),
                 correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}",
                 raw_data=ep,
             )

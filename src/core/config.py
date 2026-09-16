@@ -73,7 +73,8 @@ CONTEXT_SCORE_INTERNET_EXPOSED = 4.0
 CONTEXT_SCORE_SENSITIVE_DATA = 4.0
 CONTEXT_SCORE_PUBLIC_RESOURCE = 2.0
 
-DEFAULT_CONTEXT_AUTHENTICATION_AUTHORIZATION = 6.0
+# Contesto di ripiego quando l'adapter non ha allegato alcun RiskContext: vale per
+# tutte le categorie, l'esposizione va dichiarata esplicitamente dalla sorgente.
 DEFAULT_CONTEXT_OTHER = 3.0
 # I finding di irrobustimento (nature=HARDENING) non ricevono il bonus di esposizione:
 # una linea di difesa mancante non è di per sé un vettore d'accesso.

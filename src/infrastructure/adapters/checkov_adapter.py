@@ -157,9 +157,14 @@ class CheckovScannerAdapter(IScanner):
 
         # Solo un'esposizione che rende la risorsa raggiungibile da chiunque attiva
         # il bonus di contesto: un bucket privato senza log non è "esposto a Internet".
+        # I controlli su segreti e cifratura a riposo dichiarano invece dati sensibili.
         risk_context = (
-            RiskContext(internet_exposed=True, public_resource=True)
-            if classification.public_facing
+            RiskContext(
+                internet_exposed=classification.public_facing,
+                public_resource=classification.public_facing,
+                sensitive_data_detected=classification.sensitive_data,
+            )
+            if classification.public_facing or classification.sensitive_data
             else None
         )
 

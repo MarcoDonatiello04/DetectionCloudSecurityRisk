@@ -21,6 +21,10 @@
 # `public: true` indica che la condizione fallita rende la risorsa raggiungibile
 # da chiunque: l'adapter allega un RiskContext(internet_exposed, public_resource)
 # che attiva il bonus di contesto del risk score (ADR-001, ADR-004).
+# `sensitive_data: true` (default false) indica che il controllo riguarda dati
+# sensibili (segreti cablati, cifratura a riposo): l'adapter imposta
+# RiskContext.sensitive_data_detected. Per i controlli HARDENING il flag è
+# solo informativo, perché il contesto non contribuisce al punteggio (ADR-005).
 # ============================================================================
 version: 1
 
@@ -41,10 +45,10 @@ policies:
 
   # ─── S3: irrobustimento ──────────────────────────────────────────────────
   CKV_AWS_18:  {nature: HARDENING, severity: LOW}                     # access logging
-  CKV_AWS_19:  {nature: HARDENING, severity: MEDIUM}                  # cifratura server-side
+  CKV_AWS_19:  {nature: HARDENING, severity: MEDIUM, sensitive_data: true} # cifratura server-side
   CKV_AWS_21:  {nature: HARDENING, severity: LOW}                     # versioning
   CKV_AWS_144: {nature: HARDENING, severity: LOW}                     # cross-region replication
-  CKV_AWS_145: {nature: HARDENING, severity: MEDIUM}                  # cifratura con KMS
+  CKV_AWS_145: {nature: HARDENING, severity: MEDIUM, sensitive_data: true} # cifratura con KMS
   CKV2_AWS_61: {nature: HARDENING, severity: LOW}                     # lifecycle configuration
   CKV2_AWS_62: {nature: HARDENING, severity: LOW}                     # event notifications
 
@@ -67,11 +71,11 @@ policies:
   CKV_AWS_355: {nature: EXPOSURE, severity: HIGH}                     # Resource "*" su azioni restringibili
 
   # ─── Segreti ─────────────────────────────────────────────────────────────
-  CKV_AWS_45:  {nature: EXPOSURE, severity: CRITICAL}                 # segreti cablati in Lambda env
-  CKV_SECRET_2: {nature: EXPOSURE, severity: CRITICAL}                # AWS Access Key
-  CKV_SECRET_4: {nature: EXPOSURE, severity: HIGH}                    # Basic Auth credentials
-  CKV_SECRET_6: {nature: EXPOSURE, severity: MEDIUM}                  # stringa ad alta entropia (bassa precisione)
-  CKV_SECRET_9: {nature: EXPOSURE, severity: HIGH}                    # JSON Web Token
+  CKV_AWS_45:  {nature: EXPOSURE, severity: CRITICAL, sensitive_data: true} # segreti cablati in Lambda env
+  CKV_SECRET_2: {nature: EXPOSURE, severity: CRITICAL, sensitive_data: true} # AWS Access Key
+  CKV_SECRET_4: {nature: EXPOSURE, severity: HIGH, sensitive_data: true} # Basic Auth credentials
+  CKV_SECRET_6: {nature: EXPOSURE, severity: MEDIUM, sensitive_data: true} # stringa ad alta entropia (bassa precisione)
+  CKV_SECRET_9: {nature: EXPOSURE, severity: HIGH, sensitive_data: true} # JSON Web Token
 
   # ─── API Gateway ─────────────────────────────────────────────────────────
   CKV_AWS_59:  {nature: EXPOSURE, severity: HIGH, public: true}       # metodo senza autorizzazione
@@ -90,12 +94,12 @@ policies:
   CKV_AWS_115: {nature: HARDENING, severity: LOW}                     # concurrency limit
   CKV_AWS_116: {nature: HARDENING, severity: LOW}                     # dead letter queue
   CKV_AWS_117: {nature: HARDENING, severity: MEDIUM}                  # dentro una VPC
-  CKV_AWS_173: {nature: HARDENING, severity: MEDIUM}                  # cifratura variabili d'ambiente
+  CKV_AWS_173: {nature: HARDENING, severity: MEDIUM, sensitive_data: true} # cifratura variabili d'ambiente
   CKV_AWS_272: {nature: HARDENING, severity: MEDIUM}                  # code signing
 
   # ─── DynamoDB / SNS ──────────────────────────────────────────────────────
   CKV_AWS_28:  {nature: HARDENING, severity: LOW}                     # point-in-time recovery
-  CKV_AWS_119: {nature: HARDENING, severity: MEDIUM}                  # cifratura con CMK
+  CKV_AWS_119: {nature: HARDENING, severity: MEDIUM, sensitive_data: true} # cifratura con CMK
   CKV_AWS_26:  {nature: HARDENING, severity: MEDIUM}                  # cifratura topic SNS
   CKV_AWS_169: {nature: EXPOSURE, severity: HIGH, public: true}       # policy SNS pubblica
 
@@ -106,12 +110,12 @@ policies:
   CKV_AWS_260: {nature: EXPOSURE, severity: HIGH, public: true}       # HTTP da 0.0.0.0/0
   CKV_AWS_277: {nature: EXPOSURE, severity: CRITICAL, public: true}   # ingress -1 da 0.0.0.0/0
   CKV2_AWS_5:  {nature: HARDENING, severity: LOW}                     # security group non associato
-  CKV_AWS_8:   {nature: HARDENING, severity: MEDIUM}                  # EBS cifrato (launch config)
+  CKV_AWS_8:   {nature: HARDENING, severity: MEDIUM, sensitive_data: true} # EBS cifrato (launch config)
   CKV_AWS_79:  {nature: HARDENING, severity: MEDIUM}                  # IMDSv2
   CKV_AWS_88:  {nature: EXPOSURE, severity: HIGH, public: true}       # IP pubblico su EC2
   CKV_AWS_126: {nature: HARDENING, severity: LOW}                     # detailed monitoring
   CKV_AWS_135: {nature: HARDENING, severity: LOW}                     # EBS optimized
-  CKV_AWS_16:  {nature: HARDENING, severity: MEDIUM}                  # RDS cifrato
+  CKV_AWS_16:  {nature: HARDENING, severity: MEDIUM, sensitive_data: true} # RDS cifrato
   CKV_AWS_17:  {nature: EXPOSURE, severity: CRITICAL, public: true}   # RDS publicly accessible
 
   # ─── Kubernetes (crAPI) ──────────────────────────────────────────────────
@@ -150,7 +154,7 @@ policies:
   CKV_OPENAPI_21: {nature: HARDENING, severity: LOW}                  # maxItems sugli array
 
 prefixes:
-  CKV_SECRET_: {nature: EXPOSURE, severity: HIGH}                     # riconoscitore di segreti
+  CKV_SECRET_: {nature: EXPOSURE, severity: HIGH, sensitive_data: true} # riconoscitore di segreti
 
 # Parole chiave di ripiego per i controlli non presenti in `policies`.
 # I gruppi sono valutati nell'ordine in cui compaiono: i termini difensivi

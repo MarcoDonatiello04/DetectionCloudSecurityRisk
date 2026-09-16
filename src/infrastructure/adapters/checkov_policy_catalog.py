@@ -34,12 +34,14 @@ class PolicyClassification:
         nature: Natura del rischio (None se il controllo non è classificato).
         severity: Severità di base coerente con la natura.
         public_facing: True se la condizione fallita rende la risorsa raggiungibile da chiunque.
+        sensitive_data: True se il controllo riguarda dati sensibili (segreti, cifratura a riposo).
         matched_by: Regola che ha prodotto l'esito ("exact", "prefix", "keyword", "default").
     """
 
     nature: FindingNature | None
     severity: Severity
     public_facing: bool = False
+    sensitive_data: bool = False
     matched_by: str = "default"
 
 
@@ -48,6 +50,7 @@ class _KeywordGroup:
     nature: FindingNature
     severity: Severity
     public_facing: bool
+    sensitive_data: bool
     terms: tuple[str, ...]
 
 
@@ -169,6 +172,7 @@ class CheckovPolicyCatalog:
                         group.get("severity"), self._default_severity_for(nature)
                     ),
                     public_facing=bool(group.get("public", False)),
+                    sensitive_data=bool(group.get("sensitive_data", False)),
                     terms=terms,
                 )
             )
@@ -178,7 +182,7 @@ class CheckovPolicyCatalog:
         Converte una voce del catalogo in PolicyClassification.
 
         Args:
-            spec (Any): Mapping con chiavi nature/severity/public.
+            spec (Any): Mapping con chiavi nature/severity/public/sensitive_data.
             matched_by (str): Etichetta della regola di provenienza.
 
         Returns:
@@ -193,6 +197,7 @@ class CheckovPolicyCatalog:
             nature=nature,
             severity=self._parse_severity(spec.get("severity"), self._default_severity_for(nature)),
             public_facing=bool(spec.get("public", False)),
+            sensitive_data=bool(spec.get("sensitive_data", False)),
             matched_by=matched_by,
         )
 
@@ -227,7 +232,7 @@ class CheckovPolicyCatalog:
             check_name (str | None): Nome ufficiale del controllo, su cui operano le parole chiave.
 
         Returns:
-            PolicyClassification: Natura, severità e flag di esposizione pubblica.
+            PolicyClassification: Natura, severità, flag di esposizione pubblica e dati sensibili.
         """
         normalized_id = (check_id or "").strip().upper()
 
@@ -246,6 +251,7 @@ class CheckovPolicyCatalog:
                         nature=group.nature,
                         severity=group.severity,
                         public_facing=group.public_facing,
+                        sensitive_data=group.sensitive_data,
                         matched_by="keyword",
                     )
 

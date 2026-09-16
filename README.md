@@ -270,9 +270,7 @@ PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
       "internet_exposed": true,
       "sensitive_data_detected": null,
       "public_resource": null,
-      "exploitable": true,
-      "attack_complexity": null,
-      "impact": null
+      "exploitable": true
     },
     "correlation_key": "api:GET:/api/orders/{id}",
     "related_findings": [

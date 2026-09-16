@@ -9,6 +9,7 @@ from src.domain.entities import (
     Finding,
     FindingCategory,
     FindingSource,
+    RiskContext,
     Severity,
 )
 from src.domain.interfaces import IScanner
@@ -235,6 +236,14 @@ class SpectralScannerAdapter(IScanner):
                         filename = source_file.split("/")[-1] if "/" in source_file else source_file
                         corr_key = f"openapi:{filename}:{rule_code}"
 
+                    # Un'operazione del contratto senza requisito di autenticazione è
+                    # raggiungibile da chiunque conosca l'API: contesto esposto a Internet.
+                    risk_context = (
+                        RiskContext(internet_exposed=True)
+                        if api_ctx and category == FindingCategory.AUTHENTICATION
+                        else None
+                    )
+
                     finding = Finding.create(
                         source=FindingSource.SPECTRAL,
                         category=category,
@@ -247,6 +256,7 @@ class SpectralScannerAdapter(IScanner):
                         rule_name=rule_code,
                         location=loc,
                         api=api_ctx,
+                        risk_context=risk_context,
                         correlation_key=corr_key,
                         raw_data=issue,
                     )

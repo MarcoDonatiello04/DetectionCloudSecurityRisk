@@ -169,8 +169,6 @@ class RiskContext:
     sensitive_data_detected: bool | None = None
     public_resource: bool | None = None
     exploitable: bool | None = None
-    attack_complexity: str | None = None
-    impact: str | None = None
 
 
 @dataclass
@@ -352,8 +350,6 @@ class Finding:
                 "sensitive_data_detected": self.risk_context.sensitive_data_detected,
                 "public_resource": self.risk_context.public_resource,
                 "exploitable": self.risk_context.exploitable,
-                "attack_complexity": self.risk_context.attack_complexity,
-                "impact": self.risk_context.impact,
             }
             if self.risk_context
             else None,
