@@ -418,7 +418,9 @@
             align-items: center;
         }
 
-        .finding-item.active .toggle-arrow {
+        /* Ruota solo la freccia della riga principale, non quelle dei sotto-elementi */
+        .finding-item.active > .finding-row .toggle-arrow,
+        .sub-check.active > .sub-check-row .toggle-arrow {
             transform: rotate(180deg);
             color: var(--accent-purple);
         }
@@ -437,8 +439,108 @@
         }
 
         .finding-item.active .finding-details {
-            max-height: 2000px; /* Abbastanza alto per contenere il codice */
+            max-height: 8000px; /* Abbastanza alto per codice + sotto-elementi espansi */
             border-top: 1px solid var(--card-border);
+        }
+
+        /* Sotto-elementi: controlli assorbiti sulla stessa risorsa, ciascuno espandibile */
+        .sub-checks {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sub-check {
+            border: 1px solid var(--item-border);
+            border-radius: 10px;
+            background: var(--item-bg);
+            overflow: hidden;
+        }
+
+        .sub-check-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+        }
+
+        .sub-check-row:hover {
+            background: var(--item-bg-hover);
+        }
+
+        .sub-check-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .sub-check-title {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .sub-check-rule {
+            font-family: monospace;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        .sub-check-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .sub-check-remediation-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--item-border-hover);
+            background: transparent;
+            color: var(--accent-purple);
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+
+        .sub-check-remediation-btn:hover {
+            background: var(--accent-purple);
+            color: #fff;
+        }
+
+        .sub-check-remediation-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .sub-check-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            border-top: 1px solid transparent;
+        }
+
+        .sub-check.active .sub-check-details {
+            max-height: 4000px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .sub-check-details-content {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         .finding-details-content {
@@ -832,6 +934,227 @@
             }
         });
 
+        // Costruisce il markup della remediation a partire dalla risposta di /remediation
+        function buildRemediationHtml(rem) {
+            let steps = rem.steps || [];
+            if (typeof steps === 'string') steps = [steps];
+            const stepsList = Array.isArray(steps) && steps.length > 0
+                ? steps.map(step => `<li>${step}</li>`).join('')
+                : `<li>Nessun passo di mitigazione specificato.</li>`;
+
+            let exampleStr = '';
+            if (rem.example) {
+                if (typeof rem.example === 'object') {
+                    if (rem.example.codice) {
+                        exampleStr = Array.isArray(rem.example.codice)
+                            ? rem.example.codice.join('\n')
+                            : rem.example.codice;
+                    } else {
+                        exampleStr = JSON.stringify(rem.example, null, 2);
+                    }
+                } else {
+                    exampleStr = rem.example;
+                }
+            }
+
+            const codeExampleHtml = exampleStr
+                ? `<div class="remediation-code-container"><pre class="remediation-code"><code>${escapeHtml(exampleStr)}</code></pre></div>`
+                : '<p class="remediation-text" style="font-style: italic;">Nessun codice di esempio disponibile.</p>';
+
+            let sourceLabel = 'Knowledge Base Locale';
+            let warningHtml = '';
+            if (rem.source === 'offline_simulator') {
+                sourceLabel = 'Simulatore Locale Llama 3.1';
+                warningHtml = `
+                    <div class="remediation-warning-banner">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <span><strong>Avviso:</strong> Il server Ollama è offline. Remediation generata dal simulatore ad alta fedeltà.</span>
+                    </div>
+                `;
+            } else if (rem.source === 'llm') {
+                sourceLabel = `Generato da Ollama AI (${Math.round((rem.confidence || 0.85) * 100)}% confidenza)`;
+            } else if (rem.source) {
+                sourceLabel = `Knowledge Base Locale (${rem.source})`;
+            }
+
+            return `
+                ${warningHtml}
+                <div class="remediation-section">
+                    <div class="remediation-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        Descrizione della Vulnerabilità
+                    </div>
+                    <p class="remediation-text">${rem.description || 'Nessuna descrizione specificata.'}</p>
+                </div>
+
+                <div class="remediation-section">
+                    <div class="remediation-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        Impatto Potenziale
+                    </div>
+                    <p class="remediation-text">${rem.impact || 'L\'impatto non è stato specificato.'}</p>
+                </div>
+
+                <div class="remediation-section">
+                    <div class="remediation-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Procedura di Mitigazione
+                    </div>
+                    <ul class="remediation-steps">
+                        ${stepsList}
+                    </ul>
+                </div>
+
+                <div class="remediation-section">
+                    <div class="remediation-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6"></polyline>
+                            <polyline points="8 6 2 12 8 18"></polyline>
+                        </svg>
+                        Codice di Esempio (Terraform Fix)
+                    </div>
+                    ${codeExampleHtml}
+                </div>
+
+                <div class="remediation-section" style="margin-top: 10px;">
+                    <div>
+                        <span class="remediation-meta-tag">Origine: ${sourceLabel}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        const remediationLoaderHtml = `
+            <div class="remediation-loader">
+                <div class="remediation-spinner"></div>
+                <span style="font-size: 0.85rem;">Generazione remediation IA in corso...</span>
+            </div>
+        `;
+
+        // Carica on-demand la remediation di un finding (o di un sotto-controllo) in un pannello.
+        // `holder` tiene lo stato di caricamento (dataset.loaded) per evitare richieste doppie.
+        async function loadRemediation(holder, panel, payload) {
+            if (holder.dataset.loaded !== "false") return;
+            holder.dataset.loaded = "loading";
+            panel.innerHTML = remediationLoaderHtml;
+            try {
+                const response = await fetch('/remediation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error("Errore API Remediation");
+                const rem = await response.json();
+                panel.innerHTML = buildRemediationHtml(rem);
+                holder.dataset.loaded = "true";
+            } catch (err) {
+                console.error("Errore caricamento remediation:", err);
+                panel.innerHTML = `
+                    <div style="padding: 10px; color: #ef4444; font-size: 0.88rem; font-weight: 500;">
+                        ⚠️ Impossibile caricare i dati della remediation. Clicca di nuovo per riprovare.
+                    </div>
+                `;
+                holder.dataset.loaded = "false";
+            }
+        }
+
+        // Sotto-elemento espandibile per un controllo assorbito nell'aggregazione:
+        // ha il proprio pulsante di remediation, che interroga /remediation con il suo rule_id.
+        function buildSubCheck(parentFinding, check) {
+            const sev = (check.severity || 'medium').toLowerCase();
+            const badgeClass = ['critical', 'high', 'medium'].includes(sev) ? sev : 'low';
+            let natureHtml = '';
+            if (check.nature === 'EXPOSURE') {
+                natureHtml = `<span class="nature-badge exposure" title="Varco sfruttabile direttamente da un attaccante">Esposizione</span>`;
+            } else if (check.nature === 'HARDENING') {
+                natureHtml = `<span class="nature-badge hardening" title="Linea di difesa in profondità mancante">Hardening</span>`;
+            }
+
+            const sub = document.createElement('div');
+            sub.className = 'sub-check';
+            sub.dataset.loaded = "false";
+            sub.innerHTML = `
+                <div class="sub-check-row">
+                    <div class="sub-check-meta">
+                        <span class="sub-check-title">${escapeHtml(check.title || check.rule_id || 'Controllo')}</span>
+                        <span class="sub-check-rule">${escapeHtml(check.rule_id || '')}</span>
+                    </div>
+                    <div class="sub-check-actions">
+                        ${natureHtml}
+                        <span class="severity-badge ${badgeClass}">${escapeHtml(sev)}</span>
+                        <button type="button" class="sub-check-remediation-btn" title="Genera la remediation per ${escapeHtml(check.rule_id || '')}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+                            </svg>
+                            Remediation
+                        </button>
+                        <div class="toggle-arrow">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="sub-check-details">
+                    <div class="sub-check-details-content"></div>
+                </div>
+            `;
+
+            const panel = sub.querySelector('.sub-check-details-content');
+            // Il payload usa rule_id/titolo/severità del sotto-controllo; risorsa e contesto
+            // (categoria, sorgente, file) sono ereditati dal finding rappresentativo.
+            const payload = {
+                finding_id: check.finding_id,
+                rule_id: check.rule_id,
+                title: check.title,
+                description: `${check.title} per la risorsa ${parentFinding.resource_id || parentFinding.resource_name || ''}`.trim(),
+                severity: check.severity,
+                nature: check.nature,
+                category: parentFinding.category,
+                source: parentFinding.source,
+                location: parentFinding.location,
+            };
+
+            const openAndLoad = () => {
+                sub.classList.add('active');
+                loadRemediation(sub, panel, payload);
+            };
+
+            sub.querySelector('.sub-check-remediation-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (sub.classList.contains('active') && sub.dataset.loaded === "true") {
+                    sub.classList.remove('active');
+                    return;
+                }
+                openAndLoad();
+            });
+
+            sub.querySelector('.sub-check-row').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (sub.classList.contains('active')) {
+                    sub.classList.remove('active');
+                } else {
+                    openAndLoad();
+                }
+            });
+
+            return sub;
+        }
+
         function escapeHtml(text) {
             if (typeof text !== 'string') return '';
             return text
@@ -925,18 +1248,42 @@
                         </div>
                         <div class="finding-details">
                             <div class="finding-details-content">
-                                <div class="remediation-loader">
-                                    <div class="remediation-spinner"></div>
-                                    <span style="font-size: 0.85rem;">Generazione remediation IA in corso...</span>
-                                </div>
+                                <div class="finding-remediation-panel">${remediationLoaderHtml}</div>
                             </div>
                         </div>
                     `;
 
+                    // Sotto-elementi espandibili: i controlli assorbiti sulla stessa risorsa,
+                    // ciascuno con il proprio pulsante di remediation (per rule_id).
+                    if (aggregated.length > 0) {
+                        const section = document.createElement('div');
+                        section.className = 'remediation-section';
+                        section.innerHTML = `
+                            <div class="remediation-section-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                                Altri controlli sulla stessa risorsa (${aggregated.length})
+                            </div>
+                        `;
+                        const list = document.createElement('div');
+                        list.className = 'sub-checks';
+                        aggregated.forEach(check => list.appendChild(buildSubCheck(f, check)));
+                        section.appendChild(list);
+                        item.querySelector('.finding-details-content').appendChild(section);
+                    }
+
                     // Gestore dell'accordion e caricamento on-demand
-                    item.addEventListener('click', async (e) => {
+                    item.addEventListener('click', (e) => {
                         // Impedisci la chiusura se clicchi all'interno della zona codice
+                        // o su un sotto-elemento (che gestisce da sé la propria espansione)
                         if (e.target.closest('.remediation-code')) return;
+                        if (e.target.closest('.sub-check')) return;
 
                         const wasActive = item.classList.contains('active');
 
@@ -949,136 +1296,8 @@
                         item.classList.toggle('active');
 
                         // Carica i dati on-demand se non sono già stati caricati
-                        if (!wasActive && item.dataset.loaded === "false") {
-                            item.dataset.loaded = "loading";
-                            try {
-                                const response = await fetch('/remediation', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify(f)
-                                });
-                                if (!response.ok) throw new Error("Errore API Remediation");
-
-                                const rem = await response.json();
-                                
-                                // Formattazione steps
-                                let steps = rem.steps || [];
-                                if (typeof steps === 'string') steps = [steps];
-                                const stepsList = Array.isArray(steps) && steps.length > 0
-                                    ? steps.map(step => `<li>${step}</li>`).join('')
-                                    : `<li>Nessun passo di mitigazione specificato.</li>`;
-
-                                // Formattazione codice d'esempio
-                                let exampleStr = '';
-                                if (rem.example) {
-                                    if (typeof rem.example === 'object') {
-                                        if (rem.example.codice) {
-                                            exampleStr = Array.isArray(rem.example.codice)
-                                                ? rem.example.codice.join('\n')
-                                                : rem.example.codice;
-                                        } else {
-                                            exampleStr = JSON.stringify(rem.example, null, 2);
-                                        }
-                                    } else {
-                                        exampleStr = rem.example;
-                                    }
-                                }
-
-                                const codeExampleHtml = exampleStr
-                                    ? `<div class="remediation-code-container"><pre class="remediation-code"><code>${escapeHtml(exampleStr)}</code></pre></div>`
-                                    : '<p class="remediation-text" style="font-style: italic;">Nessun codice di esempio disponibile.</p>';
-
-                                // Tag di origine
-                                let sourceLabel = 'Knowledge Base Locale';
-                                let warningHtml = '';
-                                
-                                if (rem.source === 'offline_simulator') {
-                                    sourceLabel = 'Simulatore Locale Llama 3.1';
-                                    warningHtml = `
-                                        <div class="remediation-warning-banner">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
-                                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                                                <line x1="12" y1="9" x2="12" y2="13"></line>
-                                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                            </svg>
-                                            <span><strong>Avviso:</strong> Il server Ollama è offline. Remediation generata dal simulatore ad alta fedeltà.</span>
-                                        </div>
-                                    `;
-                                } else if (rem.source === 'llm') {
-                                    sourceLabel = `Generato da Ollama AI (${Math.round((rem.confidence || 0.85) * 100)}% confidenza)`;
-                                } else if (rem.source) {
-                                    sourceLabel = `Knowledge Base Locale (${rem.source})`;
-                                }
-
-                                // Aggiorna il DOM del dettaglio
-                                const detailsContent = item.querySelector('.finding-details-content');
-                                detailsContent.innerHTML = `
-                                    ${warningHtml}
-                                    <div class="remediation-section">
-                                        <div class="remediation-section-title">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="12" cy="12" r="10"></circle>
-                                                <line x1="12" y1="16" x2="12" y2="12"></line>
-                                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                                            </svg>
-                                            Descrizione della Vulnerabilità
-                                        </div>
-                                        <p class="remediation-text">${rem.description || 'Nessuna descrizione specificata.'}</p>
-                                    </div>
-
-                                    <div class="remediation-section">
-                                        <div class="remediation-section-title">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                                                <line x1="12" y1="9" x2="12" y2="13"></line>
-                                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                                            </svg>
-                                            Impatto Potenziale
-                                        </div>
-                                        <p class="remediation-text">${rem.impact || 'L\'impatto non è stato specificato.'}</p>
-                                    </div>
-
-                                    <div class="remediation-section">
-                                        <div class="remediation-section-title">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <polyline points="20 6 9 17 4 12"></polyline>
-                                            </svg>
-                                            Procedura di Mitigazione
-                                        </div>
-                                        <ul class="remediation-steps">
-                                            ${stepsList}
-                                        </ul>
-                                    </div>
-
-                                    <div class="remediation-section">
-                                        <div class="remediation-section-title">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <polyline points="16 18 22 12 16 6"></polyline>
-                                                <polyline points="8 6 2 12 8 18"></polyline>
-                                            </svg>
-                                            Codice di Esempio (Terraform Fix)
-                                        </div>
-                                        ${codeExampleHtml}
-                                    </div>
-
-                                    <div class="remediation-section" style="margin-top: 10px;">
-                                        <div>
-                                            <span class="remediation-meta-tag">Origine: ${sourceLabel}</span>
-                                        </div>
-                                    </div>
-                                `;
-
-                                item.dataset.loaded = "true";
-                            } catch (err) {
-                                console.error("Errore caricamento remediation:", err);
-                                const detailsContent = item.querySelector('.finding-details-content');
-                                detailsContent.innerHTML = `
-                                    <div style="padding: 10px; color: #ef4444; font-size: 0.88rem; font-weight: 500;">
-                                        ⚠️ Impossibile caricare i dati della remediation. Clicca di nuovo per riprovare.
-                                    </div>
-                                `;
-                                item.dataset.loaded = "false";
-                            }
+                        if (!wasActive) {
+                            loadRemediation(item, item.querySelector('.finding-remediation-panel'), f);
                         }
                     });
 
