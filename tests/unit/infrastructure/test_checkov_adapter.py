@@ -14,6 +14,7 @@ import pytest
 from src.core.config import DEFAULT_CHECKOV_CONFIG
 from src.domain.entities import FindingCategory, FindingNature, FindingSource, Severity
 from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
+from src.infrastructure.adapters.checkov_policy_catalog import CheckovPolicyCatalog
 
 TARGET = "data/test_targets/repo_target/terraform"
 
@@ -152,3 +153,70 @@ def test_build_finding_hardening_check_has_no_public_context():
     assert finding.severity == Severity.LOW
     assert finding.category == FindingCategory.STORAGE
     assert finding.risk_context is None
+
+
+# ─── Confidenza dalla precisione della regola del catalogo ───────────────────
+
+
+def _classified_check(check_id: str, check_name: str) -> dict:
+    return {
+        "check_id": check_id,
+        "check_name": check_name,
+        "resource": "aws_s3_bucket.public_data",
+        "file_path": "/vulnerable_infra.tf",
+        "file_line_range": [10, 20],
+    }
+
+
+@pytest.mark.parametrize(
+    ("check_id", "check_name", "matched_by", "expected_confidence"),
+    [
+        # mappatura esplicita per identificativo
+        ("CKV_AWS_20", "S3 Bucket has an ACL which allows public READ access.", "exact", 1.0),
+        # famiglia di controlli (prefisso)
+        ("CKV_SECRET_999", "Some new secret detector", "prefix", 0.9),
+        # parola chiave sul nome ufficiale
+        ("CKV_AWS_99999", "Ensure the widget does not allow public access", "keyword", 0.8),
+        # nessuna regola soddisfatta
+        ("CKV_AWS_99996", "Ensure the frobnicator is configured", "default", 0.6),
+    ],
+)
+def test_build_finding_confidence_follows_catalog_match(
+    check_id, check_name, matched_by, expected_confidence
+):
+    adapter = CheckovScannerAdapter()
+    assert adapter.policy_catalog.classify(check_id, check_name).matched_by == matched_by
+    finding = adapter.build_finding(_classified_check(check_id, check_name))
+    assert finding.confidence == pytest.approx(expected_confidence)
+
+
+# ─── Dati sensibili dal catalogo ─────────────────────────────────────────────
+
+
+def test_build_finding_sensitive_data_from_catalog():
+    finding = CheckovScannerAdapter().build_finding(
+        _classified_check("CKV_SECRET_2", "AWS Access Key")
+    )
+    assert finding.nature == FindingNature.EXPOSURE
+    assert finding.risk_context is not None
+    assert finding.risk_context.sensitive_data_detected is True
+    assert not finding.risk_context.internet_exposed
+    assert not finding.risk_context.public_resource
+
+
+def test_build_finding_sensitive_and_public_from_custom_catalog(tmp_path):
+    catalog_file = tmp_path / "catalog.yaml"
+    catalog_file.write_text(
+        "policies:\n"
+        "  CKV_TEST_1: {nature: EXPOSURE, severity: CRITICAL, public: true, sensitive_data: true}\n",
+        encoding="utf-8",
+    )
+    adapter = CheckovScannerAdapter(policy_catalog=CheckovPolicyCatalog(str(catalog_file)))
+    finding = adapter.build_finding(_classified_check("CKV_TEST_1", "Public bucket with PII"))
+    ctx = finding.risk_context
+    assert ctx is not None
+    assert (ctx.internet_exposed, ctx.public_resource, ctx.sensitive_data_detected) == (
+        True,
+        True,
+        True,
+    )
