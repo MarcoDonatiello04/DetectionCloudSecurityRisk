@@ -4,7 +4,7 @@ import os
 import subprocess
 from typing import Any
 
-from src.core.config import DEFAULT_CHECKOV_CONFIG
+from src.core.config import CHECKOV_CMD, DEFAULT_CHECKOV_CONFIG
 from src.core.config import DEFAULT_SCAN_TIMEOUT_SECONDS as DEFAULT_TIMEOUT_SECONDS
 from src.domain.entities import (
     CodeLocation,
@@ -49,9 +49,40 @@ class CheckovScannerAdapter(IScanner):
             self._policy_catalog = get_default_catalog()
         return self._policy_catalog
 
+    @staticmethod
+    def _build_command(target_dir: str) -> list[str]:
+        """
+        Costruisce la riga di comando di Checkov per la directory target.
+
+        Il perimetro della scansione è sempre ``target_dir`` (``-d``): il file di
+        configurazione ``DEFAULT_CHECKOV_CONFIG``, se presente nella directory di lavoro,
+        viene aggiunto solo come sorgente di opzioni accessorie (formato, skip-path,
+        soft-fail), mai come sorgente del perimetro. In Checkov gli argomenti da riga di
+        comando prevalgono su quelli del file, quindi un'eventuale chiave ``directory``
+        nel file non può allargare la scansione oltre il bersaglio richiesto.
+
+        Args:
+            target_dir (str): Percorso della directory target da scansionare.
+
+        Returns:
+            list[str]: Argomenti del comando da passare a ``subprocess.run``.
+        """
+        checkov_bin = CHECKOV_CMD
+        if os.path.exists("./.venv/bin/checkov"):
+            checkov_bin = "./.venv/bin/checkov"
+
+        cmd = [checkov_bin, "--skip-download", "--no-cert-verify", "-o", "json", "-d", target_dir]
+        if os.path.exists(DEFAULT_CHECKOV_CONFIG):
+            cmd.extend(["--config-file", DEFAULT_CHECKOV_CONFIG])
+        return cmd
+
     def scan(self, target_dir: str) -> list[Finding]:
         """
         Esegue l'analisi statica con Checkov sulla cartella target.
+
+        Il perimetro è il bersaglio: viene scansionato esclusivamente ``target_dir``.
+        Il file ``.checkov.yaml`` della piattaforma, se esiste, governa solo le altre
+        opzioni (formato dell'output, percorsi da ignorare, soft-fail).
 
         Args:
             target_dir (str): Percorso della directory target da scansionare.
@@ -60,15 +91,7 @@ class CheckovScannerAdapter(IScanner):
             List[Finding]: Lista di Finding di sicurezza IaC rilevati da Checkov.
         """
         logger.info(f"🚀 Esecuzione Checkov Scanner su: {target_dir}")
-        checkov_bin = "checkov"
-        if os.path.exists("./.venv/bin/checkov"):
-            checkov_bin = "./.venv/bin/checkov"
-
-        cmd = [checkov_bin, "--skip-download", "--no-cert-verify", "-o", "json"]
-        if os.path.exists(DEFAULT_CHECKOV_CONFIG):
-            cmd.extend(["--config-file", DEFAULT_CHECKOV_CONFIG])
-        else:
-            cmd.extend(["-d", target_dir])
+        cmd = self._build_command(target_dir)
 
         try:
             result = subprocess.run(

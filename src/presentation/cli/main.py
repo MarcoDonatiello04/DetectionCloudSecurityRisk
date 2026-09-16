@@ -15,6 +15,7 @@ from src.core.config import (
     DEFAULT_OUTPUT_DIR,
     DEFAULT_PLUGINS_DIR,
     DEFAULT_TARGET_BASE_URL,
+    DEFAULT_TARGET_DIR,
     DEFAULT_TRAFFIC_FILE,
     DEFAULT_ZAP_URL,
     REPORT_FINDINGS_FILENAME,
@@ -51,8 +52,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--target-dir",
-        default=".",
-        help="Directory contenente il codice o infrastruttura da scansionare",
+        default=DEFAULT_TARGET_DIR,
+        help="Directory bersaglio della scansione (perimetro passato a ogni scanner)",
     )
     parser.add_argument(
         "--plugins-dir",

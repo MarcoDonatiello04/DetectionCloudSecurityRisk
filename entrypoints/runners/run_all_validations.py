@@ -21,6 +21,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.core.config import DEFAULT_TARGET_DIR
+
 # Color codes for stdout
 GREEN = "\033[92m"
 RED = "\033[91m"
@@ -68,7 +70,7 @@ def main():
                 "-m",
                 "src.presentation.cli.main",
                 "--target-dir",
-                ".",
+                DEFAULT_TARGET_DIR,
                 "--target-base-url",
                 "http://localhost:5000",
                 "--assessment-mode",

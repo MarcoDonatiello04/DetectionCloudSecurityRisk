@@ -9,6 +9,9 @@ import os
 
 # ─── PERCORSI E NOMI FILE DEFAULTS ───────────────────────────────────────────
 DEFAULT_PLUGINS_DIR = os.getenv("PLUGINS_DIR", "src/plugins")
+# Directory bersaglio della pipeline statica: e' il perimetro passato a IScanner.scan().
+# Mai la radice della piattaforma, che conterrebbe tutti i bersagli di prova insieme.
+DEFAULT_TARGET_DIR = os.getenv("TARGET_DIR", "data/test_targets/repo_target")
 DEFAULT_OUTPUT_DIR = os.getenv("OUTPUT_DIR", "output")
 DEFAULT_TRAFFIC_FILE = os.getenv("TRAFFIC_FILE", "soluzione_api/src/output/raw_traffic.json")
 DEFAULT_FALLBACK_TRAFFIC_FILE = "output/raw_traffic.json"

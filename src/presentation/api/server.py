@@ -15,6 +15,7 @@ from src.core.config import (
     DEFAULT_KEYCLOAK_URL,
     DEFAULT_PLUGINS_DIR,
     DEFAULT_TARGET_BASE_URL,
+    DEFAULT_TARGET_DIR,
     DEFAULT_ZAP_URL,
 )
 from src.core.utilities.file_io import safe_read_json
@@ -313,18 +314,19 @@ def get_static_scanners() -> list[Any]:
 # Dependency Injection per l'orchestratore
 def get_orchestrator() -> ScanPipelineOrchestrator:
     """
-    Inizializza e ritorna l'orchestratore di scansione per la directory di progetto corrente.
+    Inizializza e ritorna l'orchestratore di scansione per la directory bersaglio (TARGET_DIR).
 
     Returns:
         ScanPipelineOrchestrator: Istanza configurata dell'orchestratore.
     """
-    # Carica la directory corrente come target e i plugin di default
+    # Il bersaglio e' la directory target configurata (TARGET_DIR), mai la radice
+    # della piattaforma: e' il perimetro che gli scanner ricevono in scan().
     event_bus = EventBus()
     plugin_loader = PluginLoader(DEFAULT_PLUGINS_DIR)
     correlation_engine = RiskCorrelationEngine()
 
     return ScanPipelineOrchestrator(
-        target_dir=".",
+        target_dir=DEFAULT_TARGET_DIR,
         event_bus=event_bus,
         plugin_loader=plugin_loader,
         correlation_engine=correlation_engine,

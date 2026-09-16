@@ -81,7 +81,7 @@ Secondo il paradigma **BCE (Boundary-Control-Entity)** di Ivar Jacobson, le clas
 ## 4. Design Patterns Applicati (UML Mapping)
 
 ### 4.1 Template Method / Strategy (Analizzatori Statici)
-L'architettura definisce l'interfaccia astratta `IScanner`. Ciascun adapter (`CheckovScannerAdapter`, `SemgrepScannerAdapter`, `SpectralScannerAdapter`) incapsula una specifica strategia di analisi statica.
+L'architettura definisce l'interfaccia astratta `IScanner`. Ciascun adapter (`CheckovScannerAdapter`, `SemgrepScannerAdapter`, `SpectralScannerAdapter`) incapsula una specifica strategia di analisi statica. Il contratto di `scan(target_dir)` è che il perimetro dell'analisi sia esattamente la directory bersaglio ricevuta: nessun adapter la deriva dalla directory di lavoro o da file di configurazione della piattaforma (per Checkov, `.checkov.yaml` fornisce solo opzioni accessorie e il bersaglio è sempre passato con `-d`).
 
 ### 4.2 Adapter (Adattatori Legacy per Retrocompatibilità)
 Le classi `BOLAStateManager` e `BOLAAttackVector` fungono da **Object Adapters** per mappare le chiamate legacy basate su istanza verso i nuovi metodi statici e flessibili introdotti nel refactoring accademico.

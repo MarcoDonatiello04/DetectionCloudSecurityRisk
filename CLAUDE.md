@@ -17,7 +17,7 @@ make check              # lint + test (identico alla CI)
 
 make setup-env          # provisioning Keycloak (realm, client, utenti user_a/user_b)
 make iac-analysis        # provisioning Terraform su LocalStack + scansione Checkov
-make api-security         # Spectral + Semgrep + attacchi D-AST + risk scoring + report unificato
+make api-security         # Spectral + Semgrep + attacchi D-AST + risk scoring + report unificato (bersaglio: TARGET_DIR, default data/test_targets/repo_target)
 make dashboard           # avvia dashboard su http://localhost:8000 (make dashboard DASHBOARD_PORT=8080)
 make stop-dashboard       # libera la porta della dashboard da istanze precedenti
 make clean               # docker compose down -v + rimozione stato Terraform/.target_env
@@ -57,7 +57,7 @@ Le scansioni senza BOLA (statiche + D-AST leggero) impiegano circa 15-20 secondi
 
 Clean Architecture event-driven, quattro fasi logiche:
 
-1. **Discovery & Static Analysis (IaC & AST)** — `src/infrastructure/adapters/`: `checkov_adapter.py` (Terraform misconfiguration; natura e severità di ogni controllo vengono dal catalogo semantico `config/scanner_configs/checkov-policy-catalog.yaml` tramite `checkov_policy_catalog.py` — le parole chiave operano sul nome ufficiale del controllo, non sull'ID opaco `CKV_AWS_53`; senza catalogo tutto resta "non classificato/MEDIUM"), `semgrep_adapter.py` (mapping rotte API + stato auth), `spectral_adapter.py` (contratti OpenAPI vs OWASP API Top 10).
+1. **Discovery & Static Analysis (IaC & AST)** — `src/infrastructure/adapters/`: `checkov_adapter.py` (Terraform misconfiguration; natura e severità di ogni controllo vengono dal catalogo semantico `config/scanner_configs/checkov-policy-catalog.yaml` tramite `checkov_policy_catalog.py` — le parole chiave operano sul nome ufficiale del controllo, non sull'ID opaco `CKV_AWS_53`; senza catalogo tutto resta "non classificato/MEDIUM"; il perimetro è sempre il `target_dir` passato a `scan()` via `-d`, il file `.checkov.yaml` governa solo le opzioni accessorie), `semgrep_adapter.py` (mapping rotte API + stato auth), `spectral_adapter.py` (contratti OpenAPI vs OWASP API Top 10).
 2. **Dynamic Seeding** — popola deterministicamente lo stato dell'app target (utenti `user_a`/`user_b` su Keycloak) prima degli attacchi attivi, per evitare race condition.
 3. **Attack & Runtime Stimulation (D-AST)** — `zap_adapter.py` (differential scan con token di `user_a` vs `user_b` vs anonimo per BOLA/Broken Auth) e `src/infrastructure/adapters/mitmproxy/addon.py` (cattura traffico reale per scovare Shadow API).
 4. **Risk Correlation & Scoring** — `src/application/correlation/engine.py`: unisce findings statici e dinamici tramite chiavi su URL normalizzati (`src/normalization/normalizer.py`, classe `APIEndpointNormalizer`); in presenza di conferma empirica runtime eleva la severità e ricalcola il risk score (0-10, vedi `docs/adr/adr-001-risk-scoring.md` per la formula pesata). Quando più findings condividono la stessa risorsa, la voce rappresentativa è scelta per **natura** (`FindingNature`: `EXPOSURE` > non classificato > `HARDENING`) e poi per severità, mai "il primo incontrato"; i controlli assorbiti restano in `raw_data["aggregated_checks"]`. I finding `HARDENING` non ricevono il bonus di contesto (`DEFAULT_CONTEXT_HARDENING`). Vedi `docs/adr/adr-004-finding-nature.md`.

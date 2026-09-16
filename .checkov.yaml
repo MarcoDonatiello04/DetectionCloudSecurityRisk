@@ -1,14 +1,13 @@
-directory:
-  - .
+# Opzioni accessorie per Checkov, condivise da CheckovScannerAdapter e dagli script.
+# Questo file NON definisce il perimetro della scansione: la directory da analizzare
+# viene sempre passata da riga di comando (-d <target_dir>) e prevale su qualunque
+# chiave "directory" eventualmente presente qui. skip-path e' una regex sul percorso:
+# elenca solo cartelle di strumenti, mai nomi generici (src, tests) che escluderebbero
+# anche i sorgenti dei bersagli scansionati.
 skip-path:
   - .venv
   - .terraform
   - .git
-  - output
-  - reports
-  - remediation
-  - tests
-  - src
 soft-fail: false
 output:
   - cli

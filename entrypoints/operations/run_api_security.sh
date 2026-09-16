@@ -24,8 +24,11 @@ echo -e "${GREEN}[+] URL di stimolazione dell'infrastruttura: ${TARGET_URL}${NC}
 
 # 2. Esecuzione Pipeline Core (Discovery + Correlation + D-AST BOLA)
 echo -e "${YELLOW}[3.1] Avvio della Pipeline Unificata di API Discovery ed Event Correlation...${NC}"
+# Il bersaglio della scansione statica e' la repo target (TARGET_DIR), non la radice
+# della piattaforma: ogni scanner riceve questo perimetro in scan().
+TARGET_DIR="${TARGET_DIR:-data/test_targets/repo_target}"
 PYTHONPATH=. ./.venv/bin/python3 -m src.presentation.cli.main \
-    --target-dir . \
+    --target-dir "$TARGET_DIR" \
     --target-base-url http://localhost:5000 \
     --zap-url http://localhost:8090 \
     --keycloak-url http://localhost:8080

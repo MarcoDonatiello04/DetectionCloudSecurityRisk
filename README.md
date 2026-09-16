@@ -16,7 +16,7 @@ Una piattaforma unificata per l'analisi statica e dinamica della sicurezza delle
 La piattaforma è progettata seguendo una **Clean Architecture** event-driven e si articola in quattro fasi logiche fondamentali:
 
 1. **Discovery & Static Analysis (IaC & AST)**:
-   - **Checkov Adapter**: Esegue l'analisi statica su configurazioni Terraform per rilevare misconfiguration (storage pubblici, IAM troppo permissivi, log disattivati).
+   - **Checkov Adapter**: Esegue l'analisi statica su configurazioni Terraform per rilevare misconfiguration (storage pubblici, IAM troppo permissivi, log disattivati). Il perimetro della scansione è sempre la directory bersaglio passata a `scan()` (`-d target_dir`); il file `.checkov.yaml` della piattaforma governa solo le opzioni accessorie (formato, `skip-path`, `soft-fail`), mai il perimetro.
    - **Semgrep Adapter**: Scansiona il codice sorgente (Python, JS, Java) per mappare preventivamente le rotte API esposte e controllare lo stato dell'autenticazione.
    - **Spectral Adapter**: Valuta i contratti OpenAPI rispetti alle linee guida OWASP API Security Top 10.
 2. **Dynamic Seeding**:
@@ -99,6 +99,7 @@ Esegue il linter dei contratti OpenAPI, analizza i sorgenti con Semgrep, esegue 
 ```bash
 make api-security
 ```
+La scansione statica ha come bersaglio la repo target cooperante `data/test_targets/repo_target` (variabile `TARGET_DIR`, oppure `--target-dir` della CLI `src.presentation.cli.main`), mai la radice della piattaforma: scansionare la radice mescolerebbe tutti i bersagli di prova in un unico report.
 
 ### Fase 4: Avvio della Dashboard Web
 Dopo aver completato l'analisi, avvia la dashboard per esplorare in modo interattivo i risultati (findings Checkov, violazioni OpenAPI, rotte BOLA/D-AST) ed esaminare le raccomandazioni del motore di remediation:
