@@ -26,6 +26,7 @@ La piattaforma è progettata seguendo una **Clean Architecture** event-driven e 
    - **Mitmproxy Addon**: Intercetta ed estrae il traffico di rete reale a runtime per raccogliere evidenze di chiamate non autorizzate o endpoint non documentati (Shadow APIs).
 4. **Risk Correlation & Scoring**:
    - **RiskCorrelationEngine**: Unisce i findings statici e dinamici mediante chiavi basate su URL normalizzati (tramite `APIEndpointNormalizer`). In presenza di verifiche empiriche positive (es: exploit confermato a runtime), eleva la severità a `CRITICAL` o `HIGH` e ricalcola il punteggio di rischio normalizzato (0-10) in base al contesto.
+   - **Punteggio di rischio** ([ADR-005](docs/adr/adr-005-risk-scoring.md)): `R = min(10, 0.6·S + 0.2·(10·C) + 0.2·X)`, dove `S` è il punteggio di severità (CRITICAL 10, HIGH 7, MEDIUM 4.5, LOW 2), `C` la confidenza dichiarata dalla sorgente (precisione della regola del catalogo per Checkov, livello dell'alert per ZAP, riscontro positivo o assenza dedotta per Semgrep; forzata a 1 dalla conferma empirica a runtime) e `X` il contesto dichiarato dall'adapter (esposto a Internet +4, dati sensibili +4, risorsa pubblica +2; 3 se nessun contesto è dichiarato, sempre 0 per l'hardening). Tutti i parametri sono in `config/risk_scoring.yaml` (override con `RISK_SCORING_CONFIG`). La dashboard mostra il punteggio accanto alla severità e ordina le voci per natura e poi per punteggio.
    - **Esposizione vs Irrobustimento** (`FindingNature`, [ADR-004](docs/adr/adr-004-finding-nature.md)): ogni controllo Checkov è classificato dal catalogo `config/scanner_configs/checkov-policy-catalog.yaml` come `EXPOSURE` (varco sfruttabile: ACL pubblica, policy IAM `*`, endpoint senza autorizzazione, segreto cablato) o `HARDENING` (difesa in profondità: logging, versioning, lifecycle, notifiche). La voce aggregata per risorsa è sempre l'esposizione di severità maggiore — mai il primo controllo incontrato — e l'hardening non riceve il bonus di contesto nel punteggio.
 
 ---
@@ -75,6 +76,8 @@ I file di configurazione e le chiavi per i test DAST vengono autogenerati nella 
 ### File di configurazione degli scanner
 - **`config/scanner_configs/spectral-owasp.yaml`**: Regole Spectral per il contratto OpenAPI basate sullo standard OWASP.
 - **`config/scanner_configs/route-detect.yaml`**: Regole Semgrep per il tracciamento dei mapping di route applicative.
+- **`config/scanner_configs/checkov-policy-catalog.yaml`**: Catalogo semantico dei controlli Checkov (natura, severità, `public`, `sensitive_data`).
+- **`config/risk_scoring.yaml`**: Parametri della formula di rischio e mappe di confidenza per sorgente (ADR-005); ogni chiave assente ricade sui default di `src/core/config.py`.
 
 ---
 
@@ -197,6 +200,7 @@ PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
 ```
 ├── config/
 │   ├── environments/          # Contiene le variabili d'ambiente generate (.target_env)
+│   ├── risk_scoring.yaml      # Parametri della formula di rischio (ADR-005)
 │   └── scanner_configs/       # Contiene le configurazioni degli scanner (rulesets)
 ├── entrypoints/               # Punti di ingresso eseguibili
 │   ├── operations/            # Script bash di orchestrazione della pipeline
@@ -286,7 +290,7 @@ PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
     ],
     "references": [],
     "raw_data": {
-      "correlated_risk_score": 9.6
+      "correlated_risk_score": 8.8
     },
     "detected_at": "2026-06-02T12:44:24.000000"
   }

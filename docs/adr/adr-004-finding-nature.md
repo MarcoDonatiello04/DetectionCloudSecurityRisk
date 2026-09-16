@@ -32,14 +32,14 @@ L'adapter (`CheckovScannerAdapter.build_finding`) usa il catalogo per natura e s
 `RiskCorrelationEngine` non conserva più il primo finding incontrato: quando due findings condividono la chiave di risorsa, la voce rappresentativa è quella che **prevale per natura e poi per severità** (`_outranks`); a parità completa resta la prima (ordine deterministico). Un controllo di natura inferiore non altera mai la severità della voce rappresentativa. I controlli assorbiti restano come sotto-elementi informativi in `raw_data["aggregated_checks"]` (id, regola, titolo, severità, natura), oltre che in `related_findings`. Un riscontro empirico a runtime porta la natura a `EXPOSURE`, coerentemente con l'elevazione di severità già prevista.
 
 ### 4. Scoring — nessun bonus di esposizione per l'hardening
-La formula di ADR-001 resta invariata. Per i finding `HARDENING` il fattore di contesto vale `DEFAULT_CONTEXT_HARDENING = 0` (in `src/core/config.py`): una linea di difesa mancante non è un vettore d'accesso. Per i finding non classificati il punteggio è identico a prima (`5,3` per `MEDIUM` con confidenza 1).
+La formula di ADR-001 resta invariata. Per i finding `HARDENING` il fattore di contesto vale `DEFAULT_CONTEXT_HARDENING = 0` (in `src/core/config.py` e `config/risk_scoring.yaml`): una linea di difesa mancante non è un vettore d'accesso. Per i finding non classificati il punteggio è identico a prima (`5,3` per `MEDIUM` con confidenza 1).
 
-Punteggi risultanti sul bersaglio di prova (confidenza 1):
+Punteggi risultanti sul bersaglio di prova (confidenza 1; `CRITICAL = 10` dopo [ADR-005](adr-005-risk-scoring.md), che rende anche la confidenza dipendente dalla precisione della regola del catalogo):
 
 | Finding | Natura | Severità | Contesto | Punteggio |
 |---|---|---|---|---|
-| ACL pubblica in lettura (`CKV_AWS_20`) | EXPOSURE | CRITICAL | esposto + pubblico (6) | **8,6** |
-| Policy IAM `*`/`*` (`CKV_AWS_62`) | EXPOSURE | CRITICAL | default (3) | 8,0 |
+| ACL pubblica in lettura (`CKV_AWS_20`) | EXPOSURE | CRITICAL | esposto + pubblico (6) | **9,2** |
+| Policy IAM `*`/`*` (`CKV_AWS_62`) | EXPOSURE | CRITICAL | default (3) | 8,6 |
 | Metodo API senza autorizzazione (`CKV_AWS_59`) | EXPOSURE | HIGH | esposto + pubblico (6) | 7,4 |
 | Public Access Block disattivato (`CKV_AWS_53`) | EXPOSURE | HIGH | default (3) | 6,8 |
 | Controllo non classificato | — | MEDIUM | default (3) | 5,3 |
@@ -47,7 +47,7 @@ Punteggi risultanti sul bersaglio di prova (confidenza 1):
 | Notifiche di evento assenti (`CKV2_AWS_62`) | HARDENING | LOW | 0 | **3,2** |
 
 ### 5. Presentazione
-La pagina dei risultati Checkov ordina le voci per natura e severità, mostra il badge *Esposizione*/*Hardening* e il numero di controlli assorbiti sulla stessa risorsa (con il dettaglio di quanti sono di hardening).
+La pagina dei risultati Checkov ordina le voci per natura, punteggio di rischio e severità, mostra il badge *Esposizione*/*Hardening*, il punteggio e il numero di controlli assorbiti sulla stessa risorsa (con il dettaglio di quanti sono di hardening).
 
 ## Considered Options
 
