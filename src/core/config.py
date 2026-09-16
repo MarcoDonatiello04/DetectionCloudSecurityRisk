@@ -81,3 +81,11 @@ DEFAULT_CONTEXT_HARDENING = 0.0
 
 MAX_RISK_SCORE = 10.0
 CONFIDENCE_NORMALIZER = 10.0
+
+# ─── CONFIDENZA PER SORGENTE (fattore C della formula, 0.0-1.0) ──────────────
+# Checkov: quanto è precisa la regola del catalogo che ha classificato il controllo
+CONFIDENCE_BY_CATALOG_MATCH = {"exact": 1.0, "prefix": 0.9, "keyword": 0.8, "default": 0.6}
+# ZAP: livello di confidenza dichiarato dall'alert ("False Positive" viene scartato)
+CONFIDENCE_BY_ZAP_LEVEL = {"User Confirmed": 1.0, "High": 0.9, "Medium": 0.7, "Low": 0.5}
+CONFIDENCE_SEMGREP_POSITIVE_MATCH = 0.95  # decoratore/handler di autenticazione trovato
+CONFIDENCE_SEMGREP_INFERRED_ABSENCE = 0.7  # assenza di autenticazione dedotta

@@ -34,7 +34,7 @@ class PolicyClassification:
         nature: Natura del rischio (None se il controllo non è classificato).
         severity: Severità di base coerente con la natura.
         public_facing: True se la condizione fallita rende la risorsa raggiungibile da chiunque.
-        matched_by: Regola che ha prodotto l'esito ("policy", "prefix", "keyword", "default").
+        matched_by: Regola che ha prodotto l'esito ("exact", "prefix", "keyword", "default").
     """
 
     nature: FindingNature | None
@@ -145,7 +145,7 @@ class CheckovPolicyCatalog:
         )
 
         for check_id, spec in (data.get("policies") or {}).items():
-            classification = self._parse_entry(spec, matched_by="policy")
+            classification = self._parse_entry(spec, matched_by="exact")
             if classification:
                 self._policies[str(check_id).upper()] = classification
 

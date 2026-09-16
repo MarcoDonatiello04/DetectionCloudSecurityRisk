@@ -78,7 +78,7 @@ def test_catalog_explicit_exposure_policy(catalog):
     assert result.nature == FindingNature.EXPOSURE
     assert result.severity == Severity.CRITICAL
     assert result.public_facing is True
-    assert result.matched_by == "policy"
+    assert result.matched_by == "exact"
 
 
 def test_catalog_explicit_hardening_policy(catalog):

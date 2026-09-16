@@ -118,7 +118,7 @@ class RiskCorrelationEngine:
                     runtime_finding.raw_data
                 )
             else:
-                runtime_finding.confidence = 0.9
+                # La confidenza resta quella dichiarata dall'adapter di origine
                 self.correlated_findings[key] = runtime_finding
 
         logger.info(
@@ -138,7 +138,13 @@ class RiskCorrelationEngine:
             float: Il punteggio complessivo di rischio calcolato.
         """
         sev_score = finding.severity.score
-        conf_score = finding.confidence * CONFIDENCE_NORMALIZER
+
+        # Conferma empirica (exploit riuscito a runtime): la confidenza è massima
+        # indipendentemente da quella dichiarata dall'adapter.
+        confidence = finding.confidence
+        if finding.risk_context and finding.risk_context.exploitable:
+            confidence = 1.0
+        conf_score = confidence * CONFIDENCE_NORMALIZER
 
         # Moltiplicatore di contesto (es: esposto a internet, dati sensibili)
         context_score = 0.0

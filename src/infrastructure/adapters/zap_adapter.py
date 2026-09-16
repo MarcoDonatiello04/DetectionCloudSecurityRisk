@@ -4,7 +4,7 @@ import urllib.parse
 
 from zapv2 import ZAPv2
 
-from src.core.config import DEFAULT_ZAP_URL
+from src.core.config import CONFIDENCE_BY_ZAP_LEVEL, DEFAULT_ZAP_URL
 from src.domain.entities import (
     APIContext,
     Finding,
@@ -101,6 +101,14 @@ class ZapClientAdapter(IScanner):
                 param = alert.get("param", "")
                 evidence = alert.get("evidence", "")
 
+                # Confidenza dichiarata da ZAP: un alert marcato "False Positive" non
+                # entra nell'inventario; gli altri livelli alimentano il fattore C.
+                zap_confidence = alert.get("confidence")
+                if zap_confidence == "False Positive":
+                    logger.debug(f"Alert ZAP '{alert_name}' su {url} scartato: False Positive.")
+                    continue
+                confidence = CONFIDENCE_BY_ZAP_LEVEL.get(zap_confidence, 0.7)
+
                 # Mappatura della severità ZAP (High, Medium, Low, Informational)
                 risk = alert.get("risk", "Informational")
                 severity = Severity.INFO
@@ -132,7 +140,7 @@ class ZapClientAdapter(IScanner):
                     title=alert_name,
                     description=f"{description}\nParametro affetto: {param}\nEvidenza: {evidence}",
                     severity=severity,
-                    confidence=0.9,
+                    confidence=confidence,
                     rule_id=alert.get("pluginId", alert_id),
                     target_identifier=f"{method}:{path}:{alert_name}",
                     rule_name=alert_name,

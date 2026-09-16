@@ -4,7 +4,7 @@ import os
 import subprocess
 from typing import Any
 
-from src.core.config import CHECKOV_CMD, DEFAULT_CHECKOV_CONFIG
+from src.core.config import CHECKOV_CMD, CONFIDENCE_BY_CATALOG_MATCH, DEFAULT_CHECKOV_CONFIG
 from src.core.config import DEFAULT_SCAN_TIMEOUT_SECONDS as DEFAULT_TIMEOUT_SECONDS
 from src.domain.entities import (
     CodeLocation,
@@ -183,7 +183,9 @@ class CheckovScannerAdapter(IScanner):
             title=check_name,
             description=f"{check_name} per la risorsa {resource_id}",
             severity=classification.severity,
-            confidence=1.0,
+            # La confidenza riflette la precisione della regola del catalogo che ha
+            # classificato il controllo: mappatura esplicita > prefisso > keyword > default.
+            confidence=CONFIDENCE_BY_CATALOG_MATCH[classification.matched_by],
             rule_id=check_id,
             target_identifier=target_ident,
             rule_name=check.get("check_name"),

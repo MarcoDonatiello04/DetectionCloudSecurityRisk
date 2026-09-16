@@ -5,7 +5,12 @@ import re
 import subprocess
 from typing import Any
 
-from src.core.config import DEFAULT_SEMGREP_OUTPUT_FILE, DEFAULT_SEMGREP_RULESET_PATH
+from src.core.config import (
+    CONFIDENCE_SEMGREP_INFERRED_ABSENCE,
+    CONFIDENCE_SEMGREP_POSITIVE_MATCH,
+    DEFAULT_SEMGREP_OUTPUT_FILE,
+    DEFAULT_SEMGREP_RULESET_PATH,
+)
 from src.domain.entities import (
     APIContext,
     CodeLocation,
@@ -115,7 +120,11 @@ class SemgrepScannerAdapter(IScanner):
                 title=title,
                 description=desc,
                 severity=severity,
-                confidence=0.8,
+                # Un decoratore/handler di autenticazione trovato è un riscontro positivo;
+                # la sua assenza è solo dedotta dall'analisi statica.
+                confidence=CONFIDENCE_SEMGREP_POSITIVE_MATCH
+                if auth_detected
+                else CONFIDENCE_SEMGREP_INFERRED_ABSENCE,
                 rule_id="api-route-discovery" if auth_detected else "unauthenticated-api-route",
                 target_identifier=f"{method}:{path}",
                 rule_name="API Route Detection",
