@@ -405,6 +405,21 @@
         .nature-badge.exposure { background: var(--bg-high); color: var(--text-high); border-color: var(--border-high); }
         .nature-badge.hardening { background: var(--bg-low); color: var(--text-low); border-color: var(--border-low); }
 
+        /* Punteggio di rischio correlato (0-10), colorato come la severità della voce */
+        .score-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        .score-badge.critical { background: var(--bg-crit); color: var(--text-crit); border-color: var(--border-crit); }
+        .score-badge.high { background: var(--bg-high); color: var(--text-high); border-color: var(--border-high); }
+        .score-badge.medium { background: var(--bg-med); color: var(--text-med); border-color: var(--border-med); }
+        .score-badge.low { background: var(--bg-low); color: var(--text-low); border-color: var(--border-low); }
+
         .finding-aggregated {
             font-size: 0.72rem;
             color: var(--text-secondary);
@@ -1181,13 +1196,21 @@
             let crit = 0, high = 0, med = 0, low = 0;
 
             // Prioritizzazione: prima le esposizioni sfruttabili, poi i non classificati,
-            // infine l'hardening; a parità di natura, per severità decrescente.
+            // infine l'hardening; a parità di natura, per punteggio di rischio correlato
+            // decrescente; la severità è il terzo criterio.
             const natureRank = { 'EXPOSURE': 0, 'HARDENING': 2 };
             const severityRank = { 'critical': 0, 'high': 1, 'medium': 2, 'low': 3, 'info': 4 };
+            const riskScoreOf = (f) => {
+                const v = f.raw_data ? f.raw_data.correlated_risk_score : undefined;
+                return (typeof v === 'number' && Number.isFinite(v)) ? v : null;
+            };
             const sorted = [...findings].sort((a, b) => {
                 const na = natureRank[a.nature] ?? 1;
                 const nb = natureRank[b.nature] ?? 1;
                 if (na !== nb) return na - nb;
+                const ra = riskScoreOf(a) ?? -1;
+                const rb = riskScoreOf(b) ?? -1;
+                if (ra !== rb) return rb - ra;
                 const sa = severityRank[(a.severity || 'medium').toLowerCase()] ?? 2;
                 const sb = severityRank[(b.severity || 'medium').toLowerCase()] ?? 2;
                 return sa - sb;
@@ -1216,6 +1239,12 @@
                         natureHtml = `<span class="nature-badge hardening" title="Linea di difesa in profondità mancante">Hardening</span>`;
                     }
 
+                    // Punteggio di rischio correlato (assente se il motore non lo ha calcolato)
+                    const riskScore = riskScoreOf(f);
+                    const scoreHtml = riskScore === null
+                        ? ''
+                        : `<span class="score-badge ${badgeClass}" title="Punteggio di rischio correlato (0-10)">${riskScore.toFixed(1)}</span>`;
+
                     // Controlli assorbiti sulla stessa risorsa (sotto-elementi informativi)
                     const aggregated = (f.raw_data && Array.isArray(f.raw_data.aggregated_checks)) ? f.raw_data.aggregated_checks : [];
                     const hardeningCount = aggregated.filter(c => c.nature === 'HARDENING').length;
@@ -1239,6 +1268,7 @@
                             <div class="finding-badge-container">
                                 ${natureHtml}
                                 <span class="severity-badge ${badgeClass}">${sev}</span>
+                                ${scoreHtml}
                                 <div class="toggle-arrow">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="6 9 12 15 18 9"></polyline>
