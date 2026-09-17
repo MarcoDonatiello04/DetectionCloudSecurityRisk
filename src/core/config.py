@@ -49,6 +49,9 @@ DEFAULT_LOCALSTACK_URL = os.getenv("LOCALSTACK_URL", "http://localhost:4566")
 HTTP_TIMEOUT_SHORT_SECONDS = 3
 HTTP_TIMEOUT_MEDIUM_SECONDS = 5
 ZAP_POLL_INTERVAL_SECONDS = 2
+# Tempo massimo di attesa per la conclusione degli active scan di ZAP: oltre questa
+# soglia il polling esce con un warning e gli scan vengono fermati (ZAP puo bloccarsi al 99%).
+ZAP_ACTIVE_SCAN_TIMEOUT_SECONDS = int(os.getenv("ZAP_ACTIVE_SCAN_TIMEOUT_SECONDS", "300"))
 DEFAULT_SCAN_TIMEOUT_SECONDS = 60
 
 # ─── CREDENZIALI E PARAMETRI DI SEEDING ───────────────────────────────────────
@@ -59,6 +62,10 @@ DEFAULT_USER_B_PASSWORD = os.getenv("USER_B_PASSWORD", "Password123!")
 DEFAULT_USER_C_USERNAME = os.getenv("USER_C_USERNAME", "admin_user")
 DEFAULT_USER_C_PASSWORD = os.getenv("USER_C_PASSWORD", "Password123!")
 DEFAULT_CLIENT_ID = os.getenv("CLIENT_ID", "security-platform-client")
+
+# Contratto cooperante del bersaglio BOLA (URL, harness seed/snapshot/rollback,
+# identity provider e identità di test): vedi src/core/api1_bola/target_config.py.
+DEFAULT_BOLA_TARGET_CONFIG = os.getenv("BOLA_TARGET_CONFIG", "config/bola_target.yaml")
 
 SEED_START_USER_A = 100
 SEED_END_USER_A = 110
@@ -110,6 +117,15 @@ CONFIDENCE_BY_CATALOG_MATCH = {"exact": 1.0, "prefix": 0.9, "keyword": 0.8, "def
 CONFIDENCE_BY_ZAP_LEVEL = {"User Confirmed": 1.0, "High": 0.9, "Medium": 0.7, "Low": 0.5}
 CONFIDENCE_SEMGREP_POSITIVE_MATCH = 0.95  # decoratore/handler di autenticazione trovato
 CONFIDENCE_SEMGREP_INFERRED_ABSENCE = 0.7  # assenza di autenticazione dedotta
+
+# ─── MODULO BOLA (API1): CONFRONTO STRUTTURALE E GERARCHIA RUOLI ─────────────
+# Sovrascrivibili dal file YAML `config/bola.yaml` (vedi load_bola_config).
+DEFAULT_BOLA_CONFIG = os.getenv("BOLA_CONFIG", "config/bola.yaml")
+# Campi JSON ricalcolati ad ogni richiesta (chi ha acceduto, timestamp, ...): ignorati
+# nel confronto tra la risposta del proprietario e quella dell'attaccante.
+BOLA_VOLATILE_FIELDS = ("accessed_by", "requested_by", "timestamp", "updated_at", "by")
+# Gerarchia dei ruoli della privilege matrix: rango maggiore = più privilegi.
+BOLA_ROLE_HIERARCHY = {"admin": 3, "manager": 2, "user": 1}
 
 
 # ─── CONFIGURAZIONE DEL RISK SCORING (YAML + fallback sulle costanti) ────────
@@ -169,7 +185,7 @@ def _read_yaml_mapping(path: str) -> dict[str, Any]:
         (c for c in (path, os.path.join(_PROJECT_ROOT, path)) if os.path.isfile(c)), None
     )
     if not resolved:
-        logger.warning(f"Configurazione risk scoring '{path}' assente: uso i valori di default.")
+        logger.warning(f"Configurazione '{path}' assente: uso i valori di default.")
         return {}
     try:
         import yaml
@@ -180,7 +196,7 @@ def _read_yaml_mapping(path: str) -> dict[str, Any]:
         logger.error(f"Errore nella lettura di '{resolved}': {e}. Uso i valori di default.")
         return {}
     if not isinstance(data, dict):
-        logger.error(f"Configurazione risk scoring '{resolved}' non valida: atteso un mapping.")
+        logger.error(f"Configurazione '{resolved}' non valida: atteso un mapping.")
         return {}
     return data
 
@@ -255,3 +271,59 @@ def load_risk_scoring_config(path: str | None = None) -> RiskScoringConfig:
             confidence, "semgrep_inferred_absence", defaults.confidence_semgrep_inferred_absence
         ),
     )
+
+
+# ─── CONFIGURAZIONE DEL MODULO BOLA (YAML + fallback sulle costanti) ─────────
+
+
+@dataclass(frozen=True)
+class BolaConfig:
+    """
+    Parametri dell'assertion engine e della privilege matrix del modulo BOLA.
+
+    I default coincidono con le costanti di questo modulo; il file YAML può
+    sovrascriverli chiave per chiave (vedi ``load_bola_config``).
+    """
+
+    volatile_fields: frozenset[str] = field(default_factory=lambda: frozenset(BOLA_VOLATILE_FIELDS))
+    role_hierarchy: dict[str, int] = field(default_factory=lambda: dict(BOLA_ROLE_HIERARCHY))
+
+
+def load_bola_config(path: str | None = None) -> BolaConfig:
+    """
+    Carica i parametri del modulo BOLA dal file YAML, ricadendo sui default del modulo.
+
+    Una lista ``volatile_fields`` presente nel file sostituisce integralmente quella di
+    default; la mappa ``roles`` viene accettata solo se contiene almeno un ruolo con
+    rango intero, altrimenti resta la gerarchia di default.
+
+    Args:
+        path (str | None): Percorso del file; se None usa BOLA_CONFIG
+            (variabile d'ambiente) o ``config/bola.yaml``.
+
+    Returns:
+        BolaConfig: La configurazione, completa in ogni chiave.
+    """
+    data = _read_yaml_mapping(path or DEFAULT_BOLA_CONFIG)
+    defaults = BolaConfig()
+
+    volatile_fields = defaults.volatile_fields
+    raw_fields = _section(data, "structural_match").get("volatile_fields")
+    if isinstance(raw_fields, list):
+        volatile_fields = frozenset(str(f).strip() for f in raw_fields if str(f).strip())
+
+    role_hierarchy = defaults.role_hierarchy
+    raw_roles = {
+        str(name).lower().strip(): int(rank)
+        for name, rank in _section(data, "roles").items()
+        if isinstance(rank, int) and not isinstance(rank, bool)
+    }
+    if raw_roles:
+        role_hierarchy = raw_roles
+    elif "roles" in data:
+        logger.error(
+            f"Sezione 'roles' di '{path or DEFAULT_BOLA_CONFIG}' non valida "
+            "(atteso mapping ruolo -> rango intero): uso la gerarchia di default."
+        )
+
+    return BolaConfig(volatile_fields=volatile_fields, role_hierarchy=role_hierarchy)

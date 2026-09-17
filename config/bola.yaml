@@ -1,0 +1,31 @@
+# ============================================================================
+# Parametri del modulo BOLA (API1) — assertion engine e privilege matrix
+# ----------------------------------------------------------------------------
+# structural_match.volatile_fields
+#   Chiavi JSON ignorate nel confronto semantico tra la risposta del proprietario
+#   e quella dell'attaccante (APIAssertionEngine._structural_match). Sono i campi
+#   che l'applicazione ricalcola per ogni richiesta (chi ha acceduto, timestamp,
+#   ...) e che divergono anche quando l'oggetto restituito è lo stesso.
+#
+# roles
+#   Gerarchia dei ruoli della privilege matrix (AccessControlMatrix): rango più
+#   alto = più privilegi. Il rango massimo ha accesso legittimo a tutto; un ruolo
+#   non censito viene degradato al rango minimo con un warning esplicito.
+#
+# Ogni chiave è opzionale: se assente vale il default di src/core/config.py.
+# Il percorso del file è sovrascrivibile con la variabile BOLA_CONFIG.
+# ============================================================================
+version: 1
+
+structural_match:
+  volatile_fields:
+    - accessed_by
+    - requested_by
+    - timestamp
+    - updated_at
+    - by
+
+roles:
+  admin: 3
+  manager: 2
+  user: 1

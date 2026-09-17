@@ -5,22 +5,81 @@ Percorso: src/core/api1_bola/role_matrix.py
 
 Questo modulo implementa la Privilege Matrix di controllo degli accessi. Definisce
 la logica di business gerarchica per determinare la legittimità o la classificazione
-di una violazione BOLA (Orizzontale o Verticale).
+di una violazione BOLA (Orizzontale o Verticale). La gerarchia dei ruoli è letta da
+``config/bola.yaml`` (sezione ``roles``), non cablata nel codice.
 """
 
 import logging
 
+from src.core.api1_bola.bola_config import get_bola_config
+
 logger = logging.getLogger("SecurityPlatform.BOLA.AccessControlMatrix")
+
+
+class _ConfiguredHierarchy:
+    """Descrittore di classe: ``AccessControlMatrix.HIERARCHY`` legge la config attiva."""
+
+    def __get__(self, instance, owner) -> dict[str, int]:
+        return get_bola_config().role_hierarchy
 
 
 class AccessControlMatrix:
     """
     Rappresenta la Privilege Matrix gerarchica del sistema.
 
+    La gerarchia (``HIERARCHY``) è una mappa ruolo -> rango intero: rango maggiore
+    equivale a maggiori privilegi. Le regole non dipendono dai nomi dei ruoli ma solo
+    dal confronto dei ranghi, così una gerarchia diversa da admin/manager/user
+    (es. ``owner > editor > viewer``) viene valutata con la stessa logica.
+
     Pattern Strutturale: Privilege Matrix / Role-Based Policy
     """
 
-    HIERARCHY = {"admin": 3, "manager": 2, "user": 1}
+    # Letta ad ogni accesso da config/bola.yaml (sezione roles), mai cablata qui
+    HIERARCHY: dict[str, int] = _ConfiguredHierarchy()  # type: ignore[assignment]
+
+    @classmethod
+    def hierarchy(cls) -> dict[str, int]:
+        """
+        Gerarchia attiva dei ruoli, letta dalla configurazione condivisa del modulo BOLA.
+
+        Returns:
+            dict[str, int]: Mappa ruolo -> rango.
+        """
+        return cls.HIERARCHY
+
+    @classmethod
+    def default_role(cls) -> str:
+        """
+        Ruolo di ripiego per i ruoli non censiti: quello con il rango minimo.
+
+        Returns:
+            str: Il nome del ruolo meno privilegiato della gerarchia.
+        """
+        return min(cls.hierarchy(), key=cls.hierarchy().get)
+
+    @classmethod
+    def normalize_role(cls, role: str | None, subject: str) -> str:
+        """
+        Normalizza un ruolo e lo degrada esplicitamente se non è censito nella gerarchia.
+
+        Args:
+            role (str | None): Il ruolo così come dichiarato dall'identity provider.
+            subject (str): Etichetta del soggetto (richiedente/proprietario) per il log.
+
+        Returns:
+            str: Un ruolo presente nella gerarchia.
+        """
+        normalized = str(role or cls.default_role()).lower().strip()
+        if normalized in cls.hierarchy():
+            return normalized
+        fallback = cls.default_role()
+        logger.warning(
+            f"⚠️ [ROLE MATRIX] Ruolo '{normalized}' del {subject} non censito nella gerarchia "
+            f"{sorted(cls.hierarchy())}: degradato a '{fallback}'. "
+            "Aggiungerlo a config/bola.yaml (sezione roles) se legittimo."
+        )
+        return fallback
 
     @classmethod
     def validate_access_legitimacy(
@@ -35,12 +94,11 @@ class AccessControlMatrix:
         """
         Valuta se l'operazione richiesta è legittima rispetto alle regole di business.
 
-        Regole di Business:
-        - Un ruolo 'admin' ha accesso completo e legittimo a qualsiasi risorsa.
-        - Un ruolo 'manager' ha accesso alle proprie risorse e a quelle degli utenti 'user', ma non degli 'admin'.
-        - Un ruolo 'user' può accedere solo alle proprie risorse. Qualsiasi interazione
-          su risorse di un altro 'user' (peer) è marcata come BOLA Orizzontale.
-        - Un tentativo di accesso da ruolo inferiore a risorsa di ruolo superiore è marcato come BOLA Verticale.
+        Regole di Business (in termini di rango):
+        - Il ruolo di rango massimo (es. 'admin') ha accesso completo e legittimo a qualsiasi risorsa.
+        - Un ruolo che accede a una risorsa di rango inferiore (es. 'manager' su 'user') è legittimo.
+        - Un ruolo che accede a una risorsa di pari rango (es. 'user' su 'user') è BOLA Orizzontale.
+        - Un ruolo che accede a una risorsa di rango superiore è BOLA Verticale.
 
         Args:
             requesting_role (str): Il ruolo dell'utente che avvia la richiesta.
@@ -54,38 +112,30 @@ class AccessControlMatrix:
         req_role_raw = requesting_role if requesting_role is not None else requesting_user_role
         owner_role_raw = owner_role if owner_role is not None else resource_owner_role
 
-        req_role = str(req_role_raw or "user").lower().strip()
-        owner_role = str(owner_role_raw or "user").lower().strip()
+        req_role = cls.normalize_role(req_role_raw, "richiedente")
+        owner_role = cls.normalize_role(owner_role_raw, "proprietario")
         method = str(method or "GET").upper().strip()
 
-        # Allineamento con la gerarchia censita
-        if req_role not in cls.HIERARCHY:
-            req_role = "user"
-        if owner_role not in cls.HIERARCHY:
-            owner_role = "user"
+        hierarchy = cls.hierarchy()
+        req_rank = hierarchy[req_role]
+        owner_rank = hierarchy[owner_role]
 
         logger.debug(
-            f"📐 [ROLE MATRIX] Valutazione: {req_role} su risorsa di {owner_role} tramite {method}"
+            f"📐 [ROLE MATRIX] Valutazione: {req_role}({req_rank}) su risorsa di "
+            f"{owner_role}({owner_rank}) tramite {method}"
         )
 
-        # 1. Accesso da parte di un Amministratore
-        if req_role == "admin":
+        # 1. Accesso da parte del ruolo di rango massimo (es. Amministratore)
+        if req_rank == max(hierarchy.values()):
             return "LEGITTIMO"
 
-        # 2. Accesso da parte di un Utente ordinario su un altro Utente ordinario (Peer-to-Peer)
-        if req_role == "user" and owner_role == "user":
-            return "BOLA_ORIZZONTALE"
-
-        # 3. Accesso da ruolo con privilegi inferiori a superiori (Scalata)
-        if cls.HIERARCHY[req_role] < cls.HIERARCHY[owner_role]:
+        # 2. Accesso da ruolo con privilegi inferiori a superiori (Scalata)
+        if req_rank < owner_rank:
             return "BOLA_VERTICALE"
 
-        # 4. Accesso da parte di un Manager su un Utente ordinario (Lecito)
-        if req_role == "manager" and owner_role == "user":
-            return "LEGITTIMO"
-
-        # 5. Default in caso di ruoli identici non admin (es. manager su manager)
-        if req_role == owner_role:
+        # 3. Accesso tra pari (Peer-to-Peer)
+        if req_rank == owner_rank:
             return "BOLA_ORIZZONTALE"
 
-        return "BOLA_VERTICALE"
+        # 4. Accesso da ruolo superiore su inferiore (es. Manager su User): lecito
+        return "LEGITTIMO"

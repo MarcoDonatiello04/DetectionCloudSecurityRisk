@@ -15,7 +15,7 @@ Il perimetro del sistema comprende:
 * **Decodifica JWT ed Estrazione del Contesto**: Identificazione dell'UUID (`sub`) dell'utente a partire dai token rilasciati da un Identity Provider (Keycloak).
 * **State Management (Snapshot & Rollback)**: Conservazione dello stato in memoria dell'applicazione target per garantire l'idempotenza dei test distruttivi (`PUT`, `DELETE`).
 * **Generatore di Attacchi (Attack Stimulator)**: Tampering dei parametri ID negli URL di endpoint dinamici con instradamento del traffico verso OWASP ZAP.
-* **Assertion Engine**: Analisi a tre livelli (Status Code, Error Keywords e Delta di lunghezza dei body delle risposte) per la generazione del verdetto di sicurezza.
+* **Assertion Engine**: Analisi a più livelli (Status Code, Error Keywords, confronto semantico dei body JSON al netto dei campi volatili e riferimento all'ID della vittima) per la generazione del verdetto di sicurezza.
 
 ## 1.3. Objectives and success criteria of the project
 * **Obiettivi**:
@@ -84,7 +84,7 @@ Il sistema proposto implementa un'architettura dinamica guidata dagli eventi (Ev
 ### Categoria 4: Validazione Semantica OSI-7 (FR-4)
 * **FR-4.1**: `http_status_assertion` deve rilevare codici di errore nativi (`401`, `403`).
 * **FR-4.2**: `content_keyword_assertion` deve scandire il body della risposta per trovare errori di diniego mascherati da un 200 OK.
-* **FR-4.3**: `structural_similarity_assertion` deve calcolare la variazione in byte ($\Delta$) tra la risposta legittima e quella dell'attaccante. Se $\Delta = 0$, l'isolamento è violato.
+* **FR-4.3**: `structural_similarity_assertion` deve confrontare semanticamente la risposta legittima e quella dell'attaccante (body JSON decodificati, al netto dei campi volatili dichiarati in `config/bola.yaml`, es. `accessed_by`, `timestamp`; uguaglianza testuale se non JSON). Se l'attaccante ha ottenuto lo stesso oggetto, l'isolamento è violato. In aggiunta, `victim_reference_assertion` segnala violazione se un body 2xx dell'attaccante contiene l'identificativo della risorsa della vittima, anche quando i body divergono.
 
 ---
 
@@ -117,7 +117,7 @@ Il sistema proposto implementa un'architettura dinamica guidata dagli eventi (Ev
   1. Bob invia una richiesta `GET /api/orders/<UUID_ALICE>` includendo il proprio JWT nell'header `Authorization`.
   2. L'applicazione target non verifica la corrispondenza tra l'UUID ed il proprietario del record.
   3. L'applicazione target risponde con `200 OK` inviando il record di Alice.
-  4. L'Assertion Engine confronta il body di Bob con quello ottenuto precedentemente da Alice. Riscontra $\Delta = 0$ byte.
+  4. L'Assertion Engine confronta il body di Bob con quello ottenuto precedentemente da Alice. Riscontra lo stesso oggetto (a meno del campo volatile `accessed_by`).
   5. Viene sollevato l'alert critico `BOLA ORIZZONTALE`.
 
 #### Scenario B: Ripristino dello Stato a seguito di Cancellazione (DELETE)

@@ -58,6 +58,22 @@ def parse_args():
         action="store_true",
         help="Run in Assessment Mode (skip Keycloak/seeding, infer from traffic)",
     )
+    parser.add_argument(
+        "--all-methods",
+        action="store_true",
+        help=(
+            "Test GET/POST/PUT/PATCH/DELETE on every endpoint instead of only the methods "
+            "declared by the inventory (exhaustive, 3-5x slower)"
+        ),
+    )
+    parser.add_argument(
+        "--allow-mutations",
+        action="store_true",
+        help=(
+            "In Assessment Mode re-enable PUT/PATCH/DELETE (excluded by default: without "
+            "snapshot/rollback they alter real resources)"
+        ),
+    )
     return parser.parse_args()
 
 
@@ -307,6 +323,8 @@ def run_bola(args, openapi_spec, runtime_traffic):
         keycloak_url=args.keycloak_url,
         zap_proxy_url=args.zap_url,
         assessment_mode=args.assessment_mode,
+        test_all_methods=args.all_methods,
+        allow_mutations=True if args.allow_mutations else None,
     )
 
     dast_findings = dast_orchestrator.run_dast_pipeline(

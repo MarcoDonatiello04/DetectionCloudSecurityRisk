@@ -22,6 +22,7 @@ sul database di test e massimizzando la precisione di ZAP.
 import json
 import logging
 import os
+import threading
 import time
 from typing import Any
 
@@ -29,7 +30,7 @@ import requests
 from zapv2 import ZAPv2
 
 from src.core.api1_bola.assertion_engine import APIAssertionEngine
-from src.core.api1_bola.attack_vector import ContextAwareAttackGenerator
+from src.core.api1_bola.attack_vector import ContextAwareAttackGenerator, IdentityProfile
 from src.core.api1_bola.discovery.object_discovery import (
     ObjectReferenceDiscoveryEngine,
 )
@@ -37,13 +38,23 @@ from src.core.api1_bola.discovery.ownership_inference import (
     OwnershipInferenceEngine,
 )
 from src.core.api1_bola.state_manager import APIStateEngine
-from src.core.config import (
-    DEFAULT_KEYCLOAK_URL,
-    DEFAULT_TARGET_BASE_URL,
-    ZAP_POLL_INTERVAL_SECONDS,
+from src.core.api1_bola.target_config import (
+    DEFAULT_HARNESS_ROLLBACK_PATH,
+    DEFAULT_HARNESS_SNAPSHOT_PATH,
+    DEFAULT_ZAP_INTERNAL_HOST,
+    IDENTITY_KEYS,
+    IDENTITY_PEER,
+    IDENTITY_PRIVILEGED,
+    IDENTITY_VICTIM,
+    BolaTargetConfig,
+    get_bola_target_config,
 )
 from src.core.config import (
     DEFAULT_ZAP_URL as DEFAULT_ZAP_PROXY_URL,
+)
+from src.core.config import (
+    ZAP_ACTIVE_SCAN_TIMEOUT_SECONDS,
+    ZAP_POLL_INTERVAL_SECONDS,
 )
 from src.core.identity_context import DatabaseSeeder, IdentityManager
 from src.domain.entities import Finding
@@ -92,6 +103,12 @@ class ScannerError(OrchestratorError):
     pass
 
 
+class TargetUnreachableError(OrchestratorError):
+    """Il target cooperante non risponde su /test/snapshot: la fase D-AST non puo' partire."""
+
+    pass
+
+
 # ─── COSTANTI DI DOMINIO E CONFIGURAZIONE ───────────────────────────────────
 
 # Livelli di Rischio del Dominio Sicurezza Cloud
@@ -100,6 +117,16 @@ RISK_LEVEL_HIGH = "HIGH"
 RISK_LEVEL_MEDIUM = "MEDIUM"
 RISK_LEVEL_LOW = "LOW"
 RISK_LEVEL_INFO = "INFO"
+
+# Metodi HTTP supportati dal test differenziale, nell'ordine in cui vengono esercitati.
+ALL_HTTP_METHODS = ("GET", "POST", "PUT", "PATCH", "DELETE")
+# Metodi che possono alterare lo stato del target: solo per questi ha senso lo snapshot/rollback.
+STATE_MUTATING_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
+# Metodi esclusi di default in Assessment Mode (nessun rollback possibile): modificano o
+# distruggono risorse reali. `--allow-mutations` li riabilita esplicitamente.
+ASSESSMENT_EXCLUDED_METHODS = frozenset({"PUT", "PATCH", "DELETE"})
+# Placeholder dei parametri di path nell'inventario normalizzato
+ID_PLACEHOLDER = "{id}"
 
 
 # ─── FUNZIONI DI VALIDAZIONE DELL'INPUT ──────────────────────────────────────
@@ -122,6 +149,44 @@ def validate_url(url: str, param_name: str) -> None:
         )
 
 
+def ensure_target_reachable(
+    target_base_url: str,
+    timeout: float = 5.0,
+    snapshot_path: str = DEFAULT_HARNESS_SNAPSHOT_PATH,
+) -> None:
+    """
+    Verifica che il target cooperante sia raggiungibile PRIMA di avviare la fase D-AST.
+
+    L'endpoint di snapshot e' il contratto minimo dell'harness cooperante (seeding,
+    snapshot e rollback): se non risponde 200 gli attacchi differenziali produrrebbero
+    solo errori di connessione silenziosi, spacciati per "endpoint sicuri".
+
+    Args:
+        target_base_url (str): URL di base dell'applicazione target.
+        timeout (float): Timeout in secondi della richiesta di verifica.
+        snapshot_path (str): Path dell'endpoint di snapshot (``harness.snapshot`` del contratto).
+
+    Raises:
+        TargetUnreachableError: Se il target non risponde o risponde con status != 200.
+    """
+    snapshot_url = f"{target_base_url.rstrip('/')}/{snapshot_path.lstrip('/')}"
+    try:
+        response = requests.get(snapshot_url, timeout=timeout)
+    except requests.RequestException as exc:
+        raise TargetUnreachableError(
+            f"Target non raggiungibile su {snapshot_url}: {exc}. "
+            "Verifica che il container api-server sia attivo (docker compose up -d api-server) "
+            "e che TARGET_DIR punti a una repo cooperante che espone /test/snapshot."
+        ) from exc
+    if response.status_code != 200:
+        raise TargetUnreachableError(
+            f"Target su {snapshot_url} ha risposto HTTP {response.status_code} (atteso 200): "
+            "la repo montata in api-server non espone l'harness cooperante "
+            "(/test/seed, /test/snapshot, /test/rollback)."
+        )
+    logger.info(f"✅ Target cooperante raggiungibile: {snapshot_url}")
+
+
 def validate_api_inventory(inventory: list[dict[str, Any]]) -> None:
     """
     Valida la struttura dei dati dell'inventario API prima dell'elaborazione.
@@ -136,6 +201,30 @@ def validate_api_inventory(inventory: list[dict[str, Any]]) -> None:
         raise ValueError("L'inventario delle API deve essere una lista.")
 
 
+def describe_dynamic_path(path: str) -> dict[str, Any]:
+    """
+    Descrive un path normalizzato con parametri ``{id}``: la risorsa bersaglio è quella
+    che precede l'ULTIMO placeholder (nei path annidati l'oggetto attaccato è il figlio).
+
+    Args:
+        path (str): Path normalizzato, es. ``/api/users/{id}/projects/{id}``.
+
+    Returns:
+        dict: ``resource_name`` (``projects``), ``nested`` (True se più di un ``{id}``)
+            e ``id_params`` (numero di placeholder).
+    """
+    segments = [s for s in path.split("/") if s]
+    id_positions = [i for i, seg in enumerate(segments) if seg == ID_PLACEHOLDER]
+    resource_name = "generic_resource"
+    if id_positions and id_positions[-1] > 0:
+        resource_name = segments[id_positions[-1] - 1]
+    return {
+        "resource_name": resource_name,
+        "nested": len(id_positions) > 1,
+        "id_params": len(id_positions),
+    }
+
+
 # ─── CLASSI PRINCIPALI DEL FLUSSO ───────────────────────────────────────────
 
 
@@ -145,48 +234,134 @@ class ZapController:
     Configura le sessioni e invia traffico tramite il proxy per la scansione differenziale.
     """
 
-    _is_cancelled = False
-
-    def __init__(self, zap_proxy_url: str = DEFAULT_ZAP_PROXY_URL):
+    def __init__(
+        self,
+        zap_proxy_url: str = DEFAULT_ZAP_PROXY_URL,
+        cancel_event: threading.Event | None = None,
+        zap_internal_host: str = DEFAULT_ZAP_INTERNAL_HOST,
+        snapshot_path: str = DEFAULT_HARNESS_SNAPSHOT_PATH,
+        rollback_path: str = DEFAULT_HARNESS_ROLLBACK_PATH,
+    ):
         """
         Inizializza il controller OWASP ZAP con l'URL del proxy.
 
         Args:
             zap_proxy_url (str): URL del proxy di ZAP (es. http://localhost:8090).
+            cancel_event (threading.Event | None): Segnale di cancellazione proprio di questa
+                istanza. Se assente ne viene creato uno nuovo: due scansioni concorrenti non
+                condividono mai lo stato di cancellazione.
+            zap_internal_host (str): Host con cui il container di ZAP raggiunge il bersaglio.
+            snapshot_path (str): Path dell'endpoint di snapshot dell'harness cooperante.
+            rollback_path (str): Path dell'endpoint di rollback dell'harness cooperante.
 
         Raises:
             ValueError: Se zap_proxy_url non è un URL valido.
         """
         validate_url(zap_proxy_url, "zap_proxy_url")
         self.zap_proxy_url = zap_proxy_url
+        self.zap_internal_host = zap_internal_host
+        self.snapshot_path = snapshot_path
+        self.rollback_path = rollback_path
         self.zap = ZAPv2(proxies={"http": zap_proxy_url, "https": zap_proxy_url})
         self.test_results = []
+        self.cancel_event = cancel_event or threading.Event()
+
+    def cancel(self) -> None:
+        """Richiede l'interruzione cooperativa della scansione in corso su questa istanza."""
+        self.cancel_event.set()
+
+    @property
+    def is_cancelled(self) -> bool:
+        return self.cancel_event.is_set()
+
+    @staticmethod
+    def _select_methods(endpoint: dict[str, Any], test_all_methods: bool) -> list[str]:
+        """
+        Sceglie i metodi HTTP da esercitare su un endpoint: quelli dichiarati dall'inventario
+        (fallback GET) oppure, se richiesto, l'intero set supportato. L'ordine segue
+        ALL_HTTP_METHODS per rendere deterministica la sequenza dei test.
+        """
+        if test_all_methods:
+            return list(ALL_HTTP_METHODS)
+        declared = {str(m).upper() for m in (endpoint.get("methods") or [])}
+        selected = [m for m in ALL_HTTP_METHODS if m in declared]
+        return selected or ["GET"]
+
+    @staticmethod
+    def _without_mutations(methods: list[str], state_managed: bool, allow: bool) -> list[str]:
+        """
+        Senza snapshot/rollback (Assessment Mode) i metodi che alterano risorse reali
+        vengono esclusi, salvo consenso esplicito (`allow_mutations`).
+        """
+        if state_managed or allow:
+            return methods
+        return [m for m in methods if m not in ASSESSMENT_EXCLUDED_METHODS]
+
+    @staticmethod
+    def _build_profiles(
+        identity_uuids: dict[str, str | None],
+        role_map: dict[str, str],
+        usernames: dict[str, str] | None,
+    ) -> dict[str, IdentityProfile]:
+        """Profilo (ruolo, username, uuid) di ciascuna identità logica per il generatore."""
+        default_roles = {
+            IDENTITY_VICTIM: "user",
+            IDENTITY_PEER: "user",
+            IDENTITY_PRIVILEGED: "admin",
+        }
+        usernames = usernames or {}
+        profiles = {}
+        for key in IDENTITY_KEYS:
+            uid = identity_uuids.get(key) or ""
+            profiles[key] = IdentityProfile(
+                role=role_map.get(uid, default_roles[key]),
+                username=usernames.get(key, ""),
+                uuid=uid,
+            )
+        return profiles
 
     def run_differential_scan(
         self,
         target_base_url: str,
         dynamic_endpoints: list[dict[str, Any]],
         headers_matrix: dict[str, dict[str, str]],
-        uuid_alice: str,
-        uuid_bob: str,
-        uuid_charlie: str,
+        identity_uuids: dict[str, str | None],
         role_map: dict[str, str],
         output_dir: str = "output",
         use_state_management: bool = True,
+        test_all_methods: bool = False,
+        resource_ids: dict[str, dict[str, str]] | None = None,
+        usernames: dict[str, str] | None = None,
+        allow_mutations: bool = True,
     ) -> None:
         """
         Pianifica ed esegue gli attacchi differenziali reali inviando traffico
         tramite il proxy di OWASP ZAP, supportando i metodi HTTP GET, POST, PUT, PATCH e DELETE.
         Usa la logica di Role-Aware Testing per distinguere BOLA orizzontale/verticale/safe.
+
+        Per ogni endpoint vengono esercitati solo i metodi dichiarati dall'inventario
+        (`test_all_methods=True` forza l'intero set); lo snapshot/rollback dello stato viene
+        eseguito solo per i metodi che possono mutarlo (vedi STATE_MUTATING_METHODS). Senza
+        gestione dello stato, PUT/PATCH/DELETE sono esclusi salvo `allow_mutations`.
+
+        Args:
+            identity_uuids (dict): Ruolo logico (victim/peer/privileged) -> claim ``sub``.
+            resource_ids (dict | None): ``{resource_name: {ruolo_logico: id}}`` degli ID creati
+                dal seeding (o osservati nel traffico); in assenza si usa l'UUID dell'identità.
+            usernames (dict | None): Ruolo logico -> username (owner nei payload di scrittura).
+            allow_mutations (bool): Se False e senza stato gestito, salta PUT/PATCH/DELETE.
         """
         validate_url(target_base_url, "target_base_url")
         logger.info("🔥 Avvio test differenziale esteso e Role-Aware...")
         self.test_results = []
-        ZapController._is_cancelled = False
 
         # Inizializza i moduli BOLA e reset dello stato
-        APIStateEngine(target_base_url)
-        attack_generator = ContextAwareAttackGenerator(self.zap_proxy_url)
+        APIStateEngine(target_base_url, self.snapshot_path, self.rollback_path)
+        attack_generator = ContextAwareAttackGenerator(
+            self.zap_proxy_url, zap_internal_host=self.zap_internal_host
+        )
+        profiles = self._build_profiles(identity_uuids, role_map, usernames)
+        seeded_ids = resource_ids or {}
 
         # Configurazione contesto ZAP
         context_name = "API_Security_Context"
@@ -196,26 +371,42 @@ class ZapController:
         except Exception as e:
             logger.debug(f"Errore creazione contesto ZAP: {e}")
 
-        methods_to_test = ["GET", "POST", "PUT", "PATCH", "DELETE"]
-
-        role_alice = role_map.get(uuid_alice, "user")
-        role_bob = role_map.get(uuid_bob, "user")
-        role_charlie = role_map.get(uuid_charlie, "admin")
-
         for ep in dynamic_endpoints:
-            if ZapController._is_cancelled:
+            if self.cancel_event.is_set():
                 logger.info("🛑 Scansione BOLA cancellata su richiesta dell'utente.")
                 break
             path = ep["path"]
             discovered_refs = ep.get("discovered_refs", None)
-            logger.info(f"🧪 [BOLA Role-Aware Assessment] Analisi endpoint dinamico: {path}")
+            nested = bool(ep.get("nested", False))
+            selected = self._select_methods(ep, test_all_methods)
+            methods_to_test = self._without_mutations(
+                selected, use_state_management, allow_mutations
+            )
+            skipped = [m for m in selected if m not in methods_to_test]
+            if skipped:
+                logger.warning(
+                    f"⏭️ [Assessment Mode] {path}: metodi mutanti {skipped} saltati "
+                    "(nessun rollback disponibile; usa --allow-mutations per riabilitarli)."
+                )
+            logger.info(
+                f"🧪 [BOLA Role-Aware Assessment] Analisi endpoint dinamico: {path} "
+                f"(metodi: {', '.join(methods_to_test)}{', path annidato' if nested else ''})"
+            )
+
+            # ID della risorsa per identità: quelli creati dal seeding per questa risorsa,
+            # altrimenti l'UUID dell'identità (vincolo "ID risorsa = UUID del proprietario").
+            ep_ids = seeded_ids.get(ep.get("resource_name", ""), {})
+            endpoint_resource_ids = {
+                key: ep_ids.get(key) or identity_uuids.get(key) or "" for key in IDENTITY_KEYS
+            }
 
             for method in methods_to_test:
-                if ZapController._is_cancelled:
+                if self.cancel_event.is_set():
                     break
-                # 1. Snapshot dello stato prima del test
-                if use_state_management:
-                    APIStateEngine.take_snapshot(target_base_url)
+                # 1. Snapshot dello stato prima del test (solo se il metodo puo alterarlo)
+                manage_state = use_state_management and method in STATE_MUTATING_METHODS
+                if manage_state:
+                    APIStateEngine.take_snapshot(target_base_url, self.snapshot_path)
 
                 # 2. Generazione ed esecuzione dei vettori di attacco per i 3 scenari
                 scenarios_results = attack_generator.execute_tampering(
@@ -223,12 +414,8 @@ class ZapController:
                     target_base_url=target_base_url,
                     path=path,
                     headers_matrix=headers_matrix,
-                    uuid_alice=uuid_alice,
-                    uuid_bob=uuid_bob,
-                    uuid_charlie=uuid_charlie,
-                    role_alice=role_alice,
-                    role_bob=role_bob,
-                    role_charlie=role_charlie,
+                    resource_ids=endpoint_resource_ids,
+                    profiles=profiles,
                     discovered_refs=discovered_refs,
                 )
 
@@ -250,6 +437,7 @@ class ZapController:
                             res_bob=res_bob,
                             requesting_user_role=attacker_role,
                             resource_owner_role=owner_role,
+                            resource_id=stim.get("resource_id"),
                         )
                         is_vulnerable = assertion_result["is_vulnerable"]
                         verdict = assertion_result["verdict"]
@@ -274,6 +462,8 @@ class ZapController:
                                 "attacker_role": attacker_role,
                                 "owner_role": owner_role,
                                 "scenario_name": scenario_name,
+                                "resource_id": stim.get("resource_id"),
+                                "nested": nested,
                             }
                         )
 
@@ -281,7 +471,8 @@ class ZapController:
                             f"      [{scenario_name} - {method}] Verdict: {verdict}\n"
                             f"        - http_status_assertion: {assertion_result['http_status_assertion']}\n"
                             f"        - content_keyword_assertion: {assertion_result['content_keyword_assertion']}\n"
-                            f"        - structural_similarity_assertion: {assertion_result['structural_similarity_assertion']}"
+                            f"        - structural_similarity_assertion: {assertion_result['structural_similarity_assertion']}\n"
+                            f"        - victim_reference_assertion: {assertion_result['victim_reference_assertion']}"
                         )
 
                         if is_vulnerable:
@@ -327,6 +518,8 @@ class ZapController:
                                 "attacker_role": "anonymous",
                                 "owner_role": owner_role,
                                 "scenario_name": f"Broken Auth {scenario_name}",
+                                "resource_id": stim.get("resource_id"),
+                                "nested": nested,
                             }
                         )
 
@@ -340,8 +533,8 @@ class ZapController:
                                 logger.debug(f"ZAP ascan fallito: {ze}")
 
                 # 5. Rollback dello stato dopo il test per ripulire gli effetti collaterali
-                if use_state_management:
-                    APIStateEngine.trigger_rollback(target_base_url)
+                if manage_state:
+                    APIStateEngine.trigger_rollback(target_base_url, self.rollback_path)
 
         # Attendi la conclusione degli active scan
         self._wait_for_scan_completion()
@@ -350,11 +543,26 @@ class ZapController:
         report_path = os.path.join(output_dir, "zap_report.json")
         self._export_report(report_path)
 
+    def _stop_all_active_scans(self, reason: str) -> None:
+        """Ferma tutti gli active scan di ZAP, senza propagare errori del proxy."""
+        try:
+            self.zap.ascan.stop_all_scans()
+        except Exception as e:
+            logger.debug(f"Impossibile fermare gli active scan di ZAP ({reason}): {e}")
+
     def _wait_for_scan_completion(self) -> None:
         """
-        Attende la conclusione degli active scan registrati su OWASP ZAP effettuando il polling dello stato.
+        Attende la conclusione degli active scan registrati su OWASP ZAP effettuando il polling
+        dello stato. L'attesa e limitata da ZAP_ACTIVE_SCAN_TIMEOUT_SECONDS (ZAP puo restare
+        bloccato al 99%) e viene interrotta dalla cancellazione: in entrambi i casi gli scan
+        vengono fermati esplicitamente.
         """
+        deadline = time.monotonic() + ZAP_ACTIVE_SCAN_TIMEOUT_SECONDS
         while True:
+            if self.cancel_event.is_set():
+                logger.info("🛑 Attesa degli active scan interrotta per cancellazione.")
+                self._stop_all_active_scans("cancellazione")
+                return
             try:
                 status = int(self.zap.ascan.status())
                 logger.info(f"ZAP Active Scan in corso: {status}%")
@@ -362,7 +570,15 @@ class ZapController:
                     break
             except Exception:
                 break
-            time.sleep(ZAP_POLL_INTERVAL_SECONDS)
+            if time.monotonic() >= deadline:
+                logger.warning(
+                    f"⏱️ ZAP Active Scan non concluso entro {ZAP_ACTIVE_SCAN_TIMEOUT_SECONDS}s "
+                    f"(ultimo stato: {status}%): scansioni fermate forzatamente."
+                )
+                self._stop_all_active_scans("timeout")
+                return
+            # wait() al posto di sleep(): reagisce subito alla cancellazione
+            self.cancel_event.wait(ZAP_POLL_INTERVAL_SECONDS)
         logger.info("ZAP Active Scan completato!")
 
     def _export_report(self, report_path: str) -> None:
@@ -390,29 +606,72 @@ class DynamicOrchestrator:
 
     def __init__(
         self,
-        target_base_url: str = DEFAULT_TARGET_BASE_URL,
-        keycloak_url: str = DEFAULT_KEYCLOAK_URL,
+        target_base_url: str | None = None,
+        keycloak_url: str | None = None,
         zap_proxy_url: str = DEFAULT_ZAP_PROXY_URL,
         assessment_mode: bool = False,
+        test_all_methods: bool = False,
+        cancel_event: threading.Event | None = None,
+        target_config: BolaTargetConfig | None = None,
+        allow_mutations: bool | None = None,
     ):
         """
         Inizializza l'orchestratore dinamico configurando le dipendenze richieste.
 
+        Il contratto del bersaglio (``config/bola_target.yaml``) fornisce URL, endpoint
+        dell'harness, identity provider e identità; i parametri espliciti (CLI) prevalgono
+        sul file per gli URL.
+
         Args:
-            target_base_url (str): URL di base dell'applicazione web target.
-            keycloak_url (str): URL di Keycloak per la gestione delle identità.
+            target_base_url (str | None): URL di base dell'applicazione target; None = dal contratto.
+            keycloak_url (str | None): URL di Keycloak; None = dal contratto.
             zap_proxy_url (str): URL del proxy OWASP ZAP.
             assessment_mode (bool): Abilita la modalità Assessment (senza seeding/snapshot/rollback).
+                È implicita quando il contratto dichiara ``identities.provider: traffic``.
+            test_all_methods (bool): Esercita GET/POST/PUT/PATCH/DELETE su ogni endpoint invece
+                dei soli metodi dichiarati dall'inventario (comportamento esaustivo, molto piu lento).
+            cancel_event (threading.Event | None): Segnale di cancellazione condiviso con il
+                ZapController; se assente ne viene creato uno dedicato a questa istanza.
+            target_config (BolaTargetConfig | None): Contratto del bersaglio; None = quello condiviso.
+            allow_mutations (bool | None): In Assessment Mode riabilita PUT/PATCH/DELETE;
+                None = valore di ``assessment.allow_mutations`` del contratto.
         """
+        self.config = target_config or get_bola_target_config()
+        target_base_url = target_base_url or self.config.base_url
+        keycloak_url = keycloak_url or self.config.keycloak_url
         validate_url(target_base_url, "target_base_url")
         validate_url(keycloak_url, "keycloak_url")
         validate_url(zap_proxy_url, "zap_proxy_url")
 
         self.target_base_url = target_base_url
-        self.assessment_mode = assessment_mode
-        self.identity_manager = IdentityManager(keycloak_url=keycloak_url)
-        self.seeder = DatabaseSeeder(seed_url=f"{target_base_url.rstrip('/')}/test/seed")
-        self.zap_controller = ZapController(zap_proxy_url=zap_proxy_url)
+        self.assessment_mode = assessment_mode or self.config.uses_traffic_identities
+        self.allow_mutations = (
+            self.config.allow_mutations if allow_mutations is None else allow_mutations
+        )
+        self.test_all_methods = test_all_methods
+        self.cancel_event = cancel_event or threading.Event()
+        self.identity_manager = IdentityManager(config=self.config, keycloak_url=keycloak_url)
+        self.seeder = DatabaseSeeder(
+            seed_url=self.config.seed_url(target_base_url), config=self.config
+        )
+        self.zap_controller = ZapController(
+            zap_proxy_url=zap_proxy_url,
+            cancel_event=self.cancel_event,
+            zap_internal_host=self.config.zap_internal_host,
+            snapshot_path=self.config.snapshot_path,
+            rollback_path=self.config.rollback_path,
+        )
+
+    def cancel(self) -> None:
+        """
+        Richiede l'interruzione cooperativa della scansione D-AST di questa istanza.
+        Il segnale e per-istanza: non influenza altre scansioni in corso.
+        """
+        self.cancel_event.set()
+
+    @property
+    def is_cancelled(self) -> bool:
+        return self.cancel_event.is_set()
 
     def _extract_endpoints_from_inventory(
         self, api_inventory: list[dict[str, Any]]
@@ -421,6 +680,11 @@ class DynamicOrchestrator:
         Estrae le rotte dall'inventario dei findings della pipeline,
         dividendole in dinamiche (con parametri {id}) e statiche.
         Raggruppa i metodi per ciascun percorso normalizzato.
+
+        Nei path annidati (``/api/users/{id}/projects/{id}``) l'oggetto bersaglio è
+        l'ULTIMO ``{id}``: la risorsa da seminare è quella che lo precede (``projects``),
+        con la stessa convenzione di ``OwnershipInferenceEngine._parse_resource_from_path``.
+        L'endpoint viene marcato ``nested`` e il numero di parametri in ``id_params``.
 
         Args:
             api_inventory (List[Dict[str, Any]]): Dati grezzi dell'inventario API della pipeline.
@@ -453,16 +717,9 @@ class DynamicOrchestrator:
 
         for path, methods in path_to_methods.items():
             methods_list = list(methods)
-            if "{id}" in path:
-                # Estrae il nome logico della risorsa che precede {id}
-                segments = [s for s in path.split("/") if s]
-                resource_name = "generic_resource"
-                for i, segment in enumerate(segments):
-                    if segment == "{id}":
-                        resource_name = segments[i - 1] if i > 0 else "generic_resource"
-                        break
+            if ID_PLACEHOLDER in path:
                 dynamic_endpoints.append(
-                    {"path": path, "methods": methods_list, "resource_name": resource_name}
+                    {"path": path, "methods": methods_list, **describe_dynamic_path(path)}
                 )
             else:
                 static_endpoints.append({"path": path, "methods": methods_list})
@@ -492,10 +749,10 @@ class DynamicOrchestrator:
         dynamic_eps, _ = self._extract_endpoints_from_inventory(api_inventory)
 
         headers_matrix = {}
-        uuid_alice = None
-        uuid_bob = None
-        uuid_charlie = None
+        identity_uuids: dict[str, str | None] = dict.fromkeys(IDENTITY_KEYS)
         role_map = {}
+        # {resource_name: {ruolo_logico: id}} — dal seeding o dal traffico osservato
+        resource_ids: dict[str, dict[str, str]] = {}
 
         # Se siamo in Assessment Mode o se abbiamo traffico a disposizione,
         # arricchiamo gli endpoint ed estraiamo le relazioni di ownership
@@ -507,8 +764,14 @@ class DynamicOrchestrator:
             uuid_alice, uuid_bob, uuid_charlie, inferred_roles, inferred_headers = (
                 inference_engine.get_inferred_identities()
             )
+            identity_uuids = {
+                IDENTITY_VICTIM: uuid_alice,
+                IDENTITY_PEER: uuid_bob,
+                IDENTITY_PRIVILEGED: uuid_charlie,
+            }
             role_map.update(inferred_roles)
             headers_matrix.update(inferred_headers)
+            owned_ids = inference_engine.get_owned_resource_ids()
 
             # Troviamo ulteriori endpoint con riferimenti a oggetti tramite ObjectReferenceDiscoveryEngine
             if raw_traffic:
@@ -534,11 +797,11 @@ class DynamicOrchestrator:
                                 break
 
                         if not exists:
-                            resource_name = "generic"
-                            for ref in refs:
-                                if ref["location"] == "path":
-                                    resource_name = ref["name"].replace("_id", "")
-                                    break
+                            # L'ultimo riferimento di path è l'oggetto bersaglio (path annidati)
+                            path_refs = [r for r in refs if r["location"] == "path"]
+                            resource_name = (
+                                path_refs[-1]["name"].replace("_id", "") if path_refs else "generic"
+                            )
 
                             dynamic_eps.append(
                                 {
@@ -546,27 +809,42 @@ class DynamicOrchestrator:
                                     "methods": [method],
                                     "resource_name": resource_name,
                                     "discovered_refs": refs,
+                                    "nested": len(path_refs) > 1,
+                                    "id_params": len(path_refs),
                                 }
                             )
+
+            # ID realmente osservati nel traffico per ciascuna identità e risorsa: sono
+            # questi gli oggetti da attaccare, non il claim sub dell'utente.
+            for ep in dynamic_eps:
+                for key, uid in identity_uuids.items():
+                    observed = (owned_ids.get(uid or "", {}) or {}).get(ep["resource_name"])
+                    if observed:
+                        resource_ids.setdefault(ep["resource_name"], {})[key] = observed[0]
 
         # Se non siamo in Assessment Mode o se non siamo riusciti ad estrarre le identità dal traffico, usiamo Keycloak (Lab Mode)
         use_state_management = True
         if self.assessment_mode:
             use_state_management = False
 
-        if not headers_matrix or not headers_matrix.get("userA") or not uuid_alice:
-            logger.info("🧪 [Lab Mode] Configurazione delle identità tramite Keycloak...")
+        if (
+            not headers_matrix
+            or not headers_matrix.get("userA")
+            or not identity_uuids.get(IDENTITY_VICTIM)
+        ):
+            logger.info(
+                f"🧪 [Lab Mode] Configurazione delle identità tramite provider "
+                f"'{self.config.identity_provider}'..."
+            )
             headers_matrix = self.identity_manager.get_headers_for_identities()
-            uuid_alice = self.identity_manager.identity_map.get("UUID_ALICE")
-            uuid_bob = self.identity_manager.identity_map.get("UUID_BOB")
-            uuid_charlie = self.identity_manager.identity_map.get("UUID_CHARLIE")
+            identity_uuids = dict(self.identity_manager.identity_map)
             role_map = self.identity_manager.role_map
 
-            # In Lab Mode eseguiamo anche il seeding e abilitiamo lo snapshot/rollback dello stato
-            seeding_success = self.seeder.seed_target_application(
-                dynamic_eps, uuid_alice, uuid_bob, uuid_charlie
-            )
-            if not seeding_success:
+            # In Lab Mode eseguiamo anche il seeding e abilitiamo lo snapshot/rollback dello stato.
+            # L'harness può rispondere con gli ID effettivamente creati: hanno la precedenza.
+            seed_outcome = self.seeder.seed_target_application(dynamic_eps, identity_uuids)
+            resource_ids = seed_outcome.resource_ids
+            if not seed_outcome.success:
                 logger.warning(
                     "Procedo con il test DAST anche se il seeding dinamico ha rilevato degli avvisi."
                 )
@@ -575,19 +853,21 @@ class DynamicOrchestrator:
                 "ℹ️ [Assessment Mode] Utilizzo delle identità e relazioni inferte dal traffico. Seeding saltato."
             )
 
-        # 4. Differential Scan & Authorization Testing (Passando gli UUID di contesto)
+        # 4. Differential Scan & Authorization Testing (Passando gli UUID e gli ID di contesto)
         self.zap_controller.run_differential_scan(
             target_base_url=self.target_base_url,
             dynamic_endpoints=dynamic_eps,
             headers_matrix=headers_matrix,
             # In assessment mode gli UUID possono essere None (identita inferite dal
             # traffico o assenti): la differential scan e i suoi consumatori lo gestiscono.
-            uuid_alice=uuid_alice,  # type: ignore[reportArgumentType]
-            uuid_bob=uuid_bob,  # type: ignore[reportArgumentType]
-            uuid_charlie=uuid_charlie,  # type: ignore[reportArgumentType]
+            identity_uuids=identity_uuids,
             role_map=role_map,
             output_dir=output_dir,
             use_state_management=use_state_management,
+            test_all_methods=self.test_all_methods,
+            resource_ids=resource_ids,
+            usernames=self.config.usernames,
+            allow_mutations=self.allow_mutations,
         )
 
         logger.info(
@@ -613,6 +893,18 @@ class DynamicOrchestrator:
             test_name = res["test_name"]
             is_vulnerable = res["is_vulnerable"]
             assertion_details = res["assertion_details"]
+            nested = bool(res.get("nested", False))
+            raw_data = {
+                "scenario": res.get("scenario_name"),
+                "resource_id": res.get("resource_id"),
+                "nested_path": nested,
+            }
+            nested_note = (
+                "\nPath annidato: attaccato l'ultimo parametro {id} (oggetto figlio), "
+                "i parametri genitori valorizzati con l'UUID del proprietario."
+                if nested
+                else ""
+            )
 
             # Formattiamo i dettagli delle asserzioni per l'evidenza
             details_str = (
@@ -620,6 +912,7 @@ class DynamicOrchestrator:
                 f"  - http_status_assertion: {assertion_details['http_status_assertion']}\n"
                 f"  - content_keyword_assertion: {assertion_details['content_keyword_assertion']}\n"
                 f"  - structural_similarity_assertion: {assertion_details['structural_similarity_assertion']}\n"
+                f"  - victim_reference_assertion: {assertion_details.get('victim_reference_assertion', False)}\n"
                 f"Verdetto finale: {'VULNERABLE' if is_vulnerable else 'SAFE'}"
             )
 
@@ -638,7 +931,7 @@ class DynamicOrchestrator:
                     title=f"Vulnerabilità {test_name} confermata a runtime",
                     description=(
                         f"Il test differenziale '{test_name}' per l'endpoint '{path}' ha confermato che l'accesso "
-                        f"non autorizzato è possibile.\n{details_str}"
+                        f"non autorizzato è possibile.\n{details_str}{nested_note}"
                     ),
                     severity=Severity.HIGH,
                     confidence=1.0,
@@ -650,6 +943,7 @@ class DynamicOrchestrator:
                     api=APIContext(endpoint=path, method=method, requires_authentication=True),
                     runtime_evidence=evidence,
                     correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}",
+                    raw_data=raw_data,
                 )
             else:
                 finding = Finding.create(
@@ -660,7 +954,7 @@ class DynamicOrchestrator:
                     title=f"Test {test_name} - Endpoint Sicuro ({status_code})",
                     description=(
                         f"Il test differenziale '{test_name}' ha verificato che l'accesso non autorizzato viene "
-                        f"bloccato correttamente.\n{details_str}"
+                        f"bloccato correttamente.\n{details_str}{nested_note}"
                     ),
                     severity=Severity.INFO,
                     confidence=1.0,
@@ -670,6 +964,7 @@ class DynamicOrchestrator:
                     api=APIContext(endpoint=path, method=method, requires_authentication=True),
                     runtime_evidence=evidence,
                     correlation_key=f"api:{method}:{APIEndpointNormalizer.normalize_path(path)}",
+                    raw_data=raw_data,
                 )
 
             dast_findings.append(finding)

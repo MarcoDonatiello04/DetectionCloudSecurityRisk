@@ -17,7 +17,7 @@ make check              # lint + test (identico alla CI)
 
 make setup-env          # provisioning Keycloak (realm, client, utenti user_a/user_b)
 make iac-analysis        # provisioning Terraform su LocalStack + scansione Checkov
-make api-security         # Spectral + Semgrep + attacchi D-AST + risk scoring + report unificato (bersaglio: TARGET_DIR, default data/test_targets/repo_target)
+make api-security         # Spectral + Semgrep + attacchi D-AST + risk scoring + report unificato (bersaglio: TARGET_DIR, default data/test_targets/repo_target; la stessa directory viene montata in api-server, e lo script si ferma se GET /test/snapshot non risponde)
 make dashboard           # avvia dashboard su http://localhost:8000 (make dashboard DASHBOARD_PORT=8080)
 make stop-dashboard       # libera la porta della dashboard da istanze precedenti
 make clean               # docker compose down -v + rimozione stato Terraform/.target_env
@@ -47,11 +47,12 @@ PYTHONPATH=. .venv/bin/python entrypoints/runners/run_all_security_tests.py --he
 | `run_all_validations.py` | Campagna di validazione (`--include-crapi` per crAPI) |
 | `run_ground_truth_validation.py` | Confronto in cieco app vulnerabile vs sicura |
 | `run_crapi_validation.py` | Richiede i container crAPI attivi |
-| `run_bola_scan.py`, `run_bola_dynamic_demo.py` | **30+ minuti**, attacchi dinamici reali con snapshot/rollback dello stato; richiedono il target attivo |
-| `run_bola_repo_target.py` | Scansione BOLA riutilizzabile su repo target arbitraria (usato da `make bola-repo-target`) |
+| `run_bola_repo_target.py` | Unico runner BOLA: scansione riutilizzabile su repo target arbitraria (usato da `make bola-repo-target`); **decine di minuti**, attacchi dinamici reali con snapshot/rollback dello stato, richiede il target attivo. Di default esercita solo i metodi dichiarati dalla specifica (`--all-methods` per i 5 metodi su ogni endpoint) |
+| `run_bopla_scan.py` | Scansione BOPLA (API3) con `BOPLAOrchestrator`; usa Keycloak se attivo, altrimenti mock |
+| `run_bopla_dynamic_demo.py` | Dimostrazione offline del `BOPLADynamicTester` con `requests` mockato, nessun target richiesto |
 | `run_broken_auth_scan.py` | Richiede Keycloak attivo |
 
-Le scansioni senza BOLA (statiche + D-AST leggero) impiegano circa 15-20 secondi; qualunque scansione che includa il modulo BOLA supera i 30 minuti a causa delle chiamate di rete reali.
+Le scansioni senza BOLA (statiche + D-AST leggero) impiegano circa 15-20 secondi; qualunque scansione che includa il modulo BOLA dura decine di minuti a causa delle chiamate di rete reali (i 30+ minuti storici erano misurati testando 5 metodi HTTP con snapshot/rollback per ciascuno su ogni endpoint; oggi il default testa solo i metodi dichiarati dall'inventario e fa snapshot/rollback solo per POST/PUT/PATCH/DELETE, quindi il tempo atteso è 3-5x inferiore — `--all-methods` ripristina il comportamento esaustivo).
 
 ## Architettura
 
@@ -60,6 +61,7 @@ Clean Architecture event-driven, quattro fasi logiche:
 1. **Discovery & Static Analysis (IaC & AST)** — `src/infrastructure/adapters/`: `checkov_adapter.py` (Terraform misconfiguration; natura e severità di ogni controllo vengono dal catalogo semantico `config/scanner_configs/checkov-policy-catalog.yaml` tramite `checkov_policy_catalog.py` — le parole chiave operano sul nome ufficiale del controllo, non sull'ID opaco `CKV_AWS_53`; senza catalogo tutto resta "non classificato/MEDIUM"; il perimetro è sempre il `target_dir` passato a `scan()` via `-d`, il file `.checkov.yaml` governa solo le opzioni accessorie), `semgrep_adapter.py` (mapping rotte API + stato auth), `spectral_adapter.py` (contratti OpenAPI vs OWASP API Top 10).
 2. **Dynamic Seeding** — popola deterministicamente lo stato dell'app target (utenti `user_a`/`user_b` su Keycloak) prima degli attacchi attivi, per evitare race condition.
 3. **Attack & Runtime Stimulation (D-AST)** — `zap_adapter.py` (differential scan con token di `user_a` vs `user_b` vs anonimo per BOLA/Broken Auth) e `src/infrastructure/adapters/mitmproxy/addon.py` (cattura traffico reale per scovare Shadow API).
+   Robustezza del motore (`src/core/api1_bola/dynamic_orchestrator.py`): la cancellazione è un `threading.Event` per istanza (`DynamicOrchestrator.cancel()`), mai uno stato di classe — il server (`src/presentation/api/server.py`) tiene un registro `scan_id → orchestrator` e `POST /cancel-bola-scan?scan_id=…` ferma solo quella scansione (senza `scan_id`, tutte le attive); il polling degli active scan ZAP è limitato da `ZAP_ACTIVE_SCAN_TIMEOUT_SECONDS` (`config.py`, default 300, override via env) e allo scadere chiama `ascan.stop_all_scans()`.
 4. **Risk Correlation & Scoring** — `src/application/correlation/engine.py`: unisce findings statici e dinamici tramite chiavi su URL normalizzati (`src/normalization/normalizer.py`, classe `APIEndpointNormalizer`); in presenza di conferma empirica runtime eleva la severità e ricalcola il risk score (0-10, vedi `docs/adr/adr-001-risk-scoring.md` per la formula pesata). Quando più findings condividono la stessa risorsa, la voce rappresentativa è scelta per **natura** (`FindingNature`: `EXPOSURE` > non classificato > `HARDENING`) e poi per severità, mai "il primo incontrato"; i controlli assorbiti restano in `raw_data["aggregated_checks"]`. I finding `HARDENING` non ricevono il bonus di contesto (`DEFAULT_CONTEXT_HARDENING`). Vedi `docs/adr/adr-004-finding-nature.md`.
 
 ### Layer principali (`src/`)

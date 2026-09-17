@@ -26,12 +26,13 @@ classDiagram
         +execute_tampering(method, target_base_url, path, headers_matrix, uuid_alice, uuid_bob, uuid_charlie, ...) List~dict~
     }
     class AccessControlMatrix {
-        +HIERARCHY : dict
+        +HIERARCHY : dict (da config/bola.yaml)
+        +normalize_role(role, subject) str
         +validate_access_legitimacy(requesting_role, owner_role, method, ...) str
     }
     class APIAssertionEngine {
         +ERROR_KEYWORDS : list
-        +evaluate_bola_assertion(method, res_alice, res_bob, requesting_user_role, resource_owner_role) Dict~str, Any~
+        +evaluate_bola_assertion(method, res_alice, res_bob, requesting_user_role, resource_owner_role, resource_id) Dict~str, Any~
     }
     
     class BOLAStateManager {
@@ -87,7 +88,7 @@ L'architettura definisce l'interfaccia astratta `IScanner`. Ciascun adapter (`Ch
 Le classi `BOLAStateManager` e `BOLAAttackVector` fungono da **Object Adapters** per mappare le chiamate legacy basate su istanza verso i nuovi metodi statici e flessibili introdotti nel refactoring accademico.
 
 ### 4.3 Chain of Responsibility / Rule Engine (Assertion Engine)
-`APIAssertionEngine` valuta una sequenza ordinata di asserzioni indipendenti (`http_status_assertion` -> `content_keyword_assertion` -> `structural_similarity_assertion`). Se una delle asserzioni di sicurezza fallisce, il flusso interrompe la computazione e classifica l'endpoint come `SAFE`, evitando controlli strutturali inutili.
+`APIAssertionEngine` valuta una sequenza ordinata di asserzioni indipendenti (`http_status_assertion` -> `content_keyword_assertion` -> `structural_similarity_assertion` / `victim_reference_assertion`). Se una delle asserzioni di sicurezza fallisce, il flusso interrompe la computazione e classifica l'endpoint come `SAFE`, evitando controlli strutturali inutili.
 
 ---
 
@@ -141,7 +142,7 @@ class AccessControlMatrix:
 class APIAssertionEngine:
     """
     PRE-CONDIZIONE: Le risposte HTTP di Alice e Bob devono essere valide e non nulle.
-    POST-CONDIZIONE: Calcola i delta byte e solleva l'alert se si riscontra BOLA.
+    POST-CONDIZIONE: Confronta semanticamente i body (campi volatili esclusi) e solleva l'alert se si riscontra BOLA.
     """
     @classmethod
     def evaluate_bola_assertion(
@@ -187,7 +188,7 @@ sequenceDiagram
     Attack-->>DAST: Restituisce Response Alice & Bob
     
     DAST->>Engine: evaluate_bola_assertion(Alice, Bob, Roles)
-    Note over Engine: Valuta HTTP Status (401/403)<br/>Valuta Keywords Errore<br/>Valuta Delta Lunghezza Byte (Delta = 0)
+    Note over Engine: Valuta HTTP Status (401/403)<br/>Valuta Keywords Errore<br/>Confronto semantico body (campi volatili esclusi)<br/>ID vittima nel body 2xx
     Engine-->>DAST: Verdict (VULNERABLE BOLA ORIZZONTALE)
     
     DAST->>State: trigger_rollback(target_host)

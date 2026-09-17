@@ -179,7 +179,10 @@ class SpectralScannerAdapter(IScanner):
                     msg_lower = msg.lower()
 
                     category = FindingCategory.DATA_EXPOSURE
-                    if (
+                    if rule_code_lower.startswith("owasp-api1"):
+                        # Operazione su singolo oggetto senza security: OWASP API1 (BOLA)
+                        category = FindingCategory.AUTHORIZATION
+                    elif (
                         "auth" in rule_code_lower
                         or "security" in rule_code_lower
                         or "auth" in msg_lower
@@ -230,17 +233,27 @@ class SpectralScannerAdapter(IScanner):
 
                     # Definiamo la chiave di correlazione includendo la regola specifica,
                     # altrimenti l'orchestratore raggrupperà tutte le violazioni dello stesso endpoint in un unico Finding.
-                    if api_ctx:
+                    # Eccezione: il finding API1 descrive il rischio dell'endpoint stesso, quindi usa
+                    # la chiave della risorsa (api:METODO:path) condivisa con Semgrep e con il
+                    # validatore runtime, così la conferma empirica BOLA eleva questo finding.
+                    if api_ctx and category == FindingCategory.AUTHORIZATION:
+                        corr_key = (
+                            f"api:{api_ctx.method}:"
+                            f"{APIEndpointNormalizer.normalize_path(api_ctx.endpoint)}"
+                        )
+                    elif api_ctx:
                         corr_key = f"spectral:{api_ctx.endpoint}:{api_ctx.method}:{rule_code}"
                     else:
                         filename = source_file.split("/")[-1] if "/" in source_file else source_file
                         corr_key = f"openapi:{filename}:{rule_code}"
 
-                    # Un'operazione del contratto senza requisito di autenticazione è
-                    # raggiungibile da chiunque conosca l'API: contesto esposto a Internet.
+                    # Un'operazione del contratto senza requisito di autenticazione/autorizzazione
+                    # è raggiungibile da chiunque conosca l'API: contesto esposto a Internet.
                     risk_context = (
                         RiskContext(internet_exposed=True)
-                        if api_ctx and category == FindingCategory.AUTHENTICATION
+                        if api_ctx
+                        and category
+                        in (FindingCategory.AUTHENTICATION, FindingCategory.AUTHORIZATION)
                         else None
                     )
 

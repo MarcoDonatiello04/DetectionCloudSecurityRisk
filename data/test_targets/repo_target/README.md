@@ -105,16 +105,28 @@ Una repo diventa testabile da BOLA quando espone questi tre elementi.
    | `POST` | `/test/rollback` | Ripristina lo stato dopo ogni scenario |
 
    Il payload di seeding è quello prodotto da
-   `IdentityManager.seed_target_application`:
+   `DatabaseSeeder.seed_target_application`:
    ```json
    { "projects": { "<uuid_utente>": "<owner_username>" } }
    ```
+   Un DB reale spesso non accetta ID arbitrari in creazione: l'endpoint di seed
+   può quindi **restituire gli ID effettivamente creati**, e l'orchestratore
+   attaccherà quelli invece degli UUID. Bastano poche righe in
+   [`cooperative_harness.py`](cooperative_harness.py):
+   ```json
+   { "status": "success", "ids": { "projects": { "<owner_username>": "<id>" } } }
+   ```
+   Se `ids` manca, si ricade sul vincolo storico «ID risorsa = UUID del proprietario».
 
 2. **Fiducia nell'identity provider condiviso** — [`identity.py`](identity.py)
    valida i JWT del realm Keycloak `myrealm` (RS256), con fallback sul solo
    payload per i token sintetici delle simulazioni. Gli utenti
    `user_a` / `user_b` / `admin_user` sono creati una sola volta da
-   `make setup-env` e condivisi da tutti i target.
+   `make setup-env` e condivisi da tutti i target. Provider, realm, endpoint
+   dell'harness e le tre identità sono dichiarati in un unico file per bersaglio,
+   [`config/bola_target.yaml`](../../../config/bola_target.yaml): impostando
+   `identities.provider: static_tokens` si testa una repo con IdP proprio (i JWT
+   arrivano dalle variabili d'ambiente indicate), senza toccarla.
 
 3. **Un modello risorsa → proprietario** — lo stato mappa
    `risorsa[id] = owner`, così che "accesso non autorizzato" abbia significato.

@@ -7,7 +7,12 @@ from src.application.correlation.engine import RiskCorrelationEngine
 from src.application.event_bus import EventBus
 from src.application.orchestrator import ScanPipelineOrchestrator
 from src.application.plugin_loader import PluginLoader
-from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
+from src.core.api1_bola.dynamic_orchestrator import (
+    DynamicOrchestrator,
+    TargetUnreachableError,
+    ensure_target_reachable,
+)
+from src.core.api1_bola.target_config import load_bola_target_config
 from src.core.config import (
     DEFAULT_FALLBACK_TRAFFIC_FILE,
     DEFAULT_KEYCLOAK_URL,
@@ -90,6 +95,27 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Abilita la modalita' Assessment (senza seeding/snapshot/rollback)",
     )
+    parser.add_argument(
+        "--all-methods",
+        action="store_true",
+        help=(
+            "Esercita GET/POST/PUT/PATCH/DELETE su ogni endpoint invece dei soli metodi "
+            "dichiarati dall'inventario (esaustivo, 3-5x piu lento)"
+        ),
+    )
+    parser.add_argument(
+        "--allow-mutations",
+        action="store_true",
+        help=(
+            "In Assessment Mode riabilita PUT/PATCH/DELETE (esclusi di default perche' "
+            "senza snapshot/rollback alterano risorse reali)"
+        ),
+    )
+    parser.add_argument(
+        "--target-config",
+        default=None,
+        help="Contratto del bersaglio BOLA (default: BOLA_TARGET_CONFIG o config/bola_target.yaml)",
+    )
     return parser.parse_args()
 
 
@@ -171,12 +197,25 @@ def main() -> None:
 
     # 5. Esecuzione scansione D-AST dinamica
     logger.info("⚡ Avvio fase D-AST (Dynamic Application Security Testing)...")
+    # Il check di raggiungibilita' sta fuori dal try/except sottostante: un target
+    # assente e' un errore di configurazione (bersaglio statico != dinamico, container
+    # spento) e deve fermare la pipeline, non essere loggato e ignorato.
+    target_config = load_bola_target_config(args.target_config)
+    try:
+        ensure_target_reachable(args.target_base_url, snapshot_path=target_config.snapshot_path)
+    except TargetUnreachableError as e:
+        logger.error(f"❌ Fase D-AST annullata: {e}")
+        raise SystemExit(1) from e
+
     try:
         dast_orchestrator = DynamicOrchestrator(
             target_base_url=args.target_base_url,
             keycloak_url=args.keycloak_url,
             zap_proxy_url=args.zap_url,
             assessment_mode=args.assessment_mode,
+            test_all_methods=args.all_methods,
+            target_config=target_config,
+            allow_mutations=True if args.allow_mutations else None,
         )
         # Costruiamo l'inventario per ZAP basandoci sui findings provvisori
         api_inventory = []
@@ -194,10 +233,8 @@ def main() -> None:
         # Recuperiamo gli alert da ZAP per integrarli nei findings correlati
         logger.info("📥 Recupero dei findings dinamici generati da OWASP ZAP...")
         zap_client = ZapClientAdapter(zap_url=args.zap_url)
-        # ZAP scansiona mappando localhost a api-server per il container
-        zap_target_url = args.target_base_url.replace("localhost", "api-server").replace(
-            "127.0.0.1", "api-server"
-        )
+        # ZAP scansiona con l'host interno del container (target.zap_internal_host del contratto)
+        zap_target_url = target_config.to_zap_url(args.target_base_url)
         zap_findings = zap_client.scan(zap_target_url)
         logger.info(f"   - Trovati {len(zap_findings)} findings da OWASP ZAP.")
 

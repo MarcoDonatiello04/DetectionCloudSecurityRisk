@@ -78,6 +78,7 @@ I file di configurazione e le chiavi per i test DAST vengono autogenerati nella 
 - **`config/scanner_configs/route-detect.yaml`**: Regole Semgrep per il tracciamento dei mapping di route applicative.
 - **`config/scanner_configs/checkov-policy-catalog.yaml`**: Catalogo semantico dei controlli Checkov (natura, severità, `public`, `sensitive_data`).
 - **`config/risk_scoring.yaml`**: Parametri della formula di rischio e mappe di confidenza per sorgente (ADR-005); ogni chiave assente ricade sui default di `src/core/config.py`.
+- **`config/bola.yaml`**: Parametri del modulo BOLA (override con `BOLA_CONFIG`): campi JSON volatili ignorati nel confronto semantico tra la risposta del proprietario e quella dell'attaccante (`accessed_by`, `timestamp`, ...) e gerarchia dei ruoli della privilege matrix (`roles: {admin: 3, manager: 2, user: 1}`); un ruolo non censito viene degradato al rango minimo con un warning esplicito.
 
 ---
 
@@ -103,6 +104,11 @@ Esegue il linter dei contratti OpenAPI, analizza i sorgenti con Semgrep, esegue 
 make api-security
 ```
 La scansione statica ha come bersaglio la repo target cooperante `data/test_targets/repo_target` (variabile `TARGET_DIR`, oppure `--target-dir` della CLI `src.presentation.cli.main`), mai la radice della piattaforma: scansionare la radice mescolerebbe tutti i bersagli di prova in un unico report.
+
+La stessa `TARGET_DIR` viene montata nel container `api-server` (`docker-compose.yml`) come bersaglio degli attacchi D-AST, cosi che statico e dinamico lavorino sulle stesse rotte e la correlazione possa agganciarle. Lo script ricrea `api-server` con il mount corrente e attende che l'harness cooperante risponda su `GET /test/snapshot`; se il target non e' raggiungibile la pipeline si ferma con errore esplicito invece di proseguire senza fase dinamica. Per puntare a un'altra repo cooperante:
+```bash
+TARGET_DIR=/percorso/alla/repo make api-security
+```
 
 ### Fase 4: Avvio della Dashboard Web
 Dopo aver completato l'analisi, avvia la dashboard per esplorare in modo interattivo i risultati (findings Checkov, violazioni OpenAPI, rotte BOLA/D-AST) ed esaminare le raccomandazioni del motore di remediation:
@@ -181,17 +187,23 @@ radice del progetto con `PYTHONPATH=.`:
 | `run_all_validations.py` | Campagna di validazione sui target di test | `--include-crapi` per includere crAPI |
 | `run_ground_truth_validation.py` | Confronto in cieco con la ground truth | Confronta app vulnerabile e app sicura |
 | `run_crapi_validation.py` | Validazione mirata sul target crAPI | Richiede i container crAPI attivi |
-| `run_bola_scan.py` | Scansione BOLA a se stante | **30+ minuti**, richiede il target attivo |
-| `run_bola_dynamic_demo.py` | Dimostrazione dei test dinamici BOLA | **30+ minuti**, richiede il target attivo |
+| `run_bola_repo_target.py` | Scansione BOLA su una repo target cooperante (usato da `make bola-repo-target`) | **Decine di minuti**, richiede il target attivo; `--all-methods` per il test esaustivo dei 5 metodi |
+| `run_bopla_scan.py` | Scansione BOPLA (API3) a se stante con `BOPLAOrchestrator` | Usa Keycloak se attivo, altrimenti mock |
+| `run_bopla_dynamic_demo.py` | Dimostrazione del `BOPLADynamicTester` con risposte HTTP simulate | Offline, nessun target richiesto |
 | `run_broken_auth_scan.py` | Scansione del modulo Broken Authentication | Richiede Keycloak attivo |
 
 ```bash
 PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
 ```
 
-> I runner BOLA eseguono attacchi dinamici reali con snapshot e rollback dello
-> stato tra gli scenari: la durata e dominata dalle chiamate di rete e supera
-> i 30 minuti. Le scansioni senza BOLA si completano in circa 20 secondi.
+> Il runner BOLA (`run_bola_repo_target.py`) esegue attacchi dinamici reali con
+> snapshot e rollback dello stato tra gli scenari: la durata e dominata dalle
+> chiamate di rete (decine di minuti). Di default vengono esercitati solo i
+> metodi HTTP dichiarati dalla specifica OpenAPI e lo snapshot/rollback avviene
+> solo per POST/PUT/PATCH/DELETE; `--all-methods` forza i 5 metodi su ogni
+> endpoint (3-5x piu lento). L'attesa degli active scan di ZAP e limitata da
+> `ZAP_ACTIVE_SCAN_TIMEOUT_SECONDS` (default 300 s). Le scansioni senza BOLA si
+> completano in circa 20 secondi.
 
 ---
 

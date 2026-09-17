@@ -165,6 +165,18 @@ class OwnershipInferenceEngine:
                         str(v)
                     )
 
+    def get_owned_resource_ids(self) -> dict[str, dict[str, list[str]]]:
+        """
+        Resource IDs actually observed for each identity, grouped by resource type:
+        ``{uid: {"orders": ["101", "102"], ...}}``. IDs are sorted for determinism.
+        These are the IDs the attack generator should target in Assessment Mode,
+        instead of assuming "resource id == owner sub".
+        """
+        return {
+            uid: {res_type: sorted(ids) for res_type, ids in info["resources"].items()}
+            for uid, info in self.ownership_map.items()
+        }
+
     def get_inferred_identities(self) -> tuple:
         """
         Selects userA (Alice - regular user), userB (Bob - regular user), and userC (Charlie - admin)

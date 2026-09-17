@@ -31,7 +31,17 @@ done
 echo -e "\n${GREEN}[+] LocalStack è pronto sulla porta 4566!${NC}"
 
 # 2. Avvio dei container via docker-compose
+# TARGET_DIR e' la stessa variabile di run_api_security.sh: api-server monta la repo
+# bersaglio degli attacchi, che deve coincidere con quella della scansione statica.
+TARGET_DIR="${TARGET_DIR:-data/test_targets/repo_target}"
+if [ ! -d "$TARGET_DIR" ]; then
+    echo -e "${RED}[-] ERRORE: TARGET_DIR '$TARGET_DIR' non esiste o non e' una directory.${NC}"
+    exit 1
+fi
+TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
+export TARGET_DIR
 echo -e "${YELLOW}[1.2] Avvio servizi (Keycloak, ZAP, Mitmproxy, API Target) via Docker Compose...${NC}"
+echo -e "${GREEN}[+] Repo bersaglio montata in api-server: ${TARGET_DIR}${NC}"
 docker compose up -d
 
 # 3. Attesa Keycloak

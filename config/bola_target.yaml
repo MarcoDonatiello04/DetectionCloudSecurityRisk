@@ -1,0 +1,53 @@
+# ============================================================================
+# Contratto cooperante del bersaglio BOLA (D-AST, API1:2023)
+# ----------------------------------------------------------------------------
+# Un solo file per bersaglio: qui vivono l'URL dell'app, i tre endpoint
+# dell'harness cooperante (seed/snapshot/rollback), l'identity provider e le
+# tre identità di test. Nulla di tutto questo è più cablato nel codice
+# (dynamic_orchestrator, identity_context, attack_vector, state_manager).
+#
+# Ogni chiave è opzionale: se assente vale il default di
+# src/core/api1_bola/target_config.py. Il percorso del file è sovrascrivibile
+# con la variabile BOLA_TARGET_CONFIG; i parametri passati esplicitamente
+# alla CLI (--target-base-url, --keycloak-url) prevalgono sul file.
+#
+# Le credenziali NON stanno qui (ADR-003): password e token arrivano dalle
+# variabili d'ambiente indicate da `password_env` / `token_env`.
+# ============================================================================
+version: 1
+
+target:
+  base_url: http://localhost:5000
+  # Host con cui OWASP ZAP (in container) raggiunge il bersaglio: gli URL
+  # localhost/127.0.0.1 vengono riscritti su questo host prima di passare dal proxy.
+  zap_internal_host: api-server
+
+# Endpoint dell'harness cooperante esposti dal bersaglio (vedi
+# data/test_targets/repo_target/cooperative_harness.py).
+harness:
+  seed: /test/seed
+  snapshot: /test/snapshot
+  rollback: /test/rollback
+
+identities:
+  # keycloak      -> password grant sul realm indicato (Lab Mode, con seeding)
+  # static_tokens -> JWT già emessi, letti da `token_env`: permette di testare
+  #                  una repo con IdP proprio senza toccarla (Lab Mode, con seeding)
+  # traffic       -> identità e ownership inferite dal traffico catturato
+  #                  (Assessment Mode, senza seeding/snapshot/rollback)
+  provider: keycloak
+  url: http://localhost:8080
+  realm: myrealm
+  client_id: security-platform-client
+  users:
+    # victim:     proprietario della risorsa attaccata nello scenario orizzontale
+    # peer:       attaccante paritetico (stesso ruolo della vittima)
+    # privileged: identità con ruolo superiore (scenario verticale / accesso legittimo)
+    victim:     {username: user_a,     role: user,  password_env: USER_A_PASSWORD, token_env: BOLA_TOKEN_VICTIM}
+    peer:       {username: user_b,     role: user,  password_env: USER_B_PASSWORD, token_env: BOLA_TOKEN_PEER}
+    privileged: {username: admin_user, role: admin, password_env: USER_C_PASSWORD, token_env: BOLA_TOKEN_PRIVILEGED}
+
+assessment:
+  # In Assessment Mode non c'è snapshot/rollback: PUT/PATCH/DELETE sono esclusi
+  # per non alterare lo stato del bersaglio. `--allow-mutations` (o true qui) li riabilita.
+  allow_mutations: false

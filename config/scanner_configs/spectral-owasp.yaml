@@ -2,6 +2,19 @@
 extends: ["spectral:oas"]
 
 rules:
+  # 0. OWASP API1 (BOLA): ogni operazione che indirizza un singolo oggetto tramite
+  #    parametro di path ({id}, {userId}, ...) deve dichiarare un requisito di security.
+  #    Senza, l'oggetto è raggiungibile da chiunque conosca/indovini l'identificativo.
+  #    L'adapter mappa il prefisso "owasp-api1" sulla categoria AUTHORIZATION e usa la
+  #    chiave di correlazione dell'endpoint, così il finding BOLA runtime lo eleva.
+  owasp-api1-object-level-security:
+    description: "Le operazioni su singolo oggetto (path con parametro {id}) devono dichiarare un requisito di security: senza, l'oggetto è esposto a BOLA (OWASP API1)."
+    given: "$.paths[?(@property.match(/\\{.+\\}/))][get,put,patch,delete]"
+    severity: error
+    then:
+      field: "security"
+      function: truthy
+
   # 1. Verifica SecuritySchemes: l'OpenAPI deve avere un SecurityScheme definito
   owasp-api2-security-schemes:
     description: "L'API deve avere almeno uno schema di sicurezza definito (components.securitySchemes)."

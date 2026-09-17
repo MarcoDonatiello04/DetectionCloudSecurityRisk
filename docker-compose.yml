@@ -62,11 +62,15 @@ services:
   # ===========================================================================
   # 4. TARGET API SERVER (Porta host 5000)
   # ===========================================================================
+  # Il bersaglio dinamico DEVE coincidere con quello statico: TARGET_DIR e' la
+  # stessa variabile usata da run_api_security.sh (scansione statica), cosi' la
+  # correlazione statico/dinamico lavora sulle stesse rotte. Va esportata come
+  # path assoluto (o che inizi con ./) altrimenti Compose la legge come volume nominato.
   api-server:
     image: python:3.11-slim
     container_name: tesi-api-server
     volumes:
-      - ./test_targets/bola:/app
+      - ${TARGET_DIR:-./data/test_targets/repo_target}:/app
     working_dir: /app
     environment:
       - FLASK_APP=app.py
@@ -75,7 +79,9 @@ services:
       - KEYCLOAK_SERVER_URL=http://keycloak:8080
       - KEYCLOAK_REALM=myrealm
     command: >
-      sh -c "pip install --no-cache-dir flask pyjwt cryptography requests && python -m flask run --host=0.0.0.0 --port=5000"
+      sh -c "if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt;
+      else pip install --no-cache-dir flask pyjwt cryptography requests; fi
+      && python -m flask run --host=0.0.0.0 --port=5000"
     ports:
       - "5000:5000"
     networks:

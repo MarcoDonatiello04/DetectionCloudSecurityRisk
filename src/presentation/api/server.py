@@ -1,7 +1,9 @@
 import logging
 import os
+import threading
+import uuid
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from fastapi import Depends, FastAPI
 from fastapi.responses import HTMLResponse
@@ -27,6 +29,9 @@ from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
 from src.infrastructure.llm.ollama_adapter import OllamaAdapter
 from src.infrastructure.persistence.report_repository import ReportRepository
 
+if TYPE_CHECKING:
+    from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)-8s] %(name)-35s: %(message)s",
@@ -41,6 +46,43 @@ app = FastAPI(
     description="Enterprise API and Infrastructure Risk Management Platform",
     version="1.0.0",
 )
+
+
+# Registro delle scansioni BOLA in corso: ogni orchestratore porta il proprio segnale di
+# cancellazione, cosi' due scansioni concorrenti non si annullano a vicenda e nessun flag
+# resta "sporco" tra un run e l'altro (ADR: niente stato a livello di classe).
+_active_bola_scans: dict[str, "DynamicOrchestrator"] = {}
+_active_bola_scans_lock = threading.Lock()
+
+
+def _new_scan_id() -> str:
+    return uuid.uuid4().hex[:12]
+
+
+def _register_bola_scan(scan_id: str, orchestrator: "DynamicOrchestrator") -> None:
+    with _active_bola_scans_lock:
+        _active_bola_scans[scan_id] = orchestrator
+
+
+def _unregister_bola_scan(scan_id: str) -> None:
+    with _active_bola_scans_lock:
+        _active_bola_scans.pop(scan_id, None)
+
+
+def _cancel_bola_scans(scan_id: str | None = None) -> list[str]:
+    """
+    Cancella la scansione BOLA indicata oppure, senza scan_id, tutte quelle attive.
+    Ritorna gli id effettivamente cancellati (vuoto se lo scan_id non e' registrato).
+    """
+    with _active_bola_scans_lock:
+        if scan_id is None:
+            targets = dict(_active_bola_scans)
+        else:
+            orchestrator = _active_bola_scans.get(scan_id)
+            targets = {scan_id: orchestrator} if orchestrator is not None else {}
+    for orchestrator in targets.values():
+        orchestrator.cancel()
+    return list(targets)
 
 
 def _serve_template(template_name: str, fallback_title: str) -> HTMLResponse:
@@ -95,7 +137,6 @@ def run_bola_scan() -> dict[str, Any]:
     Esegue la pipeline completa di BOLA tramite il modulo reale DynamicOrchestrator.
     Configura le identità tramite Keycloak, esegue il seeding ed effettua il differential testing.
     """
-    import hashlib
     import json
     import time
     from datetime import datetime, timezone
@@ -104,6 +145,7 @@ def run_bola_scan() -> dict[str, Any]:
 
     start_t = time.time()
     start_time = datetime.now(timezone.utc)
+    scan_id = _new_scan_id()
 
     try:
         # Istanza dell'orchestratore reale configurato con i container attivi
@@ -113,6 +155,7 @@ def run_bola_scan() -> dict[str, Any]:
             zap_proxy_url=DEFAULT_ZAP_URL,
             assessment_mode=False,
         )
+        _register_bola_scan(scan_id, dast_orchestrator)
 
         # Carica inventario API per Discovery
         inventory_path = "output/unified_api_inventory.json"
@@ -159,19 +202,24 @@ def run_bola_scan() -> dict[str, Any]:
                 },
             ]
 
-        # Carica traffico reale intercettato
+        # Carica traffico reale intercettato: alimenta la discovery degli ID in
+        # query/body (ObjectReferenceDiscoveryEngine) e l'ownership inference.
+        raw_traffic = None
         traffic_path = "output/raw_traffic.json"
         if os.path.exists(traffic_path):
             try:
                 with open(traffic_path, encoding="utf-8") as f:
-                    json.load(f)
+                    raw_traffic = json.load(f)
             except Exception as e:
                 logger.error(f"Errore caricamento traffico: {e}")
 
         # Esegue la pipeline reale D-AST (Keycloak, Seeder, ZAP controller)
-        dast_orchestrator.run_dast_pipeline(
-            api_inventory=api_inventory, output_dir="output", raw_traffic=None
-        )
+        try:
+            dast_orchestrator.run_dast_pipeline(
+                api_inventory=api_inventory, output_dir="output", raw_traffic=raw_traffic
+            )
+        finally:
+            _unregister_bola_scan(scan_id)
 
         # Estrae e formatta i risultati del test differenziale
         results = []
@@ -224,12 +272,13 @@ def run_bola_scan() -> dict[str, Any]:
 
         elapsed = round(time.time() - start_t, 2)
         scan_meta = {
-            "scan_id": hashlib.sha256(start_time.isoformat().encode()).hexdigest()[:12],
+            "scan_id": scan_id,
             "started_at": start_time.isoformat(),
             "completed_at": datetime.now(timezone.utc).isoformat(),
             "elapsed_seconds": elapsed,
             "target_url": dast_orchestrator.target_base_url,
             "mode": "LIVE",
+            "cancelled": dast_orchestrator.is_cancelled,
             "endpoints_discovered": len(
                 {r.get("path") for r in dast_orchestrator.zap_controller.test_results}
             ),
@@ -250,9 +299,11 @@ def run_bola_scan() -> dict[str, Any]:
 
         return report
     except Exception as e:
+        _unregister_bola_scan(scan_id)
         logger.error(f"Errore durante BOLA scan: {e}", exc_info=True)
         return {
             "meta": {
+                "scan_id": scan_id,
                 "error": str(e),
                 "total_tests": 0,
                 "vulnerable_count": 0,
@@ -265,17 +316,31 @@ def run_bola_scan() -> dict[str, Any]:
 
 
 @app.post("/cancel-bola-scan", tags=["Scanning"])
-def cancel_bola_scan() -> dict[str, Any]:
+def cancel_bola_scan(scan_id: str | None = None) -> dict[str, Any]:
     """
-    Interrompe la scansione BOLA impostando il flag _is_cancelled su True.
-    """
-    from src.core.api1_bola.dynamic_orchestrator import ZapController
+    Interrompe una scansione BOLA in corso tramite il suo segnale di cancellazione.
 
-    ZapController._is_cancelled = True
+    Con `scan_id` viene fermata solo quella scansione; senza (es. beacon di `beforeunload`
+    della dashboard, che non conosce l'id perche' `/bola-scan` e' sincrono) vengono fermate
+    tutte le scansioni attive. Non tocca alcuno stato globale: una scansione conclusa non
+    lascia flag sporchi per quella successiva.
+    """
+    cancelled = _cancel_bola_scans(scan_id)
+    if scan_id is not None and not cancelled:
+        logger.info(f"Cancellazione BOLA ignorata: nessuna scansione attiva con id {scan_id}.")
+        return {"status": "not_found", "scan_ids": []}
     logger.info(
-        "🛑 Ricevuto segnale di cancellazione per la scansione BOLA. Interruzione in corso..."
+        "🛑 Ricevuto segnale di cancellazione per la scansione BOLA "
+        f"({len(cancelled)} in corso). Interruzione in corso..."
     )
-    return {"status": "cancelled"}
+    return {"status": "cancelled", "scan_ids": cancelled}
+
+
+@app.get("/api/bola-scan/active", tags=["Scanning"])
+def list_active_bola_scans() -> dict[str, Any]:
+    """Elenca gli id delle scansioni BOLA attualmente in corso (utile per cancellazioni mirate)."""
+    with _active_bola_scans_lock:
+        return {"scan_ids": list(_active_bola_scans)}
 
 
 @app.get("/api/bola-report", response_model=dict[str, Any], tags=["Scanning"])
@@ -579,9 +644,14 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
                 zap_proxy_url=DEFAULT_ZAP_URL,
                 assessment_mode=False,
             )
-            dast_orchestrator.run_dast_pipeline(
-                api_inventory=api_inventory, output_dir="output", raw_traffic=None
-            )
+            scan_id = _new_scan_id()
+            _register_bola_scan(scan_id, dast_orchestrator)
+            try:
+                dast_orchestrator.run_dast_pipeline(
+                    api_inventory=api_inventory, output_dir="output", raw_traffic=None
+                )
+            finally:
+                _unregister_bola_scan(scan_id)
             # Estrae e formatta i risultati BOLA (tutti i test, non solo i vulnerabili)
             total_tests = len(dast_orchestrator.zap_controller.test_results)
             for res in dast_orchestrator.zap_controller.test_results:
