@@ -13,7 +13,7 @@ Una piattaforma unificata per l'analisi statica e dinamica della sicurezza delle
 
 ## Architettura del Sistema
 
-La piattaforma è progettata seguendo una **Clean Architecture** event-driven e si articola in quattro fasi logiche fondamentali:
+La piattaforma è progettata seguendo una **Clean Architecture** e si articola in quattro fasi logiche fondamentali:
 
 1. **Discovery & Static Analysis (IaC & AST)**:
    - **Checkov Adapter**: Esegue l'analisi statica su configurazioni Terraform per rilevare misconfiguration (storage pubblici, IAM troppo permissivi, log disattivati). Il perimetro della scansione è sempre la directory bersaglio passata a `scan()` (`-d target_dir`); il file `.checkov.yaml` della piattaforma governa solo le opzioni accessorie (formato, `skip-path`, `soft-fail`), mai il perimetro.
@@ -23,7 +23,7 @@ La piattaforma è progettata seguendo una **Clean Architecture** event-driven e 
    - **Database Seeder**: Popola deterministicamente lo stato dell'applicazione target prima degli attacchi attivi per garantire la consistenza ed evitare race condition nel DB.
 3. **Attack & Runtime Stimulation (D-AST)**:
    - **OWASP ZAP (differential scan)**: Stimola gli endpoint dinamici con token differenziali (User A vs User B vs Anonimo) per scovare vulnerabilità logiche come BOLA (Broken Object Level Authorization) e Broken Authentication.
-   - **Mitmproxy Addon**: Intercetta ed estrae il traffico di rete reale a runtime per raccogliere evidenze di chiamate non autorizzate o endpoint non documentati (Shadow APIs).
+   - **Mitmproxy Addon**: Intercetta il traffico di rete reale a runtime; il modulo BOLA lo usa per inferire le identità e le relazioni risorsa → proprietario (Assessment Mode).
 4. **Risk Correlation & Scoring**:
    - **RiskCorrelationEngine**: Unisce i findings statici e dinamici mediante chiavi basate su URL normalizzati (tramite `APIEndpointNormalizer`). In presenza di verifiche empiriche positive (es: exploit confermato a runtime), eleva la severità a `CRITICAL` o `HIGH` e ricalcola il punteggio di rischio normalizzato (0-10) in base al contesto.
    - **Punteggio di rischio** ([ADR-005](docs/adr/adr-005-risk-scoring.md)): `R = min(10, 0.6·S + 0.2·(10·C) + 0.2·X)`, dove `S` è il punteggio di severità (CRITICAL 10, HIGH 7, MEDIUM 4.5, LOW 2), `C` la confidenza dichiarata dalla sorgente (precisione della regola del catalogo per Checkov, livello dell'alert per ZAP, riscontro positivo o assenza dedotta per Semgrep; forzata a 1 dalla conferma empirica a runtime) e `X` il contesto dichiarato dall'adapter (esposto a Internet +4, dati sensibili +4, risorsa pubblica +2; 3 se nessun contesto è dichiarato, sempre 0 per l'hardening). Tutti i parametri sono in `config/risk_scoring.yaml` (override con `RISK_SCORING_CONFIG`). La dashboard mostra il punteggio accanto alla severità e ordina le voci per natura e poi per punteggio.
@@ -157,8 +157,8 @@ relativi al modulo, quindi restano accanto al codice che verificano: spostarli
 significherebbe separarli dalle risorse che consumano.
 
 **Test trasversali** — `tests/`
-- `tests/unit/` — test isolati su componenti condivisi (event bus,
-  normalizzatore dei path, adapter degli scanner).
+- `tests/unit/` — test isolati su componenti condivisi (normalizzatore dei
+  path, motore di correlazione, adapter degli scanner).
 - `tests/integration/` — test che attraversano piu componenti reali e non
   appartengono a un singolo modulo OWASP.
 
@@ -218,13 +218,12 @@ PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
 │   ├── operations/            # Script bash di orchestrazione della pipeline
 │   └── runners/               # Runner Python per singoli moduli e validazioni
 ├── src/                       # Codice sorgente dell'Orchestratore di Sicurezza (Python)
-│   ├── application/           # Logica applicativa, Event Bus, Risk engine e RemediationEngine
+│   ├── application/           # Orchestratore, Risk engine e RemediationEngine
 │   ├── core/                  # Logica principale D-AST (dynamic_orchestrator.py)
-│   ├── domain/                # Entità, eventi e porte (entities.py, events.py, interfaces.py)
+│   ├── domain/                # Entità e porte (entities.py, interfaces.py)
 │   ├── infrastructure/        # Adapter per gli scanner esterni, provider LLM (llm/ollama_adapter.py)
 │   │                          # e knowledge base delle remediation (llm/knowledge_base/)
 │   ├── normalization/         # Modulo di normalizzazione URL delle API
-│   ├── plugins/               # Plugin detector (bola_detector, shadow_api_detector)
 │   └── presentation/          # API FastAPI, dashboard web e template HTML
 ├── test_targets/              # Target di test consolidati (tutti i moduli)
 │   ├── bola/                  # BOLA: microservizio Flask + openapi.yaml
@@ -313,7 +312,7 @@ PYTHONPATH=. .venv/bin/python entrypoints/runners/run_unified_core_scanners.py
 La dashboard servita da `make dashboard` fornisce una visualizzazione interattiva delle metriche del progetto e supporta le seguenti sezioni:
 1. **Panoramica Sicurezza**: sintesi dell'ultima scansione unificata dei moduli Core (esito per modulo, findings, durata), con rilancio dell'analisi rapida o completa direttamente dalla home.
 2. **Findings Viewer**: Elenco dettagliato di tutte le vulnerabilità con filtri per categoria e severità. Integra il motore di **Remediation Intelligence** che estrae raccomandazioni da un database offline locale o genera risposte intelligenti interfacciandosi localmente con modelli AI (es. Ollama / Llama3).
-3. **API Catalog**: Mappa in tempo reale le rotte documentate e individua le **Shadow API** scoperte analizzando il traffico di rete a runtime.
+3. **API Catalog**: Mappa le rotte documentate nella specifica OpenAPI e vi associa violazioni di contratto (Spectral) ed esiti BOLA; gli endpoint rilevati dagli scanner ma assenti dalla specifica compaiono come non documentati.
 4. **Infrastructure (IaC)**: Dettaglio delle violazioni statiche rilevate da Checkov sui file Terraform.
 5. **Console Logs**: Log dettagliati della esecuzione della pipeline CLI.
 

@@ -43,17 +43,6 @@
     ],
     "example": "# Codice Terraform Corretto\nresource \"aws_s3_bucket\" \"secure_bucket\" {\n  bucket = \"my-secure-bucket-cloud-data\"\n}\n\n# Blocco totale degli accessi pubblici al bucket S3\nresource \"aws_s3_bucket_public_access_block\" \"block\" {\n  bucket                  = aws_s3_bucket.secure_bucket.id\n  block_public_acls       = true\n  block_public_policy     = true\n  ignore_public_acls      = true\n  restrict_public_buckets = true\n}"
   },
-  "shadow-api-detected": {
-    "title": "Vulnerabilità Rilevata: Shadow API (Endpoint non documentato rilevato a runtime)",
-    "description": "L'analisi statica/dinamica ha identificato un potenziale rischio: 'Rilevata chiamata HTTP verso 'GET /.zap5275561499632233557' nel traffico di runtime, ma nessun endpoint corrispondente è stato trovato nel codice sorgente analizzato. Questo indica la presenza di una Shadow API non tracciata o di una potenziale backdoor.'. È necessaria una revisione per allinearsi alle best practice di sicurezza.",
-    "impact": "Aumento della superficie d'attacco ed esposizione ad exploit di gravità variabile a seconda dell'ambiente di deployment.",
-    "remediation_steps": [
-      "Rivedere la configurazione della risorsa interessata.",
-      "Applicare le patch o gli aggiornamenti di sicurezza raccomandati.",
-      "Isolare la risorsa sensibile limitando l'esposizione sulla rete pubblica."
-    ],
-    "example": "# Configurazione Sicura Consigliata\n{\n  \"status\": \"secure_configuration_applied\",\n  \"verification\": \"required\"\n}"
-  },
   "api-route-discovery": {
     "title": "Vulnerabilità Rilevata: API Endpoint Rilevato",
     "description": "L'analisi statica/dinamica ha identificato un potenziale rischio: 'Identificato endpoint API [fastapi, python-semgrep]: POST /scan protetto da autenticazione.'. È necessaria una revisione per allinearsi alle best practice di sicurezza.",
@@ -335,7 +324,7 @@
     }
   },
   "info-contact": {
-    "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+    "title": "Esposizione Involontaria di Dati Sensibili",
     "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
     "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
     "remediation_steps": [
@@ -356,7 +345,7 @@
     "example": "# Esempio Schema OpenAPI sicuro (YAML)\ncomponents:\n  schemas:\n    UserRequest:\n      type: object\n      required: [username, email]\n      properties:\n        username:\n          type: string\n          pattern: '^[a-zA-Z0-9_]{3,30}$'\n        email:\n          type: string\n          format: email"
   },
   "operation-operationId": {
-    "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+    "title": "Esposizione Involontaria di Dati Sensibili",
     "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
     "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
     "remediation_steps": [
@@ -366,7 +355,7 @@
     "example": "# Filtro dei campi sensibili (DTO)\ndef clean_user_response(user_db):\n    return {\n        \"id\": user_db.id,\n        \"username\": user_db.username,\n        \"email\": user_db.email\n        # password_hash e token vengono eslcusi\n    }"
   },
   "operation-tags": {
-    "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+    "title": "Esposizione Involontaria di Dati Sensibili",
     "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
     "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
     "remediation_steps": [
@@ -376,7 +365,7 @@
     "example": "# Filtro dei campi sensibili (DTO)\ndef clean_user_response(user_db):\n    return {\n        \"id\": user_db.id,\n        \"username\": user_db.username,\n        \"email\": user_db.email\n        # password_hash e token vengono eslcusi\n    }"
   },
   "owasp-api9-documented-endpoint": {
-    "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+    "title": "Esposizione Involontaria di Dati Sensibili",
     "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
     "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
     "remediation_steps": [
@@ -386,7 +375,7 @@
     "example": "# Filtro dei campi sensibili (DTO)\ndef clean_user_response(user_db):\n    return {\n        \"id\": user_db.id,\n        \"username\": user_db.username,\n        \"email\": user_db.email\n        # password_hash e token vengono eslcusi\n    }"
   },
   "operation-description": {
-    "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+    "title": "Esposizione Involontaria di Dati Sensibili",
     "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
     "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
     "remediation_steps": [

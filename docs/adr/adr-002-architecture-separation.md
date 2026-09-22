@@ -1,7 +1,7 @@
 # ADR-002: Separazione Architetturale tra Scanner, Risk Engine e Reporter (Clean Architecture & Event-Driven)
 
 ## Status
-Accepted
+Accepted — la parte sull'Event Bus e sul caricamento dinamico dei plugin è superata da [ADR-006](adr-006-rimozione-event-bus.md). Restano valide la Clean Architecture e le interfacce `IScanner`/adapter.
 
 ## Context
 L'integrazione di molteplici scanner di sicurezza (Checkov per IaC, Semgrep per AST, Spectral per OpenAPI, ZAP per DAST) introduce sfide significative di accoppiamento del codice. Scrivere un orchestratore monolitico accoppiato direttamente con le API o i comandi CLI dei singoli strumenti rende la piattaforma fragile, difficile da estendere (es. per aggiungere un nuovo scanner) e quasi impossibile da testare in isolamento. 

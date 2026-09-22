@@ -4,9 +4,7 @@ import os
 from typing import Any
 
 from src.application.correlation.engine import RiskCorrelationEngine
-from src.application.event_bus import EventBus
 from src.application.orchestrator import ScanPipelineOrchestrator
-from src.application.plugin_loader import PluginLoader
 from src.core.api1_bola.dynamic_orchestrator import (
     DynamicOrchestrator,
     TargetUnreachableError,
@@ -18,7 +16,6 @@ from src.core.config import (
     DEFAULT_KEYCLOAK_URL,
     DEFAULT_OPENAPI_SPEC_PATH,
     DEFAULT_OUTPUT_DIR,
-    DEFAULT_PLUGINS_DIR,
     DEFAULT_TARGET_BASE_URL,
     DEFAULT_TARGET_DIR,
     DEFAULT_TRAFFIC_FILE,
@@ -59,11 +56,6 @@ def parse_args() -> argparse.Namespace:
         "--target-dir",
         default=DEFAULT_TARGET_DIR,
         help="Directory bersaglio della scansione (perimetro passato a ogni scanner)",
-    )
-    parser.add_argument(
-        "--plugins-dir",
-        default=DEFAULT_PLUGINS_DIR,
-        help="Directory contenente i plugin dei detector",
     )
     parser.add_argument(
         "--output-dir",
@@ -142,18 +134,15 @@ def main() -> None:
     ]
 
     # 2. Inizializza l'orchestratore
-    event_bus = EventBus()
-    plugin_loader = PluginLoader(args.plugins_dir)
     correlation_engine = RiskCorrelationEngine()
 
     orchestrator = ScanPipelineOrchestrator(
         target_dir=args.target_dir,
-        event_bus=event_bus,
-        plugin_loader=plugin_loader,
         correlation_engine=correlation_engine,
     )
 
-    # 3. Carica il traffico a runtime (Mitmproxy adapter)
+    # 3. Carica il traffico a runtime (Mitmproxy adapter): alimenta l'inferenza di
+    #    ownership di BOLA nella fase D-AST
     # Se il file non esiste, proviamo a controllare se è presente nella cartella output locale
     traffic_path = args.traffic_file
     if not os.path.exists(traffic_path):
@@ -162,38 +151,8 @@ def main() -> None:
     mitm_adapter = MitmproxyClientAdapter(traffic_path)
     raw_traffic = mitm_adapter.load_captured_traffic()
 
-    # Se non c'è traffico registrato (offline mode), simuliamo del traffico per permettere ai detector di girare
-    if not raw_traffic:
-        logger.info(
-            "⚠️ Nessun traffico Mitmproxy trovato. Generazione scenario simulato per dimostrazione..."
-        )
-        raw_traffic = [
-            # Richiesta valida con token
-            {
-                "method": "GET",
-                "path": "/users/42",
-                "full_url": "http://localhost:5000/users/42",
-                "status": 200,
-                "headers": {
-                    "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0Mn0.signature"
-                },
-                "body_params": {},
-            },
-            # Richiesta Shadow API (non documentata)
-            {
-                "method": "POST",
-                "path": "/api/v1/debug/dump-database",
-                "full_url": "http://localhost:5000/api/v1/debug/dump-database",
-                "status": 200,
-                "headers": {},
-                "body_params": {"raw_sql": "SELECT * FROM secrets"},
-            },
-        ]
-
     # 4. Esecuzione pipeline
-    correlated_findings = orchestrator.run_pipeline(
-        static_scanners=scanners, raw_traffic_data=raw_traffic
-    )
+    correlated_findings = orchestrator.run_pipeline(static_scanners=scanners)
 
     # 5. Esecuzione scansione D-AST dinamica
     logger.info("⚡ Avvio fase D-AST (Dynamic Application Security Testing)...")
@@ -238,7 +197,7 @@ def main() -> None:
         zap_findings = zap_client.scan(zap_target_url)
         logger.info(f"   - Trovati {len(zap_findings)} findings da OWASP ZAP.")
 
-        # Uniamo tutti i runtime findings (mitmproxy + zap + test differenziali di sbarramento)
+        # Uniamo tutti i runtime findings (zap + test differenziali di sbarramento)
         all_runtime = list(orchestrator.runtime_findings) + zap_findings + dast_findings
 
         # Correliamo nuovamente l'intero set
@@ -281,13 +240,12 @@ def _build_endpoint_catalog(findings: list[Finding]) -> list[dict[str, Any]]:
             "summary": ep["summary"],
             "description": ep["description"],
             "documented": True,
-            "shadow": False,
             "violations": [],
             "bola_status": "UNTESTED",  # UNTESTED, SAFE, VULNERABLE, POTENTIAL
             "bola_findings": [],
         }
 
-    # 2. Analizza i findings per popolare violazioni, shadow api e bola
+    # 2. Analizza i findings per popolare violazioni ed esiti BOLA
     for f in findings:
         if not f.api or not f.api.endpoint:
             continue
@@ -307,15 +265,14 @@ def _build_endpoint_catalog(findings: list[Finding]) -> list[dict[str, Any]]:
                         break
 
         if not matched_key:
-            # È un endpoint non documentato (Shadow API)
+            # Endpoint presente nei findings ma assente dalla specifica OpenAPI
             matched_key = key
             catalog[matched_key] = {
                 "method": method,
                 "path": norm_path,
-                "summary": f.title if f.source.value == "SHADOW_API" else "Endpoint Rilevato",
+                "summary": "Endpoint Rilevato",
                 "description": f.description,
                 "documented": False,
-                "shadow": True,
                 "violations": [],
                 "bola_status": "UNTESTED",
                 "bola_findings": [],

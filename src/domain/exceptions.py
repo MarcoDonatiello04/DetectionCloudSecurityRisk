@@ -12,11 +12,3 @@ class InvalidFindingException(SecurityPlatformException):
     """
 
     pass
-
-
-class PluginLoadException(SecurityPlatformException):
-    """
-    Sollevata quando si verifica un errore durante il caricamento dinamico di un plugin.
-    """
-
-    pass

@@ -4,24 +4,8 @@ from pathlib import Path
 import pytest
 
 from src.application.correlation.engine import RiskCorrelationEngine
-from src.application.event_bus import EventBus
 from src.domain.entities import Finding, FindingCategory, FindingSource, Severity
 from src.normalization.normalizer import APIEndpointNormalizer
-
-
-def test_event_bus_pub_sub():
-    bus = EventBus()
-    received_events = []
-
-    def test_handler(event):
-        received_events.append(event)
-
-    bus.subscribe("test.event", test_handler)
-    bus.publish("test.event", {"data": "hello"})
-
-    assert len(received_events) == 1
-    assert received_events[0].name == "test.event"
-    assert received_events[0].payload["data"] == "hello"
 
 
 def test_api_endpoint_normalization():

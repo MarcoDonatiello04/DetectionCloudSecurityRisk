@@ -56,24 +56,23 @@ Le scansioni senza BOLA (statiche + D-AST leggero) impiegano circa 15-20 secondi
 
 ## Architettura
 
-Clean Architecture event-driven, quattro fasi logiche:
+Clean Architecture, quattro fasi logiche:
 
 1. **Discovery & Static Analysis (IaC & AST)** — `src/infrastructure/adapters/`: `checkov_adapter.py` (Terraform misconfiguration; natura e severità di ogni controllo vengono dal catalogo semantico `config/scanner_configs/checkov-policy-catalog.yaml` tramite `checkov_policy_catalog.py` — le parole chiave operano sul nome ufficiale del controllo, non sull'ID opaco `CKV_AWS_53`; senza catalogo tutto resta "non classificato/MEDIUM"; il perimetro è sempre il `target_dir` passato a `scan()` via `-d`, il file `.checkov.yaml` governa solo le opzioni accessorie), `semgrep_adapter.py` (mapping rotte API + stato auth), `spectral_adapter.py` (contratti OpenAPI vs OWASP API Top 10).
 2. **Dynamic Seeding** — popola deterministicamente lo stato dell'app target (utenti `user_a`/`user_b` su Keycloak) prima degli attacchi attivi, per evitare race condition.
-3. **Attack & Runtime Stimulation (D-AST)** — `zap_adapter.py` (differential scan con token di `user_a` vs `user_b` vs anonimo per BOLA/Broken Auth) e `src/infrastructure/adapters/mitmproxy/addon.py` (cattura traffico reale per scovare Shadow API).
+3. **Attack & Runtime Stimulation (D-AST)** — `zap_adapter.py` (differential scan con token di `user_a` vs `user_b` vs anonimo per BOLA/Broken Auth) e `src/infrastructure/adapters/mitmproxy/addon.py` (cattura traffico reale, usato da BOLA per l'inferenza di identità e ownership).
    Robustezza del motore (`src/core/api1_bola/dynamic_orchestrator.py`): la cancellazione è un `threading.Event` per istanza (`DynamicOrchestrator.cancel()`), mai uno stato di classe — il server (`src/presentation/api/server.py`) tiene un registro `scan_id → orchestrator` e `POST /cancel-bola-scan?scan_id=…` ferma solo quella scansione (senza `scan_id`, tutte le attive); il polling degli active scan ZAP è limitato da `ZAP_ACTIVE_SCAN_TIMEOUT_SECONDS` (`config.py`, default 300, override via env) e allo scadere chiama `ascan.stop_all_scans()`.
 4. **Risk Correlation & Scoring** — `src/application/correlation/engine.py`: unisce findings statici e dinamici tramite chiavi su URL normalizzati (`src/normalization/normalizer.py`, classe `APIEndpointNormalizer`); in presenza di conferma empirica runtime eleva la severità e ricalcola il risk score (0-10, vedi `docs/adr/adr-001-risk-scoring.md` per la formula pesata). Quando più findings condividono la stessa risorsa, la voce rappresentativa è scelta per **natura** (`FindingNature`: `EXPOSURE` > non classificato > `HARDENING`) e poi per severità, mai "il primo incontrato"; i controlli assorbiti restano in `raw_data["aggregated_checks"]`. I finding `HARDENING` non ricevono il bonus di contesto (`DEFAULT_CONTEXT_HARDENING`). Vedi `docs/adr/adr-004-finding-nature.md`.
 
 ### Layer principali (`src/`)
 
-- `domain/` — entità (`entities.py`, es. `Finding`), eventi (`events.py`), eccezioni, interfacce astratte (`interfaces.py`: `IScanner`, `IDetector`, `IRemediation`, `IEventBus`, `ILlmProvider`), modello `RemediationModel` (`remediation_model.py`).
-- `application/` — `event_bus.py` (in-memory event bus thread-safe), `orchestrator.py` (coordina le fasi), `plugin_loader.py` (carica i plugin/detector dinamici a runtime), `correlation/engine.py` (risk correlation engine).
+- `domain/` — entità (`entities.py`, es. `Finding`), eccezioni, interfacce astratte (`interfaces.py`: `IScanner`, `IVulnerabilityDetector`, `ILlmProvider`), modello `RemediationModel` (`remediation_model.py`).
+- `application/` — `orchestrator.py` (esegue gli scanner statici e consegna i findings al motore di correlazione), `correlation/engine.py` (risk correlation engine).
 - `infrastructure/adapters/` — un adapter per ogni tool esterno, traduce l'output grezzo (JSON/XML) nel modello di dominio unificato `Finding`.
 - `core/<vulnerabilita>/` — un modulo autosufficiente per ciascun rilevatore OWASP (`object_level_authorization` = BOLA, `broken_authentication`, `broken_function_level_authorization`, `broken_object_property_level_access` = BOPLA, `security_misconfiguration`, `server_side_request_forgery`, `unrestricted_resource_consumption`, `unsafe_consumption`), ciascuno con proprie `rules/`, `fixtures/` e `tests/`.
-- `plugins/detectors/` — detector dinamici (es. `shadow_api_detector.py`) caricati da `PluginLoader`, comunicano solo tramite l'Event Bus sottoscrivendo/emettendo eventi (`EVENT_STATIC_SCAN_COMPLETED`, `EVENT_TRAFFIC_CAPTURED`, `EVENT_FINDING_DETECTED`).
 - `presentation/` — `rest_api.py` (FastAPI, servito da `make dashboard`), `cli.py`, template HTML in `templates/`.
 
-Il disaccoppiamento via Event Bus è una scelta architetturale deliberata (vedi `docs/adr/adr-002-architecture-separation.md`): scanner, risk engine e reporter non si conoscono direttamente, comunicano solo tramite eventi — questo è il motivo per cui aggiungere un nuovo scanner/detector non richiede modifiche all'orchestratore.
+Il disaccoppiamento passa dalle interfacce di dominio (`docs/adr/adr-002-architecture-separation.md`): l'orchestratore conosce solo `IScanner` e il motore di correlazione, quindi aggiungere uno scanner significa registrare un nuovo adapter nel composition root (`cli/main.py`, `server.py`) senza toccare l'orchestratore. L'Event Bus e il caricamento dinamico dei plugin sono stati rimossi insieme al modulo Shadow API, loro unico utilizzatore (`docs/adr/adr-006-rimozione-event-bus.md`).
 
 ### Gestione credenziali (ADR-003)
 
@@ -90,7 +89,7 @@ Modulo offline di Remediation Intelligence: `src/application/remediation/remedia
 Due collocazioni distinte, per una ragione precisa:
 
 - **Test accanto al modulo** — `src/core/<vulnerabilita>/tests/`: ogni rilevatore OWASP è un'unità autosufficiente con proprie regole, fixture e test (inclusi i test di *ground truth* contro le vulnerabilità note dei target). I path sono relativi al modulo, quindi restano accanto al codice che verificano.
-- **Test trasversali** — `tests/unit/` (componenti condivisi: event bus, normalizzatore path, adapter scanner) e `tests/integration/` (test multi-componente non legati a un singolo modulo OWASP).
+- **Test trasversali** — `tests/unit/` (componenti condivisi: normalizzatore path, motore di correlazione, adapter scanner) e `tests/integration/` (test multi-componente non legati a un singolo modulo OWASP).
 - **`test_targets/`** — applicazioni vulnerabili/sicure usate come bersaglio degli scanner (input, non test). Escluse da `norecursedirs` in pytest: raccoglierle inquinerebbe `sys.path` mascherando le dipendenze installate. Include `repo_target/` (target Terraform riutilizzabile per test su repo arbitrarie) e `crapi_repo/`.
 
 ## Convenzioni di linting (ruff, `pyproject.toml`)

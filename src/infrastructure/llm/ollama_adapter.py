@@ -290,13 +290,9 @@ app = Flask(__name__)
 CORS(app, origins=["https://dashboard.miodominio.it"])""",
             }
 
-        elif (
-            "API_EXPOSURE" in category_upper
-            or "DATA_EXPOSURE" in category_upper
-            or "SHADOW" in title.upper()
-        ):
+        elif "API_EXPOSURE" in category_upper or "DATA_EXPOSURE" in category_upper:
             return {
-                "title": "Esposizione Involontaria di Dati Sensibili o Shadow API",
+                "title": "Esposizione Involontaria di Dati Sensibili",
                 "description": "La rotta API espone campi sensibili non necessari nel payload JSON di risposta, oppure espone un endpoint amministrativo o di debug non documentato.",
                 "impact": "Data leakage di informazioni personali (PII), token, password hash o informazioni sull'architettura interna.",
                 "remediation_steps": [

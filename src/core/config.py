@@ -15,7 +15,6 @@ logger = logging.getLogger("SecurityPlatform.Config")
 _PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 # ─── PERCORSI E NOMI FILE DEFAULTS ───────────────────────────────────────────
-DEFAULT_PLUGINS_DIR = os.getenv("PLUGINS_DIR", "src/plugins")
 # Directory bersaglio della pipeline statica: e' il perimetro passato a IScanner.scan().
 # Mai la radice della piattaforma, che conterrebbe tutti i bersagli di prova insieme.
 DEFAULT_TARGET_DIR = os.getenv("TARGET_DIR", "data/test_targets/repo_target")

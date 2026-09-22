@@ -19,7 +19,7 @@ Il perimetro del sistema comprende:
 
 ## 1.3. Objectives and success criteria of the project
 * **Obiettivi**:
-  1. Raggiungere il $100\%$ di rilevamento dei tentativi di accesso non autorizzato di tipo BOLA Orizzontale e Verticale sulle rotte documentate e non (Shadow API).
+  1. Raggiungere il $100\%$ di rilevamento dei tentativi di accesso non autorizzato di tipo BOLA Orizzontale e Verticale sulle rotte documentate.
   2. Eliminare i falsi negativi strutturali legati a ruoli amministrativi gerarchici.
   3. Prevenire la corruzione del DB di test durante la simulazione di metodi distruttivi.
 * **Criteri di Successo**:
@@ -60,7 +60,7 @@ Il sistema attuale si basa esclusivamente su controlli di tipo statico (Checkov 
 # 3. Proposed system
 
 ## 3.1. Overview
-Il sistema proposto implementa un'architettura dinamica guidata dagli eventi (Event-Driven) in grado di orchestrare il provisioning delle identità (Keycloak), la popolazione dei dati (Seeding), la cattura dello stato del database (Snapshot), la stimolazione passante dal proxy OWASP ZAP (Attack Generator), la verifica logica delle risposte (Assertion Engine) ed il ripristino (Rollback).
+Il sistema proposto implementa una pipeline in grado di orchestrare il provisioning delle identità (Keycloak), la popolazione dei dati (Seeding), la cattura dello stato del database (Snapshot), la stimolazione passante dal proxy OWASP ZAP (Attack Generator), la verifica logica delle risposte (Assertion Engine) ed il ripristino (Rollback).
 
 ```
 [Discovery (Semgrep)] -> [Snapshot Stato] -> [Attack (ZAP Proxy)] -> [Assertion (OSI-7)] -> [Rollback Stato]
@@ -210,7 +210,7 @@ L'interfaccia utente è costituita da una **dashboard web** servita da FastAPI (
 * **Sidebar**: Menu laterale categorizzato per navigare rapidamente tra le sezioni principali:
   - **Dashboard**: Vista di riepilogo con KPI Cards globali (Totale Findings, Risk Score Medio, Findings Convalidati, KPI di copertura) e grafici di riepilogo delle severità.
   - **Findings**: Elenco completo dei riscontri di sicurezza con possibilità di filtraggio avanzato per severità, tipologia (statico vs dinamico), categoria e stato di convalida runtime. Include un modulo integrato di **Remediation** che mostra soluzioni KB e raccomandazioni basate su AI locale (Ollama).
-  - **API Catalog**: Catalogo interattivo di tutte le API scansionate, con demarcazione automatica tra API Documentate e Shadow API.
+  - **API Catalog**: Catalogo interattivo di tutte le API scansionate, con demarcazione fra endpoint documentati nella specifica e non documentati.
   - **Infrastructure**: Vista dedicata alle misconfiguration infrastrutturali rilevate dal modulo Checkov (IaC) sui template Terraform.
   - **Logs/Console**: Pannello integrato per visualizzare i log di esecuzione in tempo reale (thread-safe).
   - **Settings**: Configurazione dei parametri della pipeline, della directory dei report e dei parametri di connessione LLM.
@@ -246,5 +246,4 @@ L'interfaccia utente è costituita da una **dashboard web** servita da FastAPI (
 * **Context-Aware Seeding**: Tecnica di popolamento del database di test che utilizza gli UUID reali estratti dai JWT degli utenti per legare in modo univoco dati di test e sessioni.
 * **Differential Testing**: Tecnica di validazione dinamica che confronta le risposte fornite a diversi utenti per lo stesso stimolo al fine di individuare divergenze logiche.
 * **Idempotenza**: Proprietà di un'operazione di produrre lo stesso risultato anche se eseguita più volte.
-* **Shadow API**: Endpoint attivi ed esposti dall'applicazione ma che non risultano documentati nella specifica ufficiale delle API.
 * **Test Cross-Contamination**: Effetto collaterale indesiderato per cui le modifiche apportate da un test compromettono l'esito dei test successivi.

@@ -40,7 +40,7 @@ La formula resta quella di ADR-001; cambiano i suoi ingressi. Tutti i parametri 
 - **Checkov**: la precisione della regola del catalogo che ha classificato il controllo (`PolicyClassification.matched_by`): mappatura esplicita per ID (`exact`) > famiglia per prefisso > parola chiave sul nome ufficiale > esito predefinito.
 - **ZAP**: il livello dichiarato dall'alert; un alert `False Positive` viene scartato e non entra nell'inventario. Livello assente o sconosciuto: 0.7.
 - **Semgrep**: un decoratore/handler di autenticazione trovato è un riscontro positivo (0.95); la sua assenza è solo dedotta dall'analisi statica (0.7).
-- **Spectral** e **Shadow API** conservano i valori precedenti (1.0 e 0.9): la violazione di contratto è deterministica, la chiamata osservata nel traffico è un fatto.
+- **Spectral** conserva il valore precedente (1.0): la violazione di contratto è deterministica. (Il rilevatore Shadow API, che dichiarava 0.9, è stato rimosso: vedi ADR-006.)
 - **Conferma empirica**: un finding statico correlato con un riscontro a runtime riceve `C = 1.0`; un `RiskContext.exploitable = True` forza `C = 1.0` nel calcolo. I finding runtime non correlati conservano la confidenza del loro adapter.
 
 ### Contesto dichiarato, non inferito

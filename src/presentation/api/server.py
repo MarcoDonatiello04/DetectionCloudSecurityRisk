@@ -9,13 +9,10 @@ from fastapi import Depends, FastAPI
 from fastapi.responses import HTMLResponse
 
 from src.application.correlation.engine import RiskCorrelationEngine
-from src.application.event_bus import EventBus
 from src.application.orchestrator import ScanPipelineOrchestrator
-from src.application.plugin_loader import PluginLoader
 from src.application.remediation.remediation_engine import RemediationEngine
 from src.core.config import (
     DEFAULT_KEYCLOAK_URL,
-    DEFAULT_PLUGINS_DIR,
     DEFAULT_TARGET_BASE_URL,
     DEFAULT_TARGET_DIR,
     DEFAULT_ZAP_URL,
@@ -387,15 +384,8 @@ def get_orchestrator() -> ScanPipelineOrchestrator:
     """
     # Il bersaglio e' la directory target configurata (TARGET_DIR), mai la radice
     # della piattaforma: e' il perimetro che gli scanner ricevono in scan().
-    event_bus = EventBus()
-    plugin_loader = PluginLoader(DEFAULT_PLUGINS_DIR)
-    correlation_engine = RiskCorrelationEngine()
-
     return ScanPipelineOrchestrator(
-        target_dir=DEFAULT_TARGET_DIR,
-        event_bus=event_bus,
-        plugin_loader=plugin_loader,
-        correlation_engine=correlation_engine,
+        target_dir=DEFAULT_TARGET_DIR, correlation_engine=RiskCorrelationEngine()
     )
 
 
@@ -416,8 +406,8 @@ def trigger_scan(
     orchestrator: ScanPipelineOrchestrator = Depends(get_orchestrator),
 ) -> list[dict[str, Any]]:
     """
-    Avvia la pipeline di scansione, raccoglie i findings da static analysis e
-    runtime, correla i rischi e ritorna l'inventario unificato dei findings.
+    Avvia la pipeline statica, correla i rischi e ritorna l'inventario unificato
+    dei findings.
 
     Args:
         scanners: Lista di scanner iniettati come dipendenza.
@@ -426,23 +416,7 @@ def trigger_scan(
     Returns:
         List[Dict[str, Any]]: Lista serializzata in dizionari dei Finding correlati.
     """
-    # Usiamo un payload di traffico di test mock se non è configurato nessun proxy attivo
-    mock_traffic = [
-        {
-            "method": "GET",
-            "path": "/users/10",
-            "full_url": "http://localhost:5000/users/10",
-            "status": 200,
-            "headers": {
-                "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMH0.signature"
-            },
-            "body_params": {},
-        }
-    ]
-
-    correlated_findings = orchestrator.run_pipeline(
-        static_scanners=scanners, raw_traffic_data=mock_traffic
-    )
+    correlated_findings = orchestrator.run_pipeline(static_scanners=scanners)
 
     # Salviamo i report
     report_repo = ReportRepository("output")
