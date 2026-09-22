@@ -35,6 +35,28 @@ sul codice sorgente della repo, quindi non richiedono un ambiente attivo. È la
 dimostrazione — teorica quanto la copertura del codice della repo — che i
 controlli sono indipendenti dalla singola repository: cambia solo `--repo-path`.
 
+### Unsafe Consumption (API10): integrazioni con terze parti
+
+[`integrations/`](integrations/) contiene 23 funzioni client verso partner esterni,
+ognuna etichettata come VULNERABILE o SICURA per una delle tre regole (UC-001 dati
+non validati, UC-002 canale in chiaro, UC-003 redirect seguiti). A differenza delle
+app gemelle del modulo, i casi includono varianti che il rilevatore sbaglia (flussi
+attraverso helper, `requests.Session`, `httpx`, validazioni passate per keyword,
+cast che neutralizzano l'input). Il file non registra rotte, quindi inventario
+Semgrep e contratto OpenAPI restano invariati.
+
+Matrice misurata (riferimento di verità in
+`tests/integration/api10_unsafe_consumption/test_repo_target_ground_truth.py`):
+
+| Regola | TP | FN | TN | FP |
+| --- | --- | --- | --- | --- |
+| UC-001 | 2 | 3 | 2 | 2 |
+| UC-002 | 2 | 2 | 2 | 1 |
+| UC-003 | 2 | 2 | 2 | 1 |
+
+La proporzione riflette i casi scelti per esercitare i limiti noti, non una stima
+della frequenza di questi difetti nel codice reale.
+
 ## IaC: configurazione Terraform analizzata da Checkov
 
 La cartella [`terraform/`](terraform/) contiene la configurazione infrastrutturale
