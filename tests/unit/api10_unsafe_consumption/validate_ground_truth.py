@@ -39,7 +39,11 @@ def main():
     PROJECT_ROOT = next(
         p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").exists()
     )
-    fixtures_dir = PROJECT_ROOT / "src" / "core" / "unsafe_consumption" / "fixtures"
+    fixtures_dir = PROJECT_ROOT / "src" / "core" / "api10_unsafe_consumption" / "fixtures"
+    if not fixtures_dir.is_dir():
+        # Una cartella inesistente darebbe zero segnalazioni, cioè falsi negativi silenziosi.
+        print(f"Errore: fixture non trovate in {fixtures_dir}")
+        sys.exit(2)
     tp_count = 0
     fn_count = 0
     tn_count = 0

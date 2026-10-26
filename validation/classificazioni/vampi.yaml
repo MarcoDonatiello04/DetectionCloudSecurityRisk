@@ -1,0 +1,18 @@
+# Decisioni manuali per le metriche di accuratezza di VAmPI (validation/PROTOCOLLO.md, §6).
+# Prese dopo l'esecuzione del 2026-10-01 dall'agente di sviluppo, su richiesta dell'autore:
+# vanno riviste, idealmente da un collega che non abbia scritto lo strumento.
+# Le voci senza decisione seguono la regola automatica; le segnalazioni non corrispondenti
+# non sono ancora classificate, per cui la precisione resta un limite inferiore.
+voci:
+  V02:
+    fuori_perimetro: "PUT su un oggetto altrui: sui bersagli esterni il livello dinamico prova solo i metodi che non modificano i dati (nessun ripristino dello stato); il livello statico della BOLA non risolve le rotte dichiarate nel contratto da connexion."
+  V05:
+    esito: FN
+    motivo: "Le candidate API8 descrivono la modalità di debug di Flask (SC-002), le intestazioni, CORS e le dipendenze; nessuna segnala l'endpoint di debug che espone gli utenti."
+  V07:
+    fuori_perimetro: "Il modulo dell'Unrestricted Resource Consumption non ha regole per il ReDoS."
+  V08:
+    esito: FN
+    motivo: "Le candidate API4 riguardano i limiti di risorse del container (RC-007) e la dimensione del corpo (RC-008), non la frequenza delle richieste. L'assenza di limiti di frequenza è rilevata dalla prova T03 della Broken Authentication, ma come API2: la regola chiede la stessa categoria."
+  V09:
+    fuori_perimetro: "Nessuna prova della Broken Authentication tenta di ricavare il segreto di firma del JWT con un dizionario."

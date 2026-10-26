@@ -1399,6 +1399,20 @@ async def test_t21_mfa_testing_brute_force_fail():
 
 
 @pytest.mark.asyncio
+async def test_t21_mfa_testing_codes_not_evaluated_inconclusive():
+    """Payload non compreso dall'endpoint (es. crAPI v3/check-otp risponde 500): niente FAIL."""
+    config = Config()
+    tester = DynamicTester(config, target_environment="staging", allow_destructive_tests=True)
+    tester.endpoint_mfa = "/mfa"
+
+    mock_client = create_mock_client(post_responses={"/mfa": MagicMock(status_code=500)})
+    tester._client = mock_client
+
+    result = await tester._test_t21_mfa_testing()
+    assert result.stato == "INCONCLUSIVE"
+
+
+@pytest.mark.asyncio
 async def test_t21_mfa_testing_brute_force_pass():
     config = Config()
     tester = DynamicTester(config, target_environment="staging", allow_destructive_tests=True)

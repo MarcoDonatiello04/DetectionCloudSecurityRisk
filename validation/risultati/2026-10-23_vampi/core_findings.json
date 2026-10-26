@@ -1,0 +1,334 @@
+{
+  "generated_at": "2026-10-23T09:35:01.621886",
+  "target_dir": "data/test_targets/external/vampi",
+  "openapi_spec": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+  "target_base_url": "http://localhost:5002",
+  "modules": [
+    {
+      "name": "BOPLA (Broken Object Property Level Access)",
+      "dir": "src/core/api3_bopla",
+      "time": 0.03895711898803711,
+      "status": "SUCCESS",
+      "findings": 0
+    },
+    {
+      "name": "BOLA (Broken Object Level Authorization)",
+      "dir": "src/core/api1_bola",
+      "time": 27.92842197418213,
+      "status": "SUCCESS",
+      "findings": 1
+    },
+    {
+      "name": "BOLA statica (Broken Object Level Authorization)",
+      "dir": "src/core/api1_bola",
+      "time": 0.04703998565673828,
+      "status": "SUCCESS",
+      "findings": 0
+    },
+    {
+      "name": "Broken Authentication",
+      "dir": "src/core/api2_broken_auth",
+      "time": 0.5251128673553467,
+      "status": "SUCCESS",
+      "findings": 1
+    },
+    {
+      "name": "BFLA (Broken Function Level Authorization)",
+      "dir": "src/core/api5_bfla",
+      "time": 0.008142948150634766,
+      "status": "SUCCESS",
+      "findings": 0
+    },
+    {
+      "name": "Security Misconfiguration",
+      "dir": "src/core/api8_security_misconfig",
+      "time": 0.018050670623779297,
+      "status": "SUCCESS",
+      "findings": 5
+    },
+    {
+      "name": "SSRF (Server Side Request Forgery)",
+      "dir": "src/core/api7_ssrf",
+      "time": 1.0658533573150635,
+      "status": "SUCCESS",
+      "findings": 0
+    },
+    {
+      "name": "Unrestricted Resource Consumption",
+      "dir": "src/core/api4_resource_consumption",
+      "time": 0.014248847961425781,
+      "status": "SUCCESS",
+      "findings": 3
+    },
+    {
+      "name": "Unsafe Consumption",
+      "dir": "src/core/api10_unsafe_consumption",
+      "time": 0.006846904754638672,
+      "status": "SUCCESS",
+      "findings": 0
+    }
+  ],
+  "findings": {
+    "bopla": [],
+    "bola": [
+      {
+        "title": "⚠️ BOLA VULNERABILE: GET /books/v1/libro_di_tesi_victim",
+        "severity": "HIGH",
+        "endpoint": "/books/v1/libro_di_tesi_victim",
+        "file_path": "/books/v1/libro_di_tesi_victim",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": true,
+        "evidence": "Scenario: BOLA Orizzontale\nAttacker Role: user\nOwner Role: user\nAttacker Response Code: 200\nAssertion Verdict: BOLA ORIZZONTALE"
+      },
+      {
+        "title": "✅ SAFE: GET /books/v1/libro_di_tesi_victim",
+        "severity": "INFO",
+        "endpoint": "/books/v1/libro_di_tesi_victim",
+        "file_path": "/books/v1/libro_di_tesi_victim",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: Broken Auth BOLA Orizzontale\nAttacker Role: anonymous\nOwner Role: user\nAttacker Response Code: 401\nAssertion Verdict: SAFE"
+      },
+      {
+        "title": "✅ SAFE: GET /books/v1/mock-charlie-uuid",
+        "severity": "INFO",
+        "endpoint": "/books/v1/mock-charlie-uuid",
+        "file_path": "/books/v1/mock-charlie-uuid",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: BOLA Verticale\nAttacker Role: user\nOwner Role: admin\nAttacker Response Code: 404\nAssertion Verdict: SAFE"
+      },
+      {
+        "title": "✅ SAFE: GET /books/v1/mock-charlie-uuid",
+        "severity": "INFO",
+        "endpoint": "/books/v1/mock-charlie-uuid",
+        "file_path": "/books/v1/mock-charlie-uuid",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: Broken Auth BOLA Verticale\nAttacker Role: anonymous\nOwner Role: admin\nAttacker Response Code: 401\nAssertion Verdict: SAFE"
+      },
+      {
+        "title": "✅ SAFE: GET /books/v1/libro_di_tesi_victim",
+        "severity": "INFO",
+        "endpoint": "/books/v1/libro_di_tesi_victim",
+        "file_path": "/books/v1/libro_di_tesi_victim",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: Privilegio Legittimo\nAttacker Role: admin\nOwner Role: user\nAttacker Response Code: 401\nAssertion Verdict: SAFE"
+      },
+      {
+        "title": "✅ SAFE: GET /books/v1/libro_di_tesi_victim",
+        "severity": "INFO",
+        "endpoint": "/books/v1/libro_di_tesi_victim",
+        "file_path": "/books/v1/libro_di_tesi_victim",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: Broken Auth Privilegio Legittimo\nAttacker Role: anonymous\nOwner Role: user\nAttacker Response Code: 401\nAssertion Verdict: SAFE"
+      },
+      {
+        "title": "✅ SAFE: GET /users/v1/libro_di_tesi_victim",
+        "severity": "INFO",
+        "endpoint": "/users/v1/libro_di_tesi_victim",
+        "file_path": "/users/v1/libro_di_tesi_victim",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: BOLA Orizzontale\nAttacker Role: user\nOwner Role: user\nAttacker Response Code: 404\nAssertion Verdict: SAFE"
+      },
+      {
+        "title": "✅ SAFE: GET /users/v1/libro_di_tesi_victim",
+        "severity": "INFO",
+        "endpoint": "/users/v1/libro_di_tesi_victim",
+        "file_path": "/users/v1/libro_di_tesi_victim",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: Broken Auth BOLA Orizzontale\nAttacker Role: anonymous\nOwner Role: user\nAttacker Response Code: 404\nAssertion Verdict: SAFE"
+      },
+      {
+        "title": "✅ SAFE: GET /users/v1/mock-charlie-uuid",
+        "severity": "INFO",
+        "endpoint": "/users/v1/mock-charlie-uuid",
+        "file_path": "/users/v1/mock-charlie-uuid",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: BOLA Verticale\nAttacker Role: user\nOwner Role: admin\nAttacker Response Code: 404\nAssertion Verdict: SAFE"
+      },
+      {
+        "title": "✅ SAFE: GET /users/v1/mock-charlie-uuid",
+        "severity": "INFO",
+        "endpoint": "/users/v1/mock-charlie-uuid",
+        "file_path": "/users/v1/mock-charlie-uuid",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: Broken Auth BOLA Verticale\nAttacker Role: anonymous\nOwner Role: admin\nAttacker Response Code: 404\nAssertion Verdict: SAFE"
+      },
+      {
+        "title": "✅ SAFE: GET /users/v1/libro_di_tesi_victim",
+        "severity": "INFO",
+        "endpoint": "/users/v1/libro_di_tesi_victim",
+        "file_path": "/users/v1/libro_di_tesi_victim",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: Privilegio Legittimo\nAttacker Role: admin\nOwner Role: user\nAttacker Response Code: 404\nAssertion Verdict: SAFE"
+      },
+      {
+        "title": "✅ SAFE: GET /users/v1/libro_di_tesi_victim",
+        "severity": "INFO",
+        "endpoint": "/users/v1/libro_di_tesi_victim",
+        "file_path": "/users/v1/libro_di_tesi_victim",
+        "method": "GET",
+        "resource_name": "resource",
+        "is_vulnerable": false,
+        "evidence": "Scenario: Broken Auth Privilegio Legittimo\nAttacker Role: anonymous\nOwner Role: user\nAttacker Response Code: 404\nAssertion Verdict: SAFE"
+      }
+    ],
+    "bola_static": [],
+    "broken_authentication": [
+      {
+        "test_id": "T03",
+        "nome": "Brute Force e Rate Limiting",
+        "stato": "FAIL",
+        "severita": "MEDIUM",
+        "dettagli": "Nessun meccanismo di rate limiting rilevato dopo 50 tentativi falliti.",
+        "category": "Authentication",
+        "dettagli_quantitativi": {
+          "attempts_before_block": 50,
+          "block_duration_seconds": null,
+          "ip_spoof_bypass": false
+        },
+        "raccomandazione": null
+      }
+    ],
+    "bfla": [],
+    "security_misconfiguration": [
+      {
+        "rule_id": "SC-002",
+        "cwe_id": "CWE-94",
+        "category": "debug_mode_enabled",
+        "severity": "HIGH",
+        "file_path": "data/test_targets/external/vampi/app.py",
+        "line_number": 17,
+        "evidence": "vuln_app.run(host='0.0.0.0', port=5000, debug=True)",
+        "missing_guard": "Replace literal True with os.environ.get('DEBUG', 'false').lower() == 'true'",
+        "confidence": 0.95,
+        "layer": "ast"
+      },
+      {
+        "rule_id": "SC-004",
+        "cwe_id": "CWE-693",
+        "category": "missing_security_headers",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/vampi",
+        "line_number": null,
+        "evidence": "No security headers middleware found in codebase",
+        "missing_guard": "Add flask_talisman.Talisman(app) for Flask, helmet() middleware for Express, or a custom @app.after_request that sets X-Content-Type-Options, X-Frame-Options, Strict-Transport-Security",
+        "confidence": 0.7,
+        "layer": "ast"
+      },
+      {
+        "rule_id": "SC-006",
+        "cwe_id": "CWE-942",
+        "category": "missing_cors_policy",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/vampi",
+        "line_number": null,
+        "evidence": "API web framework detected but no CORS middleware or policy configured across codebase",
+        "missing_guard": "Configure an explicit CORS allowlist policy (e.g., flask_cors.CORS(app, origins=['https://trusted.domain']) or app.add_middleware(CORSMiddleware, allow_origins=['https://trusted.domain']) for FastAPI)",
+        "confidence": 0.85,
+        "layer": "ast"
+      },
+      {
+        "rule_id": "SC-007",
+        "cwe_id": "CWE-1395",
+        "category": "vulnerable_dependency",
+        "severity": "HIGH",
+        "file_path": "data/test_targets/external/vampi/requirements.txt",
+        "line_number": 2,
+        "evidence": "Package 'flask==2.2.2' is vulnerable to CVE-2023-30861: Cookie disclosure and session hijacking vulnerability",
+        "missing_guard": "Upgrade 'flask' to patched version >=2.2.5",
+        "confidence": 0.95,
+        "layer": "ast"
+      },
+      {
+        "rule_id": "SC-007",
+        "cwe_id": "CWE-1104",
+        "category": "vulnerable_dependency",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/vampi/requirements.txt",
+        "line_number": 6,
+        "evidence": "Unpinned dependency 'swagger-ui-bundle' without fixed version constraint",
+        "missing_guard": "Pin dependency to a specific verified version (e.g. swagger-ui-bundle==x.y.z)",
+        "confidence": 0.85,
+        "layer": "ast"
+      }
+    ],
+    "ssrf": [],
+    "unrestricted_resource_consumption": [
+      {
+        "rule_id": "RC-007",
+        "cwe_id": "CWE-400",
+        "category": "no_container_resource_limit",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/vampi/docker-compose.yaml",
+        "line_number": null,
+        "endpoint": null,
+        "parameter": null,
+        "evidence": "Service 'vampi-secure' missing deploy.resources.limits: memory",
+        "missing_guard": "deploy.resources.limits.memory (and optionally cpus)",
+        "confidence": 0.9,
+        "layer": "config",
+        "correlation": null,
+        "correlated_with": [],
+        "compensated_by": null,
+        "original_severity": null
+      },
+      {
+        "rule_id": "RC-007",
+        "cwe_id": "CWE-400",
+        "category": "no_container_resource_limit",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/vampi/docker-compose.yaml",
+        "line_number": null,
+        "endpoint": null,
+        "parameter": null,
+        "evidence": "Service 'vampi-vulnerable' missing deploy.resources.limits: memory",
+        "missing_guard": "deploy.resources.limits.memory (and optionally cpus)",
+        "confidence": 0.9,
+        "layer": "config",
+        "correlation": null,
+        "correlated_with": [],
+        "compensated_by": null,
+        "original_severity": null
+      },
+      {
+        "rule_id": "RC-008",
+        "cwe_id": "CWE-400",
+        "category": "no_body_size_limit",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/vampi/config.py",
+        "line_number": null,
+        "endpoint": null,
+        "parameter": null,
+        "evidence": "MAX_CONTENT_LENGTH not assigned in config.py",
+        "missing_guard": "MAX_CONTENT_LENGTH = <bytes>  # Flask upload limit",
+        "confidence": 0.7,
+        "layer": "config",
+        "correlation": null,
+        "correlated_with": [],
+        "compensated_by": null,
+        "original_severity": null
+      }
+    ],
+    "unsafe_consumption": []
+  }
+}

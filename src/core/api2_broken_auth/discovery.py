@@ -5,7 +5,6 @@ using a local LLM (Ollama) with support for robust parsing and error recovery.
 """
 
 import json
-import re
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -577,78 +576,6 @@ async def run(repo_path: str, config: Config, llm_client: LLMClient | None = Non
         logger.info(
             f"Discovery completato con successo. Linguaggio: {stack_info.linguaggio}, Framework: {stack_info.framework}"
         )
-
-        # Step 6 - Dynamic Crawler (spidering) with safe-crawl policy
-        crawled_routes = {}
-        target_url = config.target.base_url
-        logger.info(f"Avvio crawler su target {target_url}...")
-        try:
-            # Simple check for robots.txt
-            ignored_paths = []
-            async with httpx.AsyncClient(timeout=3.0) as crawler_client:
-                try:
-                    robots_res = await crawler_client.get(f"{target_url.rstrip('/')}/robots.txt")
-                    if robots_res.status_code == 200:
-                        logger.info("Robots.txt trovato, parsing regole...")
-                        for line in robots_res.text.split("\n"):
-                            if line.lower().startswith("disallow:"):
-                                path_to_ignore = line.split(":")[-1].strip()
-                                if path_to_ignore:
-                                    ignored_paths.append(path_to_ignore)
-                except Exception as robot_err:
-                    logger.debug(f"Errore lettura robots.txt: {robot_err}")
-
-                # Crawl implementation
-                visited = set()
-                queue = ["/"]
-                max_depth = 3
-                current_depth = 0
-
-                # Helper to check robots.txt ignore paths
-                def is_disallowed(path: str) -> bool:
-                    return any(path.startswith(ignored) for ignored in ignored_paths)
-
-                while queue and current_depth < max_depth:
-                    next_queue = []
-                    for path in queue:
-                        if path in visited or is_disallowed(path):
-                            continue
-                        visited.add(path)
-                        full_url = f"{target_url.rstrip('/')}{path}"
-                        try:
-                            # Safe-crawl policy: GET/HEAD requests only for crawling/state transition
-                            logger.debug(f"Crawling GET {full_url}")
-                            res = await crawler_client.get(full_url)
-                            if res.status_code == 200:
-                                crawled_routes[path] = "GET"
-                                # Look for links to explore
-                                html = res.text
-                                links = re.findall(r'href=["\']([^"\']+)["\']', html)
-                                for link in links:
-                                    if link.startswith("/") and not link.startswith("//"):
-                                        if link not in visited:
-                                            next_queue.append(link.split("#")[0].split("?")[0])
-
-                                # Enumerate forms (POST/PUT/DELETE) without executing them
-                                form_actions = re.findall(
-                                    r'<form\s+[^>]*action=["\']([^"\']+)["\'][^>]*method=["\'](post|put|delete)["\']',
-                                    html,
-                                    re.IGNORECASE,
-                                )
-                                for action, method in form_actions:
-                                    cleaned_action = action.split("?")[0]
-                                    if cleaned_action.startswith(
-                                        "/"
-                                    ) and not cleaned_action.startswith("//"):
-                                        crawled_routes[cleaned_action] = method.upper()
-                        except Exception as req_err:
-                            logger.debug(f"Errore crawling {path}: {req_err}")
-                    queue = next_queue
-                    current_depth += 1
-        except Exception as crawl_err:
-            logger.warning(f"Errore crawler inatteso: {crawl_err}")
-
-        stack_info.crawled_routes = crawled_routes
         return stack_info
     except Exception as val_e:
         if isinstance(val_e, LLMResponseException):

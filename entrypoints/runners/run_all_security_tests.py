@@ -360,6 +360,7 @@ def print_unified_summary(ba_results, bopla_data, bola_findings):
         print(f"    - Properties Discovered: {bopla_data.get('properties_discovered', 0)}")
         print(f"    - Dynamic Tests Run:     {bopla_data.get('tests_executed', 0)}")
         print(f"    - Vulnerabilities:       {bopla_data.get('vulnerabilities_detected', 0)}")
+        print(f"    - Static Findings:       {bopla_data.get('static_findings_count', 0)}")
         print(f"    - Security Score:        {bopla_data.get('score', 100)}/100")
     else:
         print("    - No BOPLA data was returned.")

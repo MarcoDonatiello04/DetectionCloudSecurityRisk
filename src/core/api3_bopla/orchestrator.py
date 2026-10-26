@@ -14,10 +14,66 @@ from src.core.api3_bopla.models import (
     PropertyAuthorizationGraph,
     PropertyEvidence,
     PropertyInventory,
+    StaticPropertyFinding,
 )
 from src.core.api3_bopla.property_inference import (
     PropertyAuthorizationInferenceEngine,
 )
+from src.core.api3_bopla.static_rules import correlate_with_dynamic, run_static_rules
+
+STATUS_LABELS = {
+    "unverified": "da verificare",
+    "confirmed": "confermata dinamicamente",
+    "not_confirmed": "non confermata",
+}
+KIND_LABELS = {
+    "mass_assignment": "Mass assignment",
+    "excessive_exposure": "Esposizione di proprietà protette",
+    "readonly_writable": "Proprietà readOnly accettata in scrittura",
+    "writeonly_readable": "Proprietà writeOnly restituita in lettura",
+    "undocumented_property": "Proprietà protetta non documentata",
+}
+
+
+def to_dashboard_items(report: dict[str, Any]) -> list[dict[str, Any]]:
+    """
+    BOPLA results for the dashboard: dynamic tests that confirmed a vulnerability plus every
+    static finding, labelled with its verification status. Without the dynamic phase (the
+    integrated platform passes no identity matrix) the static findings are what the module
+    has to show.
+    """
+    items: list[dict[str, Any]] = []
+    for f in report.get("findings", []):
+        if not f.get("verified"):
+            continue
+        items.append(
+            {
+                "title": f"{f['test_id']} — prova dinamica confermata",
+                "test_id": f["test_id"],
+                "severity": "HIGH",
+                "endpoint": f"{f['method']} {f['endpoint']}",
+                "property_name": f["property_name"],
+                "category": "Confermata dinamicamente",
+                "evidence": "\n".join(f.get("evidence") or []),
+                "verified": True,
+            }
+        )
+    for f in report.get("static_findings", []):
+        items.append(
+            {
+                "title": f"{f['rule_id']} — {KIND_LABELS.get(f['kind'], f['kind'])}",
+                "rule_id": f["rule_id"],
+                "severity": f["severity"],
+                "file_path": f["file_path"],
+                "line_number": f["line"] or None,
+                "endpoint": f.get("endpoint"),
+                "property_name": ", ".join(f["properties_at_risk"]) or None,
+                "category": "Statica — " + STATUS_LABELS.get(f["status"], f["status"]),
+                "evidence": "\n".join(f["evidence"]),
+                "verified": f["verified"],
+            }
+        )
+    return items
 
 
 class BOPLAOrchestrator:
@@ -77,9 +133,11 @@ class BOPLAOrchestrator:
                     runtime_traffic=runtime_traffic,
                 )
                 graph = PropertyAuthorizationInferenceEngine.build_authorization_graph(evidences)
-                # Count protected properties (confidence > 0.4 or having auth contexts)
+                # Protected = authorization context in the code and confidence above threshold
                 protected_count = sum(
-                    1 for ev in evidences if ev.confidence >= 0.4 or ev.authorization_contexts
+                    1
+                    for ev in evidences
+                    if PropertyAuthorizationInferenceEngine.is_protected_property(ev)
                 )
 
             logger.info(
@@ -88,10 +146,21 @@ class BOPLAOrchestrator:
         except Exception as e:
             logger.error(f"Errore durante Property Authorization Inference: {e}")
 
+        # --- Phase 2b: Static rules (reported as "to be verified", never affect the score) ---
+        static_findings: list[StaticPropertyFinding] = []
+        try:
+            logger.info("Inizio Fase 2b: regole statiche BOPLA-S01..S04...")
+            static_findings = run_static_rules(repo_path, evidences, openapi_spec)
+            logger.info(f"Regole statiche completate: {len(static_findings)} segnalazioni.")
+        except Exception as e:
+            logger.error(f"Errore durante le regole statiche: {e}")
+
         # --- Phase 3: Dynamic Testing ---
         findings: list[DynamicPropertyFinding] = []
+        dynamic_executed = False
         try:
             if headers_matrix and evidences:
+                dynamic_executed = True
                 logger.info("Inizio Fase 3: Dynamic Property Testing...")
                 logger.info("Avvio Dynamic Property Authorization Testing...")
 
@@ -140,6 +209,21 @@ class BOPLAOrchestrator:
         except Exception as e:
             logger.error(f"Errore durante il Dynamic Testing: {e}")
 
+        # Static findings confirmed or not by the dynamic tests of the same direction
+        # Credentials alone do not make a dynamic phase: if no test produced an outcome (target
+        # unreachable, nothing testable) the full score still means "nothing verified".
+        if dynamic_executed and not any(f.response_code for f in findings):
+            logger.warning(
+                "Fase 3: nessuna prova dinamica ha prodotto un esito (target raggiungibile?). "
+                "Le segnalazioni statiche restano da verificare."
+            )
+            dynamic_executed = False
+        if dynamic_executed:
+            try:
+                correlate_with_dynamic(static_findings, findings)
+            except Exception as e:
+                logger.error(f"Errore durante la correlazione statico-dinamica: {e}")
+
         # --- Phase 4: Risk Assessment & Reporting ---
         logger.info("Inizio Fase 4: Risk Assessment e Generazione Report...")
 
@@ -170,9 +254,15 @@ class BOPLAOrchestrator:
             "objects_discovered": objects_count,
             "properties_discovered": properties_count,
             "protected_properties": protected_count,
+            # Without the dynamic phase a full score means "nothing verified", not "secure".
+            "dynamic_phase_executed": dynamic_executed,
             "tests_executed": len(findings),
             "vulnerabilities_detected": len([f for f in findings if f.verified]),
             "findings": [f.model_dump() for f in findings],
+            # Static findings are candidates for the dynamic phase, not confirmed vulnerabilities
+            "static_findings_count": len(static_findings),
+            "static_findings_confirmed": sum(1 for f in static_findings if f.verified),
+            "static_findings": [f.model_dump() for f in static_findings],
             "graph": graph.model_dump(),
         }
 
@@ -217,8 +307,12 @@ class BOPLAOrchestrator:
         md.append(f"- Oggetti Scoperti: {data['objects_discovered']}")
         md.append(f"- Proprietà Totali: {data['properties_discovered']}")
         md.append(f"- Proprietà Protette Rilevate: {data['protected_properties']}")
+        md.append(
+            f"- Fase Dinamica Eseguita: {'sì' if data['dynamic_phase_executed'] else 'no (punteggio non verificato)'}"
+        )
         md.append(f"- Test Dinamici Eseguiti: {data['tests_executed']}")
-        md.append(f"- Vulnerabilità Confermate (FAIL): {data['vulnerabilities_detected']}\n")
+        md.append(f"- Vulnerabilità Confermate (FAIL): {data['vulnerabilities_detected']}")
+        md.append(f"- Segnalazioni Statiche (da verificare): {data['static_findings_count']}\n")
 
         md.append("## Risultati dei Test Dinamici")
         md.append("| Test ID | Proprietà | Endpoint | Metodo | Risultato | Confidenza |")
@@ -230,6 +324,25 @@ class BOPLAOrchestrator:
                 f"| {f['test_id']} | `{f['property_name']}` | `{f['endpoint']}` | `{f['method']}` | {status} | {f['confidence']} |"
             )
         md.append("")
+
+        md.append("## Segnalazioni Statiche (da verificare)")
+        if not data.get("static_findings"):
+            md.append("Nessuna segnalazione statica.\n")
+        else:
+            md.append(
+                "| Regola | Severità | Stato | Entità | Dove | Proprietà a rischio | Legame |"
+            )
+            md.append("|---|---|---|---|---|---|---|")
+            for f in data["static_findings"]:
+                at_risk = ", ".join(f"`{p}`" for p in f["properties_at_risk"]) or "—"
+                status = STATUS_LABELS.get(f["status"], f["status"])
+                if f["confirmed_by"]:
+                    status += f" ({', '.join(f['confirmed_by'])})"
+                md.append(
+                    f"| {f['rule_id']} | {f['severity']} | {status} | {f['entity'] or '—'} | "
+                    f"`{f['file_path']}:{f['line']}` | {at_risk} | `{f['sink'][:80]}` |"
+                )
+            md.append("")
 
         md.append("## Dettaglio Findings Rilevati")
         vulnerable_findings = [f for f in data["findings"] if f["verified"]]

@@ -10,6 +10,7 @@ from src.core.api5_bfla.layers.layer3_openapi import analyze_openapi
 from src.core.api5_bfla.models import (
     FunctionAuthzFinding,
     FunctionAuthzReport,
+    RuleID,
 )
 
 
@@ -49,12 +50,19 @@ RULE_PRIORITY = {
     "BF-005": 1,
 }
 
+# Regole che misurano una dimensione distinta da "chi puo invocare la funzione":
+# non competono per il path e si affiancano al finding vincente.
+NON_EXCLUSIVE_RULES = {RuleID.BF_007.value}
+
 
 def deduplicate_findings(findings: list[FunctionAuthzFinding]) -> list[FunctionAuthzFinding]:
     """
     Per ogni coppia (file_path, endpoint), mantiene solo il finding
-    con la rule di priorità più alta.
+    con la rule di priorità più alta. Le regole in NON_EXCLUSIVE_RULES
+    vengono conservate sempre.
     """
+    non_exclusive = [f for f in findings if f.rule_id in NON_EXCLUSIVE_RULES]
+    findings = [f for f in findings if f.rule_id not in NON_EXCLUSIVE_RULES]
     config_findings = [f for f in findings if f.rule_id == "BF-005" or not f.endpoint]
     endpoint_findings = [f for f in findings if f.rule_id != "BF-005" and f.endpoint]
 
@@ -84,7 +92,7 @@ def deduplicate_findings(findings: list[FunctionAuthzFinding]) -> list[FunctionA
             ):
                 seen[key] = finding
 
-    return list(seen.values()) + config_findings
+    return list(seen.values()) + non_exclusive + config_findings
 
 
 def analyze(

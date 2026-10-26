@@ -1,0 +1,242 @@
+paths:
+  '*':
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (express)
+  /:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /Cert-Generator-master/FileSaver.js:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (express)
+  /Cert-Generator-master/index.js:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (express)
+  /Cert-Generator-master/style.css:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (express)
+  /Sanchez-Regular.ttf:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (express)
+  /api/addNote:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/addNoteWithLink:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/addTicket:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/admin/updateStatus:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/allChallenges:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/flag/submit:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/getNote:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/getSolves:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/getTicket:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/login:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/profile:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/profile/upload:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/register:
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/scores:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /api/user/{username}:
+    delete:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /certificate:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+    post:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /challenges:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /login:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /logout:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      summary: Discovered API Endpoint (express)
+  /profile:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /register:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /scoreboard:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)
+  /user/{username}:
+    get:
+      responses:
+        '200':
+          description: Risposta automatica
+      security:
+      - BearerAuth: []
+      summary: Discovered API Endpoint (express)

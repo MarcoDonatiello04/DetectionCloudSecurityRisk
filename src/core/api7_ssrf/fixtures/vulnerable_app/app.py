@@ -53,3 +53,27 @@ def fetch_resource():
         return jsonify({"error": "not allowed"}), 403
     response = requests.get(url)            # ancora SSRF
     return response.content
+
+# SS-001 (Partial SSRF): concatenazione/f-string di path su host base
+@app.get("/partial-ssrf")
+def partial_ssrf():
+    path = request.args.get("path")
+    full_url = f"https://api.partner.com/v1/{path}"
+    return requests.get(full_url).content
+
+# SS-001 (HTTPX client): chiamata con httpx
+@app.get("/fetch-httpx")
+def fetch_httpx():
+    import httpx
+    target = request.args.get("target")
+    return httpx.get(target).text
+
+# SS-001 (aiohttp client): chiamata con aiohttp ClientSession
+@app.get("/fetch-aiohttp")
+async def fetch_aiohttp():
+    import aiohttp
+    dest = request.args.get("dest")
+    async with aiohttp.ClientSession() as session:
+        async with session.get(dest) as resp:
+            return await resp.text()
+

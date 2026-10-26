@@ -1,0 +1,65 @@
+[
+  {
+    "name": "BOPLA (Broken Object Property Level Access)",
+    "dir": "src/core/api3_bopla",
+    "time": 0.006496906280517578,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "BOLA (Broken Object Level Authorization)",
+    "dir": "src/core/api1_bola",
+    "time": 0.561284065246582,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "BOLA statica (Broken Object Level Authorization)",
+    "dir": "src/core/api1_bola",
+    "time": 0.011418819427490234,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "Broken Authentication",
+    "dir": "src/core/api2_broken_auth",
+    "time": 0.0023338794708251953,
+    "status": "FAILED: Nessun file manifest di dipendenze (es. package.json, requirements.txt, ecc.) rilevato nella root della repository: data/test_targets/external/sadcloud",
+    "findings": 0
+  },
+  {
+    "name": "BFLA (Broken Function Level Authorization)",
+    "dir": "src/core/api5_bfla",
+    "time": 0.0044689178466796875,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "Security Misconfiguration",
+    "dir": "src/core/api8_security_misconfig",
+    "time": 0.007902145385742188,
+    "status": "SUCCESS",
+    "findings": 1
+  },
+  {
+    "name": "SSRF (Server Side Request Forgery)",
+    "dir": "src/core/api7_ssrf",
+    "time": 1.2447259426116943,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "Unrestricted Resource Consumption",
+    "dir": "src/core/api4_resource_consumption",
+    "time": 0.006630897521972656,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "Unsafe Consumption",
+    "dir": "src/core/api10_unsafe_consumption",
+    "time": 0.0018372535705566406,
+    "status": "SUCCESS",
+    "findings": 0
+  }
+]

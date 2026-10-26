@@ -1,0 +1,103 @@
+# =============================================================================
+# Riferimento di verità — DVAPI (payatu/DVAPI)
+# -----------------------------------------------------------------------------
+# Scritto PRIMA di qualsiasi esecuzione dello strumento sul bersaglio, a partire
+# dalla sola documentazione degli autori. Il codice applicativo non è stato letto.
+#
+# Fonti:
+#   [README]   README.md (elenco delle dieci categorie).
+#   [SOL]      Solution/dvapi-solution.md (una sfida per categoria, con passi di
+#              sfruttamento ed endpoint).
+#   [POSTMAN]  src/swagger/DVAPI.postman_collection.json (metodo e percorso esatti
+#              di ogni endpoint, usati dove [SOL] è incompleta o in contrasto).
+#
+# Revisione del bersaglio: bde30d295aa8bc7f5516396fbae19d9630c11600 (2025-09-22)
+#
+# ATTENZIONE alla numerazione: la soluzione degli autori dichiara la Top 10 2023
+# ma, da 0xa6 in poi, usa nomi e numeri di altre edizioni (es. "0xa6 SSRF", che
+# nel 2023 è API7). Qui si registra sia l'etichetta dell'autore sia la categoria
+# OWASP 2023 secondo la definizione; le metriche usano la seconda.
+#
+# Regola di corrispondenza: come vampi.yaml (categoria OWASP o alternativa
+# accettata + metodo + percorso normalizzato, qualunque livello). Il parametro in
+# query non fa parte del percorso.
+# =============================================================================
+bersaglio: dvapi
+revisione: bde30d295aa8bc7f5516396fbae19d9630c11600
+stack: Node.js / Express, MongoDB; specifica OpenAPI 3 in src/swagger/DVAPI.postman_collection.yaml (nonostante il nome)
+
+voci:
+  - id: D01
+    etichetta_autore: "0xa1: Broken Object Level Authorization"
+    fonte: [SOL, POSTMAN]
+    punto_esposizione: {metodo: GET, percorso: "/api/getNote"}
+    dettaglio: "Lo username è passato in query (?username=); sostituendolo con 'admin' si leggono le note altrui [SOL]."
+    categoria_owasp_2023: API1
+
+  - id: D02
+    etichetta_autore: "0xa2: Broken Authentication"
+    fonte: [SOL]
+    punto_esposizione: globale
+    endpoint_emissione_token: {metodo: POST, percorso: "/api/login"}
+    dettaglio: "JWT HS256 con segreto debole, ricavabile con wordlist; il claim isAdmin modificato e rifirmato dà accesso come admin [SOL]."
+    categoria_owasp_2023: API2
+
+  - id: D03
+    etichetta_autore: "0xa3: Broken Object Property Level Authorization"
+    fonte: [SOL, POSTMAN]
+    punto_esposizione: {metodo: POST, percorso: "/api/register"}
+    effetto_osservabile: {metodo: GET, percorso: "/api/scores"}
+    dettaglio: "La proprietà score è accettata in registrazione e salvata [SOL]. [SOL] scrive 'GET request to /api/register', [POSTMAN] dichiara POST: si adotta POST."
+    categoria_owasp_2023: API3
+
+  - id: D04
+    etichetta_autore: "0xa4: Unrestricted Resource Consumption"
+    fonte: [SOL, POSTMAN]
+    punto_esposizione: {metodo: POST, percorso: "/api/profile/upload"}
+    dettaglio: "Nessun limite di dimensione sul caricamento dell'immagine del profilo [SOL]. [SOL] scrive '/profile/upload', [POSTMAN] '/api/profile/upload': si adotta il secondo."
+    categoria_owasp_2023: API4
+
+  - id: D05
+    etichetta_autore: "0xa5: Broken Function Level Authorization"
+    fonte: [SOL, POSTMAN]
+    punto_esposizione: {metodo: DELETE, percorso: "/api/user/{username}"}
+    dettaglio: "Il metodo DELETE, non documentato, cancella un utente qualsiasi [SOL]."
+    categoria_owasp_2023: API5
+
+  - id: D06
+    etichetta_autore: "0xa6: Server-Side Request Forgery"
+    fonte: [SOL, POSTMAN]
+    punto_esposizione: {metodo: POST, percorso: "/api/addNoteWithLink"}
+    dettaglio: "Il server effettua richieste verso un URL arbitrario fornito dall'utente [SOL]."
+    categoria_owasp_2023: API7
+
+  - id: D07
+    etichetta_autore: "0xa7: Security Misconfiguration"
+    fonte: [SOL]
+    punto_esposizione: {metodo: GET, percorso: "/api/user/{username}"}
+    dettaglio: "Con un token non valido viene restituito lo stack trace [SOL]. Gli autori indicano 'qualsiasi endpoint /api/': si registra quello usato nella soluzione; una segnalazione API8 di gestione degli errori verbosa a livello di applicazione corrisponde comunque."
+    categoria_owasp_2023: API8
+
+  - id: D08
+    etichetta_autore: "0xa8: Lack of Protection from Automated Threats"
+    fonte: [SOL, POSTMAN]
+    punto_esposizione: {metodo: POST, percorso: "/api/addTicket"}
+    dettaglio: "Nessun limite all'invio di ticket: dopo circa 96 richieste compare la flag [SOL]."
+    categoria_owasp_2023: API6
+    alternativa_accettata: API4
+    nota: "Abuso automatizzato di un flusso (API6:2023); alternativa API4 perché la causa dichiarata è l'assenza di rate limiting."
+
+  - id: D09
+    etichetta_autore: "0xa9: Improper Assets Management"
+    fonte: [SOL, POSTMAN]
+    punto_esposizione: {metodo: POST, percorso: "/api/allChallenges"}
+    dettaglio: "Cambiando 'released' in 'unreleased' nel corpo si ottengono sfide non pubblicate [SOL]."
+    categoria_owasp_2023: API9
+
+  - id: D10
+    etichetta_autore: "0xa10: Unsafe Consumption of APIs"
+    fonte: [SOL, POSTMAN]
+    punto_esposizione: {metodo: POST, percorso: "/api/login"}
+    dettaglio: "Password {\"$ne\": null} accettata: iniezione NoSQL che permette l'accesso come admin [SOL]."
+    categoria_owasp_2023: FUORI_TOP10
+    nota: "Per la definizione OWASP 2023, API10 riguarda dati ricevuti da API di terze parti; qui l'input viene dal client. È un'iniezione, fuori dalla Top 10 2023. Riportata con l'etichetta dell'autore, non conteggiata nelle metriche per categoria."

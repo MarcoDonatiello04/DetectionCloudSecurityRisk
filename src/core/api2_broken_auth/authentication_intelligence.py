@@ -512,24 +512,6 @@ class AuthenticationIntelligenceEngine:
                         if "code_challenge" in param_name or "code_verifier" in param_name:
                             pkce_signals = True
 
-        # Scan crawled routes from Discovery Crawler
-        if getattr(discovery_output, "crawled_routes", None):
-            for route_path, method in discovery_output.crawled_routes.items():
-                if route_path not in protected_endpoints:
-                    protected_endpoints[route_path] = {
-                        "source": "crawler",
-                        "method": method,
-                        "required_roles": [],
-                    }
-                # Also identify endpoints if they match login/logout/refresh keywords
-                path_lower = route_path.lower()
-                if any(kw in path_lower for kw in ["login", "token", "signin"]):
-                    if not login_endpoint or "login" in path_lower:
-                        login_endpoint = route_path
-                if any(kw in path_lower for kw in ["logout", "signout"]):
-                    logout_endpoint = route_path
-                if "refresh" in path_lower:
-                    refresh_endpoint = route_path
 
         # 6. Confidence Score Calculation
         # Complete metrics configuration

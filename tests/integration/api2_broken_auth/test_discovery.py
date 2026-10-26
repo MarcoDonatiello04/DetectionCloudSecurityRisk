@@ -153,7 +153,7 @@ async def test_ollama_client_connection_error():
 
 
 @pytest.mark.asyncio
-async def test_crawler_spidering(tmp_path):
+async def test_discovery_pure_static(tmp_path):
     # Setup temporary repository structure
     package_json = tmp_path / "package.json"
     package_json.write_text('{"dependencies": {"express": "^4.18"}}', encoding="utf-8")
@@ -166,50 +166,14 @@ async def test_crawler_spidering(tmp_path):
     )
     llm_client = MockLLMClient([mock_json])
 
-    # Mock local HTTP target server response for spidering
-    async def mock_robots(url, **kwargs):
-        resp = MagicMock(status_code=200)
-        resp.text = "User-agent: *\nDisallow: /admin-ignored"
-        return resp
-
-    async def mock_root(url, **kwargs):
-        resp = MagicMock(status_code=200)
-        resp.text = '<html><body><a href="/login">Login Page</a><a href="/admin-ignored">Admin</a></body></html>'
-        return resp
-
-    async def mock_login(url, **kwargs):
-        resp = MagicMock(status_code=200)
-        resp.text = '<html><body><form action="/auth/submit" method="POST"><input name="user"/></form></body></html>'
-        return resp
-
-    async def mock_auth_submit(url, **kwargs):
-        resp = MagicMock(status_code=405)
-        return resp
-
-    # Setup mock httpx AsyncClient for the crawler
-    async def mock_get(url, *args, **kwargs):
-        url_str = str(url)
-        if url_str.endswith("/robots.txt"):
-            return await mock_robots(url)
-        elif url_str.endswith("/"):
-            return await mock_root(url)
-        elif url_str.endswith("/login"):
-            return await mock_login(url)
-        elif url_str.endswith("/admin-ignored"):
-            return MagicMock(status_code=200, text="Ignored")
-        elif url_str.endswith("/auth/submit"):
-            return await mock_auth_submit(url)
-        return MagicMock(status_code=404)
-
-    # Patch httpx.AsyncClient.get for crawler execution
     config = Config()
     config.target.base_url = "http://localhost:12345"
 
-    with patch("httpx.AsyncClient.get", side_effect=mock_get):
+    # Assicura che nessuna richiesta HTTP verso il target avvenga durante il discovery
+    with patch("httpx.AsyncClient.get") as mock_http_get:
         result = await run(str(tmp_path), config, llm_client)
         assert isinstance(result, StackInfo)
-        assert "/" in result.crawled_routes
-        assert "/login" in result.crawled_routes
-        assert "/auth/submit" in result.crawled_routes
-        assert result.crawled_routes["/auth/submit"] == "POST"
-        assert "/admin-ignored" not in result.crawled_routes  # Disallowed by robots.txt
+        assert result.linguaggio == "JavaScript"
+        assert result.framework == "Express"
+        assert result.crawled_routes == {}
+        mock_http_get.assert_not_called()

@@ -123,8 +123,12 @@ class SpectralScannerAdapter(IScanner):
             logger.info(f"📄 Creato file temporaneo OpenAPI unito per Spectral: {merged_file_path}")
 
             # Salva una copia stabile nella cartella output per la Dashboard UI
-            stable_output_path = "output/openapi_merged.yaml"
-            os.makedirs("output", exist_ok=True)
+            # Cartella di output del bersaglio corrente (OUTPUT_DIR), non quella condivisa:
+            # la dashboard di un bersaglio non deve mostrare il contratto di un altro.
+            from src.core.config import DEFAULT_OUTPUT_DIR
+
+            stable_output_path = os.path.join(DEFAULT_OUTPUT_DIR, "openapi_merged.yaml")
+            os.makedirs(DEFAULT_OUTPUT_DIR, exist_ok=True)
             with open(stable_output_path, "w", encoding="utf-8") as f_stable:
                 yaml.safe_dump(merged_data, f_stable, default_flow_style=False)
             logger.info(f"💾 Copia stabile OpenAPI salvata per la UI in: {stable_output_path}")

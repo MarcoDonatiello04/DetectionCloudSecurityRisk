@@ -3,7 +3,13 @@ from typing import Any
 
 from src.core.config import RiskScoringConfig
 from src.core.risk_config import get_risk_scoring_config
-from src.domain.entities import Finding, FindingNature, RuntimeEvidence, Severity
+from src.domain.entities import (
+    Finding,
+    FindingNature,
+    FindingSource,
+    RuntimeEvidence,
+    Severity,
+)
 from src.normalization.normalizer import APIEndpointNormalizer
 
 logger = logging.getLogger("SecurityPlatform.CorrelationEngine")
@@ -24,6 +30,14 @@ class RiskCorrelationEngine:
     # Chiavi di raw_data gestite dal motore, escluse dalla copia dei dati grezzi in fase di merge
     _AGGREGATED_CHECKS_KEY = "aggregated_checks"
     _MERGED_PREFIX = "merged_"
+
+    # Esiti runtime che attestano un attacco BLOCCATO: sono smentite, non conferme.
+    RUNTIME_REFUTATION_RULES = frozenset({"dynamic-test-secure"})
+    _RUNTIME_SOURCES = frozenset({FindingSource.RUNTIME_VALIDATOR, FindingSource.ZAP_DAST})
+    # Fattore applicato alla confidenza di un finding statico smentito a runtime
+    REFUTED_CONFIDENCE_FACTOR = 0.5
+    _REFUTATIONS_KEY = "runtime_refutations"
+    _REFUTED_FLAG = "runtime_refuted"
 
     def __init__(self, scoring_config: RiskScoringConfig | None = None):
         """
@@ -74,9 +88,16 @@ class RiskCorrelationEngine:
             else:
                 self._merge_findings(existing, static_finding)
 
-        # 2. Correliamo con i findings di runtime
-        for runtime_finding in runtime_findings:
+        # 2. Correliamo con i findings di runtime. Gli esiti "sicuri" (attacco bloccato) non
+        # sono conferme: vengono applicati dopo tutte le conferme, come smentite, così il
+        # risultato non dipende dall'ordine in cui il livello dinamico li ha prodotti.
+        confirmations = [f for f in runtime_findings if not self._is_runtime_refutation(f)]
+        refutations = [f for f in runtime_findings if self._is_runtime_refutation(f)]
+        confirmed_keys: set[str] = set()
+
+        for runtime_finding in confirmations:
             key = self._get_correlation_key(runtime_finding)
+            confirmed_keys.add(key)
 
             if key in self.correlated_findings:
                 existing = self.correlated_findings[key]
@@ -115,10 +136,73 @@ class RiskCorrelationEngine:
                 # La confidenza resta quella dichiarata dall'adapter di origine
                 self.correlated_findings[key] = runtime_finding
 
+        for refutation in refutations:
+            self._apply_refutation(refutation, confirmed_keys)
+
         logger.info(
             f"📊 Correlazione completata: {len(self.correlated_findings)} entità di rischio elaborate."
         )
         return list(self.correlated_findings.values())
+
+    @classmethod
+    def _is_runtime_refutation(cls, finding: Finding) -> bool:
+        """
+        True se il finding runtime attesta che l'attacco è stato bloccato (esito SAFE).
+
+        Args:
+            finding (Finding): Finding prodotto dal livello dinamico.
+
+        Returns:
+            bool: True per gli esiti sicuri del validatore runtime.
+        """
+        return (
+            finding.source == FindingSource.RUNTIME_VALIDATOR
+            and finding.rule_id in cls.RUNTIME_REFUTATION_RULES
+        )
+
+    def _apply_refutation(self, refutation: Finding, confirmed_keys: set[str]) -> None:
+        """
+        Registra un esito runtime sicuro sulla voce con la stessa chiave.
+
+        - Nessuna voce: l'esito sicuro diventa una voce a sé (resta visibile nei report).
+        - Voce confermata a runtime da un altro esito, o voce già runtime: la conferma
+          prevale, l'esito sicuro viene solo collegato.
+        - Voce statica mai confermata: il rischio è smentito. Severità invariata, confidenza
+          ridotta di ``REFUTED_CONFIDENCE_FACTOR`` (una sola volta), dettagli in
+          ``raw_data["runtime_refutations"]``. Non viene allegata ``runtime_evidence``: quel
+          campo significa "sfruttabilità dimostrata".
+
+        Args:
+            refutation (Finding): Esito runtime sicuro.
+            confirmed_keys (set[str]): Chiavi con almeno una conferma runtime.
+        """
+        key = self._get_correlation_key(refutation)
+        existing = self.correlated_findings.get(key)
+        if existing is None:
+            self.correlated_findings[key] = refutation
+            return
+
+        if refutation.finding_id not in existing.related_findings:
+            existing.related_findings.append(refutation.finding_id)
+        if key in confirmed_keys or existing.source in self._RUNTIME_SOURCES:
+            return
+
+        evidence = refutation.runtime_evidence
+        existing.raw_data.setdefault(self._REFUTATIONS_KEY, []).append(
+            {
+                "finding_id": refutation.finding_id,
+                "title": refutation.title,
+                "tested_url": evidence.tested_url if evidence else None,
+                "http_status": evidence.http_status if evidence else None,
+            }
+        )
+        if not existing.raw_data.get(self._REFUTED_FLAG):
+            existing.raw_data[self._REFUTED_FLAG] = True
+            existing.confidence = round(existing.confidence * self.REFUTED_CONFIDENCE_FACTOR, 2)
+            logger.info(
+                f"🔻 {key}: '{existing.title}' smentito a runtime (attacco bloccato); "
+                f"confidenza ridotta a {existing.confidence}."
+            )
 
     def calculate_risk_score(self, finding: Finding) -> float:
         """

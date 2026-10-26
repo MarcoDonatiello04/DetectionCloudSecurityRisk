@@ -521,6 +521,77 @@
 
         .overview-link:hover { text-decoration: underline; }
 
+        .overview-target {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .overview-target[hidden], .card-targets[hidden] { display: none; }
+
+        .overview-target-select {
+            flex: 1;
+            min-width: 0;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font: inherit;
+            font-size: 0.85rem;
+            padding: 8px 10px;
+        }
+
+        .overview-target-select option { background: var(--bg-color); color: var(--text-primary); }
+
+        .card-targets { grid-column: span 12; margin-top: 12px; }
+
+        .targets-row.is-selected { background-color: var(--accent-glow); }
+
+        .targets-actions { display: flex; gap: 12px; align-items: center; white-space: nowrap; }
+
+        .targets-action {
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent-blue);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .targets-action:hover { text-decoration: underline; }
+
+        .targets-muted { color: var(--text-secondary); font-size: 0.8rem; }
+
+        .matrix-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .matrix-toolbar label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+
+        .matrix-table th, .matrix-table td { padding: 12px 14px; text-align: center; white-space: nowrap; }
+        .matrix-table th:first-child, .matrix-table td:first-child { text-align: left; white-space: normal; min-width: 180px; }
+        .matrix-table th { font-size: 0.72rem; }
+        .matrix-table .matrix-group th { text-align: center; border-bottom: none; color: var(--text-primary); }
+        .matrix-table .matrix-sep { border-left: 1px solid var(--input-border); }
+        .matrix-table .matrix-total { font-weight: 700; color: var(--text-primary); }
+        .matrix-cell-zero { color: var(--text-secondary); }
+        .matrix-cell-na { color: var(--text-secondary); font-size: 0.75rem; font-style: italic; }
+        .matrix-cell-err { color: #ff3b30; font-size: 0.75rem; }
+        .matrix-date { display: block; font-size: 0.72rem; color: var(--text-secondary); font-weight: 400; }
+        .matrix-note { margin-top: 12px; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; }
+
         .overview-empty {
             font-size: 0.85rem;
             color: var(--text-secondary);
@@ -1198,7 +1269,9 @@
                 <p><span class="status-dot"></span> Control Center Online</p>
             </div>
         </div>
-        
+
+        <div style="display: flex; gap: 10px; align-items: center;">
+        <a class="theme-toggle-btn" href="/external-targets" style="text-decoration: none;" title="Validazione sui bersagli esterni (validation/PROTOCOLLO.md)">Bersagli esterni &rsaquo;</a>
         <button class="theme-toggle-btn" id="theme-toggle" aria-label="Cambia tema chiaro/scuro">
             <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="5"></circle>
@@ -1213,6 +1286,7 @@
             </svg>
             <span id="theme-text">Tema Chiaro</span>
         </button>
+        </div>
     </header>
 
     <main>
@@ -1244,9 +1318,13 @@
             </div>
             
             <div class="overview-panel">
+                <div class="overview-target" id="overview-target-row" hidden>
+                    <label for="overview-target">Bersaglio</label>
+                    <select class="overview-target-select" id="overview-target"></select>
+                </div>
                 <div class="overview-meta">
                     <span id="overview-timestamp">Caricamento ultima scansione...</span>
-                    <a class="overview-link" href="/unified-results">Vista completa &rsaquo;</a>
+                    <a class="overview-link" id="overview-link" href="/unified-results">Vista completa &rsaquo;</a>
                 </div>
 
                 <div class="overview-stats">
@@ -1359,6 +1437,53 @@
                     </svg>
                 </div>
             </div>
+        </section>
+
+        <!-- Risultati per bersaglio: principale + bersagli esterni del registro -->
+        <section class="card card-targets" id="card-targets" hidden>
+            <div class="card-header-info">
+                <h2 class="card-title">Risultati per bersaglio</h2>
+                <p class="card-desc">Ultima scansione unificata di ciascun bersaglio, letta dalla sua cartella dei report. Seleziona un bersaglio per vederne i moduli e rilanciare la scansione dalla Panoramica.</p>
+            </div>
+
+            <div class="benchmark-table-wrapper">
+                <table class="benchmark-table">
+                    <thead>
+                        <tr>
+                            <th>Bersaglio</th>
+                            <th>Codice analizzato</th>
+                            <th>Ultima scansione</th>
+                            <th>Moduli</th>
+                            <th>Findings</th>
+                            <th>Durata</th>
+                            <th>Analisi statica (IaC)</th>
+                            <th>Risultati</th>
+                        </tr>
+                    </thead>
+                    <tbody id="targets-tbody">
+                        <tr><td colspan="8" class="table-loading">Caricamento bersagli...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Matrice dei findings: bersaglio x scanner/modulo -->
+        <section class="card card-targets" id="card-matrix" hidden>
+            <div class="card-header-info">
+                <h2 class="card-title">Matrice dei findings</h2>
+                <p class="card-desc">Numero di findings per ciascun modulo di scansione: analisi statica (IaC con Checkov, contratto con Spectral, codice con Semgrep) e moduli API OWASP, per ogni bersaglio. Dati dell'ultima scansione salvata.</p>
+            </div>
+            <div class="matrix-toolbar">
+                <label><input type="checkbox" id="matrix-show-cases"> Includi i casi di prova</label>
+                <button class="targets-action" id="matrix-export">Esporta CSV</button>
+            </div>
+            <div class="benchmark-table-wrapper">
+                <table class="benchmark-table matrix-table">
+                    <thead id="matrix-thead"></thead>
+                    <tbody id="matrix-tbody"></tbody>
+                </table>
+            </div>
+            <p class="matrix-note">Analisi statica: findings dopo la correlazione (più controlli Checkov sulla stessa risorsa contano come uno). Moduli API: findings riportati dal modulo; per la BOLA dinamica, le vulnerabilità confermate. "non eseguita" = nessun report salvato; "saltato" = modulo escluso (es. BOLA nella scansione rapida).</p>
         </section>
 
         <!-- 5. Core Security Scanners & Execution Timings -->
@@ -1679,8 +1804,16 @@
             try {
                 const response = await fetch('/api/benchmark-report');
                 if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                
+                renderBenchmark(await response.json());
+            } catch (error) {
+                console.error('Errore durante il caricamento del benchmark:', error);
+                tbody.innerHTML = '<tr><td colspan="5" class="table-loading" style="color: #ff3b30;">Errore nel caricamento del benchmark.</td></tr>';
+            }
+        }
+
+        function renderBenchmark(data) {
+            const tbody = document.getElementById('benchmark-tbody');
+            {
                 if (!data || data.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" class="table-loading">Nessun dato di benchmark disponibile.</td></tr>';
                     return;
@@ -1718,14 +1851,8 @@
                     `;
                     tbody.appendChild(row);
                 });
-            } catch (error) {
-                console.error('Errore durante il caricamento del benchmark:', error);
-                tbody.innerHTML = '<tr><td colspan="5" class="table-loading" style="color: #ff3b30;">Errore nel caricamento del benchmark.</td></tr>';
             }
         }
-        
-        // Carica al caricamento della pagina
-        document.addEventListener('DOMContentLoaded', loadBenchmarkReport);
 
         /* ---- Card "Panoramica Sicurezza": snapshot dell'ultima scansione unificata ---- */
 
@@ -1781,6 +1908,261 @@
             `).join('');
         }
 
+        /* ---- Bersagli: principale e bersagli esterni del registro (/api/targets) ---- */
+
+        const TARGET_STORAGE_KEY = 'dashboard.selectedTarget';
+        let targetsData = [];
+        let selectedTargetId = 'principale';
+        try { selectedTargetId = localStorage.getItem(TARGET_STORAGE_KEY) || 'principale'; } catch (e) {}
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[c]);
+        }
+
+        function formatStamp(iso) {
+            if (!iso) return '-';
+            return new Date(iso).toLocaleString('it-IT', {
+                day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        function selectedTarget() {
+            return targetsData.find(t => t.id === selectedTargetId) || targetsData[0];
+        }
+
+        function renderSelectedTarget() {
+            const target = selectedTarget();
+            if (!target) return;
+            renderOverview(target.summary);
+            renderBenchmark(target.summary.modules);
+
+            const link = document.getElementById('overview-link');
+            link.href = target.results_url;
+            link.title = `Findings dell'ultima scansione di ${target.label}, modulo per modulo`;
+
+            document.getElementById('overview-hint').textContent = target.has_app
+                ? 'Entrambe partono dall\'analisi statica (Checkov IaC, Semgrep, Spectral). La rapida esclude BOLA; la completa include i test dinamici BOLA e richiede decine di minuti.'
+                : 'Bersaglio solo statico: la scansione esegue analisi statica (Checkov IaC, Semgrep, Spectral) e moduli Core; la parte dinamica (BOLA) non ha nulla da interrogare.';
+
+            document.querySelectorAll('.targets-row').forEach(row => {
+                row.classList.toggle('is-selected', row.dataset.target === target.id);
+            });
+        }
+
+        function renderTargetsTable() {
+            const tbody = document.getElementById('targets-tbody');
+            tbody.innerHTML = targetsData.map(t => {
+                const s = t.summary;
+                const has = s.available && s.modules.length;
+                const findings = has
+                    ? `<span class="findings-count-badge${s.totals.findings > 0 ? ' has-findings' : ''}">${s.totals.findings}</span>`
+                    : '<span class="targets-muted">-</span>';
+                const failed = has && s.totals.failed > 0
+                    ? ` <span class="overview-badge badge-error">${s.totals.failed} falliti</span>` : '';
+                const st = t.static || {};
+                const iac = st.by_source && st.by_source.CHECKOV;
+                const staticCell = st.available
+                    ? `<span title="Checkov ${st.by_source.CHECKOV || 0} · Semgrep ${st.by_source.SEMGREP || 0} · Spectral ${st.by_source.SPECTRAL || 0}">`
+                        + `IaC ${iac || 0} · tot ${st.total}</span><br><span class="targets-muted">${formatStamp(st.generated_at)}</span>`
+                    : '<span class="targets-muted">mai eseguita</span>';
+                const q = `target=${encodeURIComponent(t.id)}`;
+                const results = [
+                    has ? `<a class="targets-action" href="/unified-results?${q}" title="Moduli Core">Core</a>` : '',
+                    st.available ? `<a class="targets-action" href="/results?${q}" title="Checkov su Terraform/IaC">IaC</a>` : '',
+                    st.available ? `<a class="targets-action" href="/api-results?${q}" title="Semgrep sul codice">API</a>` : '',
+                    st.available ? `<a class="targets-action" href="/contract-results?${q}" title="Spectral sul contratto OpenAPI">Contratto</a>` : '',
+                    `<a class="targets-action" href="/bola-results?${q}" title="Ultimo report BOLA dinamico">BOLA</a>`
+                ].filter(Boolean).join('');
+                return `
+                    <tr class="targets-row" data-target="${escapeHtml(t.id)}">
+                        <td style="font-weight: 600; color: var(--text-primary);">${escapeHtml(t.label)}</td>
+                        <td><code>${escapeHtml(t.target_dir)}</code></td>
+                        <td>${has ? formatStamp(s.generated_at) : '<span class="targets-muted">mai scansionato</span>'}</td>
+                        <td>${has ? `${s.totals.executed}/${s.totals.modules}${failed}` : '-'}</td>
+                        <td>${findings}</td>
+                        <td style="font-family: monospace;">${has ? `${s.totals.elapsed_seconds}s` : '-'}</td>
+                        <td>${staticCell}</td>
+                        <td><span class="targets-actions">
+                            <button class="targets-action" data-select="${escapeHtml(t.id)}">Mostra</button>
+                            ${results}
+                        </span></td>
+                    </tr>`;
+            }).join('');
+            tbody.querySelectorAll('[data-select]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectTarget(btn.dataset.select);
+                    document.querySelector('.card-security-overview').scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+        }
+
+        /* ---- Matrice dei findings (bersaglio x scanner/modulo) ---- */
+
+        const MATRIX_STATIC = [
+            { key: 'CHECKOV', label: 'Analisi IaC (Checkov)' },
+            { key: 'SPECTRAL', label: 'Spectral (contratto)' },
+            { key: 'SEMGREP', label: 'Semgrep (codice)' }
+        ];
+        // Moduli API in ordine OWASP; match sul prefisso del nome riportato dal benchmark
+        const MATRIX_MODULES = [
+            { prefix: 'BOLA (', label: 'API1 BOLA dinamica' },
+            { prefix: 'BOLA statica', label: 'API1 BOLA statica' },
+            { prefix: 'Broken Authentication', label: 'API2 Broken Auth' },
+            { prefix: 'BOPLA', label: 'API3 BOPLA' },
+            { prefix: 'Unrestricted Resource', label: 'API4 Resource Cons.' },
+            { prefix: 'BFLA', label: 'API5 BFLA' },
+            { prefix: 'SSRF', label: 'API7 SSRF' },
+            { prefix: 'Security Misconfiguration', label: 'API8 Security Misconfig' },
+            { prefix: 'Unsafe Consumption', label: 'API10 Unsafe Cons.' }
+        ];
+
+        function matrixRows() {
+            const withCases = document.getElementById('matrix-show-cases').checked;
+            return targetsData.filter(t => withCases || t.group !== 'Casi di prova').map(t => {
+                const st = t.static || {};
+                const statics = MATRIX_STATIC.map(c => st.available ? { n: (st.by_source || {})[c.key] || 0 } : { na: 'non eseguita' });
+                const mods = (t.summary && t.summary.available) ? t.summary.modules : [];
+                const modules = MATRIX_MODULES.map(c => {
+                    const m = mods.find(x => (x.name || '').startsWith(c.prefix));
+                    if (!m) return { na: 'non eseguita' };
+                    const status = (m.status || '').toUpperCase();
+                    if (status === 'SKIPPED') return { na: 'saltato' };
+                    if (status !== 'SUCCESS') return { err: 'errore', title: m.status };
+                    return { n: m.findings || 0 };
+                });
+                const sum = cells => cells.some(c => 'n' in c) ? cells.reduce((a, c) => a + (c.n || 0), 0) : null;
+                return { target: t, statics, modules, staticTotal: sum(statics), apiTotal: sum(modules) };
+            });
+        }
+
+        function matrixCell(c, extraClass = '') {
+            if ('n' in c) return `<td class="${extraClass}${c.n === 0 ? ' matrix-cell-zero' : ''}">${c.n === 0 ? '0' : `<span class="findings-count-badge has-findings">${c.n}</span>`}</td>`;
+            if (c.err) return `<td class="${extraClass}"><span class="matrix-cell-err" title="${escapeHtml(c.title)}">${c.err}</span></td>`;
+            return `<td class="${extraClass}"><span class="matrix-cell-na">${c.na}</span></td>`;
+        }
+
+        function renderMatrix() {
+            const card = document.getElementById('card-matrix');
+            if (!targetsData.length) { card.hidden = true; return; }
+            card.hidden = false;
+            document.getElementById('matrix-thead').innerHTML = `
+                <tr class="matrix-group">
+                    <th></th>
+                    <th colspan="${MATRIX_STATIC.length + 1}" class="matrix-sep">Analisi statica</th>
+                    <th colspan="${MATRIX_MODULES.length + 1}" class="matrix-sep">Moduli API (OWASP API Top 10)</th>
+                </tr>
+                <tr>
+                    <th>Bersaglio</th>
+                    ${MATRIX_STATIC.map((c, i) => `<th class="${i === 0 ? 'matrix-sep' : ''}">${c.label}</th>`).join('')}
+                    <th>Totale statica</th>
+                    ${MATRIX_MODULES.map((c, i) => `<th class="${i === 0 ? 'matrix-sep' : ''}">${c.label}</th>`).join('')}
+                    <th>Totale API</th>
+                </tr>`;
+            const total = v => `<td class="matrix-total">${v === null ? '<span class="matrix-cell-na">-</span>' : v}</td>`;
+            document.getElementById('matrix-tbody').innerHTML = matrixRows().map(r => {
+                const st = r.target.static || {};
+                const sm = r.target.summary || {};
+                const dates = [
+                    st.available ? `statica ${formatStamp(st.generated_at)}` : '',
+                    sm.available ? `API ${formatStamp(sm.generated_at)}` : ''
+                ].filter(Boolean).join(' · ');
+                return `<tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">${escapeHtml(r.target.label)}${dates ? `<span class="matrix-date">${dates}</span>` : ''}</td>
+                    ${r.statics.map((c, i) => matrixCell(c, i === 0 ? 'matrix-sep' : '')).join('')}
+                    ${total(r.staticTotal)}
+                    ${r.modules.map((c, i) => matrixCell(c, i === 0 ? 'matrix-sep' : '')).join('')}
+                    ${total(r.apiTotal)}
+                </tr>`;
+            }).join('');
+        }
+
+        function exportMatrixCsv() {
+            const csvCell = v => `"${String(v).replace(/"/g, '""')}"`;
+            const value = c => 'n' in c ? c.n : (c.err || c.na);
+            const header = ['Bersaglio', 'Cartella', ...MATRIX_STATIC.map(c => c.label), 'Totale statica',
+                ...MATRIX_MODULES.map(c => c.label), 'Totale API', 'Data analisi statica', 'Data moduli API'];
+            const lines = matrixRows().map(r => [
+                r.target.label, r.target.target_dir,
+                ...r.statics.map(value), r.staticTotal ?? '',
+                ...r.modules.map(value), r.apiTotal ?? '',
+                (r.target.static || {}).generated_at || '', (r.target.summary || {}).generated_at || ''
+            ]);
+            const csv = [header, ...lines].map(row => row.map(csvCell).join(';')).join('\n');
+            const url = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
+            const a = Object.assign(document.createElement('a'), { href: url, download: 'matrice_findings.csv' });
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        async function selectTarget(id) {
+            // Cambia il bersaglio corrente lato server (switch in-process): tutte le scansioni
+            // successive useranno questo bersaglio. Il server rifiuta con 409 se una scansione
+            // BOLA è in corso, così non prosegue sul bersaglio sbagliato.
+            const previous = selectedTargetId;
+            const select = document.getElementById('overview-target');
+            try {
+                const resp = await fetch(`/api/select-target?id=${encodeURIComponent(id)}`, { method: 'POST' });
+                if (!resp.ok) {
+                    const body = await resp.json().catch(() => ({}));
+                    throw new Error(body.detail || `HTTP ${resp.status}`);
+                }
+            } catch (error) {
+                showToast('Cambio bersaglio non riuscito', error.message, 'error');
+                select.value = previous;
+                return;
+            }
+            selectedTargetId = id;
+            try { localStorage.setItem(TARGET_STORAGE_KEY, id); } catch (e) {}
+            select.value = id;
+            renderSelectedTarget();
+        }
+
+        async function loadTargets() {
+            let serverCurrent = null;
+            let groups = [];
+            try {
+                const resp = await fetch('/api/targets');
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const data = await resp.json();
+                targetsData = data.targets || [];
+                serverCurrent = data.current;
+                groups = data.groups || [];
+            } catch (error) {
+                console.error('Errore nel caricamento dei bersagli:', error);
+                targetsData = [];
+            }
+            if (!targetsData.length) {
+                await loadOverview();
+                await loadBenchmarkReport();
+                return;
+            }
+            // Il server è la fonte di verità sul bersaglio corrente: il client vi si allinea.
+            selectedTargetId = (serverCurrent && targetsData.some(t => t.id === serverCurrent))
+                ? serverCurrent
+                : targetsData[0].id;
+            try { localStorage.setItem(TARGET_STORAGE_KEY, selectedTargetId); } catch (e) {}
+
+            document.getElementById('overview-target-row').hidden = false;
+            document.getElementById('card-targets').hidden = false;
+            const select = document.getElementById('overview-target');
+            if (!groups.length) groups = [...new Set(targetsData.map(t => t.group))];
+            select.innerHTML = groups.map(g => {
+                const opts = targetsData
+                    .filter(t => t.group === g)
+                    .map(t => `<option value="${escapeHtml(t.id)}">${escapeHtml(t.label)}</option>`)
+                    .join('');
+                return opts ? `<optgroup label="${escapeHtml(g)}">${opts}</optgroup>` : '';
+            }).join('');
+            select.value = selectedTargetId;
+            renderTargetsTable();
+            renderSelectedTarget();
+            renderMatrix();
+        }
+
         async function loadOverview() {
             try {
                 const resp = await fetch('/api/unified-summary');
@@ -1794,60 +2176,85 @@
             }
         }
 
-        // La scansione completa include i test dinamici BOLA: sul target di riferimento
-        // richiede 30 minuti o piu, quindi va confermata esplicitamente dall'utente.
+        // La scansione completa include i test dinamici BOLA: richiede decine di minuti,
+        // quindi va confermata esplicitamente dall'utente.
         const OVERVIEW_SCANS = {
             quick: {
                 endpoint: '/api/scan/non-bola',
+                bola: false,
                 btnId: 'btn-overview-quick',
                 labelId: 'btn-overview-quick-label',
                 running: 'Scansione rapida...',
-                status: 'Esecuzione dei moduli Core (BOLA escluso)...',
+                status: 'Moduli Core (BOLA escluso) in corso...',
                 confirm: null
             },
             full: {
                 endpoint: '/api/scan/all',
+                bola: true,
                 btnId: 'btn-overview-full',
                 labelId: 'btn-overview-full-label',
                 running: 'BOLA in corso...',
                 status: 'Scansione completa con test dinamici BOLA in corso...',
-                confirm: 'La scansione completa esegue i test dinamici BOLA contro il target e richiede 30 minuti o piu.\n\nNon chiudere questa pagina durante l\'esecuzione. Vuoi procedere?'
+                confirm: 'La scansione completa esegue i test dinamici BOLA contro il bersaglio selezionato e richiede decine di minuti.\n\nVuoi procedere?'
             }
         };
 
         async function runOverviewScan(kind) {
             const scan = OVERVIEW_SCANS[kind];
+            const target = selectedTarget();
             if (scan.confirm && !window.confirm(scan.confirm)) return;
 
             const buttons = Object.values(OVERVIEW_SCANS).map(s => document.getElementById(s.btnId));
+            const select = document.getElementById('overview-target');
             const btn = document.getElementById(scan.btnId);
             const label = document.getElementById(scan.labelId);
             const previousLabel = label.textContent;
 
             buttons.forEach(b => { b.disabled = true; });
+            select.disabled = true;
             btn.classList.add('is-running');
             label.textContent = scan.running;
             document.getElementById('overview-timestamp').textContent = scan.status;
 
+            // La scansione gira in-process sul bersaglio corrente del server (già impostato dal
+            // menu). Lo stesso processo serve tutti i bersagli: nessuna dashboard dedicata.
+            // Prima l'analisi statica (Checkov su IaC, Semgrep, Spectral): aggiorna il report statico
+            // del bersaglio e l'inventario delle rotte, da cui la BOLA dinamica ricava gli endpoint.
+            let failed = null;
+            const stamp = document.getElementById('overview-timestamp');
             try {
+                stamp.textContent = 'Analisi statica (Checkov IaC, Semgrep, Spectral) in corso...';
+                const staticResp = await fetch('/scan', { method: 'POST' });
+                if (!staticResp.ok) throw new Error(`analisi statica: HTTP ${staticResp.status}`);
+                await staticResp.json();
+                stamp.textContent = scan.status;
                 const resp = await fetch(scan.endpoint, { method: 'POST' });
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 await resp.json();
-                await loadOverview();
-                await loadBenchmarkReport();
             } catch (error) {
                 console.error('Errore durante la scansione unificata:', error);
-                document.getElementById('overview-timestamp').textContent =
-                    'Scansione non riuscita: controlla i log del server';
+                failed = error;
             } finally {
                 buttons.forEach(b => { b.disabled = false; });
+                select.disabled = false;
                 btn.classList.remove('is-running');
                 label.textContent = previousLabel;
+            }
+            await loadTargets();
+            if (failed) {
+                document.getElementById('overview-timestamp').textContent =
+                    `Scansione non riuscita: ${failed.message}`;
+                showToast('Scansione non riuscita', failed.message, 'error');
+            } else {
+                showToast('Scansione completata', target ? target.label : '', 'success');
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadOverview();
+            loadTargets();
+            document.getElementById('overview-target').addEventListener('change', e => selectTarget(e.target.value));
+            document.getElementById('matrix-show-cases').addEventListener('change', renderMatrix);
+            document.getElementById('matrix-export').addEventListener('click', exportMatrixCsv);
             document.getElementById('btn-overview-quick').addEventListener('click', () => runOverviewScan('quick'));
             document.getElementById('btn-overview-full').addEventListener('click', () => runOverviewScan('full'));
         });

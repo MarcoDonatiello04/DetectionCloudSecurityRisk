@@ -1,0 +1,23 @@
+# Contratto BOLA per il bersaglio esterno "dvapi" (insieme di prova, vedi validation/PROTOCOLLO.md).
+# Bersaglio NON cooperante: niente harness seed/snapshot/rollback e niente Keycloak.
+# Le identità e la proprietà degli oggetti sono ricavate dal traffico di esercizio
+# catturato da mitmproxy (Assessment Mode), generato con
+#   entrypoints/operations/genera_traffico_esercizio.py dvapi
+# PUT/PATCH/DELETE restano esclusi (allow_mutations: false): senza rollback alterebbero
+# lo stato del bersaglio fra un test e l'altro.
+version: 1
+
+target:
+  base_url: http://localhost:3000
+  # Il bersaglio gira sull'host (docker compose del progetto originale): ZAP, che sta in
+  # un container, lo raggiunge tramite host.docker.internal.
+  zap_internal_host: host.docker.internal
+
+identities:
+  provider: traffic
+  users:
+    victim:     {username: tesi_victim, role: user}
+    peer:       {username: tesi_peer,   role: user}
+
+assessment:
+  allow_mutations: false

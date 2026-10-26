@@ -102,9 +102,23 @@ async def wait_for_app(base_url: str, proc: subprocess.Popen, timeout: int = 45)
 # ---------------------------------------------------------------------------
 # Helper: start a Flask subprocess
 # ---------------------------------------------------------------------------
+def port_in_use(port: int) -> bool:
+    """True se sulla porta risponde già un altro servizio."""
+    import socket
+
+    with contextlib.suppress(OSError), socket.create_connection(("127.0.0.1", port), 0.5):
+        return True
+    return False
+
+
 def start_flask_app(app_dir: Path, port: int) -> subprocess.Popen:
     """Launch `python app.py` inside app_dir using the same interpreter as this
     script (sys.executable) so that the active virtualenv is always inherited."""
+    if port_in_use(port):
+        # Le app gemelle hanno la porta fissa: se è occupata, il controllo di salute
+        # risponderebbe un altro servizio e la validazione misurerebbe il bersaglio sbagliato.
+        logger.error(f"Porta {port} già occupata da un altro servizio: validazione interrotta.")
+        sys.exit(2)
     env = os.environ.copy()
     env["FLASK_ENV"] = "development"
     # Ensure PYTHONPATH includes the project root so relative imports inside

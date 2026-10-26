@@ -1,0 +1,602 @@
+{
+  "voci": [
+    {
+      "id": "V01",
+      "nome": "SQLi Injection",
+      "categoria": "FUORI_TOP10",
+      "alternativa": null,
+      "punto": "GET /users/v1/{username}",
+      "esito": "ESCLUSA",
+      "come": "",
+      "segnalazioni": [],
+      "candidati": [],
+      "motivo": "fuori dalla Top 10 API 2023"
+    },
+    {
+      "id": "V02",
+      "nome": "Unauthorized Password Change",
+      "categoria": "API1",
+      "alternativa": "API2",
+      "punto": "PUT /users/v1/{username}/password",
+      "esito": "FUORI_PERIMETRO",
+      "come": "decisione",
+      "segnalazioni": [],
+      "candidati": [
+        "broken_authentication:T03"
+      ],
+      "motivo": "PUT su un oggetto altrui: sui bersagli esterni il livello dinamico prova solo i metodi che non modificano i dati (nessun ripristino dello stato); il livello statico della BOLA non risolve le rotte dichiarate nel contratto da connexion."
+    },
+    {
+      "id": "V03",
+      "nome": "Broken Object Level Authorization",
+      "categoria": "API1",
+      "alternativa": null,
+      "punto": "GET /books/v1/{book}",
+      "esito": "FN",
+      "come": "",
+      "segnalazioni": [],
+      "candidati": [],
+      "motivo": ""
+    },
+    {
+      "id": "V04",
+      "nome": "Mass Assignment",
+      "categoria": "API3",
+      "alternativa": null,
+      "punto": "POST /users/v1/register",
+      "esito": "FN",
+      "come": "",
+      "segnalazioni": [],
+      "candidati": [],
+      "motivo": ""
+    },
+    {
+      "id": "V05",
+      "nome": "Excessive Data Exposure through debug endpoint",
+      "categoria": "API3",
+      "alternativa": "API8",
+      "punto": "GET /users/v1/_debug",
+      "esito": "FN",
+      "come": "decisione",
+      "segnalazioni": [],
+      "candidati": [
+        "security_misconfiguration:SC-002: :app.py:17",
+        "security_misconfiguration:SC-004: :data/test_targets/external/vampi:None",
+        "security_misconfiguration:SC-006: :data/test_targets/external/vampi:None",
+        "security_misconfiguration:SC-007: :requirements.txt:2",
+        "security_misconfiguration:SC-007: :requirements.txt:6"
+      ],
+      "motivo": "Le candidate API8 descrivono la modalità di debug di Flask (SC-002), le intestazioni, CORS e le dipendenze; nessuna segnala l'endpoint di debug che espone gli utenti."
+    },
+    {
+      "id": "V06",
+      "nome": "User and Password Enumeration",
+      "categoria": "API2",
+      "alternativa": null,
+      "punto": "POST /users/v1/login",
+      "esito": "VP",
+      "come": "percorso",
+      "segnalazioni": [
+        "spectral:owasp-api2-operation-security:POST /users/v1/login:335"
+      ],
+      "candidati": [],
+      "motivo": ""
+    },
+    {
+      "id": "V07",
+      "nome": "RegexDOS (Denial of Service)",
+      "categoria": "API4",
+      "alternativa": null,
+      "punto": "PUT /users/v1/{username}/email",
+      "esito": "FUORI_PERIMETRO",
+      "come": "decisione",
+      "segnalazioni": [],
+      "candidati": [
+        "unrestricted_resource_consumption:RC-007: :docker-compose.yaml:None",
+        "unrestricted_resource_consumption:RC-008: :config.py:None"
+      ],
+      "motivo": "Il modulo dell'Unrestricted Resource Consumption non ha regole per il ReDoS."
+    },
+    {
+      "id": "V08",
+      "nome": "Lack of Resources & Rate Limiting",
+      "categoria": "API4",
+      "alternativa": null,
+      "punto": "globale",
+      "esito": "FN",
+      "come": "decisione",
+      "segnalazioni": [],
+      "candidati": [
+        "unrestricted_resource_consumption:RC-007: :docker-compose.yaml:None",
+        "unrestricted_resource_consumption:RC-008: :config.py:None"
+      ],
+      "motivo": "Le candidate API4 riguardano i limiti di risorse del container (RC-007) e la dimensione del corpo (RC-008), non la frequenza delle richieste. L'assenza di limiti di frequenza è rilevata dalla prova T03 della Broken Authentication, ma come API2: la regola chiede la stessa categoria."
+    },
+    {
+      "id": "V09",
+      "nome": "JWT authentication bypass via weak signing key",
+      "categoria": "API2",
+      "alternativa": null,
+      "punto": "globale",
+      "esito": "FUORI_PERIMETRO",
+      "come": "decisione",
+      "segnalazioni": [],
+      "candidati": [
+        "broken_authentication:T03"
+      ],
+      "motivo": "Nessuna prova della Broken Authentication tenta di ricavare il segreto di firma del JWT con un dizionario."
+    }
+  ],
+  "segnalazioni": [
+    {
+      "id": "broken_authentication:T03",
+      "origine": "broken_authentication",
+      "categoria": "API2",
+      "punto": "applicazione",
+      "titolo": "T03 Brute Force e Rate Limiting",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "security_misconfiguration:SC-002: :app.py:17",
+      "origine": "security_misconfiguration",
+      "categoria": "API8",
+      "punto": "app.py:17",
+      "titolo": "SC-002 debug_mode_enabled",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "security_misconfiguration:SC-004: :data/test_targets/external/vampi:None",
+      "origine": "security_misconfiguration",
+      "categoria": "API8",
+      "punto": "data/test_targets/external/vampi",
+      "titolo": "SC-004 missing_security_headers",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "security_misconfiguration:SC-006: :data/test_targets/external/vampi:None",
+      "origine": "security_misconfiguration",
+      "categoria": "API8",
+      "punto": "data/test_targets/external/vampi",
+      "titolo": "SC-006 missing_cors_policy",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "security_misconfiguration:SC-007: :requirements.txt:2",
+      "origine": "security_misconfiguration",
+      "categoria": "API8",
+      "punto": "requirements.txt:2",
+      "titolo": "SC-007 vulnerable_dependency",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "security_misconfiguration:SC-007: :requirements.txt:6",
+      "origine": "security_misconfiguration",
+      "categoria": "API8",
+      "punto": "requirements.txt:6",
+      "titolo": "SC-007 vulnerable_dependency",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "unrestricted_resource_consumption:RC-007: :docker-compose.yaml:None",
+      "origine": "unrestricted_resource_consumption",
+      "categoria": "API4",
+      "punto": "docker-compose.yaml",
+      "titolo": "RC-007 no_container_resource_limit",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "unrestricted_resource_consumption:RC-008: :config.py:None",
+      "origine": "unrestricted_resource_consumption",
+      "categoria": "API4",
+      "punto": "config.py",
+      "titolo": "RC-008 no_body_size_limit",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "checkov:CKV_DOCKER_3:/Dockerfile.",
+      "origine": "CHECKOV",
+      "categoria": "IAC",
+      "punto": "Dockerfile",
+      "titolo": "CKV_DOCKER_3 Ensure that a user for the container has been created",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "checkov:CKV_DOCKER_2:/Dockerfile.",
+      "origine": "CHECKOV",
+      "categoria": "IAC",
+      "punto": "Dockerfile",
+      "titolo": "CKV_DOCKER_2 Ensure that HEALTHCHECK instructions have been added to container images",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "checkov:CKV_SECRET_9:a925480429e53a4c3917e7e8aff31d43d280ce53",
+      "origine": "CHECKOV",
+      "categoria": "IAC",
+      "punto": "openapi_specs/openapi3.yml",
+      "titolo": "CKV_SECRET_9 JSON Web Token",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "checkov:CKV_OPENAPI_5:security",
+      "origine": "CHECKOV",
+      "categoria": "IAC",
+      "punto": "openapi_specs/openapi3.yml",
+      "titolo": "CKV_OPENAPI_5 Ensure that security operations is not empty.",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "checkov:CKV_OPENAPI_4:security",
+      "origine": "CHECKOV",
+      "categoria": "IAC",
+      "punto": "openapi_specs/openapi3.yml",
+      "titolo": "CKV_OPENAPI_4 Ensure that the global security field has rules defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "checkov:CKV_OPENAPI_21:paths",
+      "origine": "CHECKOV",
+      "categoria": "IAC",
+      "punto": "openapi_specs/openapi3.yml",
+      "titolo": "CKV_OPENAPI_21 Ensure that arrays have a maximum number of items",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:info-contact: :7",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "applicazione",
+      "titolo": "info-contact",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:owasp-api2-operation-security:GET /:14",
+      "origine": "SPECTRAL",
+      "categoria": "API2",
+      "punto": "GET /",
+      "titolo": "owasp-api2-operation-security",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "spectral:operation-tag-defined:GET /:41",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "GET /",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:owasp-api2-operation-security:GET /books/v1:43",
+      "origine": "SPECTRAL",
+      "categoria": "API2",
+      "punto": "GET /books/v1",
+      "titolo": "owasp-api2-operation-security",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "spectral:operation-tag-defined:GET /books/v1:73",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "GET /books/v1",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:operation-tag-defined:POST /books/v1:143",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "POST /books/v1",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:operation-tag-defined:GET /books/v1/{book_title}:210",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "GET /books/v1/{book_title}",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:owasp-api2-operation-security:GET /createdb:212",
+      "origine": "SPECTRAL",
+      "categoria": "API2",
+      "punto": "GET /createdb",
+      "titolo": "owasp-api2-operation-security",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "spectral:operation-tag-defined:GET /createdb:228",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "GET /createdb",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:operation-tag-defined:GET /me:275",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "GET /me",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:owasp-api2-operation-security:GET /users/v1:277",
+      "origine": "SPECTRAL",
+      "categoria": "API2",
+      "punto": "GET /users/v1",
+      "titolo": "owasp-api2-operation-security",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "spectral:operation-tag-defined:GET /users/v1:301",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "GET /users/v1",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:owasp-api2-operation-security:GET /users/v1/_debug:303",
+      "origine": "SPECTRAL",
+      "categoria": "API2",
+      "punto": "GET /users/v1/_debug",
+      "titolo": "owasp-api2-operation-security",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "spectral:operation-tag-defined:GET /users/v1/_debug:333",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "GET /users/v1/_debug",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:owasp-api2-operation-security:POST /users/v1/login:335",
+      "origine": "SPECTRAL",
+      "categoria": "API2",
+      "punto": "POST /users/v1/login",
+      "titolo": "owasp-api2-operation-security",
+      "classe": "corrispondente",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "spectral:operation-tag-defined:POST /users/v1/login:389",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "POST /users/v1/login",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:owasp-api2-operation-security:POST /users/v1/register:391",
+      "origine": "SPECTRAL",
+      "categoria": "API2",
+      "punto": "POST /users/v1/register",
+      "titolo": "owasp-api2-operation-security",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "spectral:operation-tag-defined:POST /users/v1/register:433",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "POST /users/v1/register",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:operation-tag-defined:DELETE /users/v1/{username}:497",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "DELETE /users/v1/{username}",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:owasp-api1-object-level-security:GET /users/v1/{username}:498",
+      "origine": "SPECTRAL",
+      "categoria": "API1",
+      "punto": "GET /users/v1/{username}",
+      "titolo": "owasp-api1-object-level-security",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "spectral:owasp-api2-operation-security:GET /users/v1/{username}:498",
+      "origine": "SPECTRAL",
+      "categoria": "API2",
+      "punto": "GET /users/v1/{username}",
+      "titolo": "owasp-api2-operation-security",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": true
+    },
+    {
+      "id": "spectral:operation-tag-defined:GET /users/v1/{username}:540",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "GET /users/v1/{username}",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:operation-tag-defined:PUT /users/v1/{username}/email:602",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "PUT /users/v1/{username}/email",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    },
+    {
+      "id": "spectral:operation-tag-defined:PUT /users/v1/{username}/password:664",
+      "origine": "SPECTRAL",
+      "categoria": null,
+      "punto": "PUT /users/v1/{username}/password",
+      "titolo": "operation-tag-defined",
+      "classe": "da_classificare",
+      "candidata": false,
+      "in_ambito": false
+    }
+  ],
+  "per_categoria": {
+    "API1": {
+      "voci": 2,
+      "vp": 0,
+      "fn": 1,
+      "candidati": 0,
+      "fuori_perimetro": 1,
+      "recall": 0.0,
+      "recall_massima": 0.0,
+      "recall_nel_perimetro": 0.0,
+      "segnalazioni": 1,
+      "corrispondenti": 0,
+      "vere_non_documentate": 0,
+      "falsi_positivi": 0,
+      "da_classificare": 1,
+      "precisione_minima": 0.0,
+      "precisione": null
+    },
+    "API2": {
+      "voci": 2,
+      "vp": 1,
+      "fn": 0,
+      "candidati": 0,
+      "fuori_perimetro": 1,
+      "recall": 0.5,
+      "recall_massima": 0.5,
+      "recall_nel_perimetro": 1.0,
+      "segnalazioni": 9,
+      "corrispondenti": 1,
+      "vere_non_documentate": 0,
+      "falsi_positivi": 0,
+      "da_classificare": 8,
+      "precisione_minima": 0.1111111111111111,
+      "precisione": null
+    },
+    "API3": {
+      "voci": 2,
+      "vp": 0,
+      "fn": 2,
+      "candidati": 0,
+      "fuori_perimetro": 0,
+      "recall": 0.0,
+      "recall_massima": 0.0,
+      "recall_nel_perimetro": 0.0,
+      "segnalazioni": 0,
+      "corrispondenti": 0,
+      "vere_non_documentate": 0,
+      "falsi_positivi": 0,
+      "da_classificare": 0,
+      "precisione_minima": null,
+      "precisione": null
+    },
+    "API4": {
+      "voci": 2,
+      "vp": 0,
+      "fn": 1,
+      "candidati": 0,
+      "fuori_perimetro": 1,
+      "recall": 0.0,
+      "recall_massima": 0.0,
+      "recall_nel_perimetro": 0.0,
+      "segnalazioni": 2,
+      "corrispondenti": 0,
+      "vere_non_documentate": 0,
+      "falsi_positivi": 0,
+      "da_classificare": 2,
+      "precisione_minima": 0.0,
+      "precisione": null
+    }
+  },
+  "complessivo": {
+    "voci": 8,
+    "vp": 1,
+    "fn": 4,
+    "candidati": 0,
+    "fuori_perimetro": 3,
+    "recall": 0.125,
+    "recall_massima": 0.125,
+    "recall_nel_perimetro": 0.2,
+    "segnalazioni": 17,
+    "corrispondenti": 1,
+    "vere_non_documentate": 0,
+    "falsi_positivi": 0,
+    "da_classificare": 16,
+    "precisione_minima": 0.058823529411764705,
+    "precisione": null
+  },
+  "bersaglio": "vampi_sicuro",
+  "evidenze": "validation/risultati/2026-10-23_vampi_sicuro",
+  "riferimento": "validation/ground_truth/vampi.yaml"
+}

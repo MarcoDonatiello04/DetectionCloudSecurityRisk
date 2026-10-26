@@ -1,0 +1,454 @@
+# =============================================================================
+# Riferimento di verità — sadcloud (nccgroup/sadcloud)
+# -----------------------------------------------------------------------------
+# Scritto PRIMA di qualsiasi esecuzione dello strumento sul bersaglio.
+#
+# Fonti:
+#   [README]  README.md: "approx. 84 misconfigurations across 22 AWS Services";
+#             tutte disattivate di default, si attivano con all_findings = true.
+#   [MAIN]    sadcloud/main.tf: elenco dei flag che all_findings attiva, modulo
+#             per modulo (generato automaticamente, una voce per flag; escluso
+#             needs_network, che crea la rete e non è una misconfiguration).
+#   [VARS]    modules/aws/<servizio>/variables.tf: campo description di ogni
+#             flag, riportato verbatim come descrizione_autore.
+#
+# Revisione del bersaglio: f538652921a7f3e8e25c0afaecad2d4382f8b21e (2021-07-09)
+#
+# Configurazione del bersaglio: nella copia in data/test_targets/external/sadcloud
+# il file sadcloud/terraform.tfvars è impostato con all_findings = true, come
+# indicato dal README per attivare tutte le misconfiguration. È l'unica modifica.
+#
+# Regola di corrispondenza: una segnalazione corrisponde a una voce se riguarda
+# una risorsa dichiarata nel modulo del servizio indicato e descrive la stessa
+# misconfiguration. La corrispondenza fra controllo Checkov e voce è stabilita a
+# mano dopo l'esecuzione e riportata per esteso, con motivazione, accanto ai
+# risultati.
+#
+# Bias da dichiarare: le voci derivano dalle regole di ScoutSuite (NCC Group),
+# che lavora sull'account AWS in esecuzione; alcune descrivono l'ASSENZA di una
+# configurazione d'account, che un'analisi dei soli manifest può non vedere.
+# =============================================================================
+bersaglio: sadcloud
+revisione: f538652921a7f3e8e25c0afaecad2d4382f8b21e
+radice_terraform: sadcloud/
+voci:
+  - id: S01
+    servizio: acm
+    misconfigurazione: certificate_transparency_disabled
+    descrizione_autore: "Certificate Transparency logging enabled"
+    modulo_terraform: modules/aws/acm
+  - id: S02
+    servizio: cloudformation
+    misconfigurazione: stack_with_role
+    descrizione_autore: "attach iam role to stack"
+    modulo_terraform: modules/aws/cloudformation
+  - id: S03
+    servizio: cloudformation
+    misconfigurazione: stack_with_secret_output
+    descrizione_autore: "secrets in CloudFormation output"
+    modulo_terraform: modules/aws/cloudformation
+  - id: S04
+    servizio: cloudtrail
+    misconfigurazione: no_data_logging
+    descrizione_autore: "disable data logging"
+    modulo_terraform: modules/aws/cloudtrail
+  - id: S05
+    servizio: cloudtrail
+    misconfigurazione: no_global_services_logging
+    descrizione_autore: "disable global services logging"
+    modulo_terraform: modules/aws/cloudtrail
+  - id: S06
+    servizio: cloudtrail
+    misconfigurazione: no_log_file_validation
+    descrizione_autore: "disable log file validation"
+    modulo_terraform: modules/aws/cloudtrail
+  - id: S07
+    servizio: cloudtrail
+    misconfigurazione: no_logging
+    descrizione_autore: "disable logging"
+    modulo_terraform: modules/aws/cloudtrail
+  - id: S08
+    servizio: cloudtrail
+    misconfigurazione: duplicated_global_services_logging
+    descrizione_autore: "enable global services logging in second trail"
+    modulo_terraform: modules/aws/cloudtrail
+  - id: S09
+    servizio: cloudtrail
+    misconfigurazione: not_configured
+    descrizione_autore: "disable cloudtrail"
+    modulo_terraform: modules/aws/cloudtrail
+  - id: S10
+    servizio: cloudwatch
+    misconfigurazione: alarm_without_actions
+    descrizione_autore: "cloudwatch alarm lacks actions"
+    modulo_terraform: modules/aws/cloudwatch
+  - id: S11
+    servizio: config
+    misconfigurazione: config_recorder_not_configured
+    descrizione_autore: "No config recorders configured"
+    modulo_terraform: modules/aws/config
+  - id: S12
+    servizio: ebs
+    misconfigurazione: ebs_default_encryption_disabled
+    descrizione_autore: "Disabled default EBS encryption"
+    modulo_terraform: modules/aws/ebs
+  - id: S13
+    servizio: ebs
+    misconfigurazione: ebs_volume_unencrypted
+    descrizione_autore: "EBS volume not encrypted"
+    modulo_terraform: modules/aws/ebs
+  - id: S14
+    servizio: ebs
+    misconfigurazione: ebs_snapshot_unencrypted
+    descrizione_autore: "EBS snapshot not encrypted"
+    modulo_terraform: modules/aws/ebs
+  - id: S15
+    servizio: ec2
+    misconfigurazione: disallowed_instance_type
+    descrizione_autore: "use a disallowed instance type"
+    modulo_terraform: modules/aws/ec2
+  - id: S16
+    servizio: ec2
+    misconfigurazione: instance_with_public_ip
+    descrizione_autore: "use a public ip with this instance"
+    modulo_terraform: modules/aws/ec2
+  - id: S17
+    servizio: ec2
+    misconfigurazione: instance_with_user_data_secrets
+    descrizione_autore: "supply user data secrets to the instance"
+    modulo_terraform: modules/aws/ec2
+  - id: S18
+    servizio: ec2
+    misconfigurazione: security_group_opens_all_ports_to_all
+    descrizione_autore: "security group with all ports open to all"
+    modulo_terraform: modules/aws/ec2
+  - id: S19
+    servizio: ec2
+    misconfigurazione: security_group_opens_all_ports_to_self
+    descrizione_autore: "security group that permits unrestricted network traffic within itself"
+    modulo_terraform: modules/aws/ec2
+  - id: S20
+    servizio: ec2
+    misconfigurazione: security_group_opens_icmp_to_all
+    descrizione_autore: "ICMP open to all"
+    modulo_terraform: modules/aws/ec2
+  - id: S21
+    servizio: ec2
+    misconfigurazione: security_group_opens_known_port_to_all
+    descrizione_autore: "well known port open to all"
+    modulo_terraform: modules/aws/ec2
+  - id: S22
+    servizio: ec2
+    misconfigurazione: security_group_opens_plaintext_port
+    descrizione_autore: "plain text port open to all"
+    modulo_terraform: modules/aws/ec2
+  - id: S23
+    servizio: ec2
+    misconfigurazione: security_group_opens_port_range
+    descrizione_autore: "use of port ranges"
+    modulo_terraform: modules/aws/ec2
+  - id: S24
+    servizio: ec2
+    misconfigurazione: security_group_opens_port_to_all
+    descrizione_autore: "port open to all"
+    modulo_terraform: modules/aws/ec2
+  - id: S25
+    servizio: ec2
+    misconfigurazione: security_group_whitelists_aws_ip_from_banned_region
+    descrizione_autore: "security group whitelists AWS IPs outside the USA"
+    modulo_terraform: modules/aws/ec2
+  - id: S26
+    servizio: ec2
+    misconfigurazione: security_group_whitelists_aws
+    descrizione_autore: "security group whitelists AWS IPs"
+    modulo_terraform: modules/aws/ec2
+  - id: S27
+    servizio: ec2
+    misconfigurazione: ec2_security_group_whitelists_unknown_cidrs
+    descrizione_autore: "security group whitelists unknown CIDRs"
+    modulo_terraform: modules/aws/ec2
+  - id: S28
+    servizio: ec2
+    misconfigurazione: ec2_unused_security_group
+    descrizione_autore: "unused security groups"
+    modulo_terraform: modules/aws/ec2
+  - id: S29
+    servizio: ec2
+    misconfigurazione: ec2_unneeded_security_group
+    descrizione_autore: "security group cidr cannot be blocked"
+    modulo_terraform: modules/aws/ec2
+  - id: S30
+    servizio: ec2
+    misconfigurazione: ec2_unexpected_security_group
+    descrizione_autore: "security group cidr oddly formatted"
+    modulo_terraform: modules/aws/ec2
+  - id: S31
+    servizio: ec2
+    misconfigurazione: ec2_overlapping_security_group
+    descrizione_autore: "security group cidrs overlap"
+    modulo_terraform: modules/aws/ec2
+  - id: S32
+    servizio: ecr
+    misconfigurazione: ecr_scanning_disabled
+    descrizione_autore: "disabled ecr scanning"
+    modulo_terraform: modules/aws/ecr
+  - id: S33
+    servizio: ecr
+    misconfigurazione: ecr_repo_public
+    descrizione_autore: "ECR repositories set to Public"
+    modulo_terraform: modules/aws/ecr
+  - id: S34
+    servizio: eks
+    misconfigurazione: out_of_date
+    descrizione_autore: "EKS Cluster Version is out of date"
+    modulo_terraform: modules/aws/eks
+  - id: S35
+    servizio: eks
+    misconfigurazione: no_logs
+    descrizione_autore: "EKS Cluster lacks audit logging"
+    modulo_terraform: modules/aws/eks
+  - id: S36
+    servizio: eks
+    misconfigurazione: publicly_accessible
+    descrizione_autore: "EKS Cluster is publically accessible"
+    modulo_terraform: modules/aws/eks
+  - id: S37
+    servizio: eks
+    misconfigurazione: globally_accessible
+    descrizione_autore: "EKS Cluster is globally accessible"
+    modulo_terraform: modules/aws/eks
+  - id: S38
+    servizio: elasticsearch
+    misconfigurazione: elasticsearch_logging_disabled
+    descrizione_autore: "Elasticsearch Service domains have logging disabled"
+    modulo_terraform: modules/aws/elasticsearch
+  - id: S39
+    servizio: elasticsearch
+    misconfigurazione: elasticsearch_open_access
+    descrizione_autore: "Elasticsearch Service domains have open access"
+    modulo_terraform: modules/aws/elasticsearch
+  - id: S40
+    servizio: elb
+    misconfigurazione: no_access_logs
+    descrizione_autore: "No elb classic access logs configured"
+    modulo_terraform: modules/aws/elb
+  - id: S41
+    servizio: elbv2
+    misconfigurazione: no_access_logs
+    descrizione_autore: "No elbv2 access logs configured"
+    modulo_terraform: modules/aws/elbv2
+  - id: S42
+    servizio: elbv2
+    misconfigurazione: no_deletion_protection
+    descrizione_autore: "No elbv2 deletion protection"
+    modulo_terraform: modules/aws/elbv2
+  - id: S43
+    servizio: elbv2
+    misconfigurazione: older_ssl_policy
+    descrizione_autore: "No elbv2 deletion protection"
+    modulo_terraform: modules/aws/elbv2
+  - id: S44
+    servizio: glacier
+    misconfigurazione: glacier_public
+    descrizione_autore: "publicly accessible glacier vault"
+    modulo_terraform: modules/aws/glacier
+  - id: S45
+    servizio: iam
+    misconfigurazione: password_policy_minimum_length
+    descrizione_autore: "insufficient minumum length"
+    modulo_terraform: modules/aws/iam
+  - id: S46
+    servizio: iam
+    misconfigurazione: password_policy_no_lowercase_required
+    descrizione_autore: "no lowercase char requirement"
+    modulo_terraform: modules/aws/iam
+  - id: S47
+    servizio: iam
+    misconfigurazione: password_policy_no_numbers_required
+    descrizione_autore: "no number requirement"
+    modulo_terraform: modules/aws/iam
+  - id: S48
+    servizio: iam
+    misconfigurazione: password_policy_no_uppercase_required
+    descrizione_autore: "no uppercase char requirement"
+    modulo_terraform: modules/aws/iam
+  - id: S49
+    servizio: iam
+    misconfigurazione: password_policy_no_symbol_required
+    descrizione_autore: "no symbol char requirement"
+    modulo_terraform: modules/aws/iam
+  - id: S50
+    servizio: iam
+    misconfigurazione: password_policy_reuse_enabled
+    descrizione_autore: "no password reuse prevention"
+    modulo_terraform: modules/aws/iam
+  - id: S51
+    servizio: iam
+    misconfigurazione: password_policy_expiration_threshold
+    descrizione_autore: "too long password expiration threshold"
+    modulo_terraform: modules/aws/iam
+  - id: S52
+    servizio: iam
+    misconfigurazione: managed_allows_passrole
+    descrizione_autore: "Managed policy allows iam:PassRole *"
+    modulo_terraform: modules/aws/iam
+  - id: S53
+    servizio: iam
+    misconfigurazione: inline_role_policy
+    descrizione_autore: "all 3 inline role policy findings"
+    modulo_terraform: modules/aws/iam
+  - id: S54
+    servizio: iam
+    misconfigurazione: inline_group_policy
+    descrizione_autore: "all 3 inline group policy findings"
+    modulo_terraform: modules/aws/iam
+  - id: S55
+    servizio: iam
+    misconfigurazione: inline_user_policy
+    descrizione_autore: "all 3 inline user policy findings"
+    modulo_terraform: modules/aws/iam
+  - id: S56
+    servizio: iam
+    misconfigurazione: assume_role_policy_allows_all
+    descrizione_autore: "AssumeRole policy allows all principals"
+    modulo_terraform: modules/aws/iam
+  - id: S57
+    servizio: iam
+    misconfigurazione: assume_role_no_mfa
+    descrizione_autore: "Cross-account AssumeRole policy lacks external ID and MFA"
+    modulo_terraform: modules/aws/iam
+  - id: S58
+    servizio: iam
+    misconfigurazione: admin_iam_policy
+    descrizione_autore: "IAM policy allows full (*:*) administrative privileges"
+    modulo_terraform: modules/aws/iam
+  - id: S59
+    servizio: iam
+    misconfigurazione: admin_not_indicated_policy
+    descrizione_autore: "IAM policy allows full (*:*) administrative privileges, no admin in name"
+    modulo_terraform: modules/aws/iam
+  - id: S60
+    servizio: kms
+    misconfigurazione: key_rotation_disabled
+    descrizione_autore: "disabled kms key rotation"
+    modulo_terraform: modules/aws/kms
+  - id: S61
+    servizio: kms
+    misconfigurazione: kms_key_exposed
+    descrizione_autore: "allow wildcard access to kms key"
+    modulo_terraform: modules/aws/kms
+  - id: S62
+    servizio: lightsail
+    misconfigurazione: lightsail_in_use
+    descrizione_autore: "lightsail is in use"
+    modulo_terraform: modules/aws/lightsail
+  - id: S63
+    servizio: rds
+    misconfigurazione: no_minor_upgrade
+    descrizione_autore: "do not automatically apply minor DB engine updates"
+    modulo_terraform: modules/aws/rds
+  - id: S64
+    servizio: rds
+    misconfigurazione: backup_disabled
+    descrizione_autore: "disable rds instance backups"
+    modulo_terraform: modules/aws/rds
+  - id: S65
+    servizio: rds
+    misconfigurazione: storage_not_encrypted
+    descrizione_autore: "do not encrypt rds instances"
+    modulo_terraform: modules/aws/rds
+  - id: S66
+    servizio: rds
+    misconfigurazione: single_az
+    descrizione_autore: "only use a single availability zone with the rds instance"
+    modulo_terraform: modules/aws/rds
+  - id: S67
+    servizio: rds
+    misconfigurazione: rds_publicly_accessible
+    descrizione_autore: "RDS instance is publicly accessible"
+    modulo_terraform: modules/aws/rds
+  - id: S68
+    servizio: redshift
+    misconfigurazione: parameter_group_ssl_not_required
+    descrizione_autore: "allow cleartext connections"
+    modulo_terraform: modules/aws/redshift
+  - id: S69
+    servizio: redshift
+    misconfigurazione: parameter_group_logging_disabled
+    descrizione_autore: "disable logging"
+    modulo_terraform: modules/aws/redshift
+  - id: S70
+    servizio: redshift
+    misconfigurazione: cluster_publicly_accessible
+    descrizione_autore: "enable public access to cluster"
+    modulo_terraform: modules/aws/redshift
+  - id: S71
+    servizio: redshift
+    misconfigurazione: cluster_no_version_upgrade
+    descrizione_autore: "disable automatic version upgrades"
+    modulo_terraform: modules/aws/redshift
+  - id: S72
+    servizio: redshift
+    misconfigurazione: cluster_database_not_encrypted
+    descrizione_autore: "disable database encryption"
+    modulo_terraform: modules/aws/redshift
+  - id: S73
+    servizio: s3
+    misconfigurazione: allow_cleartext
+    descrizione_autore: "should the bucket allow HTTP"
+    modulo_terraform: modules/aws/s3
+  - id: S74
+    servizio: s3
+    misconfigurazione: no_default_encryption
+    descrizione_autore: "should the bucket disable encryption"
+    modulo_terraform: modules/aws/s3
+  - id: S75
+    servizio: s3
+    misconfigurazione: no_logging
+    descrizione_autore: "should the bucket disable logging"
+    modulo_terraform: modules/aws/s3
+  - id: S76
+    servizio: s3
+    misconfigurazione: no_versioning
+    descrizione_autore: "should the bucket disable versioning"
+    modulo_terraform: modules/aws/s3
+  - id: S77
+    servizio: s3
+    misconfigurazione: website_enabled
+    descrizione_autore: "should the bucket enable the website"
+    modulo_terraform: modules/aws/s3
+  - id: S78
+    servizio: s3
+    misconfigurazione: s3_getobject_only
+    descrizione_autore: "internet accessible s3 bucket (only GetObject)"
+    modulo_terraform: modules/aws/s3
+  - id: S79
+    servizio: s3
+    misconfigurazione: s3_public
+    descrizione_autore: "internet accessible s3 bucket"
+    modulo_terraform: modules/aws/s3
+  - id: S80
+    servizio: ses
+    misconfigurazione: no_dkim_enabled
+    descrizione_autore: "disable dkim"
+    modulo_terraform: modules/aws/ses
+  - id: S81
+    servizio: ses
+    misconfigurazione: identity_world_policy
+    descrizione_autore: "Creates an open ses identity policy"
+    modulo_terraform: modules/aws/ses
+  - id: S82
+    servizio: sns
+    misconfigurazione: topic_world_policy
+    descrizione_autore: "sns topic world policy"
+    modulo_terraform: modules/aws/sns
+  - id: S83
+    servizio: sqs
+    misconfigurazione: queue_world_policy
+    descrizione_autore: "sqs queue world policy"
+    modulo_terraform: modules/aws/sqs
+  - id: S84
+    servizio: sqs
+    misconfigurazione: sqs_server_side_encryption_disabled
+    descrizione_autore: "sqs server side encryption disabled"
+    modulo_terraform: modules/aws/sqs

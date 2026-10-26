@@ -1,133 +1,205 @@
 rules:
-  # SS-001 / SS-002 — Python: URL da input utente passato a requests/urllib
-  # Fonte: semgrep registry python.lang.security.audit.ssrf
+  # SS-001 — Python: URL o frammento di input utente passato a client HTTP (requests, httpx, aiohttp)
+  # Modalità: Taint analysis (supporta concatenazione, f-string, assegnazioni multiple e chiamate asincrone)
   - id: ssrf-python-requests-url-from-input
-    patterns:
-      - pattern: requests.$METHOD($URL, ...)
-      - pattern-either:
-          - pattern-inside: |
-              $URL = request.args.get(...)
-              ...
-          - pattern-inside: |
-              $URL = request.json.get(...)
-              ...
-          - pattern-inside: |
-              $URL = request.form.get(...)
-              ...
-          - pattern-inside: |
-              $URL = request.headers.get(...)
-              ...
-      - pattern-not-inside: |
-          if $VALIDATE($URL):
-              ...
-      - pattern-not-inside: |
-          if not $VALIDATE($URL):
-              ...
-          ...
-          requests.$METHOD($URL, ...)
-    message: "SSRF: URL da input utente passato a requests.$METHOD senza validazione"
+    mode: taint
     languages: [python]
     severity: ERROR
+    message: "SSRF: URL o frammento di URL da input utente passato a client HTTP (requests/httpx/aiohttp) senza validazione"
     metadata:
       rule_id_internal: "SS-001"
       cwe: "CWE-918"
       category: "direct_url_from_input"
+    pattern-sources:
+      - pattern: request.args.get(...)
+      - pattern: request.args[...]
+      - pattern: request.json.get(...)
+      - pattern: request.json[...]
+      - pattern: request.form.get(...)
+      - pattern: request.form[...]
+      - pattern: request.headers.get(...)
+      - pattern: request.headers[...]
+      - pattern: request.values.get(...)
+      - pattern: request.values[...]
+      - pattern: request.data
+      - pattern: request.get_json(...)
+    pattern-sanitizers:
+      - by-side-effect: true
+        pattern: validate_url(...)
+      - by-side-effect: true
+        pattern: is_valid_url(...)
+      - by-side-effect: true
+        pattern: is_allowed(...)
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              # requests
+              - pattern: requests.$METHOD(...)
+              - pattern: requests.Session(...).$METHOD(...)
+              - pattern: requests.request(...)
+              # httpx
+              - pattern: httpx.$METHOD(...)
+              - pattern: httpx.request(...)
+              - pattern: httpx.Client(...).$METHOD(...)
+              - pattern: httpx.AsyncClient(...).$METHOD(...)
+              # aiohttp
+              - pattern: aiohttp.request(...)
+              - pattern: aiohttp.ClientSession(...).$METHOD(...)
+              - patterns:
+                  - pattern-either:
+                      - pattern: $SESSION.get(...)
+                      - pattern: $SESSION.post(...)
+                      - pattern: $SESSION.put(...)
+                      - pattern: $SESSION.delete(...)
+                      - pattern: $SESSION.patch(...)
+                      - pattern: $SESSION.request(...)
+                  - pattern-not-inside: request.$ARGS.get(...)
+                  - pattern-not-inside: req.$ARGS.get(...)
+                  # Solo oggetti che sembrano client HTTP: senza questo vincolo .get() su un
+                  # dizionario o su un ORM (Model.objects.get) diventa un sink.
+                  - metavariable-regex:
+                      metavariable: $SESSION
+                      regex: (?i).*(session|client|http).*
+          # La guardia conta come validazione solo se riceve lo stesso valore passato al
+          # client HTTP: un controllo generico (es. serializer.is_valid() in Django) non
+          # valida l'URL e non deve sopprimere la segnalazione.
+          - pattern-not-inside: |
+              if not $VALIDATE(..., $URL, ...):
+                  ...
+              ...
+              $SINK(..., $URL, ...)
+          - pattern-not-inside: |
+              if $VALIDATE(..., $URL, ...):
+                  ...
+                  $SINK(..., $URL, ...)
 
+  # SS-002 — Python: URL da input utente passato a urllib
   - id: ssrf-python-urllib-url-from-input
-    patterns:
-      - pattern-either:
-          - pattern: urllib.request.urlopen($URL, ...)
-          - pattern: urllib.request.urlretrieve($URL, ...)
-      - pattern-either:
-          - pattern-inside: |
-              $URL = request.args.get(...)
-              ...
-          - pattern-inside: |
-              $URL = request.json.get(...)
-              ...
-      - pattern-not-inside: |
-          if $VALIDATE($URL):
-              ...
-      - pattern-not-inside: |
-          if not $VALIDATE($URL):
-              ...
-          ...
-          urllib.request.urlopen($URL, ...)
-      - pattern-not-inside: |
-          if not $VALIDATE($URL):
-              ...
-          ...
-          urllib.request.urlretrieve($URL, ...)
-    message: "SSRF: URL da input utente passato a urllib senza validazione"
+    mode: taint
     languages: [python]
     severity: ERROR
+    message: "SSRF: URL o frammento di URL da input utente passato a urllib senza validazione"
     metadata:
       rule_id_internal: "SS-002"
       cwe: "CWE-918"
       category: "direct_url_from_input"
+    pattern-sources:
+      - pattern: request.args.get(...)
+      - pattern: request.args[...]
+      - pattern: request.json.get(...)
+      - pattern: request.json[...]
+      - pattern: request.form.get(...)
+      - pattern: request.form[...]
+      - pattern: request.headers.get(...)
+      - pattern: request.headers[...]
+      - pattern: request.values.get(...)
+      - pattern: request.values[...]
+      - pattern: request.data
+      - pattern: request.get_json(...)
+    pattern-sanitizers:
+      - by-side-effect: true
+        pattern: validate_url(...)
+      - by-side-effect: true
+        pattern: is_valid_url(...)
+      - by-side-effect: true
+        pattern: is_allowed(...)
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: urllib.request.urlopen(...)
+              - pattern: urllib.request.urlretrieve(...)
+          # La guardia conta come validazione solo se riceve lo stesso valore passato al
+          # client HTTP: un controllo generico (es. serializer.is_valid() in Django) non
+          # valida l'URL e non deve sopprimere la segnalazione.
+          - pattern-not-inside: |
+              if not $VALIDATE(..., $URL, ...):
+                  ...
+              ...
+              $SINK(..., $URL, ...)
+          - pattern-not-inside: |
+              if $VALIDATE(..., $URL, ...):
+                  ...
+                  $SINK(..., $URL, ...)
 
   # SS-003 — JavaScript/TypeScript: URL da input utente in fetch/axios
   - id: ssrf-js-fetch-url-from-input
-    patterns:
-      - pattern-either:
-          - pattern: fetch($URL, ...)
-          - pattern: axios.get($URL, ...)
-          - pattern: axios.post($URL, ...)
-          - pattern: axios.$METHOD($URL, ...)
-      - pattern-either:
-          - pattern-inside: |
-              const $URL = req.query.$PARAM
-              ...
-          - pattern-inside: |
-              const $URL = req.body.$PARAM
-              ...
-          - pattern-inside: |
-              let $URL = req.query.$PARAM
-              ...
-      - pattern-not-inside: |
-          if ($VALIDATE($URL)) {
-              ...
-          }
-      - pattern-not-inside: |
-          if (!$VALIDATE($URL)) {
-              ...
-          }
-    message: "SSRF: URL da input utente passato a fetch/axios senza validazione"
+    mode: taint
     languages: [javascript, typescript]
     severity: ERROR
+    message: "SSRF: URL o frammento di URL da input utente passato a fetch/axios senza validazione"
     metadata:
       rule_id_internal: "SS-003"
       cwe: "CWE-918"
       category: "direct_url_from_input"
+    pattern-sources:
+      - pattern: req.query.$PARAM
+      - pattern: req.query[...]
+      - pattern: req.body.$PARAM
+      - pattern: req.body[...]
+      - pattern: req.params.$PARAM
+      - pattern: req.params[...]
+      - pattern: req.headers.$PARAM
+      - pattern: req.headers[...]
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: fetch(...)
+              - pattern: axios.get(...)
+              - pattern: axios.post(...)
+              - pattern: axios.put(...)
+              - pattern: axios.delete(...)
+              - pattern: axios.patch(...)
+              - pattern: axios(...)
+              - pattern: axios.$METHOD(...)
+          - pattern-not-inside: |
+              if ($VALIDATE(...)) { ... }
+          - pattern-not-inside: |
+              if (!$VALIDATE(...)) { ... }
 
-  # SS-004 — Python: requests con allow_redirects=True e URL da input
+  # SS-004 — Python: requests/httpx con redirect following abilitato e URL da input
   - id: ssrf-python-requests-redirect-following
-    patterns:
-      - pattern: requests.$METHOD($URL, ..., allow_redirects=True, ...)
-      - pattern-either:
-          - pattern-inside: |
-              $URL = request.args.get(...)
-              ...
-          - pattern-inside: |
-              $URL = request.json.get(...)
-              ...
-      - pattern-not-inside: |
-          if $VALIDATE($URL):
-              ...
-      - pattern-not-inside: |
-          if not $VALIDATE($URL):
-              ...
-          ...
-          requests.$METHOD($URL, ...)
-    message: |
-      SSRF con redirect following: allow_redirects=True permette bypass
-      di allowlist via redirect da host autorizzato a host interno
+    mode: taint
     languages: [python]
     severity: WARNING
+    message: |
+      SSRF con redirect following: allow_redirects=True / follow_redirects=True permette bypass
+      di allowlist via redirect da host autorizzato a host interno
     metadata:
       rule_id_internal: "SS-004"
       cwe: "CWE-918"
       category: "redirect_following"
+    pattern-sources:
+      - pattern: request.args.get(...)
+      - pattern: request.args[...]
+      - pattern: request.json.get(...)
+      - pattern: request.json[...]
+      - pattern: request.form.get(...)
+      - pattern: request.form[...]
+      - pattern: request.headers.get(...)
+      - pattern: request.headers[...]
+      - pattern: request.values.get(...)
+      - pattern: request.values[...]
+      - pattern: request.data
+      - pattern: request.get_json(...)
+    pattern-sinks:
+      - patterns:
+          - pattern-either:
+              - pattern: requests.$METHOD(..., allow_redirects=True, ...)
+              - pattern: requests.request(..., allow_redirects=True, ...)
+              - pattern: httpx.$METHOD(..., follow_redirects=True, ...)
+              - pattern: httpx.request(..., follow_redirects=True, ...)
+          # La guardia conta come validazione solo se riceve lo stesso valore passato al
+          # client HTTP: un controllo generico (es. serializer.is_valid() in Django) non
+          # valida l'URL e non deve sopprimere la segnalazione.
+          - pattern-not-inside: |
+              if not $VALIDATE(..., $URL, ...):
+                  ...
+              ...
+              $SINK(..., $URL, ...)
+          - pattern-not-inside: |
+              if $VALIDATE(..., $URL, ...):
+                  ...
+                  $SINK(..., $URL, ...)
 
   # SS-005 — Cloud metadata endpoint hardcoded o raggiungibile
   - id: ssrf-cloud-metadata-endpoint
@@ -136,6 +208,8 @@ rules:
           - pattern: requests.$METHOD($URL, ...)
           - pattern: urllib.request.urlopen($URL, ...)
           - pattern: urllib.request.urlretrieve($URL, ...)
+          - pattern: httpx.$METHOD($URL, ...)
+          - pattern: aiohttp.ClientSession(...).$METHOD($URL, ...)
           - pattern: fetch($URL, ...)
           - pattern: axios.$METHOD($URL, ...)
       - metavariable-regex:

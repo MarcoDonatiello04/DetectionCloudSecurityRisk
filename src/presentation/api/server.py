@@ -5,29 +5,33 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 
 from src.application.correlation.engine import RiskCorrelationEngine
 from src.application.orchestrator import ScanPipelineOrchestrator
 from src.application.remediation.remediation_engine import RemediationEngine
+from src.core.api1_bola.target_config import load_bola_target_config, reset_bola_target_config
 from src.core.config import (
     DEFAULT_KEYCLOAK_URL,
+    DEFAULT_OUTPUT_DIR,
     DEFAULT_TARGET_BASE_URL,
     DEFAULT_TARGET_DIR,
     DEFAULT_ZAP_URL,
 )
 from src.core.utilities.file_io import safe_read_json
-from src.core.utilities.openapi_parser import load_openapi_spec
+from src.core.utilities.openapi_parser import find_openapi_spec_path, load_openapi_spec
 from src.core.utilities.url_utils import extract_resource_name_from_path
 from src.infrastructure.adapters.checkov_adapter import CheckovScannerAdapter
 from src.infrastructure.adapters.semgrep_adapter import SemgrepScannerAdapter
 from src.infrastructure.adapters.spectral_adapter import SpectralScannerAdapter
 from src.infrastructure.llm.ollama_adapter import OllamaAdapter
 from src.infrastructure.persistence.report_repository import ReportRepository
+from src.presentation.api import external_targets, target_catalog
 
 if TYPE_CHECKING:
     from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
+    from src.presentation.api.target_catalog import DashboardTarget
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,12 +41,161 @@ logging.basicConfig(
 logger = logging.getLogger("SecurityPlatform.API")
 remediation_engine = RemediationEngine(llm_provider=OllamaAdapter())
 
+# ─── BERSAGLIO DELLA SESSIONE ────────────────────────────────────────────────
+# Un'istanza della dashboard lavora su UN bersaglio, fissato all'avvio dalle variabili
+# d'ambiente (vedi i target `make dashboard-<bersaglio>`):
+#   TARGET_DIR        directory del codice analizzato da TUTTI i moduli (statici e Core)
+#   OPENAPI_SPEC_PATH contratto del bersaglio; se assente viene cercato dentro TARGET_DIR
+#   TARGET_BASE_URL   URL dell'applicazione in esecuzione (moduli dinamici)
+#   OUTPUT_DIR        cartella dei report, separata per bersaglio
+# Nessun modulo ricade su file di altri bersagli: senza contratto il Layer OpenAPI viene
+# saltato, senza inventario la BOLA dinamica non esegue test.
+TARGET_DIR = DEFAULT_TARGET_DIR
+TARGET_BASE_URL = DEFAULT_TARGET_BASE_URL
+OUTPUT_DIR = DEFAULT_OUTPUT_DIR
+
+# Dashboard unica: invece di una dashboard dedicata per bersaglio, un unico processo cambia
+# bersaglio in-process. Il catalogo elenca tutti i bersagli locali (casi di prova, repo target,
+# insieme di prova); POST /api/select-target riassegna le variabili qui sopra, lette da tutti
+# i moduli. Lo switch è vietato mentre una scansione BOLA è in corso (vedi select_target).
+CURRENT_TARGET_ID = (
+    target_catalog.match_by_dirs(TARGET_DIR, output_dir=OUTPUT_DIR)
+    or target_catalog.default_target_id()
+)
+
+
+def _catalog() -> dict[str, "DashboardTarget"]:
+    """Catalogo dei bersagli locali, ricostruito a ogni richiesta.
+
+    Scoperto da ``data/test_targets`` e dal registro esterno: ricostruirlo a ogni richiesta
+    tiene conto di cartelle o voci di registro aggiunte senza riavviare la dashboard.
+    """
+    return target_catalog.build_catalog()
+
+
+def _apply_target(target: "DashboardTarget") -> None:
+    """Rende ``target`` il bersaglio corrente, aggiornando lo stato letto da tutti i moduli."""
+    global TARGET_DIR, TARGET_BASE_URL, OUTPUT_DIR, CURRENT_TARGET_ID
+    TARGET_DIR = target.target_dir
+    TARGET_BASE_URL = target.base_url  # vuoto per i bersagli solo statici
+    OUTPUT_DIR = target.output_dir
+    CURRENT_TARGET_ID = target.id
+    # Il Layer OpenAPI usa il contratto del bersaglio quando c'è, altrimenti lo cerca in TARGET_DIR.
+    if target.openapi:
+        os.environ["OPENAPI_SPEC_PATH"] = target.openapi
+    else:
+        os.environ.pop("OPENAPI_SPEC_PATH", None)
+    # Il contratto BOLA (identita', seeding, snapshot) e' un'istanza condivisa caricata una volta:
+    # va ricaricato dal file del bersaglio, altrimenti la BOLA dinamica userebbe quello precedente.
+    try:
+        reset_bola_target_config(load_bola_target_config(target.bola_config or None))
+    except Exception as e:
+        logger.warning(f"Contratto BOLA di {target.id} non caricato ({e}): uso quello di default.")
+        reset_bola_target_config(None)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+
+# Allinea lo stato iniziale al bersaglio del catalogo che corrisponde all'ambiente (o al default).
+_bootstrap_catalog = _catalog()
+if CURRENT_TARGET_ID in _bootstrap_catalog:
+    _apply_target(_bootstrap_catalog[CURRENT_TARGET_ID])
+
+
+def _out(name: str) -> str:
+    """Percorso di un report nella cartella di output del bersaglio corrente."""
+    return os.path.join(OUTPUT_DIR, name)
+
+
+def _report_dir(target_id: str | None) -> str:
+    """
+    Cartella dei report da leggere: quella del bersaglio corrente se ``target_id`` manca,
+    altrimenti quella del bersaglio indicato del catalogo. Serve alle pagine dei risultati per
+    mostrare i report salvati di un bersaglio senza renderlo corrente e senza rilanciare scansioni.
+    """
+    if not target_id or target_id in ("principale", CURRENT_TARGET_ID):
+        return OUTPUT_DIR
+    target = _catalog().get(target_id)
+    if target is None:
+        raise HTTPException(status_code=404, detail=f"Bersaglio '{target_id}' sconosciuto.")
+    return target.output_dir
+
+
+def _target_openapi_path() -> str | None:
+    explicit = os.getenv("OPENAPI_SPEC_PATH")
+    if explicit:
+        return explicit if os.path.exists(explicit) else None
+    return find_openapi_spec_path(TARGET_DIR)
+
+
+def _load_target_openapi_spec() -> dict[str, Any] | None:
+    path = _target_openapi_path()
+    if not path:
+        logger.warning(f"Nessun contratto OpenAPI nel bersaglio {TARGET_DIR}: Layer 3 saltato.")
+        return None
+    return load_openapi_spec([path])
+
+
+def _target_reachable(base_url: str, timeout: float = 3.0) -> bool:
+    import httpx
+
+    if not base_url:
+        # Bersagli solo statici: nessuna applicazione da interrogare.
+        return False
+    try:
+        httpx.get(base_url, timeout=timeout)
+        return True
+    except Exception:
+        return False
+
+
+def _load_api_inventory() -> list[dict[str, Any]]:
+    """
+    Inventario delle rotte per la BOLA dinamica, letto SOLO dai report del bersaglio
+    corrente (inventario della pipeline e findings della scansione statica).
+    Nessun ripiego su rotte scritte nel codice: se l'inventario e' vuoto, nessun test.
+    """
+    import json
+
+    api_inventory: list[dict[str, Any]] = []
+    inventory_path = _out("unified_api_inventory.json")
+    if os.path.exists(inventory_path):
+        try:
+            with open(inventory_path, encoding="utf-8") as f:
+                for item in json.load(f):
+                    path = item.get("path") or item.get("endpoint")
+                    if path:
+                        method = item.get("method", "GET")
+                        api_inventory.append({"api": {"endpoint": path, "method": method}})
+        except Exception as e:
+            logger.error(f"Errore caricamento inventario API: {e}")
+    report_path = _out("unified_security_report.json")
+    if os.path.exists(report_path):
+        try:
+            with open(report_path, encoding="utf-8") as f:
+                for fnd in json.load(f):
+                    api_ctx = fnd.get("api")
+                    if api_ctx and (api_ctx.get("endpoint") or api_ctx.get("path")):
+                        api_inventory.append(fnd)
+        except Exception as e:
+            logger.error(f"Errore integrazione report di sicurezza: {e}")
+    if not api_inventory:
+        logger.warning(
+            "Inventario API vuoto per il bersaglio corrente: eseguire prima la scansione "
+            "statica (/scan). La BOLA dinamica non eseguira' test."
+        )
+    return api_inventory
+
 
 app = FastAPI(
     title="Security Platform Core API",
     description="Enterprise API and Infrastructure Risk Management Platform",
     version="1.0.0",
 )
+
+# Sezione "Bersagli esterni" (validation/PROTOCOLLO.md): solo nella dashboard principale,
+# non in quelle dedicate a un bersaglio, che la avviano con EXTERNAL_TARGETS_PANEL=0.
+if os.getenv("EXTERNAL_TARGETS_PANEL", "1") != "0":
+    app.include_router(external_targets.router)
 
 
 # Registro delle scansioni BOLA in corso: ogni orchestratore porta il proprio segnale di
@@ -147,62 +300,20 @@ def run_bola_scan() -> dict[str, Any]:
     try:
         # Istanza dell'orchestratore reale configurato con i container attivi
         dast_orchestrator = DynamicOrchestrator(
-            target_base_url=DEFAULT_TARGET_BASE_URL,
+            target_base_url=TARGET_BASE_URL,
             keycloak_url=DEFAULT_KEYCLOAK_URL,
             zap_proxy_url=DEFAULT_ZAP_URL,
             assessment_mode=False,
+            require_real_identities=True,
         )
         _register_bola_scan(scan_id, dast_orchestrator)
 
-        # Carica inventario API per Discovery
-        inventory_path = "output/unified_api_inventory.json"
-        api_inventory = []
-        if os.path.exists(inventory_path):
-            try:
-                with open(inventory_path, encoding="utf-8") as f:
-                    inv_data = json.load(f)
-                    for item in inv_data:
-                        path = item.get("path") or item.get("endpoint")
-                        method = item.get("method", "GET")
-                        if path:
-                            api_inventory.append({"api": {"endpoint": path, "method": method}})
-            except Exception as e:
-                logger.error(f"Errore caricamento inventario API: {e}")
-
-        # Integra da unified_security_report.json se disponibile
-        report_path = "output/unified_security_report.json"
-        if os.path.exists(report_path):
-            try:
-                with open(report_path, encoding="utf-8") as f:
-                    findings = json.load(f)
-                    for fnd in findings:
-                        api_ctx = fnd.get("api")
-                        if api_ctx and (api_ctx.get("endpoint") or api_ctx.get("path")):
-                            api_inventory.append(fnd)
-            except Exception as e:
-                logger.error(f"Errore integrazione report di sicurezza: {e}")
-
-        # Fallback se vuoto
-        if not api_inventory:
-            api_inventory = [
-                {"api": {"endpoint": "/identity/api/v2/user/{id}", "method": "GET"}},
-                {"api": {"endpoint": "/community/api/v2/community/posts/{id}", "method": "GET"}},
-                {"api": {"endpoint": "/workshop/api/shop/orders/{id}", "method": "GET"}},
-                {"api": {"endpoint": "/workshop/api/shop/orders/{id}", "method": "DELETE"}},
-                {"api": {"endpoint": "/identity/api/v2/vehicle/{id}/location", "method": "GET"}},
-                {"api": {"endpoint": "/workshop/api/mechanic/receive_report", "method": "POST"}},
-                {
-                    "api": {
-                        "endpoint": "/community/api/v2/community/posts/{id}/comment",
-                        "method": "POST",
-                    }
-                },
-            ]
+        api_inventory = _load_api_inventory()
 
         # Carica traffico reale intercettato: alimenta la discovery degli ID in
         # query/body (ObjectReferenceDiscoveryEngine) e l'ownership inference.
         raw_traffic = None
-        traffic_path = "output/raw_traffic.json"
+        traffic_path = _out("raw_traffic.json")
         if os.path.exists(traffic_path):
             try:
                 with open(traffic_path, encoding="utf-8") as f:
@@ -213,7 +324,7 @@ def run_bola_scan() -> dict[str, Any]:
         # Esegue la pipeline reale D-AST (Keycloak, Seeder, ZAP controller)
         try:
             dast_orchestrator.run_dast_pipeline(
-                api_inventory=api_inventory, output_dir="output", raw_traffic=raw_traffic
+                api_inventory=api_inventory, output_dir=OUTPUT_DIR, raw_traffic=raw_traffic
             )
         finally:
             _unregister_bola_scan(scan_id)
@@ -245,13 +356,9 @@ def run_bola_scan() -> dict[str, Any]:
                         "VERTICAL" if "Verticale" in res.get("scenario_name", "") else "BROKEN_AUTH"
                     ),
                     "test_url": res.get("url", ""),
-                    "attacker": "bob@crapi.io"
-                    if res.get("attacker_role") == "user"
-                    else ("admin@crapi.io" if res.get("attacker_role") == "admin" else "anonymous"),
+                    "attacker": res.get("attacker_role") or "anonymous",
                     "attacker_role": res.get("attacker_role", "user"),
-                    "owner": "alice@crapi.io"
-                    if res.get("owner_role") == "user"
-                    else "admin@crapi.io",
+                    "owner": res.get("owner_role", "user"),
                     "owner_role": res.get("owner_role", "user"),
                     "res_owner_status": res.get("res_owner_status", 200),
                     "res_attacker_status": res.get("status_code", 403),
@@ -290,8 +397,8 @@ def run_bola_scan() -> dict[str, Any]:
         report = {"meta": scan_meta, "results": results}
 
         # Salva il report
-        os.makedirs("output", exist_ok=True)
-        with open("output/bola_scan_results.json", "w", encoding="utf-8") as f:
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        with open(_out("bola_scan_results.json"), "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
 
         return report
@@ -341,18 +448,18 @@ def list_active_bola_scans() -> dict[str, Any]:
 
 
 @app.get("/api/bola-report", response_model=dict[str, Any], tags=["Scanning"])
-def get_bola_report() -> dict[str, Any]:
-    """Ritorna l'ultimo report BOLA salvato."""
+def get_bola_report(target: str | None = None) -> dict[str, Any]:
+    """Ritorna l'ultimo report BOLA salvato (del bersaglio corrente o di ``target``)."""
     default = {"meta": {"total_tests": 0, "vulnerable_count": 0, "safe_count": 0}, "results": []}
-    return safe_read_json("output/bola_scan_results.json", default)
+    return safe_read_json(os.path.join(_report_dir(target), "bola_scan_results.json"), default)
 
 
 @app.get("/api/openapi-spec", tags=["Scanning"])
-def get_openapi_spec() -> dict[str, str]:
+def get_openapi_spec(target: str | None = None) -> dict[str, str]:
     """
-    Ritorna il contenuto del contratto OpenAPI unito.
+    Ritorna il contenuto del contratto OpenAPI unito (del bersaglio corrente o di ``target``).
     """
-    spec_path = "output/openapi_merged.yaml"
+    spec_path = os.path.join(_report_dir(target), "openapi_merged.yaml")
     if os.path.exists(spec_path):
         try:
             with open(spec_path, encoding="utf-8") as f:
@@ -385,7 +492,7 @@ def get_orchestrator() -> ScanPipelineOrchestrator:
     # Il bersaglio e' la directory target configurata (TARGET_DIR), mai la radice
     # della piattaforma: e' il perimetro che gli scanner ricevono in scan().
     return ScanPipelineOrchestrator(
-        target_dir=DEFAULT_TARGET_DIR, correlation_engine=RiskCorrelationEngine()
+        target_dir=TARGET_DIR, correlation_engine=RiskCorrelationEngine()
     )
 
 
@@ -398,6 +505,18 @@ def health_check() -> dict[str, str]:
         Dict[str, str]: Mappa di stato di salute.
     """
     return {"status": "healthy", "service": "security-platform-core"}
+
+
+@app.get("/api/target", tags=["System"])
+def get_current_target() -> dict[str, Any]:
+    """Bersaglio su cui lavora questa istanza della dashboard (fissato all'avvio)."""
+    return {
+        "target_dir": TARGET_DIR,
+        "openapi_spec": _target_openapi_path(),
+        "target_base_url": TARGET_BASE_URL,
+        "target_reachable": _target_reachable(TARGET_BASE_URL),
+        "output_dir": OUTPUT_DIR,
+    }
 
 
 @app.post("/scan", response_model=list[dict[str, Any]], tags=["Scanning"])
@@ -419,7 +538,7 @@ def trigger_scan(
     correlated_findings = orchestrator.run_pipeline(static_scanners=scanners)
 
     # Salviamo i report
-    report_repo = ReportRepository("output")
+    report_repo = ReportRepository(OUTPUT_DIR)
     report_repo.save_findings(correlated_findings, filename="findings_report.json")
     report_repo.save_findings(correlated_findings, filename="unified_security_report.json")
 
@@ -427,18 +546,151 @@ def trigger_scan(
 
 
 @app.get("/api/report", response_model=list[dict[str, Any]], tags=["Scanning"])
-def get_unified_report() -> list[dict[str, Any]]:
-    """Ritorna i findings dell'ultimo report di sicurezza unificato."""
-    return safe_read_json("output/unified_security_report.json", [])
+def get_unified_report(target: str | None = None) -> list[dict[str, Any]]:
+    """
+    Ritorna i findings dell'ultimo report statico unificato (Checkov, Semgrep, Spectral) del
+    bersaglio corrente o di ``target``.
+    """
+    return safe_read_json(os.path.join(_report_dir(target), "unified_security_report.json"), [])
 
 
 @app.get("/api/unified-summary", response_model=dict[str, Any], tags=["Scanning"])
 def get_unified_summary() -> dict[str, Any]:
     """Ritorna una sintesi dell'ultima scansione unificata dei moduli Core."""
-    report_path = "output/benchmark_results.json"
-    modules = safe_read_json(report_path, None)
+    return _benchmark_summary(_out("benchmark_results.json"))
 
-    if modules is None:
+
+@app.get("/api/targets", response_model=dict[str, Any], tags=["System"])
+def list_targets_with_results() -> dict[str, Any]:
+    """
+    Bersagli selezionabili dalla dashboard principale, ciascuno con la sintesi dell'ultima
+    scansione letta dalla propria cartella dei report. Il bersaglio principale e' quello di
+    questa istanza; quelli esterni vengono dal registro e si scansionano nella loro dashboard
+    dedicata (POST /api/external-targets/{id}/scan). Nelle dashboard dedicate, che non
+    mostrano la sezione Bersagli esterni, l'elenco contiene solo il bersaglio corrente.
+    """
+    targets = []
+    for target in _catalog().values():
+        targets.append(
+            {
+                "id": target.id,
+                "label": target.label,
+                "group": target.group,
+                "external": target.external,
+                "target_dir": target.target_dir,
+                "base_url": target.base_url,
+                "output_dir": target.output_dir,
+                "has_app": target.has_app,
+                "note": target.note,
+                "current": target.id == CURRENT_TARGET_ID,
+                "results_url": f"/unified-results?target={target.id}",
+                "summary": _benchmark_summary(
+                    os.path.join(target.output_dir, "benchmark_results.json")
+                ),
+                "static": _static_summary(target.output_dir),
+            }
+        )
+    return {
+        "targets": targets,
+        "current": CURRENT_TARGET_ID,
+        "groups": list(target_catalog.GROUP_ORDER),
+    }
+
+
+@app.post("/api/select-target", response_model=dict[str, Any], tags=["System"])
+def select_target(id: str) -> dict[str, Any]:
+    """
+    Rende ``id`` il bersaglio corrente della dashboard (switch in-process).
+
+    Lo switch è rifiutato con 409 se una scansione BOLA è in corso: cambiare bersaglio a
+    metà scansione la farebbe proseguire sul bersaglio sbagliato. È la stessa garanzia che
+    il vecchio flusso otteneva con una dashboard separata per bersaglio.
+    """
+    target = _catalog().get(id)
+    if target is None:
+        raise HTTPException(status_code=404, detail=f"Bersaglio '{id}' sconosciuto.")
+    with _active_bola_scans_lock:
+        busy = list(_active_bola_scans)
+    if busy:
+        raise HTTPException(
+            status_code=409,
+            detail="Scansione BOLA in corso: attendere la fine prima di cambiare bersaglio.",
+        )
+    _apply_target(target)
+    logger.info(f"Bersaglio corrente: {target.id} ({target.target_dir})")
+    return {
+        "current": CURRENT_TARGET_ID,
+        "label": target.label,
+        "target_dir": TARGET_DIR,
+        "base_url": TARGET_BASE_URL,
+        "output_dir": OUTPUT_DIR,
+        "target_reachable": _target_reachable(TARGET_BASE_URL),
+    }
+
+
+@app.get("/api/targets/{target_id}/findings", response_model=dict[str, Any], tags=["Scanning"])
+def get_target_findings(target_id: str) -> dict[str, Any]:
+    """
+    Findings dell'ultima scansione unificata di un bersaglio, modulo per modulo, letti da
+    core_findings.json nella sua cartella dei report: la pagina dei risultati li mostra
+    senza rilanciare la scansione.
+    """
+    if target_id in ("principale", CURRENT_TARGET_ID):
+        catalog = _catalog()
+        target = catalog.get(CURRENT_TARGET_ID)
+        label, output_dir = (target.label if target else CURRENT_TARGET_ID), OUTPUT_DIR
+        target_dir, base_url = TARGET_DIR, TARGET_BASE_URL
+    else:
+        target = _catalog().get(target_id)
+        if target is None:
+            raise HTTPException(status_code=404, detail=f"Bersaglio '{target_id}' sconosciuto.")
+        label, output_dir = target.label, target.output_dir
+        target_dir, base_url = target.target_dir, target.base_url
+
+    evidence = safe_read_json(os.path.join(output_dir, "core_findings.json"), {})
+    if not isinstance(evidence, dict) or not evidence.get("modules"):
+        # Scansioni precedenti a core_findings.json: solo l'esito per modulo.
+        evidence = {"modules": safe_read_json(os.path.join(output_dir, "benchmark_results.json"))}
+    return {
+        "id": target_id,
+        "label": label,
+        "target_dir": evidence.get("target_dir", target_dir),
+        "openapi_spec": evidence.get("openapi_spec"),
+        "target_base_url": evidence.get("target_base_url", base_url),
+        "output_dir": output_dir,
+        "generated_at": evidence.get("generated_at"),
+        "modules": evidence.get("modules") or [],
+        "findings": evidence.get("findings") or {},
+    }
+
+
+def _static_summary(output_dir: str) -> dict[str, Any]:
+    """
+    Sintesi dell'ultima analisi statica (unified_security_report.json): findings per scanner,
+    cosi' la dashboard mostra se l'analisi IaC (Checkov) e' stata eseguita sul bersaglio.
+    """
+    report_path = os.path.join(output_dir, "unified_security_report.json")
+    findings = safe_read_json(report_path, [])
+    if not os.path.exists(report_path) or not isinstance(findings, list):
+        return {"available": False, "generated_at": None, "total": 0, "by_source": {}}
+    by_source: dict[str, int] = {}
+    for finding in findings:
+        source = finding.get("source") or "ALTRO"
+        by_source[source] = by_source.get(source, 0) + 1
+    return {
+        "available": True,
+        "generated_at": datetime.fromtimestamp(os.path.getmtime(report_path)).isoformat(),
+        "total": len(findings),
+        "by_source": by_source,
+    }
+
+
+def _benchmark_summary(report_path: str) -> dict[str, Any]:
+    """Sintesi di un benchmark_results.json: esito per modulo, findings e durata totali."""
+    # safe_read_json rende [] (non None) per un file assente: bersaglio mai scansionato
+    modules = safe_read_json(report_path, [])
+
+    if not isinstance(modules, list) or not modules:
         return {"available": False, "generated_at": None, "totals": {}, "modules": []}
 
     executed = [m for m in modules if m.get("status") != "SKIPPED"]
@@ -459,11 +711,10 @@ def get_unified_summary() -> dict[str, Any]:
 @app.get("/api/benchmark-report", response_model=list[dict[str, Any]], tags=["Scanning"])
 def get_benchmark_report() -> list[dict[str, Any]]:
     """Ritorna i risultati dell'esecuzione e benchmark di tutti i moduli di sicurezza Core."""
-    return safe_read_json("output/benchmark_results.json", [])
+    return safe_read_json(_out("benchmark_results.json"), [])
 
 
 async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
-    import asyncio
     import json
     import time
     from pathlib import Path
@@ -473,26 +724,31 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     from src.core.api2_broken_auth import discovery as ba_discovery
     from src.core.api2_broken_auth import dynamic_tester as ba_dynamic_tester
     from src.core.api2_broken_auth.discovery import Config as BaConfig
-    from src.core.api3_bopla.orchestrator import BOPLAOrchestrator
+    from src.core.api3_bopla.orchestrator import BOPLAOrchestrator, to_dashboard_items
     from src.core.api4_resource_consumption import detector as urc_detector
     from src.core.api5_bfla import detector as bfla_detector
     from src.core.api7_ssrf import detector as ssrf_detector
     from src.core.api8_security_misconfig import detector as secmis_detector
     from src.core.api10_unsafe_consumption import detector as uc_detector
 
-    openapi_spec = load_openapi_spec()
-
-    runtime_traffic = safe_read_json("soluzione_api/src/output/raw_traffic.json", None)
-    if not runtime_traffic:
-        runtime_traffic = safe_read_json("output/raw_traffic.json", None)
-
-    benchmark_path = "output/benchmark_results.json"
+    openapi_spec = _load_target_openapi_spec()
+    runtime_traffic = safe_read_json(_out("raw_traffic.json"), None)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    benchmark_path = _out("benchmark_results.json")
     results = []
     findings_by_module = {}
 
     def serialize_finding(f) -> dict[str, Any]:
         if hasattr(f, "to_dict"):
             return f.to_dict()
+        # Serializzazione completa (metodo, endpoint, chiave di correlazione inclusi): servono
+        # per confrontare ogni segnalazione con il riferimento di verita'.
+        import dataclasses
+
+        if dataclasses.is_dataclass(f) and not isinstance(f, type):
+            from fastapi.encoders import jsonable_encoder
+
+            return jsonable_encoder(dataclasses.asdict(f))
         res = {}
         for attr in [
             "rule_id",
@@ -521,14 +777,16 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     bopla_list = []
     try:
         bopla_data = BOPLAOrchestrator(
-            BaConfig(output=ba_discovery.OutputConfig(path="output"))
+            BaConfig(output=ba_discovery.OutputConfig(path=OUTPUT_DIR))
         ).run_assessment(
-            repo_path=".",
+            repo_path=TARGET_DIR,
             openapi_spec=openapi_spec,
             runtime_traffic=runtime_traffic,
             headers_matrix=None,
         )
-        bopla_list = [f for f in bopla_data.get("findings", []) if f.get("verified")]
+        # Confirmed dynamic tests plus the static findings (the only output when, as here,
+        # no identity matrix is passed and the dynamic phase does not run)
+        bopla_list = to_dashboard_items(bopla_data)
         findings_count = len(bopla_list)
         status = "SUCCESS"
     except Exception as e:
@@ -550,79 +808,22 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     if run_bola:
         start_bola = time.time()
         try:
-            # Carica inventario API per Discovery
-            inventory_path = "output/unified_api_inventory.json"
-            api_inventory = []
-            if os.path.exists(inventory_path):
-                try:
-                    with open(inventory_path, encoding="utf-8") as f:
-                        inv_data = json.load(f)
-                        for item in inv_data:
-                            path = item.get("path") or item.get("endpoint")
-                            method = item.get("method", "GET")
-                            if path:
-                                api_inventory.append({"api": {"endpoint": path, "method": method}})
-                except Exception as e:
-                    logger.error(f"Errore caricamento inventario API in benchmark: {e}")
-
-            # Integra da unified_security_report.json se disponibile
-            report_path = "output/unified_security_report.json"
-            if os.path.exists(report_path):
-                try:
-                    with open(report_path, encoding="utf-8") as f:
-                        findings = json.load(f)
-                        for fnd in findings:
-                            api_ctx = fnd.get("api")
-                            if api_ctx and (api_ctx.get("endpoint") or api_ctx.get("path")):
-                                api_inventory.append(fnd)
-                except Exception as e:
-                    logger.error(f"Errore integrazione report di sicurezza in benchmark: {e}")
-
-            # Fallback se vuoto
-            if not api_inventory:
-                api_inventory = [
-                    {"api": {"endpoint": "/identity/api/v2/user/{id}", "method": "GET"}},
-                    {
-                        "api": {
-                            "endpoint": "/community/api/v2/community/posts/{id}",
-                            "method": "GET",
-                        }
-                    },
-                    {"api": {"endpoint": "/workshop/api/shop/orders/{id}", "method": "GET"}},
-                    {"api": {"endpoint": "/workshop/api/shop/orders/{id}", "method": "DELETE"}},
-                    {
-                        "api": {
-                            "endpoint": "/identity/api/v2/vehicle/{id}/location",
-                            "method": "GET",
-                        }
-                    },
-                    {
-                        "api": {
-                            "endpoint": "/workshop/api/mechanic/receive_report",
-                            "method": "POST",
-                        }
-                    },
-                    {
-                        "api": {
-                            "endpoint": "/community/api/v2/community/posts/{id}/comment",
-                            "method": "POST",
-                        }
-                    },
-                ]
+            api_inventory = _load_api_inventory()
 
             from src.core.api1_bola.dynamic_orchestrator import DynamicOrchestrator
 
             dast_orchestrator = DynamicOrchestrator(
-                target_base_url=DEFAULT_TARGET_BASE_URL,
+                target_base_url=TARGET_BASE_URL,
                 keycloak_url=DEFAULT_KEYCLOAK_URL,
                 zap_proxy_url=DEFAULT_ZAP_URL,
                 assessment_mode=False,
+                require_real_identities=True,
             )
             scan_id = _new_scan_id()
             _register_bola_scan(scan_id, dast_orchestrator)
             try:
                 dast_orchestrator.run_dast_pipeline(
-                    api_inventory=api_inventory, output_dir="output", raw_traffic=None
+                    api_inventory=api_inventory, output_dir=OUTPUT_DIR, raw_traffic=runtime_traffic
                 )
             finally:
                 _unregister_bola_scan(scan_id)
@@ -658,7 +859,10 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
                         "title": "⚠️ Nessun test eseguito",
                         "severity": "MEDIUM",
                         "file_path": "N/A",
-                        "evidence": "ZAP non raggiungibile o inventario API vuoto. Verificare che i container Docker siano in esecuzione.",
+                        "evidence": (
+                            "Nessun test BOLA eseguito: inventario API del bersaglio vuoto "
+                            "(eseguire prima /scan) oppure ZAP/bersaglio non raggiungibili."
+                        ),
                     }
                 )
             status = "SUCCESS"
@@ -686,22 +890,43 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
         )
     findings_by_module["bola"] = bola_list
 
+    # 1.6. BOLA - livello statico (codice + contratto). Non richiede container.
+    start = time.time()
+    bola_static_list = []
+    try:
+        from src.core.api1_bola import detector as bola_static_detector
+
+        report = bola_static_detector.analyze(TARGET_DIR, openapi_spec)
+        bola_static_list = [serialize_finding(f) for f in report.findings]
+        findings_count = len(bola_static_list)
+        status = "SUCCESS"
+    except Exception as e:
+        findings_count = 0
+        status = f"FAILED: {e}"
+    results.append(
+        {
+            "name": "BOLA statica (Broken Object Level Authorization)",
+            "dir": "src/core/api1_bola",
+            "time": time.time() - start,
+            "status": status,
+            "findings": findings_count,
+        }
+    )
+    findings_by_module["bola_static"] = bola_static_list
+
     # 2. Broken Authentication
     start = time.time()
     ba_list = []
     try:
         config = BaConfig()
-        config.target.base_url = "http://localhost:5000"
-        config.output.path = "output"
+        config.target.base_url = TARGET_BASE_URL
+        config.output.path = OUTPUT_DIR
         config.output.formato = "json"
 
-        stack = ba_discovery.StackInfo(
-            linguaggio="python",
-            framework="FastAPI",
-            librerie_auth=["jwt"],
-            file_configurazione_rilevanti=["requirements.txt"],
-        )
-        scored_files = await ba_ast_parser.run(".", stack, config)
+        # Stack rilevato sul bersaglio (euristiche deterministiche se l'LLM non e' attivo),
+        # non piu' fissato a FastAPI.
+        stack = await ba_discovery.run(TARGET_DIR, config)
+        scored_files = await ba_ast_parser.run(TARGET_DIR, stack, config)
         auth_intel = ba_auth_intel.AuthenticationIntelligenceEngine.correlate(
             discovery_output=stack,
             ast_output=scored_files,
@@ -722,20 +947,17 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
                         route_auth=f.route_auth,
                     )
                 )
-        from unittest.mock import MagicMock
 
-        import httpx
-
-        mock_client = MagicMock(spec=httpx.AsyncClient)
-        mock_client.base_url = httpx.URL(config.target.base_url)
-
-        async def mock_http(*args, **kwargs):
-            return MagicMock(status_code=401, text="Unauthorized")
-
-        mock_client.get = mock_http
-        mock_client.post = mock_http
-        tester = ba_dynamic_tester.DynamicTester(config, client=mock_client, auth_intel=auth_intel)
-        tester.health_check = lambda: asyncio.sleep(0)
+        # Fase dinamica SOLO contro il bersaglio reale. Prima un client simulato rispondeva
+        # sempre 401 e i risultati non dicevano nulla del bersaglio: ora, se il bersaglio
+        # non risponde, la fase dinamica non viene eseguita e lo stato lo dichiara.
+        if not _target_reachable(TARGET_BASE_URL):
+            raise RuntimeError(
+                f"fase dinamica non eseguita: bersaglio non raggiungibile su {TARGET_BASE_URL}"
+            )
+        tester = ba_dynamic_tester.DynamicTester(
+            config, auth_intel=auth_intel, openapi_spec=openapi_spec
+        )
         ba_res = await tester.run_all(stack, vulnerabilities)
         ba_list = [f.dict() for f in ba_res if f.stato == "FAIL"]
         findings_count = len(ba_list)
@@ -758,7 +980,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     start = time.time()
     bfla_list = []
     try:
-        report = bfla_detector.analyze(".", openapi_spec)
+        report = bfla_detector.analyze(TARGET_DIR, openapi_spec)
         bfla_list = [serialize_finding(f) for f in report.findings]
         findings_count = len(bfla_list)
         status = "SUCCESS"
@@ -780,7 +1002,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     start = time.time()
     secmis_list = []
     try:
-        report = secmis_detector.analyze(".")
+        report = secmis_detector.analyze(TARGET_DIR)
         secmis_list = [serialize_finding(f) for f in report.findings]
         findings_count = len(secmis_list)
         status = "SUCCESS"
@@ -802,7 +1024,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     start = time.time()
     ssrf_list = []
     try:
-        report = ssrf_detector.analyze(".", openapi_spec, semgrep_timeout=15)
+        report = ssrf_detector.analyze(TARGET_DIR, openapi_spec)
         ssrf_list = [serialize_finding(f) for f in report.findings]
         findings_count = len(ssrf_list)
         status = "SUCCESS"
@@ -824,7 +1046,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     start = time.time()
     urc_list = []
     try:
-        report = urc_detector.analyze(".", openapi_spec)
+        report = urc_detector.analyze(TARGET_DIR, openapi_spec)
         urc_list = [serialize_finding(f) for f in report.findings]
         findings_count = len(urc_list)
         status = "SUCCESS"
@@ -846,7 +1068,7 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     start = time.time()
     uc_list = []
     try:
-        report = uc_detector.analyze(".")
+        report = uc_detector.analyze(TARGET_DIR)
         uc_list = [serialize_finding(f) for f in report.findings]
         findings_count = len(uc_list)
         status = "SUCCESS"
@@ -867,6 +1089,26 @@ async def execute_benchmark_scan(run_bola: bool) -> dict[str, Any]:
     try:
         with open(benchmark_path, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2)
+        # Evidenza completa dell'esecuzione: tutte le segnalazioni, modulo per modulo, con il
+        # bersaglio e il contratto effettivamente usati.
+        from fastapi.encoders import jsonable_encoder
+
+        with open(_out("core_findings.json"), "w", encoding="utf-8") as f:
+            json.dump(
+                jsonable_encoder(
+                    {
+                        "generated_at": datetime.now().isoformat(),
+                        "target_dir": TARGET_DIR,
+                        "openapi_spec": _target_openapi_path(),
+                        "target_base_url": TARGET_BASE_URL,
+                        "modules": results,
+                        "findings": findings_by_module,
+                    }
+                ),
+                f,
+                indent=2,
+                ensure_ascii=False,
+            )
     except Exception as e:
         logger.error(f"Errore scrittura benchmark: {e}")
 

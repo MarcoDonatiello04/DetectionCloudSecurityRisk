@@ -60,12 +60,18 @@ def _walk(node: Node, node_type: str, acc: list[Node]) -> None:
 
 
 def _get_attribute_chain(node: Node) -> list[str]:
-    if node.type == "identifier":
+    if node.type in ("identifier", "property_identifier", "shorthand_property_identifier"):
         return [_node_text(node)]
-    if node.type == "attribute":
+    if node.type in ("attribute", "member_expression"):
         parts: list[str] = []
         for child in node.children:
-            if child.type in ("identifier", "attribute"):
+            if child.type in (
+                "identifier",
+                "property_identifier",
+                "shorthand_property_identifier",
+                "attribute",
+                "member_expression",
+            ):
                 parts.extend(_get_attribute_chain(child))
         return parts
     return []
@@ -201,6 +207,78 @@ def _analyze_python_function(func_node: Node, file_path: str) -> list[ResourceCo
                 layer="ast",
             )
         )
+
+    # Walk while_statement nodes
+    for while_node in _collect_nodes(body, "while_statement"):
+        cond = while_node.child_by_field_name("condition")
+        cond_text = _node_text(cond) if cond else _node_text(while_node).split(":")[0]
+        if not any(t in cond_text for t in tainted):
+            continue
+        pre_loop_text = body_text[: while_node.start_byte - body.start_byte]
+        if _text_contains_len_guard(pre_loop_text) or any(
+            t in pre_loop_text and ("len(" in pre_loop_text or "MAX" in pre_loop_text)
+            for t in tainted
+        ):
+            continue
+        findings.append(
+            ResourceConsumptionFinding(
+                rule_id="RC-005",
+                cwe_id="CWE-400",
+                category="loop_on_user_input",
+                severity="HIGH",
+                file_path=file_path,
+                line_number=while_node.start_point[0] + 1,
+                endpoint=None,
+                parameter=cond_text.strip()[:40],
+                evidence=_node_text(while_node)[:120],
+                missing_guard="No bound or termination limit on while loop controlled by user input",
+                confidence=0.75,
+                layer="ast",
+            )
+        )
+
+    # Walk comprehension nodes (list, dict, set, generator)
+    for comp_type in (
+        "list_comprehension",
+        "dictionary_comprehension",
+        "set_comprehension",
+        "generator_expression",
+    ):
+        for comp_node in _collect_nodes(body, comp_type):
+            clauses = _collect_nodes(comp_node, "for_in_clause")
+            iter_name = ""
+            for clause in clauses:
+                clause_text = _node_text(clause)
+                if " in " in clause_text:
+                    rhs = clause_text.split(" in ", 1)[1].strip()
+                    if rhs in tainted or any(t in rhs for t in tainted):
+                        iter_name = rhs
+                        break
+            if not iter_name:
+                continue
+            pre_loop_text = body_text[: comp_node.start_byte - body.start_byte]
+            if _text_contains_len_guard(pre_loop_text) or any(
+                t in pre_loop_text and ("len(" in pre_loop_text or "MAX" in pre_loop_text)
+                for t in tainted
+            ):
+                continue
+            findings.append(
+                ResourceConsumptionFinding(
+                    rule_id="RC-005",
+                    cwe_id="CWE-400",
+                    category="loop_on_user_input",
+                    severity="HIGH",
+                    file_path=file_path,
+                    line_number=comp_node.start_point[0] + 1,
+                    endpoint=None,
+                    parameter=iter_name,
+                    evidence=_node_text(comp_node)[:120],
+                    missing_guard="No len() / count check before comprehension over user-supplied collection",
+                    confidence=0.75,
+                    layer="ast",
+                )
+            )
+
     return findings
 
 
@@ -277,6 +355,89 @@ def _analyze_js_function(func_node: Node, file_path: str) -> list[ResourceConsum
                 layer="ast",
             )
         )
+
+    # Standard indexed for_statement: for (let i = 0; i < items.length; i++)
+    for for_node in _collect_nodes(body, "for_statement"):
+        cond = for_node.child_by_field_name("condition")
+        cond_text = _node_text(cond) if cond else _node_text(for_node).split("{")[0]
+        if not any(t in cond_text for t in tainted):
+            continue
+        pre_loop_text = body_text[: for_node.start_byte - body.start_byte]
+        if _text_contains_len_guard(pre_loop_text):
+            continue
+        findings.append(
+            ResourceConsumptionFinding(
+                rule_id="RC-005",
+                cwe_id="CWE-400",
+                category="loop_on_user_input",
+                severity="HIGH",
+                file_path=file_path,
+                line_number=for_node.start_point[0] + 1,
+                endpoint=None,
+                parameter=cond_text.strip()[:40],
+                evidence=_node_text(for_node)[:120],
+                missing_guard="No .length check before loop over user-supplied array",
+                confidence=0.75,
+                layer="ast",
+            )
+        )
+
+    # while_statement: while (items.length > 0)
+    for while_node in _collect_nodes(body, "while_statement"):
+        cond = while_node.child_by_field_name("condition")
+        cond_text = _node_text(cond) if cond else _node_text(while_node)
+        if not any(t in cond_text for t in tainted):
+            continue
+        pre_loop_text = body_text[: while_node.start_byte - body.start_byte]
+        if _text_contains_len_guard(pre_loop_text):
+            continue
+        findings.append(
+            ResourceConsumptionFinding(
+                rule_id="RC-005",
+                cwe_id="CWE-400",
+                category="loop_on_user_input",
+                severity="HIGH",
+                file_path=file_path,
+                line_number=while_node.start_point[0] + 1,
+                endpoint=None,
+                parameter=cond_text.strip()[:40],
+                evidence=_node_text(while_node)[:120],
+                missing_guard="No .length check before while loop controlled by user input",
+                confidence=0.75,
+                layer="ast",
+            )
+        )
+
+    # Functional array iterations: items.forEach(), items.map(), etc.
+    for call in _collect_nodes(body, "call_expression"):
+        func = call.child_by_field_name("function")
+        if func and func.type == "member_expression":
+            prop = func.child_by_field_name("property")
+            method_name = _node_text(prop) if prop else ""
+            if method_name in ("forEach", "map", "filter", "reduce", "flatMap"):
+                obj = func.child_by_field_name("object")
+                if obj:
+                    obj_text = _node_text(obj).strip()
+                    if obj_text in tainted or any(t in obj_text for t in tainted) or _is_js_request_body(obj):
+                        pre_loop_text = body_text[: call.start_byte - body.start_byte]
+                        if not _text_contains_len_guard(pre_loop_text):
+                            findings.append(
+                                ResourceConsumptionFinding(
+                                    rule_id="RC-005",
+                                    cwe_id="CWE-400",
+                                    category="loop_on_user_input",
+                                    severity="HIGH",
+                                    file_path=file_path,
+                                    line_number=call.start_point[0] + 1,
+                                    endpoint=None,
+                                    parameter=obj_text,
+                                    evidence=_node_text(call)[:120],
+                                    missing_guard=f"No .length check before processing user-supplied array with .{method_name}()",
+                                    confidence=0.75,
+                                    layer="ast",
+                                )
+                            )
+
     return findings
 
 

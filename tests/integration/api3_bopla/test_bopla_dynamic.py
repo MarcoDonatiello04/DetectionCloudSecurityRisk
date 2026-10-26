@@ -241,16 +241,86 @@ def test_run_t04_hidden_injection(
     assert salary_finding.verified is True
 
 
+def _stateful_server(accept_user_writes: bool = True, admin_only: set[str] | None = None):
+    """
+    In-memory resource: PUT/PATCH/POST merge the body into the state (mass assignment) unless
+    the caller is the standard user and `accept_user_writes` is False, in which case the fields
+    are silently ignored with a 200 (the case a status-only check would misreport).
+    Properties in `admin_only` are removed from the standard user's GET.
+    """
+    state = {"id": 42, "email": "alice@test.com", "salary": 12000, "role": "user"}
+    admin_only = admin_only or set()
+
+    def side_effect(method, url, **kwargs):
+        is_admin = "admin_uuid" in json.dumps(kwargs.get("headers", {})) or _is_admin_token(
+            kwargs.get("headers", {})
+        )
+        resp = MagicMock()
+        resp.status_code = 200
+        if method == "GET":
+            body = dict(state)
+            if not is_admin:
+                for prop in admin_only:
+                    body.pop(prop, None)
+        else:
+            if is_admin or accept_user_writes:
+                state.update(kwargs.get("json") or {})
+            body = {"status": "success"}
+        resp.text = json.dumps(body)
+        resp.json.return_value = body
+        return resp
+
+    return side_effect
+
+
+def _is_admin_token(headers: dict) -> bool:
+    token = headers.get("Authorization", "").split(" ")[-1]
+    parts = token.split(".")
+    if len(parts) < 2:
+        return False
+    payload = json.loads(base64.urlsafe_b64decode(parts[1] + "=" * (-len(parts[1]) % 4)))
+    return payload.get("sub") == "admin_uuid"
+
+
+@patch("requests.request")
+def test_write_accepted_but_not_persisted_is_not_a_finding(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
+    mock_req.side_effect = _stateful_server(accept_user_writes=False)
+    tester = BOPLADynamicTester(
+        target_base_url="http://localhost:5000",
+        inventory=mock_inventory,
+        evidences=mock_evidences,
+        graph=mock_graph,
+        headers_matrix=mock_headers_matrix,
+    )
+    for run in (tester.run_t02, tester.run_t03, tester.run_t04, tester.run_t05):
+        assert [f for f in run() if f.verified] == []
+
+
+@patch("requests.request")
+def test_ordinary_field_without_authorization_context_is_not_tested(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
+    # 'id' has confidence 0.5 but no authorization context: it is returned to the user as
+    # expected and must not be reported as an exposed protected property.
+    mock_req.side_effect = _stateful_server()
+    tester = BOPLADynamicTester(
+        target_base_url="http://localhost:5000",
+        inventory=mock_inventory,
+        evidences=mock_evidences,
+        graph=mock_graph,
+        headers_matrix=mock_headers_matrix,
+    )
+    assert "id" not in {f.property_name for f in tester.run_t01()}
+
+
 @patch("requests.request")
 def test_run_t05_read_write_mismatch(
     mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
 ):
-    # role has write_endpoints but empty read_endpoints
-    mock_resp = MagicMock()
-    mock_resp.status_code = 200
-    mock_resp.text = '{"id": 42, "role": "admin"}'
-    mock_resp.json.return_value = {"id": 42, "role": "admin"}
-    mock_req.return_value = mock_resp
+    # role has write_endpoints but no read_endpoints; the write is persisted
+    mock_req.side_effect = _stateful_server()
 
     tester = BOPLADynamicTester(
         target_base_url="http://localhost:5000",
@@ -261,35 +331,16 @@ def test_run_t05_read_write_mismatch(
     )
 
     findings = tester.run_t05()
-    assert len(findings) >= 1
     role_finding = next(f for f in findings if f.property_name == "role")
     assert role_finding.test_id == "T05"
     assert role_finding.verified is True
 
 
 @patch("requests.request")
-def test_run_t06_differential_response(
+def test_run_t06_protected_property_visible_to_user(
     mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
 ):
-    # Keep track of which call number this is to alternate responses
-    calls = []
-
-    def mock_side_effect(method, url, **kwargs):
-        resp = MagicMock()
-        resp.status_code = 200
-        if not calls:
-            # First call is User
-            resp.text = '{"id": 42, "email": "alice@test.com"}'
-            resp.json.return_value = {"id": 42, "email": "alice@test.com"}
-            calls.append(1)
-        else:
-            # Second call is Admin
-            resp.text = '{"id": 42, "email": "alice@test.com", "salary": 12000}'
-            resp.json.return_value = {"id": 42, "email": "alice@test.com", "salary": 12000}
-        return resp
-
-    mock_req.side_effect = mock_side_effect
-
+    mock_req.side_effect = _stateful_server()
     tester = BOPLADynamicTester(
         target_base_url="http://localhost:5000",
         inventory=mock_inventory,
@@ -299,25 +350,35 @@ def test_run_t06_differential_response(
     )
 
     findings = tester.run_t06()
-    assert len(findings) >= 1
     diff_finding = next(f for f in findings if f.property_name == "salary")
     assert diff_finding.test_id == "T06"
     assert diff_finding.verified is True
 
 
 @patch("requests.request")
+def test_run_t06_admin_only_visibility_is_the_expected_outcome(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
+    mock_req.side_effect = _stateful_server(admin_only={"salary"})
+    tester = BOPLADynamicTester(
+        target_base_url="http://localhost:5000",
+        inventory=mock_inventory,
+        evidences=mock_evidences,
+        graph=mock_graph,
+        headers_matrix=mock_headers_matrix,
+    )
+
+    findings = tester.run_t06()
+    salary = next(f for f in findings if f.property_name == "salary")
+    assert salary.verified is False
+    assert not [f for f in findings if f.verified]
+
+
+@patch("requests.request")
 def test_run_t07_differential_update(
     mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
 ):
-    # Always succeed with 200 to simulate vulnerability
-    def mock_side_effect(method, url, **kwargs):
-        resp = MagicMock()
-        resp.status_code = 200
-        resp.text = '{"status": "success"}'
-        resp.json.return_value = {"status": "success"}
-        return resp
-
-    mock_req.side_effect = mock_side_effect
+    mock_req.side_effect = _stateful_server()
 
     tester = BOPLADynamicTester(
         target_base_url="http://localhost:5000",
@@ -328,7 +389,24 @@ def test_run_t07_differential_update(
     )
 
     findings = tester.run_t07()
-    vulnerable_findings = [f for f in findings if f.verified is True]
-    assert len(vulnerable_findings) >= 1
-    salary_vun = next(f for f in vulnerable_findings if f.property_name == "salary")
+    salary_vun = next(f for f in findings if f.verified and f.property_name == "salary")
     assert salary_vun.test_id == "T07"
+
+
+@patch("requests.request")
+def test_run_t07_user_write_ignored_is_protected(
+    mock_req, mock_inventory, mock_evidences, mock_graph, mock_headers_matrix
+):
+    mock_req.side_effect = _stateful_server(accept_user_writes=False)
+
+    tester = BOPLADynamicTester(
+        target_base_url="http://localhost:5000",
+        inventory=mock_inventory,
+        evidences=mock_evidences,
+        graph=mock_graph,
+        headers_matrix=mock_headers_matrix,
+    )
+
+    findings = tester.run_t07()
+    salary = next(f for f in findings if f.property_name == "salary")
+    assert salary.verified is False

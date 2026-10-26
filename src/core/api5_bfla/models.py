@@ -1,4 +1,17 @@
 from dataclasses import dataclass, field
+from enum import Enum
+
+
+class RuleID(str, Enum):
+    """Identificativi univoci delle regole API5 (il valore e la stringa usata nei finding)."""
+
+    BF_001 = "BF-001"  # privileged_endpoint_no_role_check
+    BF_002 = "BF-002"  # auth_without_authz
+    BF_003 = "BF-003"  # http_method_override
+    BF_004 = "BF-004"  # admin_path_exposure
+    BF_005 = "BF-005"  # missing_deny_by_default
+    BF_006 = "BF-006"  # shadow_admin_function
+    BF_007 = "BF-007"  # privilege_escalation_via_payload
 
 
 @dataclass

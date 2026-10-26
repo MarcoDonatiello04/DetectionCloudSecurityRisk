@@ -72,6 +72,8 @@ class FindingSource(Enum):
     SEMGREP = "SEMGREP"
     RUNTIME_VALIDATOR = "RUNTIME_VALIDATOR"
     ZAP_DAST = "ZAP_DAST"
+    # Rules of the OWASP core modules that read source code and contracts directly
+    STATIC_ANALYZER = "STATIC_ANALYZER"
 
 
 class FindingNature(Enum):

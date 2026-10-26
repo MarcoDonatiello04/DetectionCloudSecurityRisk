@@ -75,11 +75,23 @@ def _make_relative(path: str, target_path: str) -> str:
 def _extract_source(result: dict) -> str:
     """Estrae la variabile o espressione sorgente dell'input."""
     extra = result.get("extra", {})
+
+    # 1. Verifica taint dataflow_trace da Semgrep mode: taint
+    dataflow = extra.get("dataflow_trace", {})
+    if isinstance(dataflow, dict) and "taint_source" in dataflow:
+        ts = dataflow["taint_source"]
+        if isinstance(ts, list) and len(ts) >= 2:
+            inner = ts[1]
+            if isinstance(inner, list) and len(inner) >= 2:
+                return str(inner[1]).strip()
+            return str(inner).strip()
+
+    # 2. Metavariabile $URL (modalità pattern classica)
     metavars = extra.get("metavars", {})
     if "$URL" in metavars:
         return metavars["$URL"].get("abstract_content", "url")
 
-    # Fallback heuristico da lines
+    # 3. Fallback heuristico da lines
     lines = extra.get("lines", "")
     match = re.search(r'request\.(args|json|form|headers)\.get\([\'"]([^\'"]+)[\'"]\)', lines)
     if match:
@@ -90,6 +102,17 @@ def _extract_source(result: dict) -> str:
 def _extract_sink(result: dict) -> str:
     """Estrae la chiamata del client HTTP (sink)."""
     extra = result.get("extra", {})
+
+    # 1. Verifica taint dataflow_trace da Semgrep mode: taint
+    dataflow = extra.get("dataflow_trace", {})
+    if isinstance(dataflow, dict) and "taint_sink" in dataflow:
+        ts = dataflow["taint_sink"]
+        if isinstance(ts, list) and len(ts) >= 2:
+            inner = ts[1]
+            if isinstance(inner, list) and len(inner) >= 2:
+                return str(inner[1]).strip()
+            return str(inner).strip()
+
     lines = extra.get("lines", "").strip()
     if not lines:
         return result.get("check_id", "http_request")
@@ -111,11 +134,11 @@ def _detect_validation_type(result: dict) -> str | None:
 def _detect_allow_redirects(result: dict) -> bool | None:
     """Indica se il client segue redirect (rischio aggiuntivo)."""
     lines = result.get("extra", {}).get("lines", "")
-    if "allow_redirects" in lines:
+    if "allow_redirects" in lines or "follow_redirects" in lines:
         no_spaces = lines.replace(" ", "")
-        if "allow_redirects=True" in no_spaces:
+        if "allow_redirects=True" in no_spaces or "follow_redirects=True" in no_spaces:
             return True
-        if "allow_redirects=False" in no_spaces:
+        if "allow_redirects=False" in no_spaces or "follow_redirects=False" in no_spaces:
             return False
     check_id = result.get("check_id", "")
     if "redirect" in check_id.lower():

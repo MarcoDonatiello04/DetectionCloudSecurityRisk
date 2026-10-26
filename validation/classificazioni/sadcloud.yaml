@@ -1,0 +1,358 @@
+# Corrispondenze manuali fra controlli Checkov e voci di sadcloud (validation/PROTOCOLLO.md, §6).
+# Il riferimento prescrive che la corrispondenza sia stabilita a mano e riportata con il motivo.
+# Decisioni prese il 2026-10-01 dall'agente di sviluppo, su richiesta dell'autore: da rivedere,
+# idealmente da un collega. Criterio conservativo: VP solo se un controllo su una risorsa del
+# modulo descrive la stessa misconfiguration; un controllo affine ma diverso vale FN.
+voci:
+  S01:
+    esito: VP
+    motivo: CKV_AWS_234 verifica la preferenza di registrazione Certificate Transparency del certificato.
+    segnalazioni:
+    - checkov:CKV_AWS_234:module.acm.aws_acm_certificate.main[0]
+  S02:
+    esito: FN
+    motivo: Nessun controllo segnala l'assegnazione di un ruolo IAM allo stack; quelli sul ruolo ne valutano
+      solo la policy.
+  S03:
+    esito: FN
+    motivo: Nessun controllo cerca segreti negli output dello stack (CKV_AWS_124 riguarda le notifiche).
+  S04:
+    esito: FN
+    motivo: Nessun controllo sui data event del trail.
+  S05:
+    esito: FN
+    motivo: Nessun controllo sui servizi globali; CKV_AWS_67 riguarda le regioni.
+  S06:
+    esito: VP
+    motivo: 'CKV_AWS_36: validazione dei file di log di CloudTrail disattivata.'
+    segnalazioni:
+    - checkov:CKV_AWS_36:module.cloudtrail.aws_cloudtrail.duplicate[0]
+  S07:
+    esito: FN
+    motivo: Nessun controllo su enable_logging disattivato.
+  S08:
+    esito: FN
+    motivo: Configurazione d'account (trail duplicato), non valutata dai controlli presenti.
+  S09:
+    esito: FN
+    motivo: 'Assenza di CloudTrail: configurazione d''account non visibile nei manifest.'
+  S11:
+    esito: FN
+    motivo: CKV2_AWS_48 valuta l'ambito del recorder, non la sua assenza.
+  S12:
+    esito: VP
+    motivo: 'CKV_AWS_106: cifratura predefinita EBS disattivata.'
+    segnalazioni:
+    - checkov:CKV_AWS_106:module.ebs.aws_ebs_encryption_by_default.main[0]
+  S13:
+    esito: VP
+    motivo: 'CKV_AWS_3: volume EBS non cifrato.'
+    segnalazioni:
+    - checkov:CKV_AWS_3:module.ebs.aws_ebs_volume.main[0]
+  S14:
+    esito: FN
+    motivo: Nessun controllo sulle snapshot EBS.
+  S15:
+    esito: FN
+    motivo: Nessun controllo sui tipi di istanza ammessi.
+  S16:
+    esito: VP
+    motivo: 'CKV_AWS_88: istanza con IP pubblico.'
+    segnalazioni:
+    - checkov:CKV_AWS_88:module.ec2.aws_instance.main[0]
+  S17:
+    esito: VP
+    motivo: 'CKV_AWS_46: segreti nei user data dell''istanza.'
+    segnalazioni:
+    - checkov:CKV_AWS_46:module.ec2.aws_instance.main[0]
+  S18:
+    esito: VP
+    motivo: Ingresso da 0.0.0.0/0 sul gruppo che apre tutte le porte.
+    segnalazioni:
+    - checkov:CKV_AWS_24:module.ec2.aws_security_group.all_ports_to_all[0]
+    - checkov:CKV_AWS_25:module.ec2.aws_security_group.all_ports_to_all[0]
+  S19:
+    esito: FN
+    motivo: Sul gruppo aperto a sé stesso falliscono solo controlli sulla descrizione e sull'associazione.
+  S20:
+    esito: FN
+    motivo: I controlli sulle porte 22, 3389 e 80 non descrivono l'ICMP aperto.
+  S21:
+    esito: VP
+    motivo: Porte note (22, 3389) aperte a tutti sul gruppo dedicato.
+    segnalazioni:
+    - checkov:CKV_AWS_24:module.ec2.aws_security_group.known_port_to_all[0]
+    - checkov:CKV_AWS_25:module.ec2.aws_security_group.known_port_to_all[0]
+  S22:
+    esito: FN
+    motivo: Sul gruppo con porta in chiaro falliscono solo controlli sulla descrizione e sull'associazione.
+  S23:
+    esito: FN
+    motivo: CKV_AWS_24 segnala la porta 22 aperta, non l'uso di intervalli di porte.
+  S24:
+    esito: FN
+    motivo: Sul gruppo con porta aperta a tutti falliscono solo controlli sulla descrizione e sull'associazione.
+  S25:
+    esito: FN
+    motivo: Nessun controllo sugli intervalli IP di AWS fuori regione.
+  S26:
+    esito: FN
+    motivo: Nessun controllo sugli intervalli IP di AWS.
+  S27:
+    esito: FN
+    motivo: Nessun controllo sui CIDR sconosciuti.
+  S28:
+    esito: VP
+    motivo: 'CKV2_AWS_5: gruppo di sicurezza non associato ad alcuna risorsa.'
+    segnalazioni:
+    - checkov:CKV2_AWS_5:module.ec2.aws_security_group.unused_security_group[0]
+  S29:
+    esito: FN
+    motivo: Nessun controllo sui CIDR non bloccabili.
+  S30:
+    esito: FN
+    motivo: Nessun controllo sul formato dei CIDR.
+  S31:
+    esito: FN
+    motivo: Nessun controllo sulla sovrapposizione dei CIDR.
+  S32:
+    esito: VP
+    motivo: 'CKV_AWS_163: scansione delle immagini ECR disattivata.'
+    segnalazioni:
+    - checkov:CKV_AWS_163:module.ecr.aws_ecr_repository.main[0]
+  S33:
+    esito: VP
+    motivo: 'CKV_AWS_32: policy del repository ECR pubblica.'
+    segnalazioni:
+    - checkov:CKV_AWS_32:module.ecr.aws_ecr_repository_policy.mainecrpolicy[0]
+  S34:
+    esito: VP
+    motivo: 'CKV_AWS_339: versione di Kubernetes non supportata.'
+    segnalazioni:
+    - checkov:CKV_AWS_339:module.eks.aws_eks_cluster.example[0]
+  S35:
+    esito: VP
+    motivo: 'CKV_AWS_37: log del control plane EKS non abilitati.'
+    segnalazioni:
+    - checkov:CKV_AWS_37:module.eks.aws_eks_cluster.example[0]
+  S36:
+    esito: VP
+    motivo: 'CKV_AWS_39: endpoint pubblico del cluster abilitato.'
+    segnalazioni:
+    - checkov:CKV_AWS_39:module.eks.aws_eks_cluster.example[0]
+  S37:
+    esito: VP
+    motivo: 'CKV_AWS_38: endpoint pubblico accessibile da 0.0.0.0/0.'
+    segnalazioni:
+    - checkov:CKV_AWS_38:module.eks.aws_eks_cluster.example[0]
+  S38:
+    esito: VP
+    motivo: 'CKV_AWS_317: log di audit del dominio disattivati.'
+    segnalazioni:
+    - checkov:CKV_AWS_317:module.elasticsearch.aws_elasticsearch_domain.main[0]
+  S39:
+    esito: FN
+    motivo: I controlli presenti (accesso granulare, VPC) non descrivono una policy di accesso aperta.
+  S40:
+    esito: FN
+    motivo: Sul load balancer classico nessun controllo sui log di accesso.
+  S41:
+    esito: VP
+    motivo: 'CKV_AWS_91: log di accesso del load balancer disattivati.'
+    segnalazioni:
+    - checkov:CKV_AWS_91:module.elbv2.aws_lb.main[0]
+  S42:
+    esito: VP
+    motivo: 'CKV_AWS_150: protezione dalla cancellazione disattivata.'
+    segnalazioni:
+    - checkov:CKV_AWS_150:module.elbv2.aws_lb.main[0]
+  S43:
+    esito: VP
+    motivo: 'CKV_AWS_103: policy TLS precedente alla 1.2.'
+    segnalazioni:
+    - checkov:CKV_AWS_103:module.elbv2.aws_lb_listener.main[0]
+  S44:
+    esito: VP
+    motivo: 'CKV_AWS_167: policy del vault Glacier pubblica.'
+    segnalazioni:
+    - checkov:CKV_AWS_167:module.glacier.aws_glacier_vault.main[0]
+  S45:
+    esito: FN
+    motivo: Manca il controllo sulla lunghezza minima della password.
+  S46:
+    esito: VP
+    motivo: 'CKV_AWS_11: nessuna minuscola richiesta.'
+    segnalazioni:
+    - checkov:CKV_AWS_11:module.iam.aws_iam_account_password_policy.main[0]
+  S47:
+    esito: VP
+    motivo: 'CKV_AWS_12: nessun numero richiesto.'
+    segnalazioni:
+    - checkov:CKV_AWS_12:module.iam.aws_iam_account_password_policy.main[0]
+  S48:
+    esito: VP
+    motivo: 'CKV_AWS_15: nessuna maiuscola richiesta.'
+    segnalazioni:
+    - checkov:CKV_AWS_15:module.iam.aws_iam_account_password_policy.main[0]
+  S49:
+    esito: VP
+    motivo: 'CKV_AWS_14: nessun simbolo richiesto.'
+    segnalazioni:
+    - checkov:CKV_AWS_14:module.iam.aws_iam_account_password_policy.main[0]
+  S50:
+    esito: FN
+    motivo: Manca il controllo sul riuso delle password.
+  S51:
+    esito: VP
+    motivo: 'CKV_AWS_9: scadenza delle password oltre 90 giorni.'
+    segnalazioni:
+    - checkov:CKV_AWS_9:module.iam.aws_iam_account_password_policy.main[0]
+  S52:
+    esito: FN
+    motivo: Nessun controllo identifica la policy gestita con iam:PassRole su *.
+  S53:
+    esito: VP
+    motivo: Controlli sulle policy IAM (CKV_AWS_286-290, 355) sulla policy inline del ruolo.
+    segnalazioni:
+    - checkov:CKV_AWS_286:module.iam.aws_iam_role_policy.inline_role_policy[0]
+  S54:
+    esito: VP
+    motivo: Controlli sulle policy IAM sulla policy inline del gruppo.
+    segnalazioni:
+    - checkov:CKV_AWS_286:module.iam.aws_iam_group_policy.inline_group_policy[0]
+  S55:
+    esito: VP
+    motivo: Controlli sulle policy IAM e CKV_AWS_40 sulla policy inline dell'utente.
+    segnalazioni:
+    - checkov:CKV_AWS_286:module.iam.aws_iam_user_policy.inline_user_policy[0]
+    - checkov:CKV_AWS_40:module.iam.aws_iam_user_policy.inline_user_policy[0]
+  S56:
+    esito: VP
+    motivo: 'CKV_AWS_60: il ruolo può essere assunto da qualunque principal.'
+    segnalazioni:
+    - checkov:CKV_AWS_60:module.iam.aws_iam_role.allow_all[0]
+  S57:
+    esito: FN
+    motivo: CKV_AWS_60 valuta i principal ammessi, non l'assenza di MFA ed external ID.
+  S58:
+    esito: VP
+    motivo: 'CKV_AWS_62: policy con privilegi amministrativi completi.'
+    segnalazioni:
+    - checkov:CKV_AWS_62:module.iam.aws_iam_policy.policy[0]
+  S59:
+    esito: VP
+    motivo: CKV_AWS_62 sulla policy amministrativa senza 'admin' nel nome.
+    segnalazioni:
+    - checkov:CKV_AWS_62:module.iam.aws_iam_policy.admin_not_indicated_policy[0]
+  S60:
+    esito: VP
+    motivo: 'CKV_AWS_7: rotazione della chiave KMS disattivata.'
+    segnalazioni:
+    - checkov:CKV_AWS_7:module.kms.aws_kms_key.main[0]
+  S61:
+    esito: VP
+    motivo: 'CKV_AWS_33: principal * nella policy della chiave.'
+    segnalazioni:
+    - checkov:CKV_AWS_33:module.kms.aws_kms_key.exposed[0]
+  S63:
+    esito: VP
+    motivo: 'CKV_AWS_226: aggiornamenti minori non automatici.'
+    segnalazioni:
+    - checkov:CKV_AWS_226:module.rds.aws_db_instance.main[0]
+  S64:
+    esito: VP
+    motivo: 'CKV_AWS_133: backup disattivati.'
+    segnalazioni:
+    - checkov:CKV_AWS_133:module.rds.aws_db_instance.main[0]
+  S65:
+    esito: VP
+    motivo: 'CKV_AWS_16: istanza RDS non cifrata.'
+    segnalazioni:
+    - checkov:CKV_AWS_16:module.rds.aws_db_instance.main[0]
+  S66:
+    esito: VP
+    motivo: 'CKV_AWS_157: Multi-AZ disattivato.'
+    segnalazioni:
+    - checkov:CKV_AWS_157:module.rds.aws_db_instance.main[0]
+  S67:
+    esito: VP
+    motivo: 'CKV_AWS_17: istanza RDS pubblicamente accessibile.'
+    segnalazioni:
+    - checkov:CKV_AWS_17:module.rds.aws_db_instance.main[0]
+  S68:
+    esito: VP
+    motivo: 'CKV_AWS_105: SSL non richiesto nel parameter group.'
+    segnalazioni:
+    - checkov:CKV_AWS_105:module.redshift.aws_redshift_parameter_group.main[0]
+  S69:
+    esito: VP
+    motivo: 'CKV_AWS_71: logging del cluster Redshift disattivato.'
+    segnalazioni:
+    - checkov:CKV_AWS_71:module.redshift.aws_redshift_cluster.main[0]
+  S70:
+    esito: VP
+    motivo: 'CKV_AWS_87: cluster pubblicamente accessibile.'
+    segnalazioni:
+    - checkov:CKV_AWS_87:module.redshift.aws_redshift_cluster.main[0]
+  S71:
+    esito: VP
+    motivo: 'CKV_AWS_141: aggiornamenti di versione disattivati.'
+    segnalazioni:
+    - checkov:CKV_AWS_141:module.redshift.aws_redshift_cluster.main[0]
+  S72:
+    esito: VP
+    motivo: 'CKV_AWS_64: cluster non cifrato.'
+    segnalazioni:
+    - checkov:CKV_AWS_64:module.redshift.aws_redshift_cluster.main[0]
+  S73:
+    esito: FN
+    motivo: Nessun controllo sulla policy che vieta HTTP.
+  S74:
+    esito: VP
+    motivo: 'CKV_AWS_145: bucket senza cifratura predefinita.'
+    segnalazioni:
+    - checkov:CKV_AWS_145:module.s3.aws_s3_bucket.main
+  S75:
+    esito: VP
+    motivo: 'CKV_AWS_18: log di accesso del bucket disattivati.'
+    segnalazioni:
+    - checkov:CKV_AWS_18:module.s3.aws_s3_bucket.public[0]
+  S76:
+    esito: VP
+    motivo: 'CKV_AWS_21: versioning disattivato.'
+    segnalazioni:
+    - checkov:CKV_AWS_21:module.s3.aws_s3_bucket.main
+  S77:
+    esito: FN
+    motivo: Nessun controllo sull'hosting statico del bucket.
+  S78:
+    esito: VP
+    motivo: 'CKV_AWS_283: policy che concede GetObject a qualunque principal.'
+    segnalazioni:
+    - checkov:CKV_AWS_283:module.s3.aws_iam_policy_document.getonly
+  S79:
+    esito: VP
+    motivo: 'CKV_AWS_283: bucket accessibile a qualunque principal.'
+    segnalazioni:
+    - checkov:CKV_AWS_283:module.s3.aws_iam_policy_document.public
+  S80:
+    esito: FN
+    motivo: Nessun controllo su DKIM.
+  S81:
+    esito: VP
+    motivo: 'CKV_AWS_283: policy dell''identità SES aperta.'
+    segnalazioni:
+    - checkov:CKV_AWS_283:module.ses.aws_iam_policy_document.main
+  S82:
+    esito: VP
+    motivo: 'CKV_AWS_283: policy del topic SNS aperta.'
+    segnalazioni:
+    - checkov:CKV_AWS_283:module.sns.aws_iam_policy_document.sns-topic-policy
+  S83:
+    esito: VP
+    motivo: 'CKV_AWS_168: policy della coda SQS pubblica.'
+    segnalazioni:
+    - checkov:CKV_AWS_168:module.sqs.aws_sqs_queue_policy.main[0]
+  S84:
+    esito: FN
+    motivo: Nessun controllo sulla cifratura della coda SQS.

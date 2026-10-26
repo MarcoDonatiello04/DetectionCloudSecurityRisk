@@ -1,0 +1,191 @@
+{
+  "generated_at": "2026-10-01T15:56:30.908153",
+  "target_dir": "data/test_targets/external/dvapi",
+  "openapi_spec": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+  "target_base_url": "http://localhost:3000",
+  "modules": [
+    {
+      "name": "BOPLA (Broken Object Property Level Access)",
+      "dir": "src/core/api3_bopla",
+      "time": 2.6951465606689453,
+      "status": "SUCCESS",
+      "findings": 0
+    },
+    {
+      "name": "BOLA (Broken Object Level Authorization)",
+      "dir": "src/core/api1_bola",
+      "time": 0.026298046112060547,
+      "status": "FAILED: Identita' non reali per ['victim', 'peer'] (provider 'traffic'): nessun test eseguito. Verificare Keycloak, le variabili dei token statici o il traffico di esercizio (servono due utenti distinti con JWT che riporti il claim 'sub').",
+      "findings": 0
+    },
+    {
+      "name": "BOLA statica (Broken Object Level Authorization)",
+      "dir": "src/core/api1_bola",
+      "time": 2.6964738368988037,
+      "status": "SUCCESS",
+      "findings": 0
+    },
+    {
+      "name": "Broken Authentication",
+      "dir": "src/core/api2_broken_auth",
+      "time": 0.005306243896484375,
+      "status": "FAILED: Nessun file manifest di dipendenze (es. package.json, requirements.txt, ecc.) rilevato nella root della repository: data/test_targets/external/dvapi",
+      "findings": 0
+    },
+    {
+      "name": "BFLA (Broken Function Level Authorization)",
+      "dir": "src/core/api5_bfla",
+      "time": 1.856665849685669,
+      "status": "SUCCESS",
+      "findings": 1
+    },
+    {
+      "name": "Security Misconfiguration",
+      "dir": "src/core/api8_security_misconfig",
+      "time": 0.10055708885192871,
+      "status": "SUCCESS",
+      "findings": 3
+    },
+    {
+      "name": "SSRF (Server Side Request Forgery)",
+      "dir": "src/core/api7_ssrf",
+      "time": 1.2881247997283936,
+      "status": "SUCCESS",
+      "findings": 0
+    },
+    {
+      "name": "Unrestricted Resource Consumption",
+      "dir": "src/core/api4_resource_consumption",
+      "time": 4.608164072036743,
+      "status": "SUCCESS",
+      "findings": 3
+    },
+    {
+      "name": "Unsafe Consumption",
+      "dir": "src/core/api10_unsafe_consumption",
+      "time": 0.004651069641113281,
+      "status": "SUCCESS",
+      "findings": 0
+    }
+  ],
+  "findings": {
+    "bopla": [],
+    "bola": [],
+    "bola_static": [],
+    "broken_authentication": [],
+    "bfla": [
+      {
+        "rule_id": "BF-005",
+        "cwe_id": "CWE-276",
+        "category": "missing_deny_by_default",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/dvapi/src/index.js",
+        "line_number": 25,
+        "endpoint": null,
+        "http_methods": [],
+        "required_role": null,
+        "found_guard": null,
+        "missing_guard": "Add app.use(authMiddleware) before app.use(router)",
+        "evidence": "app.use(express.json()); at line 9 — no auth middleware registered before route mounting",
+        "confidence": 0.75,
+        "layer": "config"
+      }
+    ],
+    "security_misconfiguration": [
+      {
+        "rule_id": "SC-004",
+        "cwe_id": "CWE-693",
+        "category": "missing_security_headers",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/dvapi",
+        "line_number": null,
+        "evidence": "No security headers middleware found in codebase",
+        "missing_guard": "Add flask_talisman.Talisman(app) for Flask, helmet() middleware for Express, or a custom @app.after_request that sets X-Content-Type-Options, X-Frame-Options, Strict-Transport-Security",
+        "confidence": 0.7,
+        "layer": "ast"
+      },
+      {
+        "rule_id": "SC-006",
+        "cwe_id": "CWE-942",
+        "category": "missing_cors_policy",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/dvapi",
+        "line_number": null,
+        "evidence": "API web framework detected but no CORS middleware or policy configured across codebase",
+        "missing_guard": "Configure an explicit CORS allowlist policy (e.g., flask_cors.CORS(app, origins=['https://trusted.domain']) or app.add_middleware(CORSMiddleware, allow_origins=['https://trusted.domain']) for FastAPI)",
+        "confidence": 0.85,
+        "layer": "ast"
+      },
+      {
+        "rule_id": "SC-007",
+        "cwe_id": "CWE-1395",
+        "category": "vulnerable_dependency",
+        "severity": "HIGH",
+        "file_path": "data/test_targets/external/dvapi/src/package.json",
+        "line_number": null,
+        "evidence": "Package 'express@4.18.2' is vulnerable to CVE-2024-29041: Open redirect and header injection vulnerability in express",
+        "missing_guard": "Upgrade 'express' to patched version >=4.19.2",
+        "confidence": 0.95,
+        "layer": "ast"
+      }
+    ],
+    "ssrf": [],
+    "unrestricted_resource_consumption": [
+      {
+        "rule_id": "RC-004",
+        "cwe_id": "CWE-400",
+        "category": "graphql_batching_unlimited",
+        "severity": "HIGH",
+        "file_path": "data/test_targets/external/dvapi/src/controllers/controllers.js",
+        "line_number": 562,
+        "endpoint": null,
+        "parameter": null,
+        "evidence": "new http.createServer(...) without validationRules or depthLimit",
+        "missing_guard": "No validationRules: [depthLimit(...)] or complexity limiter",
+        "confidence": 0.85,
+        "layer": "ast",
+        "correlation": null,
+        "correlated_with": [],
+        "compensated_by": null,
+        "original_severity": null
+      },
+      {
+        "rule_id": "RC-007",
+        "cwe_id": "CWE-400",
+        "category": "no_container_resource_limit",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/dvapi/docker-compose.yml",
+        "line_number": null,
+        "endpoint": null,
+        "parameter": null,
+        "evidence": "Service 'nodejs' missing deploy.resources.limits: memory",
+        "missing_guard": "deploy.resources.limits.memory (and optionally cpus)",
+        "confidence": 0.9,
+        "layer": "config",
+        "correlation": null,
+        "correlated_with": [],
+        "compensated_by": null,
+        "original_severity": null
+      },
+      {
+        "rule_id": "RC-007",
+        "cwe_id": "CWE-400",
+        "category": "no_container_resource_limit",
+        "severity": "MEDIUM",
+        "file_path": "data/test_targets/external/dvapi/docker-compose.yml",
+        "line_number": null,
+        "endpoint": null,
+        "parameter": null,
+        "evidence": "Service 'mongodb' missing deploy.resources.limits: memory",
+        "missing_guard": "deploy.resources.limits.memory (and optionally cpus)",
+        "confidence": 0.9,
+        "layer": "config",
+        "correlation": null,
+        "correlated_with": [],
+        "compensated_by": null,
+        "original_severity": null
+      }
+    ],
+    "unsafe_consumption": []
+  }
+}

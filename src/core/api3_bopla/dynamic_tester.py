@@ -16,6 +16,9 @@ from src.core.api3_bopla.models import (
     PropertyEvidence,
     PropertyInventory,
 )
+from src.core.api3_bopla.property_inference import PropertyAuthorizationInferenceEngine
+
+WRITE_METHODS = ("PUT", "PATCH", "POST")
 
 
 class BOPLADynamicTester:
@@ -215,6 +218,133 @@ class BOPLADynamicTester:
                 keys.update(self._extract_keys_recursive(item))
         return keys
 
+    # ------------------------------------------------------------------
+    # Target selection and verification helpers
+    # ------------------------------------------------------------------
+
+    def _is_protected(self, ev: PropertyEvidence, direction: str | None = None) -> bool:
+        """
+        A property is treated as protected only when the code shows an authorization context
+        around it. Confidence alone is not enough: it measures how documented and used a
+        property is, so an ordinary field present in code and contract would pass the threshold.
+        `direction` ("read"/"write") ignores the contract contexts of the other direction: a
+        readOnly property is legitimately returned, a writeOnly one legitimately sent.
+        """
+        return PropertyAuthorizationInferenceEngine.is_protected_property(
+            ev, self.confidence_threshold, direction
+        )
+
+    @staticmethod
+    def _testable(ev: PropertyEvidence) -> bool:
+        """
+        Nested properties are recorded with a dotted path (`manager.salary`, B.11). A dotted
+        name is not a JSON key: sending it in a payload would inject a meaningless top-level
+        field, and it never matches the keys of a response. They stay in the inventory and in
+        the static phases but are excluded from the dynamic tests.
+        """
+        return "." not in ev.property
+
+    def _object_endpoints(self, object_name: str, methods: tuple[str, ...]) -> list[str]:
+        """
+        Returns the paths of all operations touching an object with one of the given methods.
+        Mass assignment and protected-field tampering target the object's write operations,
+        not only the ones where the property was already observed.
+        """
+        paths = set()
+        for ev in self.evidences:
+            if ev.object_name != object_name:
+                continue
+            for ep in ev.read_endpoints + ev.write_endpoints:
+                method, path = self._parse_endpoint_string(ep)
+                if method in methods:
+                    paths.add((method, path))
+        return [f"{m} {p}" for m, p in sorted(paths)]
+
+    def _reader_headers(self) -> dict[str, str]:
+        """Most privileged identity available: a protected property may be hidden from userA."""
+        return self.headers_matrix.get("userC") or self.headers_matrix.get("userA", {})
+
+    def _find_value(self, data: Any, prop: str, expected: Any) -> bool:
+        """True if `prop` holds `expected` anywhere in a JSON structure."""
+        if isinstance(data, dict):
+            for k, v in data.items():
+                if k == prop and str(v) == str(expected):
+                    return True
+                if self._find_value(v, prop, expected):
+                    return True
+        elif isinstance(data, list):
+            return any(self._find_value(item, prop, expected) for item in data)
+        return False
+
+    def _read_back(self, object_name: str, prop: str, expected: Any) -> str | None:
+        """
+        Re-reads the resource and returns the path where the marker value was found persisted,
+        or None. An accepted write is not proof of a vulnerability: the server may silently
+        ignore the field.
+        """
+        headers = self._reader_headers()
+        for ep in self._object_endpoints(object_name, ("GET",)):
+            _method, path = self._parse_endpoint_string(ep)
+            gpath = self._resolve_path(path, self.uuid_alice)
+            status, _text, data = self._send_request("GET", gpath, headers)
+            if status == 200 and self._find_value(data, prop, expected):
+                return gpath
+        return None
+
+    @staticmethod
+    def _marker(prop: str, test_id: str, numeric: int) -> Any:
+        numeric_hint = any(k in prop.lower() for k in ("salary", "price", "amount", "balance"))
+        return numeric if numeric_hint else f"bopla_{test_id.lower()}_{prop}"
+
+    def _attempt_write(
+        self,
+        test_id: str,
+        ev: PropertyEvidence,
+        write_endpoint: str,
+        value: Any,
+        evidence_intro: list[str],
+    ) -> DynamicPropertyFinding | None:
+        """
+        Sends a write as userA carrying `value` for the property and confirms the defect only
+        if the value is read back as persisted.
+        """
+        method, path = self._parse_endpoint_string(write_endpoint)
+        payload = self._generate_baseline_payload(ev.object_name, ev.property, value)
+        test_path = self._resolve_path(path, self.uuid_alice)
+        headers = self.headers_matrix.get("userA", {})
+
+        status, text, _json_data = self._send_request(method, test_path, headers, payload)
+        if not (status and 200 <= status < 300):
+            return None
+
+        persisted_at = self._read_back(ev.object_name, ev.property, value)
+        if not persisted_at:
+            logger.debug(
+                f"BOPLA {test_id}: {method} {test_path} accettata ma '{ev.property}' non persistita."
+            )
+            return None
+
+        return DynamicPropertyFinding(
+            test_id=test_id,
+            endpoint=test_path,
+            method=method,
+            property_name=ev.property,
+            evidence=[
+                *evidence_intro,
+                f"Richiesta {method} dell'utente standard userA accettata con stato {status}.",
+                f"Valore '{value}' persistito, verificato rileggendo {persisted_at}.",
+            ],
+            request=f"{method} {test_path} \nPayload: {payload}",
+            response=text,
+            response_code=status,
+            verified=True,
+            confidence=ev.confidence,
+        )
+
+    # ------------------------------------------------------------------
+    # Test suite
+    # ------------------------------------------------------------------
+
     def run_all_tests(self) -> list[DynamicPropertyFinding]:
         """Runs the entire BOPLA dynamic testing suite (T01 - T07)."""
         findings = []
@@ -230,497 +360,285 @@ class BOPLADynamicTester:
     def run_t01(self) -> list[DynamicPropertyFinding]:
         """
         T01 - Sensitive Property Exposure.
-        Checks if standard users can retrieve sensitive properties.
+        A standard user reading their own resource receives a protected property.
         """
         logger.info("Avvio BOPLA Test T01 - Sensitive Property Exposure...")
         findings = []
+        headers = self.headers_matrix.get("userA", {})
 
         for ev in self.evidences:
-            # We target properties inferred to be authorized (high confidence or auth context)
-            if ev.confidence >= self.confidence_threshold or ev.authorization_contexts:
-                for rd in ev.read_endpoints:
-                    method, path = self._parse_endpoint_string(rd)
-                    if method != "GET":
-                        continue
+            if not (self._testable(ev) and self._is_protected(ev, "read")):
+                continue
+            for rd in self._object_endpoints(ev.object_name, ("GET",)):
+                _method, path = self._parse_endpoint_string(rd)
+                test_path = self._resolve_path(path, self.uuid_alice)
+                status, text, json_data = self._send_request("GET", test_path, headers)
 
-                    # Substitute resource ID of Alice
-                    test_path = self._resolve_path(path, self.uuid_alice)
-                    headers = self.headers_matrix.get("userA", {})
-
-                    status, text, json_data = self._send_request("GET", test_path, headers)
-
-                    if status and 200 <= status < 300 and json_data:
-                        extracted_keys = self._extract_keys_recursive(json_data)
-                        if ev.property in extracted_keys:
-                            evidence_msg = [
-                                "Proprietà identificata come protetta nell'AST o Inference Engine.",
-                                f"Proprietà '{ev.property}' restituita nella risposta GET per l'utente standard userA.",
-                                f"Contesti autorizzativi noti: {ev.authorization_contexts}",
-                            ]
-                            findings.append(
-                                DynamicPropertyFinding(
-                                    test_id="T01",
-                                    endpoint=test_path,
-                                    method="GET",
-                                    property_name=ev.property,
-                                    evidence=evidence_msg,
-                                    request=f"GET {test_path} \nHeaders: {headers}",
-                                    response=text,
-                                    response_code=status,
-                                    verified=True,
-                                    confidence=ev.confidence,
-                                )
-                            )
-
-        return findings
-
-    def run_t02(self) -> list[DynamicPropertyFinding]:
-        """
-        T02 - Unauthorized Property Modification.
-        Tries to modify sensitive properties using a standard user role.
-        """
-        logger.info("Avvio BOPLA Test T02 - Unauthorized Property Modification...")
-        findings = []
-
-        for ev in self.evidences:
-            if ev.confidence >= self.confidence_threshold or ev.authorization_contexts:
-                for wr in ev.write_endpoints:
-                    method, path = self._parse_endpoint_string(wr)
-                    if method not in ("PUT", "PATCH", "POST"):
-                        continue
-
-                    # Attempt modification
-                    test_value = (
-                        999999
-                        if "salary" in ev.property.lower() or "price" in ev.property.lower()
-                        else "modified_via_t02"
-                    )
-                    payload = self._generate_baseline_payload(
-                        ev.object_name, ev.property, test_value
-                    )
-
-                    test_path = self._resolve_path(path, self.uuid_alice)
-                    headers = self.headers_matrix.get("userA", {})
-
-                    status, text, json_data = self._send_request(
-                        method, test_path, headers, payload
-                    )
-
-                    if status and 200 <= status < 300:
-                        # Success response: now check if the change persisted or is reflected in response
-                        is_modified = False
-                        evidence_msg = [
-                            f"Richiesta di scrittura {method} accettata con stato {status}.",
-                            "Proprietà inviata nel payload modificata con successo.",
-                        ]
-
-                        # Case A: reflected in body
-                        if json_data:
-                            extracted_keys = self._extract_keys_recursive(json_data)
-                            if ev.property in extracted_keys:
-                                is_modified = True
-                                evidence_msg.append(
-                                    "Valore modificato riflesso nella risposta di scrittura."
-                                )
-
-                        # Case B: check subsequent GET
-                        for rd in ev.read_endpoints:
-                            rmethod, rpath = self._parse_endpoint_string(rd)
-                            if rmethod == "GET":
-                                gpath = self._resolve_path(rpath, self.uuid_alice)
-                                gstatus, _gtext, gjson = self._send_request("GET", gpath, headers)
-                                if gstatus == 200 and gjson:
-                                    # check if value is equal or key exists
-                                    if gjson.get(ev.property) == test_value or str(
-                                        gjson.get(ev.property)
-                                    ) == str(test_value):
-                                        is_modified = True
-                                        evidence_msg.append(
-                                            f"Valore persistito verificato tramite successiva GET su {gpath}."
-                                        )
-                                        break
-
-                        if is_modified:
-                            findings.append(
-                                DynamicPropertyFinding(
-                                    test_id="T02",
-                                    endpoint=test_path,
-                                    method=method,
-                                    property_name=ev.property,
-                                    evidence=evidence_msg,
-                                    request=f"{method} {test_path} \nPayload: {payload}",
-                                    response=text,
-                                    response_code=status,
-                                    verified=True,
-                                    confidence=ev.confidence,
-                                )
-                            )
-
-        return findings
-
-    def run_t03(self) -> list[DynamicPropertyFinding]:
-        """
-        T03 - Mass Assignment.
-        Tries injecting fields that standard clients normally do not send.
-        """
-        logger.info("Avvio BOPLA Test T03 - Mass Assignment...")
-        findings = []
-
-        # Identify AST-only or server-only properties for each object
-        for ev in self.evidences:
-            # Criteria: present in AST/Runtime but not documented in OpenAPI schemas under request body,
-            # or properties with high authorization context.
-            is_mass_assignment_target = False
-            if (
-                ev.found_in_ast and not ev.found_in_openapi
-            ) or ev.confidence >= self.confidence_threshold:
-                is_mass_assignment_target = True
-
-            if is_mass_assignment_target:
-                for wr in ev.write_endpoints:
-                    method, path = self._parse_endpoint_string(wr)
-                    if method not in ("PUT", "PATCH", "POST"):
-                        continue
-
-                    # Try to write/inject property
-                    test_value = 99999 if "salary" in ev.property.lower() else "mass_assigned_value"
-                    payload = self._generate_baseline_payload(
-                        ev.object_name, ev.property, test_value
-                    )
-
-                    test_path = self._resolve_path(path, self.uuid_alice)
-                    headers = self.headers_matrix.get("userA", {})
-
-                    status, text, json_data = self._send_request(
-                        method, test_path, headers, payload
-                    )
-
-                    if status and 200 <= status < 300:
-                        evidence_msg = [
-                            f"Mass assignment tentata su proprietà '{ev.property}' tramite {method}.",
-                            f"Server ha accettato la richiesta con status {status}.",
-                        ]
-
-                        # Verify reflection or persistence
-                        is_success = False
-                        if json_data:
-                            extracted_keys = self._extract_keys_recursive(json_data)
-                            if ev.property in extracted_keys:
-                                is_success = True
-                                evidence_msg.append(
-                                    "Proprietà riflessa nel corpo di risposta di scrittura."
-                                )
-
-                        for rd in ev.read_endpoints:
-                            rmethod, rpath = self._parse_endpoint_string(rd)
-                            if rmethod == "GET":
-                                gpath = self._resolve_path(rpath, self.uuid_alice)
-                                gstatus, _gtext, gjson = self._send_request("GET", gpath, headers)
-                                if gstatus == 200 and gjson:
-                                    if gjson.get(ev.property) == test_value or str(
-                                        gjson.get(ev.property)
-                                    ) == str(test_value):
-                                        is_success = True
-                                        evidence_msg.append(
-                                            f"Valore persistito verificato via GET su {gpath}."
-                                        )
-                                        break
-
-                        if is_success:
-                            findings.append(
-                                DynamicPropertyFinding(
-                                    test_id="T03",
-                                    endpoint=test_path,
-                                    method=method,
-                                    property_name=ev.property,
-                                    evidence=evidence_msg,
-                                    request=f"{method} {test_path} \nPayload: {payload}",
-                                    response=text,
-                                    response_code=status,
-                                    verified=True,
-                                    confidence=ev.confidence,
-                                )
-                            )
-
-        return findings
-
-    def run_t04(self) -> list[DynamicPropertyFinding]:
-        """
-        T04 - Hidden Property Injection.
-        Tries to inject undocumented properties (present in AST/Runtime but not OpenAPI).
-        """
-        logger.info("Avvio BOPLA Test T04 - Hidden Property Injection...")
-        findings = []
-
-        for ev in self.evidences:
-            # Strictly undocumented properties
-            if (ev.found_in_ast or ev.found_runtime) and not ev.found_in_openapi:
-                for wr in ev.write_endpoints:
-                    method, path = self._parse_endpoint_string(wr)
-                    if method not in ("PUT", "PATCH", "POST"):
-                        continue
-
-                    test_value = 88888 if "salary" in ev.property.lower() else "hidden_injected"
-                    payload = self._generate_baseline_payload(
-                        ev.object_name, ev.property, test_value
-                    )
-
-                    test_path = self._resolve_path(path, self.uuid_alice)
-                    headers = self.headers_matrix.get("userA", {})
-
-                    status, text, json_data = self._send_request(
-                        method, test_path, headers, payload
-                    )
-
-                    if status and 200 <= status < 300:
-                        evidence_msg = [
-                            f"Iniezione di proprietà nascosta '{ev.property}' tentata via {method}.",
-                            "Proprietà assente nella documentazione OpenAPI ma presente nel codice sorgente/AST.",
-                            f"Server ha accettato la richiesta (status {status}).",
-                        ]
-
-                        is_success = False
-                        if json_data and ev.property in self._extract_keys_recursive(json_data):
-                            is_success = True
-                            evidence_msg.append("Proprietà riflessa nella risposta.")
-
-                        for rd in ev.read_endpoints:
-                            rmethod, rpath = self._parse_endpoint_string(rd)
-                            if rmethod == "GET":
-                                gpath = self._resolve_path(rpath, self.uuid_alice)
-                                gstatus, _gtext, gjson = self._send_request("GET", gpath, headers)
-                                if gstatus == 200 and gjson and ev.property in gjson:
-                                    is_success = True
-                                    evidence_msg.append(
-                                        "Proprietà osservata persistita nella risposta GET."
-                                    )
-                                    break
-
-                        if is_success:
-                            findings.append(
-                                DynamicPropertyFinding(
-                                    test_id="T04",
-                                    endpoint=test_path,
-                                    method=method,
-                                    property_name=ev.property,
-                                    evidence=evidence_msg,
-                                    request=f"{method} {test_path} \nPayload: {payload}",
-                                    response=text,
-                                    response_code=status,
-                                    verified=True,
-                                    confidence=ev.confidence,
-                                )
-                            )
-
-        return findings
-
-    def run_t05(self) -> list[DynamicPropertyFinding]:
-        """
-        T05 - Read / Write Authorization Mismatch.
-        Checks if properties hidden from GET responses can still be modified by clients.
-        """
-        logger.info("Avvio BOPLA Test T05 - Read / Write Authorization Mismatch...")
-        findings = []
-
-        for ev in self.evidences:
-            # Property is writeable but NOT readable (not in read endpoints or GET responses)
-            if ev.write_endpoints and not ev.read_endpoints:
-                for wr in ev.write_endpoints:
-                    method, path = self._parse_endpoint_string(wr)
-                    if method not in ("PUT", "PATCH", "POST"):
-                        continue
-
-                    test_value = "mismatch_write_test"
-                    payload = self._generate_baseline_payload(
-                        ev.object_name, ev.property, test_value
-                    )
-
-                    test_path = self._resolve_path(path, self.uuid_alice)
-                    headers = self.headers_matrix.get("userA", {})
-
-                    status, text, _json_data = self._send_request(
-                        method, test_path, headers, payload
-                    )
-
-                    if status and 200 <= status < 300:
-                        evidence_msg = [
-                            f"Rilevata proprietà '{ev.property}' scrivibile ({method}) ma non associata ad operazioni di lettura.",
-                            f"Server ha accettato la modifica con status {status}.",
-                            "Questa discrepanza indica un potenziale bypass autorizzativo/mismatch di visibilità.",
-                        ]
+                if status and 200 <= status < 300 and json_data:
+                    if ev.property in self._extract_keys_recursive(json_data):
                         findings.append(
                             DynamicPropertyFinding(
-                                test_id="T05",
+                                test_id="T01",
                                 endpoint=test_path,
-                                method=method,
+                                method="GET",
                                 property_name=ev.property,
-                                evidence=evidence_msg,
-                                request=f"{method} {test_path} \nPayload: {payload}",
+                                evidence=[
+                                    "Proprietà inferita come protetta (contesto autorizzativo nel codice).",
+                                    f"Proprietà '{ev.property}' restituita nella risposta GET per l'utente standard userA.",
+                                    f"Contesti autorizzativi noti: {ev.authorization_contexts}",
+                                ],
+                                request=f"GET {test_path} \nHeaders: {headers}",
                                 response=text,
                                 response_code=status,
                                 verified=True,
                                 confidence=ev.confidence,
                             )
                         )
+        return findings
 
+    def run_t02(self) -> list[DynamicPropertyFinding]:
+        """
+        T02 - Unauthorized Property Modification.
+        A standard user changes a protected property and the change is persisted.
+        """
+        logger.info("Avvio BOPLA Test T02 - Unauthorized Property Modification...")
+        findings = []
+        for ev in self.evidences:
+            if not (self._testable(ev) and self._is_protected(ev, "write")):
+                continue
+            for wr in self._object_endpoints(ev.object_name, WRITE_METHODS):
+                finding = self._attempt_write(
+                    "T02",
+                    ev,
+                    wr,
+                    self._marker(ev.property, "T02", 999999),
+                    [
+                        f"Modifica della proprietà protetta '{ev.property}' tentata dall'utente standard."
+                    ],
+                )
+                if finding:
+                    findings.append(finding)
+        return findings
+
+    def run_t03(self) -> list[DynamicPropertyFinding]:
+        """
+        T03 - Mass Assignment.
+        Injects fields that clients do not normally send (present in code, absent from the
+        contract) or protected fields into the object's write operations.
+        """
+        logger.info("Avvio BOPLA Test T03 - Mass Assignment...")
+        findings = []
+        for ev in self.evidences:
+            undocumented = ev.found_in_ast and not ev.found_in_openapi
+            if not self._testable(ev) or not (undocumented or self._is_protected(ev, "write")):
+                continue
+            for wr in self._object_endpoints(ev.object_name, WRITE_METHODS):
+                finding = self._attempt_write(
+                    "T03",
+                    ev,
+                    wr,
+                    self._marker(ev.property, "T03", 99999),
+                    [f"Mass assignment tentata sulla proprietà '{ev.property}'."],
+                )
+                if finding:
+                    findings.append(finding)
+        return findings
+
+    def run_t04(self) -> list[DynamicPropertyFinding]:
+        """
+        T04 - Hidden Property Injection.
+        Injects properties seen in code or traffic but absent from the contract.
+        """
+        logger.info("Avvio BOPLA Test T04 - Hidden Property Injection...")
+        findings = []
+        for ev in self.evidences:
+            if not self._testable(ev):
+                continue
+            if not ((ev.found_in_ast or ev.found_runtime) and not ev.found_in_openapi):
+                continue
+            for wr in self._object_endpoints(ev.object_name, WRITE_METHODS):
+                finding = self._attempt_write(
+                    "T04",
+                    ev,
+                    wr,
+                    self._marker(ev.property, "T04", 88888),
+                    [
+                        f"Iniezione della proprietà non documentata '{ev.property}'.",
+                        "Proprietà assente dal contratto OpenAPI ma presente nel codice o nel traffico.",
+                    ],
+                )
+                if finding:
+                    findings.append(finding)
+        return findings
+
+    def run_t05(self) -> list[DynamicPropertyFinding]:
+        """
+        T05 - Read / Write Authorization Mismatch.
+        A property never returned to clients can still be modified by a standard user.
+        """
+        logger.info("Avvio BOPLA Test T05 - Read / Write Authorization Mismatch...")
+        findings = []
+        for ev in self.evidences:
+            if not self._testable(ev) or not (ev.write_endpoints and not ev.read_endpoints):
+                continue
+            for wr in ev.write_endpoints:
+                method, _path = self._parse_endpoint_string(wr)
+                if method not in WRITE_METHODS:
+                    continue
+                finding = self._attempt_write(
+                    "T05",
+                    ev,
+                    wr,
+                    self._marker(ev.property, "T05", 77777),
+                    [
+                        f"Proprietà '{ev.property}' scrivibile ({method}) ma mai restituita nelle letture osservate.",
+                    ],
+                )
+                if finding:
+                    findings.append(finding)
         return findings
 
     def run_t06(self) -> list[DynamicPropertyFinding]:
         """
         T06 - Differential Response Analysis.
-        Compares GET responses between a standard user (userA) and admin user (userC).
+        Compares the same GET for a standard user (userA) and an admin (userC). A protected
+        property returned to both is a vulnerability; a property only the admin receives is the
+        expected outcome of a working control and is recorded as protected (verified=False).
         """
         logger.info("Avvio BOPLA Test T06 - Differential Response Analysis...")
         findings = []
 
-        # Gather all unique GET endpoints from evidences
-        get_endpoints = set()
-        for ev in self.evidences:
-            for rd in ev.read_endpoints:
-                method, path = self._parse_endpoint_string(rd)
-                if method == "GET":
-                    get_endpoints.add(path)
+        headers_user = self.headers_matrix.get("userA")
+        headers_admin = self.headers_matrix.get("userC")
+        if not headers_user or not headers_admin:
+            logger.warning(
+                "BOPLA T06: Credenziali userA o userC mancanti. Salto analisi differenziale."
+            )
+            return findings
 
-        for path in get_endpoints:
-            # We need both standard and admin tokens
-            headers_user = self.headers_matrix.get("userA")
-            headers_admin = self.headers_matrix.get("userC")
+        objects = sorted({ev.object_name for ev in self.evidences})
+        for obj in objects:
+            protected = {
+                ev.property: ev
+                for ev in self.evidences
+                if ev.object_name == obj and self._testable(ev) and self._is_protected(ev, "read")
+            }
+            for rd in self._object_endpoints(obj, ("GET",)):
+                _method, path = self._parse_endpoint_string(rd)
+                test_path = self._resolve_path(path, self.uuid_alice)
+                status_u, _tu, json_u = self._send_request("GET", test_path, headers_user)
+                status_a, _ta, json_a = self._send_request("GET", test_path, headers_admin)
+                if not (status_u == 200 and status_a == 200 and json_u and json_a):
+                    continue
 
-            if not headers_user or not headers_admin:
-                logger.warning(
-                    "BOPLA T06: Credenziali userA o userC mancanti. Salto analisi differenziale."
-                )
-                break
-
-            # Test using Alice's resource
-            path_user = self._resolve_path(path, self.uuid_alice)
-            # Admin accesses Alice's resource
-            path_admin = self._resolve_path(path, self.uuid_alice)
-
-            status_u, _text_u, json_u = self._send_request("GET", path_user, headers_user)
-            status_a, _text_a, json_a = self._send_request("GET", path_admin, headers_admin)
-
-            if status_u == 200 and status_a == 200 and json_u and json_a:
                 keys_u = self._extract_keys_recursive(json_u)
                 keys_a = self._extract_keys_recursive(json_a)
+                response = f"User Keys: {sorted(keys_u)}\nAdmin Keys: {sorted(keys_a)}"
 
-                diff_keys = keys_a - keys_u
-                if diff_keys:
-                    # Mismatch found: admin gets more properties
-                    for diff_prop in diff_keys:
-                        evidence_msg = [
-                            f"Analisi differenziale completata per endpoint GET {path_user}.",
-                            f"L'amministratore (userC) riceve le seguenti proprietà aggiuntive: {list(diff_keys)}.",
-                            f"Proprietà '{diff_prop}' non è visibile per l'utente standard userA.",
-                        ]
-                        # Verify if this property has high confidence of being protected
-                        # Finding is valid as structural information mapping
+                for prop, ev in protected.items():
+                    if prop in keys_u and prop in keys_a:
                         findings.append(
                             DynamicPropertyFinding(
                                 test_id="T06",
-                                endpoint=path_user,
+                                endpoint=test_path,
                                 method="GET",
-                                property_name=diff_prop,
-                                evidence=evidence_msg,
-                                request=f"GET {path_user} (User vs Admin)",
-                                response=f"User Keys: {list(keys_u)}\nAdmin Keys: {list(keys_a)}",
+                                property_name=prop,
+                                evidence=[
+                                    f"Analisi differenziale su GET {test_path}.",
+                                    f"La proprietà protetta '{prop}' è restituita sia all'amministratore sia all'utente standard.",
+                                ],
+                                request=f"GET {test_path} (User vs Admin)",
+                                response=response,
                                 response_code=200,
                                 verified=True,
-                                confidence=0.5,
+                                confidence=ev.confidence,
                             )
                         )
 
+                for prop in sorted(keys_a - keys_u):
+                    findings.append(
+                        DynamicPropertyFinding(
+                            test_id="T06",
+                            endpoint=test_path,
+                            method="GET",
+                            property_name=prop,
+                            evidence=[
+                                f"Analisi differenziale su GET {test_path}.",
+                                f"La proprietà '{prop}' è restituita solo all'amministratore: visibilità differenziata come atteso.",
+                            ],
+                            request=f"GET {test_path} (User vs Admin)",
+                            response=response,
+                            response_code=200,
+                            verified=False,
+                            confidence=protected[prop].confidence if prop in protected else 0.0,
+                        )
+                    )
         return findings
 
     def run_t07(self) -> list[DynamicPropertyFinding]:
         """
         T07 - Differential Update Analysis.
-        Compares update authorization levels between standard and admin users.
+        The admin and the standard user write the same protected property with different
+        markers; the defect is confirmed only if the user's value is the one persisted.
         """
         logger.info("Avvio BOPLA Test T07 - Differential Update Analysis...")
         findings = []
 
+        headers_user = self.headers_matrix.get("userA")
+        headers_admin = self.headers_matrix.get("userC")
+        if not headers_user or not headers_admin:
+            logger.warning(
+                "BOPLA T07: Credenziali userA o userC mancanti. Analisi differenziale di scrittura saltata."
+            )
+            return findings
+
         for ev in self.evidences:
-            if ev.confidence >= self.confidence_threshold or ev.authorization_contexts:
-                for wr in ev.write_endpoints:
-                    method, path = self._parse_endpoint_string(wr)
-                    if method not in ("PUT", "PATCH", "POST"):
-                        continue
+            if not (self._testable(ev) and self._is_protected(ev, "write")):
+                continue
+            for wr in self._object_endpoints(ev.object_name, WRITE_METHODS):
+                method, path = self._parse_endpoint_string(wr)
+                test_path = self._resolve_path(path, self.uuid_alice)
+                value_admin = self._marker(ev.property, "T07A", 70001)
+                value_user = self._marker(ev.property, "T07U", 70002)
+                payload_admin = self._generate_baseline_payload(
+                    ev.object_name, ev.property, value_admin
+                )
+                payload_user = self._generate_baseline_payload(
+                    ev.object_name, ev.property, value_user
+                )
 
-                    headers_user = self.headers_matrix.get("userA")
-                    headers_admin = self.headers_matrix.get("userC")
+                status_a, _ta, _ja = self._send_request(
+                    method, test_path, headers_admin, payload_admin
+                )
+                admin_persisted = self._read_back(ev.object_name, ev.property, value_admin)
+                status_u, _tu, _ju = self._send_request(
+                    method, test_path, headers_user, payload_user
+                )
+                user_persisted = (
+                    self._read_back(ev.object_name, ev.property, value_user)
+                    if status_u and 200 <= status_u < 300
+                    else None
+                )
 
-                    if not headers_user or not headers_admin:
-                        logger.warning(
-                            "BOPLA T07: Credenziali userA o userC mancanti. Analisi differenziale di scrittura saltata."
-                        )
-                        break
-
-                    test_value_admin = "admin_update_t07"
-                    test_value_user = "user_update_t07"
-
-                    payload_admin = self._generate_baseline_payload(
-                        ev.object_name, ev.property, test_value_admin
+                if status_a is None and status_u is None:
+                    continue  # no response at all: nothing was tested, nothing to record
+                evidence = [
+                    f"Analisi differenziale di scrittura su {method} {test_path}, proprietà '{ev.property}'.",
+                    f"Amministratore: stato {status_a}, valore {'persistito' if admin_persisted else 'non persistito'}.",
+                    f"Utente standard: stato {status_u}, valore {'persistito' if user_persisted else 'non persistito'}.",
+                ]
+                findings.append(
+                    DynamicPropertyFinding(
+                        test_id="T07",
+                        endpoint=test_path,
+                        method=method,
+                        property_name=ev.property,
+                        evidence=evidence,
+                        request=f"Payload Admin: {payload_admin}\nPayload User: {payload_user}",
+                        response=f"Admin Status: {status_a}, User Status: {status_u}",
+                        response_code=status_u,
+                        verified=bool(user_persisted),
+                        confidence=ev.confidence,
                     )
-                    payload_user = self._generate_baseline_payload(
-                        ev.object_name, ev.property, test_value_user
-                    )
-
-                    test_path = self._resolve_path(path, self.uuid_alice)
-
-                    # 1. Test Admin modification
-                    status_a, _text_a, _json_a = self._send_request(
-                        method, test_path, headers_admin, payload_admin
-                    )
-                    # 2. Test User modification
-                    status_u, _text_u, _json_u = self._send_request(
-                        method, test_path, headers_user, payload_user
-                    )
-
-                    # Analyze outcome
-                    # If standard user succeeds (2xx) and admin succeeds (2xx):
-                    if status_u and 200 <= status_u < 300:
-                        # Standard user modified it successfully
-                        evidence_msg = [
-                            f"Analisi differenziale di scrittura completata per {method} {test_path} su proprietà '{ev.property}'.",
-                            f"L'amministratore risponde con codice {status_a}.",
-                            f"L'utente standard userA risponde con codice {status_u} (modifica accettata).",
-                            "Mancanza di controlli autorizzativi differenziali sul livello di scrittura della proprietà.",
-                        ]
-                        findings.append(
-                            DynamicPropertyFinding(
-                                test_id="T07",
-                                endpoint=test_path,
-                                method=method,
-                                property_name=ev.property,
-                                evidence=evidence_msg,
-                                request=f"Payload Admin: {payload_admin}\nPayload User: {payload_user}",
-                                response=f"Admin Status: {status_a}, User Status: {status_u}",
-                                response_code=status_u,
-                                verified=True,
-                                confidence=ev.confidence,
-                            )
-                        )
-                    else:
-                        # User was blocked (e.g. 403 or 401), and admin succeeded. This is secure!
-                        evidence_msg = [
-                            f"Analisi differenziale di scrittura completata per {method} {test_path} su proprietà '{ev.property}'.",
-                            f"L'utente standard userA è stato correttamente respinto con codice {status_u}.",
-                            f"L'amministratore (userC) ha modificato con successo con codice {status_a}.",
-                        ]
-                        findings.append(
-                            DynamicPropertyFinding(
-                                test_id="T07",
-                                endpoint=test_path,
-                                method=method,
-                                property_name=ev.property,
-                                evidence=evidence_msg,
-                                request=f"Payload Admin: {payload_admin}\nPayload User: {payload_user}",
-                                response=f"Admin Status: {status_a}, User Status: {status_u}",
-                                response_code=status_u,
-                                verified=False,
-                                confidence=ev.confidence,
-                            )
-                        )
-
+                )
         return findings

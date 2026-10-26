@@ -39,6 +39,20 @@ def _find_semgrep() -> str:
     return ""
 
 
+def _get_semgrep_env() -> dict:
+    """Provides a safe environment for Semgrep with a writable HOME directory."""
+    env = os.environ.copy()
+    project_root = Path(__file__).resolve().parent.parent.parent.parent
+    tmp_dir = project_root / ".tmp"
+    try:
+        tmp_dir.mkdir(exist_ok=True)
+        if "HOME" not in env or not os.access(env.get("HOME", ""), os.W_OK):
+            env["HOME"] = str(tmp_dir)
+    except Exception:
+        pass
+    return env
+
+
 def check_semgrep_available() -> str:
     """
     Verifica che semgrep sia installato e ritorna la versione.
@@ -50,7 +64,9 @@ def check_semgrep_available() -> str:
             "Semgrep non trovato. Installare con: pip install semgrep\n"
             "Documentazione: https://semgrep.dev/docs/getting-started/"
         )
-    result = subprocess.run([semgrep_path, "--version"], capture_output=True, text=True)
+    result = subprocess.run(
+        [semgrep_path, "--version"], capture_output=True, text=True, env=_get_semgrep_env()
+    )
     return result.stdout.strip()
 
 
@@ -75,7 +91,7 @@ def run_semgrep(target_path: str, rules_path: str, timeout: int = 60) -> dict:
     Note:
         - Usa --json per output strutturato
         - Usa --no-git-ignore per analizzare tutto il target
-        - Usa --timeout per singolo file (non totale)
+        - Usa --timeout per singolo file (not totale)
         - Semgrep ritorna exit code 1 se trova findings — non è un errore
     """
     semgrep_path = _find_semgrep()
@@ -105,6 +121,7 @@ def run_semgrep(target_path: str, rules_path: str, timeout: int = 60) -> dict:
             capture_output=True,
             text=True,
             timeout=timeout,  # timeout totale del processo
+            env=_get_semgrep_env(),
         )
     except subprocess.TimeoutExpired as exc:
         raise SemgrepTimeoutError(

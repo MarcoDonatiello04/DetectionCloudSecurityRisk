@@ -1,0 +1,67 @@
+# Registro dei bersagli esterni (insieme di prova, vedi validation/PROTOCOLLO.md).
+#
+# Letto dalla sezione "Bersagli esterni" della dashboard (/external-targets). Ogni bersaglio
+# gira in una dashboard dedicata, su una porta propria, con bersaglio, URL e cartella dei report
+# fissati all'avvio: gli stessi parametri dei target `make dashboard-<bersaglio>`.
+#
+# Campi:
+#   label           nome mostrato nella pagina
+#   target_dir      codice analizzato da tutti i moduli (TARGET_DIR)
+#   base_url        applicazione in esecuzione per i moduli dinamici (TARGET_BASE_URL)
+#   output_dir      cartella dei report del bersaglio (OUTPUT_DIR)
+#   bola_config     contratto della BOLA dinamica (BOLA_TARGET_CONFIG)
+#   port            porta della dashboard dedicata
+#   compose_dir     cartella con il docker-compose dell'applicazione (assente: nessuna app)
+#   compose_build   true se l'avvio richiede `--build`
+#   compose_overrides file di override di docker compose (percorsi dalla radice del progetto)
+#   traffic         true se esiste il traffico di esercizio (make traffico-esercizio)
+#   note            avvertenza mostrata nella pagina
+
+version: 1
+targets:
+  vampi:
+    label: VAmPI (modalità vulnerabile)
+    target_dir: data/test_targets/external/vampi
+    base_url: http://localhost:5002
+    output_dir: output/external/vampi
+    bola_config: config/targets/vampi_bola.yaml
+    port: 8101
+    compose_dir: data/test_targets/external/vampi
+    compose_build: false
+    traffic: true
+    note: Lo stesso docker-compose avvia anche la modalità sicura (porta 5001).
+
+  vampi_sicuro:
+    label: VAmPI (modalità sicura)
+    target_dir: data/test_targets/external/vampi
+    base_url: http://localhost:5001
+    output_dir: output/external/vampi_sicuro
+    bola_config: config/targets/vampi_sicuro_bola.yaml
+    port: 8102
+    compose_dir: data/test_targets/external/vampi
+    compose_build: false
+    traffic: true
+    note: Stesso codice della modalità vulnerabile; il confronto vale solo per il livello dinamico.
+
+  dvapi:
+    label: DVAPI
+    target_dir: data/test_targets/external/dvapi
+    base_url: http://localhost:3000
+    output_dir: output/external/dvapi
+    bola_config: config/targets/dvapi_bola.yaml
+    port: 8103
+    compose_dir: data/test_targets/external/dvapi
+    compose_build: true
+    compose_overrides: [config/targets/dvapi.compose.override.yml]
+    traffic: true
+    note: Avvia anche MongoDB (porta 27017). Limiti noti nel protocollo, sezione 7.
+
+  sadcloud:
+    label: sadcloud (solo Terraform)
+    target_dir: data/test_targets/external/sadcloud
+    base_url: http://127.0.0.1:9
+    output_dir: output/external/sadcloud
+    bola_config: config/bola_target.yaml
+    port: 8104
+    traffic: false
+    note: Nessuna applicazione in esecuzione; solo la scansione statica (/scan).

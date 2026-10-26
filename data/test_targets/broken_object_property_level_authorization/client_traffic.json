@@ -1,0 +1,12 @@
+[
+  {
+    "method": "GET",
+    "path": "/api/users/alice",
+    "response_body": {"id": "alice", "name": "Alice", "email": "alice@example.com"}
+  },
+  {
+    "method": "PUT",
+    "path": "/api/users/alice",
+    "body_params": {"name": "Alice", "email": "alice@example.com", "role": "user"}
+  }
+]

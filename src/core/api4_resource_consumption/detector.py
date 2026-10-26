@@ -1,5 +1,6 @@
 from typing import Any
 
+from src.core.api4_resource_consumption.correlation import correlate
 from src.core.api4_resource_consumption.layers.layer1_ast import analyze_ast
 from src.core.api4_resource_consumption.layers.layer2_config import (
     analyze_configs as analyze_config,
@@ -29,12 +30,15 @@ def _build_summary(
         "severity": {"HIGH": 0, "MEDIUM": 0, "LOW": 0, "INFO": 0},
         "category": {},
         "layer": {"ast": 0, "config": 0, "openapi": 0},
+        "correlation": {"corroborated": 0, "compensated": 0, "derived": 0},
     }
     for f in findings:
         sev = f.severity.upper()
         summary["severity"][sev] = summary["severity"].get(sev, 0) + 1
         summary["category"][f.category] = summary["category"].get(f.category, 0) + 1
         summary["layer"][f.layer] = summary["layer"].get(f.layer, 0) + 1
+        if f.correlation:
+            summary["correlation"][f.correlation] += 1
     return summary
 
 
@@ -54,7 +58,8 @@ def analyze(
                       x-security-analysis extension fields to the spec in-place.
 
     Returns:
-        ResourceConsumptionReport containing aggregated findings from all layers.
+        ResourceConsumptionReport containing the findings of all layers, correlated
+        across layers (corroborated / compensated / derived) and the list of links.
     """
     findings: list[ResourceConsumptionFinding] = []
 
@@ -71,9 +76,13 @@ def analyze(
         openapi_findings = analyze_openapi(openapi_spec, enrich_spec=enrich_spec)
         findings.extend(openapi_findings)
 
+    # Cross-layer correlation: corroborate, compensate, derive (see correlation.py)
+    correlations = correlate(findings, target_path, openapi_spec)
+
     return ResourceConsumptionReport(
         target_path=target_path,
         findings=findings,
         coverage_signals=_build_coverage_signals(findings),
         summary=_build_summary(findings),
+        correlations=correlations,
     )

@@ -1,0 +1,65 @@
+[
+  {
+    "name": "BOPLA (Broken Object Property Level Access)",
+    "dir": "src/core/api3_bopla",
+    "time": 0.03895711898803711,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "BOLA (Broken Object Level Authorization)",
+    "dir": "src/core/api1_bola",
+    "time": 27.92842197418213,
+    "status": "SUCCESS",
+    "findings": 1
+  },
+  {
+    "name": "BOLA statica (Broken Object Level Authorization)",
+    "dir": "src/core/api1_bola",
+    "time": 0.04703998565673828,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "Broken Authentication",
+    "dir": "src/core/api2_broken_auth",
+    "time": 0.5251128673553467,
+    "status": "SUCCESS",
+    "findings": 1
+  },
+  {
+    "name": "BFLA (Broken Function Level Authorization)",
+    "dir": "src/core/api5_bfla",
+    "time": 0.008142948150634766,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "Security Misconfiguration",
+    "dir": "src/core/api8_security_misconfig",
+    "time": 0.018050670623779297,
+    "status": "SUCCESS",
+    "findings": 5
+  },
+  {
+    "name": "SSRF (Server Side Request Forgery)",
+    "dir": "src/core/api7_ssrf",
+    "time": 1.0658533573150635,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "Unrestricted Resource Consumption",
+    "dir": "src/core/api4_resource_consumption",
+    "time": 0.014248847961425781,
+    "status": "SUCCESS",
+    "findings": 3
+  },
+  {
+    "name": "Unsafe Consumption",
+    "dir": "src/core/api10_unsafe_consumption",
+    "time": 0.006846904754638672,
+    "status": "SUCCESS",
+    "findings": 0
+  }
+]

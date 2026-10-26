@@ -1,0 +1,11 @@
+# Override di docker compose per DVAPI, applicato dalla sezione "Bersagli esterni".
+#
+# Il docker-compose originale fissa i nomi dei container a `nodejs` e `mongodb`, già usati da
+# altri stack su questa macchina (il MongoDB di crAPI). L'override cambia solo i nomi dei
+# container: i nomi dei servizi, con cui l'applicazione raggiunge il database, restano
+# `nodejs` e `mongodb`. Il bersaglio non viene modificato (validation/PROTOCOLLO.md).
+services:
+  nodejs:
+    container_name: dvapi-nodejs
+  mongodb:
+    container_name: dvapi-mongodb

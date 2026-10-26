@@ -737,6 +737,7 @@
                 <!-- Tab Buttons -->
                 <div class="tabs-container" id="findings-tabs">
                     <button class="tab-btn active" data-tab="bola" id="tab-bola-btn">BOLA</button>
+                    <button class="tab-btn" data-tab="bola_static">BOLA statica</button>
                     <button class="tab-btn" data-tab="bopla">BOPLA</button>
                     <button class="tab-btn" data-tab="broken_authentication">Broken Auth</button>
                     <button class="tab-btn" data-tab="bfla">BFLA</button>
@@ -746,11 +747,18 @@
                     <button class="tab-btn" data-tab="unsafe_consumption">Unsafe Consumption</button>
                 </div>
 
+                <!-- Bersaglio della sessione (fissato all'avvio della dashboard) -->
+                <div id="target-banner" style="margin: 8px 0 12px; padding: 8px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 0.8rem; color: var(--text-secondary);">Bersaglio: caricamento...</div>
                 <!-- Tab Contents -->
                 <div class="tabs-contents-wrapper">
                     <div class="tab-content active" id="tab-content-bola">
                         <div class="findings-list" id="list-bola">
                             <!-- BOLA findings here -->
+                        </div>
+                    </div>
+                    <div class="tab-content" id="tab-content-bola_static">
+                        <div class="findings-list" id="list-bola_static">
+                            <!-- BOLA static findings here -->
                         </div>
                     </div>
                     <div class="tab-content" id="tab-content-bopla">
@@ -853,7 +861,29 @@
             // Parse query parameters
             const urlParams = new URLSearchParams(window.location.search);
             const scanType = urlParams.get('scan_type') || 'non-bola';
-            const isFullScan = scanType === 'all';
+
+            // ?target=<id>: mostra l'ultima scansione salvata del bersaglio, senza rilanciarla
+            const viewTarget = urlParams.get('target');
+            let saved = null;
+            if (viewTarget) {
+                try {
+                    const resp = await fetch(`/api/targets/${encodeURIComponent(viewTarget)}/findings`);
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    saved = await resp.json();
+                } catch (err) {
+                    console.error('Errore nel caricamento della scansione salvata:', err);
+                    loaderArea.style.display = 'none';
+                    resultsArea.style.display = 'block';
+                    scanTitle.textContent = 'Risultati non disponibili';
+                    document.getElementById('modules-container').innerHTML =
+                        `<p style="grid-column: 1/-1; color: var(--text-secondary);">Impossibile caricare i risultati del bersaglio "${escapeHtml(viewTarget)}".</p>`;
+                    return;
+                }
+            }
+            const bolaExecuted = saved
+                ? saved.modules.some(m => m.name.startsWith('BOLA (') && m.status !== 'SKIPPED')
+                : false;
+            const isFullScan = saved ? bolaExecuted : scanType === 'all';
 
             // Configure Active Tab and Warning Banner dynamically
             // Prima rimuovi tutti gli stati active di default
@@ -884,6 +914,32 @@
                 document.getElementById('tab-content-bola').style.display = 'none';
                 document.querySelector('.tab-btn[data-tab="bopla"]').classList.add('active');
                 document.getElementById('tab-content-bopla').classList.add('active');
+            }
+
+            if (saved) {
+                const stamp = saved.generated_at
+                    ? new Date(saved.generated_at).toLocaleString('it-IT', {
+                        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                    })
+                    : 'data non disponibile';
+                scanTitle.textContent = `Ultima scansione · ${saved.label}`;
+                warningText.innerHTML = `
+                    <div class="warning-banner-title">Risultati salvati del ${escapeHtml(stamp)}</div>
+                    Scansione ${bolaExecuted ? '<strong>completa con BOLA</strong>' : '<strong>rapida</strong> (BOLA non eseguito)'} letta da <code>${escapeHtml(saved.output_dir)}</code>.
+                    Per aggiornarla rilancia la scansione dalla Panoramica della dashboard.
+                `;
+                document.getElementById('target-banner').textContent =
+                    `Bersaglio: ${saved.target_dir}  ·  contratto: ${saved.openapi_spec || 'nessuno'}  ·  URL: ${saved.target_base_url}  ·  report: ${saved.output_dir}`;
+                loaderArea.style.display = 'none';
+                resultsArea.style.display = 'block';
+                if (!saved.modules.length) {
+                    document.getElementById('modules-container').innerHTML =
+                        '<p style="grid-column: 1/-1; color: var(--text-secondary);">Nessuna scansione salvata per questo bersaglio.</p>';
+                    return;
+                }
+                renderBenchmarkReport(saved.modules);
+                renderFindingsLists(saved.findings, isFullScan);
+                return;
             }
 
             const logSteps = [
@@ -1020,11 +1076,19 @@
                 .replace(/'/g, "&#039;");
         }
 
+        fetch('/api/target').then(r => r.json()).then(t => {
+            const el = document.getElementById('target-banner');
+            // Con ?target= il banner descrive il bersaglio della scansione salvata
+            if (!el || new URLSearchParams(window.location.search).get('target')) return;
+            el.textContent = `Bersaglio: ${t.target_dir}  ·  contratto: ${t.openapi_spec || 'nessuno'}  ·  URL: ${t.target_base_url} (${t.target_reachable ? 'raggiungibile' : 'non raggiungibile'})  ·  report: ${t.output_dir}`;
+        }).catch(() => {});
+
         function renderFindingsLists(findingsMap, isFullScan) {
             if (!findingsMap) return;
 
             const modules = [
                 { id: 'bola', name: 'BOLA' },
+                { id: 'bola_static', name: 'BOLA statica' },
                 { id: 'bopla', name: 'BOPLA' },
                 { id: 'broken_authentication', name: 'Broken Authentication' },
                 { id: 'bfla', name: 'BFLA' },
@@ -1045,7 +1109,7 @@
                 const tabBtn = document.querySelector(`.tab-btn[data-tab="${mod.id}"]`);
                 if (tabBtn) {
                     const isActive = tabBtn.classList.contains('active');
-                    let displayName = mod.id === 'broken_authentication' ? 'Broken Auth' : mod.id === 'security_misconfiguration' ? 'Security Misconfig' : mod.id === 'unrestricted_resource_consumption' ? 'Resource Consumption' : mod.id === 'unsafe_consumption' ? 'Unsafe Consumption' : mod.id.toUpperCase();
+                    let displayName = mod.id === 'broken_authentication' ? 'Broken Auth' : mod.id === 'security_misconfiguration' ? 'Security Misconfig' : mod.id === 'unrestricted_resource_consumption' ? 'Resource Consumption' : mod.id === 'unsafe_consumption' ? 'Unsafe Consumption' : mod.id === 'bola_static' ? 'BOLA statica' : mod.id.toUpperCase();
                     // Per BOLA: mostra solo le vulnerabilità reali nel badge, non tutti i test
                     const badgeCount = mod.id === 'bola'
                         ? list.filter(f => f.is_vulnerable).length
@@ -1093,6 +1157,9 @@
                     }
                     if (f.missing_guard) {
                         extraRowsHtml += `<div class="finding-detail-row"><span class="finding-detail-lbl">Guardia Mancante:</span><span style="color:#ff3b30; font-family: monospace;">${f.missing_guard}</span></div>`;
+                    }
+                    if (f.endpoint && f.file_path) {
+                        extraRowsHtml += `<div class="finding-detail-row"><span class="finding-detail-lbl">Endpoint:</span><code>${escapeHtml(String(f.endpoint))}</code></div>`;
                     }
                     if (f.property_name) {
                         extraRowsHtml += `<div class="finding-detail-row"><span class="finding-detail-lbl">Proprietà:</span><code>${f.property_name}</code></div>`;

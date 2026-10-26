@@ -83,12 +83,18 @@ def _walk(node: Node, node_type: str, acc: list[Node]) -> None:
 
 
 def _get_attribute_chain(node: Node) -> list[str]:
-    if node.type == "identifier":
+    if node.type in ("identifier", "property_identifier", "shorthand_property_identifier"):
         return [_node_text(node)]
-    if node.type == "attribute":
+    if node.type in ("attribute", "member_expression"):
         parts: list[str] = []
         for child in node.children:
-            if child.type in ("identifier", "attribute"):
+            if child.type in (
+                "identifier",
+                "property_identifier",
+                "shorthand_property_identifier",
+                "attribute",
+                "member_expression",
+            ):
                 parts.extend(_get_attribute_chain(child))
         return parts
     return []
@@ -160,6 +166,8 @@ def _analyze_python(root: Node, file_path: str) -> list[ResourceConsumptionFindi
 def _is_js_graphql_call(call_node: Node) -> bool:
     func = call_node.child_by_field_name("function")
     if func is None:
+        func = call_node.child_by_field_name("constructor")
+    if func is None:
         return False
     chain = _get_attribute_chain(func)
     return bool(chain) and chain[-1] in JS_GRAPHQL_CONSTRUCTORS
@@ -181,7 +189,7 @@ def _analyze_javascript(root: Node, file_path: str) -> list[ResourceConsumptionF
                 continue
             if _js_call_has_protection(call):
                 continue
-            func = call.child_by_field_name("function")
+            func = call.child_by_field_name("function") or call.child_by_field_name("constructor")
             func_name = _node_text(func) if func else "GraphQLServer"
             findings.append(
                 ResourceConsumptionFinding(

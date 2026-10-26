@@ -29,12 +29,13 @@
 | RC-010 | CWE-400 | OpenAPI: param no maximum | OpenAPI | ✅ | ✅³ | ✅³ | **YES** |
 | RC-011 | CWE-770 | OpenAPI: upload no maxLength | OpenAPI | ✅ | ✅³ | ✅³ | **YES** |
 | RC-012 | CWE-799 | OpenAPI: costly endpoint unprotected | OpenAPI | ✅ | ✅³ | ✅³ | **YES** |
+| RC-013 | CWE-400 | OpenAPI: batch array no maxItems | OpenAPI | ✅ | ✅³ | ✅³ | **YES** |
 
 **Legenda:**
 - ✅ = verificato empiricamente
 - N/A = non applicabile (nessun GraphQL nel codebase fixture)
 - ¹ RC-004: unit test coprono strawberry/graphene/ApolloServer inline, non fixture file-based
-- ³ RC-010/011/012: verificati con spec inline nei test (non file esterni), per design del prompt 04
+- ³ RC-010/011/012/013: verificati con spec inline nei test (non file esterni), per design del prompt 04
 
 ---
 
@@ -45,7 +46,7 @@
 | **1. Unbounded Pagination & Loops** | CWE-400 | 25% | Implementata | YES (RC-001, RC-005, RC-010) | **25.0%** |
 | **2. Size Limits & Upload Restrictions** | CWE-770 | 25% | Implementata | YES (RC-002, RC-008, RC-011) | **25.0%** |
 | **3. HTTP & Connection Timeouts** | CWE-400 | 20% | Implementata | YES (RC-003, RC-009) | **20.0%** |
-| **4. Throttling & GraphQL Limits** | CWE-799 | 20% | Implementata | YES (RC-004, RC-006, RC-012) | **20.0%** |
+| **4. Throttling & GraphQL/Batch Limits** | CWE-799 | 20% | Implementata | YES (RC-004, RC-006, RC-012, RC-013) | **20.0%** |
 | **5. Config Resource Limits** | CWE-770 | 10% | Implementata | YES (RC-007) | **10.0%** |
 | **Totale** | | **100%** | | | **100.0%** |
 
@@ -56,12 +57,11 @@
 ### RC-004 — GraphQL Batching (Verificato su fixture)
 **Stato**: Completamente implementato e verificato empiricamente con le fixture `graphql_app.py` in `vulnerable_app` e `secure_app`.
 
+### JS rule coverage (axios/ApolloServer) & Tree-sitter 0.25 — RISOLTO ✅
+**Stato**: Risolto con successo. Tutti i test (FastAPI `typed_default_parameter` con campo `value`, Axios JS `member_expression`/`property_identifier`, ApolloServer `new_expression` con `constructor`) sono stati abilitati e superati al 100% (0 skipped).
 
-### JS rule coverage (axios/ApolloServer)
-**Causa**: 3 test skippati relativi a JS (`member_expression` usa `property_identifier` non
-`identifier` in tree-sitter 0.25). La detection JS è funzionale per i pattern Python.
-
-**Priorità**: LOW — tree-sitter aggiornamento risolverebbe automaticamente.
+### Estensioni Loop Bounds (RC-005) & Batch Payload (RC-013) — IMPLEMENTATO ✅
+**Stato**: Aggiunto supporto a `while` loops, comprensioni Python (`list_comprehension`, ecc.), iterazioni JS (`forEach`, `map`) e vincolo `maxItems` per array JSON in contratti OpenAPI.
 
 ---
 

@@ -25,6 +25,7 @@ GROUND_TRUTH: dict[str, dict[str, Any]] = {
             {"rule_id": "BF-004", "must_find": True},
             {"rule_id": "BF-005", "must_find": True},
             {"rule_id": "BF-006", "must_find": True},
+            {"rule_id": "BF-007", "must_find": True},
         ]
     },
     "secure_app": {

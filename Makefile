@@ -1,4 +1,4 @@
-.PHONY: install lint format test check setup-env iac-analysis api-security bola-repo-target semgrep-repo-target spectral-repo-target stop-dashboard dashboard clean
+.PHONY: install lint format test check setup-env iac-analysis api-security bola-repo-target semgrep-repo-target spectral-repo-target stop-dashboard dashboard clean dashboard-vampi dashboard-vampi-sicuro dashboard-dvapi dashboard-sadcloud traffico-esercizio bersagli-esterni
 
 PY := .venv/bin/python
 
@@ -84,6 +84,41 @@ dashboard: stop-dashboard
 	@echo "🚀 starting Security Dashboard on http://localhost:$(DASHBOARD_PORT)"
 	@PYTHONPATH=. .venv/bin/uvicorn src.presentation.api.server:app --host 0.0.0.0 --port $(DASHBOARD_PORT) --reload
 
+
+## ── Validazione su bersagli esterni (insieme di prova, vedi validation/PROTOCOLLO.md) ──
+## Ogni dashboard lavora su UN bersaglio: codice, contratto, URL e cartella dei report
+## sono fissati all'avvio. Niente --reload: il bersaglio non deve cambiare a scansione in corso.
+EXT := data/test_targets/external
+define run_dashboard_target
+	@echo "🎯 Bersaglio: $(1)  |  URL: $(2)  |  report: $(3)"
+	@mkdir -p $(3)
+	@TARGET_DIR=$(1) TARGET_BASE_URL=$(2) OUTPUT_DIR=$(3) BOLA_TARGET_CONFIG=$(4) \
+		PYTHONPATH=. .venv/bin/uvicorn src.presentation.api.server:app --host 0.0.0.0 --port $(DASHBOARD_PORT)
+endef
+
+dashboard-vampi: stop-dashboard
+	$(call run_dashboard_target,$(EXT)/vampi,http://localhost:5002,output/external/vampi,config/targets/vampi_bola.yaml)
+
+dashboard-vampi-sicuro: stop-dashboard
+	$(call run_dashboard_target,$(EXT)/vampi,http://localhost:5001,output/external/vampi_sicuro,config/targets/vampi_sicuro_bola.yaml)
+
+dashboard-dvapi: stop-dashboard
+	$(call run_dashboard_target,$(EXT)/dvapi,http://localhost:3000,output/external/dvapi,config/targets/dvapi_bola.yaml)
+
+## sadcloud e' solo Terraform: nessuna applicazione in esecuzione (URL volutamente irraggiungibile)
+dashboard-sadcloud: stop-dashboard
+	$(call run_dashboard_target,$(EXT)/sadcloud,http://127.0.0.1:9,output/external/sadcloud,config/bola_target.yaml)
+
+## Sezione "Bersagli esterni": dashboard principale aperta sulla pagina da cui si preparano
+## (app, traffico, dashboard dedicata) e si archiviano tutti i bersagli con un clic.
+bersagli-esterni: stop-dashboard
+	@echo "🎯 Bersagli esterni: http://localhost:$(DASHBOARD_PORT)/external-targets"
+	@(sleep 3; open http://localhost:$(DASHBOARD_PORT)/external-targets >/dev/null 2>&1 || true) &
+	@PYTHONPATH=. .venv/bin/uvicorn src.presentation.api.server:app --host 0.0.0.0 --port $(DASHBOARD_PORT)
+
+## Traffico di esercizio per la BOLA dinamica (BERSAGLIO=vampi|vampi_sicuro|dvapi)
+traffico-esercizio:
+	@PYTHONPATH=. $(PY) entrypoints/operations/genera_traffico_esercizio.py $(BERSAGLIO)
 
 clean:
 	@echo "=> Cleaning up environment..."

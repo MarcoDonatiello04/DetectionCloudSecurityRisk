@@ -66,3 +66,46 @@ def load_openapi_spec(
         return endpoints
 
     return spec
+
+
+_OPENAPI_SKIP_DIRS = {"node_modules", "venv", ".venv", "__pycache__"}
+_OPENAPI_SKIP_FILES = {"openapi_merged_temp.yaml"}
+
+
+def find_openapi_spec_path(target_dir: str) -> str | None:
+    """
+    Cerca il contratto OpenAPI/Swagger dentro la directory del bersaglio.
+
+    Stesso criterio di riconoscimento di SpectralScannerAdapter (firma ``openapi:`` o
+    ``swagger:`` nei primi KB di un file YAML/JSON), ma con visita ordinata, cosi' che il
+    file scelto sia deterministico. Non ricade mai su contratti di altri bersagli: se il
+    bersaglio non ne contiene, ritorna None.
+
+    Args:
+        target_dir: Directory (o singolo file) del bersaglio.
+
+    Returns:
+        Il percorso del primo contratto trovato, oppure None.
+    """
+    if os.path.isfile(target_dir):
+        return target_dir if _looks_like_openapi(target_dir) else None
+    if not os.path.isdir(target_dir):
+        return None
+    for root, dirs, files in os.walk(target_dir):
+        dirs[:] = sorted(d for d in dirs if not d.startswith(".") and d not in _OPENAPI_SKIP_DIRS)
+        for name in sorted(files):
+            if name in _OPENAPI_SKIP_FILES or not name.endswith((".yaml", ".yml", ".json")):
+                continue
+            path = os.path.join(root, name)
+            if _looks_like_openapi(path):
+                return path
+    return None
+
+
+def _looks_like_openapi(path: str) -> bool:
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            head = f.read(4096)
+    except OSError:
+        return False
+    return any(sig in head for sig in ("openapi:", "swagger:", '"openapi":', '"swagger":'))

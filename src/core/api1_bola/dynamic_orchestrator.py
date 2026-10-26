@@ -56,7 +56,7 @@ from src.core.config import (
     ZAP_ACTIVE_SCAN_TIMEOUT_SECONDS,
     ZAP_POLL_INTERVAL_SECONDS,
 )
-from src.core.identity_context import DatabaseSeeder, IdentityManager
+from src.core.identity_context import _MOCK_UUIDS, DatabaseSeeder, IdentityManager
 from src.domain.entities import Finding
 from src.normalization.normalizer import APIEndpointNormalizer
 
@@ -107,6 +107,23 @@ class TargetUnreachableError(OrchestratorError):
     """Il target cooperante non risponde su /test/snapshot: la fase D-AST non puo' partire."""
 
     pass
+
+
+class FictitiousIdentityError(OrchestratorError):
+    """
+    Le identita' di attacco sono quelle fittizie di ripiego (Keycloak offline, token statici
+    assenti, traffico senza utenti riconoscibili): i test differenziali non direbbero nulla
+    del bersaglio, quindi con ``require_real_identities`` la scansione si ferma.
+    """
+
+    pass
+
+
+# UUID delle identita' fittizie generate dai ripieghi di IdentityManager e
+# OwnershipInferenceEngine: un test condotto con queste non e' un test sul bersaglio.
+_FICTITIOUS_UUIDS = frozenset(
+    {*_MOCK_UUIDS.values(), "mock-alice-uuid", "mock-bob-uuid", "mock-charlie-uuid"}
+)
 
 
 # ─── COSTANTI DI DOMINIO E CONFIGURAZIONE ───────────────────────────────────
@@ -614,6 +631,7 @@ class DynamicOrchestrator:
         cancel_event: threading.Event | None = None,
         target_config: BolaTargetConfig | None = None,
         allow_mutations: bool | None = None,
+        require_real_identities: bool = False,
     ):
         """
         Inizializza l'orchestratore dinamico configurando le dipendenze richieste.
@@ -635,6 +653,10 @@ class DynamicOrchestrator:
             target_config (BolaTargetConfig | None): Contratto del bersaglio; None = quello condiviso.
             allow_mutations (bool | None): In Assessment Mode riabilita PUT/PATCH/DELETE;
                 None = valore di ``assessment.allow_mutations`` del contratto.
+            require_real_identities (bool): Se True, la pipeline si ferma con
+                FictitiousIdentityError quando vittima o attaccante paritetico sono identita'
+                fittizie di ripiego. Va attivato in ogni esecuzione i cui risultati vengono
+                riportati (dashboard, validazione); i test offline lo lasciano False.
         """
         self.config = target_config or get_bola_target_config()
         target_base_url = target_base_url or self.config.base_url
@@ -649,6 +671,7 @@ class DynamicOrchestrator:
             self.config.allow_mutations if allow_mutations is None else allow_mutations
         )
         self.test_all_methods = test_all_methods
+        self.require_real_identities = require_real_identities
         self.cancel_event = cancel_event or threading.Event()
         self.identity_manager = IdentityManager(config=self.config, keycloak_url=keycloak_url)
         self.seeder = DatabaseSeeder(
@@ -852,6 +875,20 @@ class DynamicOrchestrator:
             logger.info(
                 "ℹ️ [Assessment Mode] Utilizzo delle identità e relazioni inferte dal traffico. Seeding saltato."
             )
+
+        if self.require_real_identities:
+            fictitious = [
+                key
+                for key in (IDENTITY_VICTIM, IDENTITY_PEER)
+                if not identity_uuids.get(key) or identity_uuids[key] in _FICTITIOUS_UUIDS
+            ]
+            if fictitious:
+                raise FictitiousIdentityError(
+                    f"Identita' non reali per {fictitious} (provider "
+                    f"'{self.config.identity_provider}'): nessun test eseguito. Verificare "
+                    "Keycloak, le variabili dei token statici o il traffico di esercizio "
+                    "(servono due utenti distinti con JWT che riporti il claim 'sub')."
+                )
 
         # 4. Differential Scan & Authorization Testing (Passando gli UUID e gli ID di contesto)
         self.zap_controller.run_differential_scan(

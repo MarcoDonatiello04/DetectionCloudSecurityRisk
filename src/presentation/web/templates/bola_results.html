@@ -285,6 +285,39 @@
     <footer><p>© 2026 Cloud Risk Assessment Platform | BOLA/IDOR Differential Testing</p></footer>
 
     <script>
+        // ?target=<id>: la pagina mostra i report salvati di quel bersaglio (dalla sua cartella
+        // dei report), senza renderlo corrente e senza rilanciare la scansione.
+        const VIEW_TARGET = new URLSearchParams(window.location.search).get('target');
+        const RESULT_PAGES = ['/results', '/api-results', '/contract-results', '/bola-results', '/unified-results'];
+
+        function withTarget(path) {
+            if (!VIEW_TARGET) return path;
+            return `${path}${path.includes('?') ? '&' : '?'}target=${encodeURIComponent(VIEW_TARGET)}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!VIEW_TARGET) return;
+            // I collegamenti tra le pagine dei risultati restano sullo stesso bersaglio
+            document.querySelectorAll('a[href]').forEach(a => {
+                const href = a.getAttribute('href');
+                if (RESULT_PAGES.includes(href)) a.setAttribute('href', withTarget(href));
+            });
+            const banner = document.createElement('div');
+            banner.style.cssText = 'margin: 0 0 16px; padding: 10px 14px; border: 1px solid rgba(128,128,160,0.3); border-radius: 10px; font-size: 0.82rem; opacity: 0.9;';
+            banner.textContent = `Risultati salvati del bersaglio "${VIEW_TARGET}"`;
+            (document.querySelector('main') || document.body).prepend(banner);
+            try {
+                const data = await (await fetch('/api/targets')).json();
+                const t = (data.targets || []).find(x => x.id === VIEW_TARGET);
+                if (!t) return;
+                const when = t.static && t.static.generated_at
+                    ? new Date(t.static.generated_at).toLocaleString('it-IT')
+                    : 'mai eseguita';
+                banner.textContent = `Bersaglio: ${t.label}  ·  codice: ${t.target_dir}  ·  report: ${t.output_dir}  ·  ultima analisi statica: ${when}`;
+            } catch (e) {}
+        });
+    </script>
+    <script>
     // ── Tema ──────────────────────────────────────────────────────
     const themeToggle = document.getElementById('theme-toggle');
     const themeText = document.getElementById('theme-text');
@@ -505,7 +538,7 @@
         }, 400);
 
         try {
-            const resp = await fetch('/bola-scan', { method: 'POST' });
+            const resp = await (VIEW_TARGET ? fetch(withTarget('/api/bola-report')) : fetch('/bola-scan', { method: 'POST' }));
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const report = await resp.json();
             clearInterval(logInterval);
@@ -518,6 +551,12 @@
             resultsArea.style.display = 'block';
             renderSummary(meta);
             renderResults(allResults);
+            if (VIEW_TARGET && !allResults.length && !meta.scan_id) {
+                // Nessun report BOLA dedicato: i test BOLA della scansione completa stanno nei Core
+                document.getElementById('mode-badge-container').innerHTML =
+                    `<span class="mode-badge simulated">Nessun report BOLA dedicato per questo bersaglio</span>
+                     <a href="${withTarget('/unified-results')}" style="margin-left:12px;font-size:0.8rem;">Risultati BOLA della scansione completa (Core) &rsaquo;</a>`;
+            }
         } catch (err) {
             clearInterval(logInterval);
             consoleLog.innerHTML += `\n[error] Errore durante l'esecuzione: ${err.message}`;
@@ -525,7 +564,7 @@
 
             // Prova a leggere l'ultimo report salvato
             try {
-                const fallback = await fetch('/api/bola-report');
+                const fallback = await fetch(withTarget('/api/bola-report'));
                 if (fallback.ok) {
                     const report = await fallback.json();
                     allResults = report.results || [];
@@ -551,6 +590,8 @@
 
         // Interrompe la scansione BOLA se si esce dalla sezione
         function cancelScan() {
+            // In consultazione non c'e' nessuna scansione da interrompere
+            if (VIEW_TARGET) return;
             try {
                 navigator.sendBeacon('/cancel-bola-scan');
             } catch (e) {

@@ -75,6 +75,11 @@ def main():
     print(f"Properties discovered: {report_data['properties_discovered']}")
     print(f"Dynamic tests executed: {report_data['tests_executed']}")
     print(f"Findings: {report_data['vulnerabilities_detected']}")
+    print(
+        f"Static findings (to verify): {report_data['static_findings_count']} "
+        f"({report_data['static_findings_confirmed']} confirmed)"
+    )
+    print(f"Dynamic phase executed: {report_data['dynamic_phase_executed']}")
     print(f"Property Authorization Score: {report_data['score']}/100")
     print(f"Risk Level: {report_data['risk_level']}")
     print("Reports saved in:")

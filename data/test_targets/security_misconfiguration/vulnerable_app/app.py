@@ -2,10 +2,11 @@
 Fixture API8 vulnerable_app.
 Ogni sezione dimostra una specifica misconfiguration applicativa.
 """
+
 import traceback
+
 from flask import Flask, jsonify
 from flask_cors import CORS
-from fastapi.middleware.cors import CORSMiddleware
 
 app = Flask(__name__)
 
@@ -21,14 +22,24 @@ CORS(app, origins="*")
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
 
+
 # SC-003: error handler verboso
 @app.errorhandler(Exception)
 def handle_error(e):
-    return jsonify({
-        "error": str(e),
-        "traceback": traceback.format_exc(),
-        "detail": repr(e)
-    }), 500
+    return jsonify({"error": str(e), "traceback": traceback.format_exc(), "detail": repr(e)}), 500
+
 
 # SC-004: nessun after_request con security headers
 # (assenza rilevata a livello globale — non serve codice esplicito qui)
+
+
+# SC-008: route con operazione mutante senza restrizione methods=['POST'] (default a GET)
+@app.route("/api/user/delete")
+def delete_user_insecure():
+    return jsonify({"status": "deleted"})
+
+
+# SC-009: endpoint privato/sensibile senza Cache-Control: no-store (OWASP API8 Scenario #2)
+@app.route("/dm/user_updates.json")
+def get_user_messages():
+    return jsonify({"messages": ["secret message"]})

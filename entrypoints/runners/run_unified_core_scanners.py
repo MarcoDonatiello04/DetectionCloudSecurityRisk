@@ -60,17 +60,27 @@ def load_openapi_spec(repo_path: str):
         Path(repo_path) / "data/test_targets/bola" / "openapi.yaml",
         Path(repo_path) / "openapi.yaml",
         Path(repo_path) / "openapi.json",
+        # crAPI e altri target che tengono il contratto in una cartella dedicata
+        Path(repo_path) / "openapi-spec" / "crapi-openapi-spec.json",
     ]
+    # Fallback: qualunque file *openapi* nella radice o in una cartella openapi-spec/.
+    for pattern in ("*openapi*.json", "*openapi*.yaml", "*openapi*.yml"):
+        openapi_paths.extend(sorted(Path(repo_path).glob(pattern)))
+        openapi_paths.extend(sorted((Path(repo_path) / "openapi-spec").glob(pattern)))
+
+    seen = set()
     for path in openapi_paths:
-        if path.is_file():
-            try:
-                with open(path, encoding="utf-8") as f:
-                    if path.suffix in (".yaml", ".yml"):
-                        return yaml.safe_load(f)
-                    else:
-                        return json.load(f)
-            except Exception as e:
-                logger.warning(f"Failed to parse OpenAPI spec from {path}: {e}")
+        if path in seen or not path.is_file():
+            continue
+        seen.add(path)
+        try:
+            with open(path, encoding="utf-8") as f:
+                spec = yaml.safe_load(f) if path.suffix in (".yaml", ".yml") else json.load(f)
+            logger.info(f"OpenAPI spec caricato da: {path}")
+            return spec
+        except Exception as e:
+            logger.warning(f"Failed to parse OpenAPI spec from {path}: {e}")
+    logger.warning(f"Nessuno spec OpenAPI trovato sotto {repo_path}: il Layer 3 verrà saltato.")
     return None
 
 
@@ -302,6 +312,8 @@ async def main():
                 findings_count = findings.get("vulnerabilities_detected", 0) or len(
                     findings.get("findings", [])
                 )
+                # Static findings to be verified (BOPLA without identity matrix)
+                findings_count += findings.get("static_findings_count", 0)
             elif hasattr(findings, "findings"):
                 findings_count = len(findings.findings)
             elif isinstance(findings, int):

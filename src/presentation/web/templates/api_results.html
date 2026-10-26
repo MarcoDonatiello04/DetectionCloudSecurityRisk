@@ -763,6 +763,39 @@
     </footer>
 
     <script>
+        // ?target=<id>: la pagina mostra i report salvati di quel bersaglio (dalla sua cartella
+        // dei report), senza renderlo corrente e senza rilanciare la scansione.
+        const VIEW_TARGET = new URLSearchParams(window.location.search).get('target');
+        const RESULT_PAGES = ['/results', '/api-results', '/contract-results', '/bola-results', '/unified-results'];
+
+        function withTarget(path) {
+            if (!VIEW_TARGET) return path;
+            return `${path}${path.includes('?') ? '&' : '?'}target=${encodeURIComponent(VIEW_TARGET)}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!VIEW_TARGET) return;
+            // I collegamenti tra le pagine dei risultati restano sullo stesso bersaglio
+            document.querySelectorAll('a[href]').forEach(a => {
+                const href = a.getAttribute('href');
+                if (RESULT_PAGES.includes(href)) a.setAttribute('href', withTarget(href));
+            });
+            const banner = document.createElement('div');
+            banner.style.cssText = 'margin: 0 0 16px; padding: 10px 14px; border: 1px solid rgba(128,128,160,0.3); border-radius: 10px; font-size: 0.82rem; opacity: 0.9;';
+            banner.textContent = `Risultati salvati del bersaglio "${VIEW_TARGET}"`;
+            (document.querySelector('main') || document.body).prepend(banner);
+            try {
+                const data = await (await fetch('/api/targets')).json();
+                const t = (data.targets || []).find(x => x.id === VIEW_TARGET);
+                if (!t) return;
+                const when = t.static && t.static.generated_at
+                    ? new Date(t.static.generated_at).toLocaleString('it-IT')
+                    : 'mai eseguita';
+                banner.textContent = `Bersaglio: ${t.label}  ·  codice: ${t.target_dir}  ·  report: ${t.output_dir}  ·  ultima analisi statica: ${when}`;
+            } catch (e) {}
+        });
+    </script>
+    <script>
         // Tema Chiaro / Scuro Logic
         const themeToggle = document.getElementById('theme-toggle');
         const themeText = document.getElementById('theme-text');
@@ -873,7 +906,7 @@
             });
 
             try {
-                const response = await fetch('/scan', { method: 'POST' });
+                const response = await (VIEW_TARGET ? fetch(withTarget('/api/report')) : fetch('/scan', { method: 'POST' }));
                 const data = await response.json();
                 
                 clearInterval(logInterval);

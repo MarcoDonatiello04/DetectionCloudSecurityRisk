@@ -1,0 +1,237 @@
+[
+  {
+    "method": "GET",
+    "path": "/createdb",
+    "full_url": "http://host.docker.internal:5001/createdb",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive"
+    },
+    "auth_header": "",
+    "body_params": {}
+  },
+  {
+    "method": "POST",
+    "path": "/users/v1/register",
+    "full_url": "http://host.docker.internal:5001/users/v1/register",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Content-Length": "95",
+      "Content-Type": "application/json"
+    },
+    "auth_header": "",
+    "body_params": {
+      "username": "tesi_victim",
+      "password": "Tesi-Victim-2026!",
+      "email": "tesi_victim@tesi.local"
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/users/v1/login",
+    "full_url": "http://host.docker.internal:5001/users/v1/login",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Content-Length": "60",
+      "Content-Type": "application/json"
+    },
+    "auth_header": "",
+    "body_params": {
+      "username": "tesi_victim",
+      "password": "Tesi-Victim-2026!"
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/me",
+    "full_url": "http://host.docker.internal:5001/me",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV92aWN0aW0ifQ.ILgVtmuvpjUr2qQfJcXSmJgFLGYUumiPR52Xw-Gjivg"
+    },
+    "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV92aWN0aW0ifQ.ILgVtmuvpjUr2qQfJcXSmJgFLGYUumiPR52Xw-Gjivg",
+    "body_params": {}
+  },
+  {
+    "method": "GET",
+    "path": "/users/v1/tesi_victim",
+    "full_url": "http://host.docker.internal:5001/users/v1/tesi_victim",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV92aWN0aW0ifQ.ILgVtmuvpjUr2qQfJcXSmJgFLGYUumiPR52Xw-Gjivg"
+    },
+    "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV92aWN0aW0ifQ.ILgVtmuvpjUr2qQfJcXSmJgFLGYUumiPR52Xw-Gjivg",
+    "body_params": {}
+  },
+  {
+    "method": "POST",
+    "path": "/books/v1",
+    "full_url": "http://host.docker.internal:5001/books/v1",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV92aWN0aW0ifQ.ILgVtmuvpjUr2qQfJcXSmJgFLGYUumiPR52Xw-Gjivg",
+      "Content-Length": "74",
+      "Content-Type": "application/json"
+    },
+    "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV92aWN0aW0ifQ.ILgVtmuvpjUr2qQfJcXSmJgFLGYUumiPR52Xw-Gjivg",
+    "body_params": {
+      "book_title": "libro_di_tesi_victim",
+      "secret": "segreto di tesi_victim"
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/books/v1/libro_di_tesi_victim",
+    "full_url": "http://host.docker.internal:5001/books/v1/libro_di_tesi_victim",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV92aWN0aW0ifQ.ILgVtmuvpjUr2qQfJcXSmJgFLGYUumiPR52Xw-Gjivg"
+    },
+    "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV92aWN0aW0ifQ.ILgVtmuvpjUr2qQfJcXSmJgFLGYUumiPR52Xw-Gjivg",
+    "body_params": {}
+  },
+  {
+    "method": "POST",
+    "path": "/users/v1/register",
+    "full_url": "http://host.docker.internal:5001/users/v1/register",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Content-Length": "89",
+      "Content-Type": "application/json"
+    },
+    "auth_header": "",
+    "body_params": {
+      "username": "tesi_peer",
+      "password": "Tesi-Peer-2026!",
+      "email": "tesi_peer@tesi.local"
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/users/v1/login",
+    "full_url": "http://host.docker.internal:5001/users/v1/login",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Content-Length": "56",
+      "Content-Type": "application/json"
+    },
+    "auth_header": "",
+    "body_params": {
+      "username": "tesi_peer",
+      "password": "Tesi-Peer-2026!"
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/me",
+    "full_url": "http://host.docker.internal:5001/me",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV9wZWVyIn0.Mk6WyfJQlGizWtspSyfNkEw_SRV73iIQaFBwCYiwMJE"
+    },
+    "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV9wZWVyIn0.Mk6WyfJQlGizWtspSyfNkEw_SRV73iIQaFBwCYiwMJE",
+    "body_params": {}
+  },
+  {
+    "method": "GET",
+    "path": "/users/v1/tesi_peer",
+    "full_url": "http://host.docker.internal:5001/users/v1/tesi_peer",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV9wZWVyIn0.Mk6WyfJQlGizWtspSyfNkEw_SRV73iIQaFBwCYiwMJE"
+    },
+    "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV9wZWVyIn0.Mk6WyfJQlGizWtspSyfNkEw_SRV73iIQaFBwCYiwMJE",
+    "body_params": {}
+  },
+  {
+    "method": "POST",
+    "path": "/books/v1",
+    "full_url": "http://host.docker.internal:5001/books/v1",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV9wZWVyIn0.Mk6WyfJQlGizWtspSyfNkEw_SRV73iIQaFBwCYiwMJE",
+      "Content-Length": "70",
+      "Content-Type": "application/json"
+    },
+    "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV9wZWVyIn0.Mk6WyfJQlGizWtspSyfNkEw_SRV73iIQaFBwCYiwMJE",
+    "body_params": {
+      "book_title": "libro_di_tesi_peer",
+      "secret": "segreto di tesi_peer"
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/books/v1/libro_di_tesi_peer",
+    "full_url": "http://host.docker.internal:5001/books/v1/libro_di_tesi_peer",
+    "status": 200,
+    "headers": {
+      "Host": "host.docker.internal:5001",
+      "User-Agent": "python-requests/2.34.2",
+      "Accept-Encoding": "gzip, deflate",
+      "Accept": "*/*",
+      "Connection": "keep-alive",
+      "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV9wZWVyIn0.Mk6WyfJQlGizWtspSyfNkEw_SRV73iIQaFBwCYiwMJE"
+    },
+    "auth_header": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3OTI3NDQ0MTIsImlhdCI6MTc5Mjc0MDgxMiwic3ViIjoidGVzaV9wZWVyIn0.Mk6WyfJQlGizWtspSyfNkEw_SRV73iIQaFBwCYiwMJE",
+    "body_params": {}
+  }
+]

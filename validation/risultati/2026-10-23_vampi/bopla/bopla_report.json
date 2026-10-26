@@ -1,0 +1,472 @@
+{
+    "timestamp": "2026-10-23T09:34:32.006782",
+    "target_url": "http://localhost:5000",
+    "repository": "vampi",
+    "score": 100,
+    "risk_level": "LOW",
+    "objects_discovered": 9,
+    "properties_discovered": 48,
+    "protected_properties": 21,
+    "dynamic_phase_executed": false,
+    "tests_executed": 0,
+    "vulnerabilities_detected": 0,
+    "findings": [],
+    "static_findings_count": 0,
+    "static_findings_confirmed": 0,
+    "static_findings": [],
+    "graph": {
+        "objects": {
+            "Book": {
+                "object_name": "Book",
+                "properties": {
+                    "book_title": {
+                        "property_name": "book_title",
+                        "read_operations": [
+                            "GET /books/v1/{id}"
+                        ],
+                        "write_operations": [
+                            "POST /books/v1"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "secret": {
+                        "property_name": "secret",
+                        "read_operations": [
+                            "GET /books/v1/{id}"
+                        ],
+                        "write_operations": [
+                            "POST /books/v1"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "message": {
+                        "property_name": "message",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": [
+                            "if(user.admin)"
+                        ]
+                    },
+                    "status": {
+                        "property_name": "status",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": [
+                            "if(user.admin)"
+                        ]
+                    },
+                    "Books": {
+                        "property_name": "Books",
+                        "read_operations": [
+                            "GET /books/v1"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "Books.book_title": {
+                        "property_name": "Books.book_title",
+                        "read_operations": [
+                            "GET /books/v1"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "Books.user": {
+                        "property_name": "Books.user",
+                        "read_operations": [
+                            "GET /books/v1"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "owner": {
+                        "property_name": "owner",
+                        "read_operations": [
+                            "GET /books/v1/{id}"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "__tablename__": {
+                        "property_name": "__tablename__",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "id": {
+                        "property_name": "id",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "secret_content": {
+                        "property_name": "secret_content",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "user": {
+                        "property_name": "user",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "user_id": {
+                        "property_name": "user_id",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Createdb": {
+                "object_name": "Createdb",
+                "properties": {
+                    "message": {
+                        "property_name": "message",
+                        "read_operations": [
+                            "GET /createdb"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": [
+                            "if(user.admin)"
+                        ]
+                    }
+                }
+            },
+            "Debug": {
+                "object_name": "Debug",
+                "properties": {
+                    "users": {
+                        "property_name": "users",
+                        "read_operations": [
+                            "GET /users/v1/_debug"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "users.admin": {
+                        "property_name": "users.admin",
+                        "read_operations": [
+                            "GET /users/v1/_debug"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "users.email": {
+                        "property_name": "users.email",
+                        "read_operations": [
+                            "GET /users/v1/_debug"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "users.password": {
+                        "property_name": "users.password",
+                        "read_operations": [
+                            "GET /users/v1/_debug"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "users.username": {
+                        "property_name": "users.username",
+                        "read_operations": [
+                            "GET /users/v1/_debug"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Email": {
+                "object_name": "Email",
+                "properties": {
+                    "email": {
+                        "property_name": "email",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PUT /users/v1/{id}/email"
+                        ],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    }
+                }
+            },
+            "Login": {
+                "object_name": "Login",
+                "properties": {
+                    "password": {
+                        "property_name": "password",
+                        "read_operations": [],
+                        "write_operations": [
+                            "POST /users/v1/login"
+                        ],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    },
+                    "username": {
+                        "property_name": "username",
+                        "read_operations": [],
+                        "write_operations": [
+                            "POST /users/v1/login"
+                        ],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    },
+                    "message": {
+                        "property_name": "message",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": [
+                            "if(user.admin)"
+                        ]
+                    },
+                    "status": {
+                        "property_name": "status",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": [
+                            "if(user.admin)"
+                        ]
+                    },
+                    "auth_token": {
+                        "property_name": "auth_token",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Me": {
+                "object_name": "Me",
+                "properties": {
+                    "status": {
+                        "property_name": "status",
+                        "read_operations": [
+                            "GET /me"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": [
+                            "if(user.admin)"
+                        ]
+                    },
+                    "data": {
+                        "property_name": "data",
+                        "read_operations": [
+                            "GET /me"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "data.admin": {
+                        "property_name": "data.admin",
+                        "read_operations": [
+                            "GET /me"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "data.email": {
+                        "property_name": "data.email",
+                        "read_operations": [
+                            "GET /me"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "data.username": {
+                        "property_name": "data.username",
+                        "read_operations": [
+                            "GET /me"
+                        ],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Password": {
+                "object_name": "Password",
+                "properties": {
+                    "password": {
+                        "property_name": "password",
+                        "read_operations": [],
+                        "write_operations": [
+                            "PUT /users/v1/{id}/password"
+                        ],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    }
+                }
+            },
+            "Register": {
+                "object_name": "Register",
+                "properties": {
+                    "email": {
+                        "property_name": "email",
+                        "read_operations": [],
+                        "write_operations": [
+                            "POST /users/v1/register"
+                        ],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    },
+                    "password": {
+                        "property_name": "password",
+                        "read_operations": [],
+                        "write_operations": [
+                            "POST /users/v1/register"
+                        ],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    },
+                    "username": {
+                        "property_name": "username",
+                        "read_operations": [],
+                        "write_operations": [
+                            "POST /users/v1/register"
+                        ],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    },
+                    "message": {
+                        "property_name": "message",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": [
+                            "if(user.admin)"
+                        ]
+                    },
+                    "status": {
+                        "property_name": "status",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": [
+                            "if(user.admin)"
+                        ]
+                    }
+                }
+            },
+            "User": {
+                "object_name": "User",
+                "properties": {
+                    "email": {
+                        "property_name": "email",
+                        "read_operations": [
+                            "GET /users/v1/{id}"
+                        ],
+                        "write_operations": [
+                            "DELETE /users/v1/{id}"
+                        ],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    },
+                    "username": {
+                        "property_name": "username",
+                        "read_operations": [
+                            "GET /users/v1/{id}"
+                        ],
+                        "write_operations": [
+                            "DELETE /users/v1/{id}"
+                        ],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    },
+                    "message": {
+                        "property_name": "message",
+                        "read_operations": [],
+                        "write_operations": [
+                            "DELETE /users/v1/{id}"
+                        ],
+                        "authorization_contexts": [
+                            "if(user.admin)"
+                        ]
+                    },
+                    "status": {
+                        "property_name": "status",
+                        "read_operations": [],
+                        "write_operations": [
+                            "DELETE /users/v1/{id}"
+                        ],
+                        "authorization_contexts": [
+                            "if(user.admin)"
+                        ]
+                    },
+                    "admin": {
+                        "property_name": "admin",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    },
+                    "password": {
+                        "property_name": "password",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": [
+                            "if(vuln and 'admin' in request_data)"
+                        ]
+                    },
+                    "users": {
+                        "property_name": "users",
+                        "read_operations": [
+                            "GET /users/v1"
+                        ],
+                        "write_operations": [
+                            "DELETE /users/v1/{id}"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "users.email": {
+                        "property_name": "users.email",
+                        "read_operations": [
+                            "GET /users/v1"
+                        ],
+                        "write_operations": [
+                            "DELETE /users/v1/{id}"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "users.username": {
+                        "property_name": "users.username",
+                        "read_operations": [
+                            "GET /users/v1"
+                        ],
+                        "write_operations": [
+                            "DELETE /users/v1/{id}"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "__tablename__": {
+                        "property_name": "__tablename__",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "books": {
+                        "property_name": "books",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "id": {
+                        "property_name": "id",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    }
+                }
+            }
+        }
+    }
+}

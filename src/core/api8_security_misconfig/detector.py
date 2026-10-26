@@ -8,8 +8,12 @@ from src.core.api8_security_misconfig.rules import (
     cors_wildcard,
     debug_mode,
     hardcoded_secret,
+    missing_cache_control,
+    missing_cors_policy,
     missing_security_headers,
+    unrestricted_http_methods,
     verbose_error_handler,
+    vulnerable_dependency,
 )
 
 logger = logging.getLogger(__name__)
@@ -17,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 def analyze(target_path: str) -> MisconfigReport:
     findings: list[MisconfigFinding] = []
+    target_dir = Path(target_path)
 
     for file_path in _walk_source_files(target_path):
         try:
@@ -33,9 +38,15 @@ def analyze(target_path: str) -> MisconfigReport:
         findings.extend(debug_mode.analyze(tree, file_path, content))
         findings.extend(verbose_error_handler.analyze(tree, file_path, content))
         findings.extend(hardcoded_secret.analyze(tree, file_path, content))
+        findings.extend(unrestricted_http_methods.analyze(tree, file_path, content))
+        findings.extend(
+            missing_cache_control.analyze(tree, file_path, content, target_dir=target_dir)
+        )
 
-    # SC-004 è una rule globale — analizza il target nel suo insieme
+    # Regole globali a livello di intero target
     findings.extend(missing_security_headers.analyze_global(target_path))
+    findings.extend(missing_cors_policy.analyze_global(target_path))
+    findings.extend(vulnerable_dependency.analyze(target_path))
 
     # Filtra findings a bassa confidenza (< 0.70)
     findings = [f for f in findings if f.confidence >= 0.70]
@@ -83,13 +94,22 @@ def _parse(file_path: Path, content: str) -> ast.AST | None:
 
 
 def _build_coverage_signals(findings: list[MisconfigFinding]) -> dict:
-    return {
-        rule_id: any(f.rule_id == rule_id for f in findings)
-        for rule_id in ["SC-001", "SC-002", "SC-003", "SC-004", "SC-005"]
-    }
+    rule_ids = [
+        "SC-001",
+        "SC-002",
+        "SC-003",
+        "SC-004",
+        "SC-005",
+        "SC-006",
+        "SC-007",
+        "SC-008",
+        "SC-009",
+    ]
+    return {rule_id: any(f.rule_id == rule_id for f in findings) for rule_id in rule_ids}
 
 
 def _build_summary(findings: list[MisconfigFinding]) -> dict:
+    categories = {"MISCONFIGURATION", "SECRETS"} | {f.category for f in findings}
     return {
         "total": len(findings),
         "by_severity": {
@@ -97,7 +117,6 @@ def _build_summary(findings: list[MisconfigFinding]) -> dict:
             for sev in ("CRITICAL", "HIGH", "MEDIUM", "LOW")
         },
         "by_category": {
-            cat: len([f for f in findings if f.category == cat])
-            for cat in ("MISCONFIGURATION", "SECRETS")
+            cat: len([f for f in findings if f.category == cat]) for cat in sorted(categories)
         },
     }

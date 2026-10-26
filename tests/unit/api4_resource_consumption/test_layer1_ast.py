@@ -13,7 +13,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 import tree_sitter_javascript as tsjavascript
 import tree_sitter_python as tspython
 from tree_sitter import Language, Parser
@@ -89,9 +88,6 @@ def list_users():
         assert not findings, f"Expected no findings, got {findings}"
 
     # --- TRUE POSITIVE (FastAPI Query without le=) ---
-    @pytest.mark.skip(
-        reason="tree-sitter 0.25: typed_default_parameter uses 'value' field, not 'default_value' — tracked for fix"
-    )
     def test_tp_fastapi_no_le(self):
         src = """
 @app.get("/users")
@@ -274,9 +270,6 @@ def send():
         assert high, "Expected high-confidence RC-003 for SMS endpoint"
 
     # --- TRUE POSITIVE: axios without timeout (JS) ---
-    @pytest.mark.skip(
-        reason="tree-sitter 0.25 JS: member_expression uses 'property_identifier' not 'identifier', _get_attribute_chain needs update — tracked for fix"
-    )
     def test_tp_axios_no_timeout(self):
         src = """
 async function notify() {
@@ -349,9 +342,6 @@ schema = strawberry.Schema(
         assert not findings
 
     # --- TRUE POSITIVE: ApolloServer without validationRules (JS) ---
-    @pytest.mark.skip(
-        reason="tree-sitter 0.25 JS: new_expression uses 'constructor' field not 'function' — tracked for fix"
-    )
     def test_tp_apollo_no_validation_rules(self):
         src = """
 const server = new ApolloServer({ typeDefs, resolvers })

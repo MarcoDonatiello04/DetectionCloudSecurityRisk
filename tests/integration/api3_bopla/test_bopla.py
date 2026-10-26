@@ -76,7 +76,7 @@ def test_extract_runtime_properties():
     assert "id" in res["User"]
     assert "username" in res["User"]
     assert "profile" in res["User"]
-    assert "age" in res["User"]
+    assert "profile.age" in res["User"]  # nested keys keep their path (B.11)
 
 
 def test_extract_properties_via_regex():

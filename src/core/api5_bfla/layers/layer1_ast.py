@@ -17,6 +17,9 @@ from src.core.api5_bfla.rules.auth_without_authz import (
 from src.core.api5_bfla.rules.http_method_override import (
     HTTPMethodOverrideRule,
 )
+from src.core.api5_bfla.rules.privilege_escalation_payload import (
+    PrivilegeEscalationPayloadRule,
+)
 from src.core.api5_bfla.rules.privileged_endpoint_no_role_check import (
     PrivilegedEndpointNoRoleCheckRule,
 )
@@ -77,6 +80,7 @@ _PYTHON_RULES = [
     HTTPMethodOverrideRule.analyze_python,
     AdminPathExposureRule.analyze_python,
     ShadowAdminFunctionRule.analyze_python,
+    PrivilegeEscalationPayloadRule.analyze_python,
 ]
 
 _JS_RULES = [
@@ -85,6 +89,7 @@ _JS_RULES = [
     HTTPMethodOverrideRule.analyze_javascript,
     AdminPathExposureRule.analyze_javascript,
     ShadowAdminFunctionRule.analyze_javascript,
+    PrivilegeEscalationPayloadRule.analyze_javascript,
 ]
 
 

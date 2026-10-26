@@ -1,0 +1,6 @@
+commit: fc0c341232ee6514652da33665fc29787043085d
+tag: fc0c341
+modifiche non committate: 124 file
+checkov: non disponibile (FileNotFoundError)
+semgrep: non disponibile (FileNotFoundError)
+spectral: non disponibile (FileNotFoundError)

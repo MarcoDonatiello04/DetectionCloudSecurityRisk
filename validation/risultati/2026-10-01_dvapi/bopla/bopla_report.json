@@ -1,0 +1,135 @@
+{
+    "timestamp": "2026-10-01T15:56:20.320791",
+    "target_url": "http://localhost:5000",
+    "repository": "dvapi",
+    "score": 100,
+    "risk_level": "LOW",
+    "objects_discovered": 4,
+    "properties_discovered": 14,
+    "protected_properties": 0,
+    "dynamic_phase_executed": false,
+    "tests_executed": 0,
+    "vulnerabilities_detected": 0,
+    "findings": [],
+    "static_findings_count": 0,
+    "static_findings_confirmed": 0,
+    "static_findings": [],
+    "graph": {
+        "objects": {
+            "AddNote": {
+                "object_name": "AddNote",
+                "properties": {
+                    "note": {
+                        "property_name": "note",
+                        "read_operations": [],
+                        "write_operations": [
+                            "POST /api/addNote"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Login": {
+                "object_name": "Login",
+                "properties": {
+                    "password": {
+                        "property_name": "password",
+                        "read_operations": [],
+                        "write_operations": [
+                            "POST /api/login"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "username": {
+                        "property_name": "username",
+                        "read_operations": [],
+                        "write_operations": [
+                            "POST /api/login"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Only": {
+                "object_name": "Only",
+                "properties": {
+                    "DATE": {
+                        "property_name": "DATE",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "DATETIME_LOCAL": {
+                        "property_name": "DATETIME_LOCAL",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "DATETIME_LOCAL_MS": {
+                        "property_name": "DATETIME_LOCAL_MS",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "DATETIME_LOCAL_SECONDS": {
+                        "property_name": "DATETIME_LOCAL_SECONDS",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "MONTH": {
+                        "property_name": "MONTH",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "TIME": {
+                        "property_name": "TIME",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "TIME_MS": {
+                        "property_name": "TIME_MS",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "TIME_SECONDS": {
+                        "property_name": "TIME_SECONDS",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    },
+                    "WEEK": {
+                        "property_name": "WEEK",
+                        "read_operations": [],
+                        "write_operations": [],
+                        "authorization_contexts": []
+                    }
+                }
+            },
+            "Register": {
+                "object_name": "Register",
+                "properties": {
+                    "password": {
+                        "property_name": "password",
+                        "read_operations": [],
+                        "write_operations": [
+                            "POST /api/register"
+                        ],
+                        "authorization_contexts": []
+                    },
+                    "username": {
+                        "property_name": "username",
+                        "read_operations": [],
+                        "write_operations": [
+                            "POST /api/register"
+                        ],
+                        "authorization_contexts": []
+                    }
+                }
+            }
+        }
+    }
+}

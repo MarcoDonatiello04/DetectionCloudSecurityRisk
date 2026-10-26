@@ -573,3 +573,51 @@ def analyze_configs(target_path: str) -> list[ResourceConsumptionFinding]:
         len(all_findings),
     )
     return all_findings
+
+
+# ===========================================================================
+# Enforced defenses (used by cross-layer correlation)
+# ===========================================================================
+
+_BODY_LIMIT_NAMES = ("MAX_CONTENT_LENGTH", "DATA_UPLOAD_MAX_MEMORY_SIZE")
+
+
+def collect_body_size_defenses(target_path: str) -> list[str]:
+    """
+    Returns a description of every request-body size limit enforced by the
+    configuration: nginx client_max_body_size within the warning threshold,
+    MAX_CONTENT_LENGTH / DATA_UPLOAD_MAX_MEMORY_SIZE in .env or settings files.
+    These are the defenses that compensate an upload without size check in code.
+    """
+    defenses: list[str] = []
+    nginx_size = re.compile(r"client_max_body_size\s+(\d+)([kKmMgG]?)\s*;", re.IGNORECASE)
+    multipliers = {"k": 1024, "m": 1024**2, "g": 1024**3}
+
+    for path in discover_config_files(target_path):
+        name = path.name
+        text = _safe_read_text(path)
+        if text is None:
+            continue
+        if name.endswith(".conf"):
+            for m in nginx_size.finditer(text):
+                size = int(m.group(1)) * multipliers.get(m.group(2).lower(), 1)
+                if 0 < size <= NGINX_BODY_SIZE_WARN_THRESHOLD:
+                    line = text[: m.start()].count("\n") + 1
+                    defenses.append(f"{path}:{line} client_max_body_size {m.group(1)}{m.group(2)}")
+        elif re.match(r"^\.env(\..+)?$", name):
+            for line_no, line in enumerate(text.splitlines(), 1):
+                stripped = line.strip()
+                if stripped.upper().startswith(tuple(f"{n}=" for n in _BODY_LIMIT_NAMES)):
+                    defenses.append(f"{path}:{line_no} {stripped}")
+        elif re.match(r"^(settings|config|app_config)\.py$", name):
+            try:
+                tree = ast.parse(text, filename=str(path))
+            except SyntaxError:
+                continue
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Assign) and any(
+                    isinstance(t, ast.Name) and t.id.upper() in _BODY_LIMIT_NAMES
+                    for t in node.targets
+                ):
+                    defenses.append(f"{path}:{node.lineno} {ast.unparse(node)}")
+    return defenses

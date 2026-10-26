@@ -1,0 +1,51 @@
+openapi: 3.0.3
+info:
+  title: BOLA static fixture (vulnerable)
+  version: "1.0"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+# Autenticazione richiesta di default: la regola Spectral owasp-api1 passa su tutte
+# le operazioni che non la sovrascrivono con security: []
+security:
+  - bearerAuth: []
+paths:
+  /api/orders/{order_id}:
+    get:
+      summary: Dettaglio ordine
+      parameters:
+        - {name: order_id, in: path, required: true, schema: {type: string}}
+      responses: {"200": {description: OK}}
+  /api/invoices/{invoice_id}:
+    get:
+      summary: Dettaglio fattura (pubblico per errore)
+      security: []
+      parameters:
+        - {name: invoice_id, in: path, required: true, schema: {type: string}}
+      responses: {"200": {description: OK}}
+  /api/documents/{doc_id}:
+    get:
+      summary: Lettura documento
+      parameters:
+        - {name: doc_id, in: path, required: true, schema: {type: string}}
+      responses: {"200": {description: OK}}
+    put:
+      summary: Modifica documento
+      parameters:
+        - {name: doc_id, in: path, required: true, schema: {type: string}}
+      responses: {"200": {description: OK}}
+    delete:
+      summary: Cancellazione documento
+      parameters:
+        - {name: doc_id, in: path, required: true, schema: {type: string}}
+      responses: {"204": {description: No Content}}
+  /api/receipts/{receipt_id}:
+    get:
+      summary: Ricevuta
+      security: []
+      parameters:
+        - {name: receipt_id, in: path, required: true, schema: {type: integer}}
+      responses: {"200": {description: OK}}
+  # /api/projects/{project_id}/tasks/{task_id} non è documentato (shadow endpoint)

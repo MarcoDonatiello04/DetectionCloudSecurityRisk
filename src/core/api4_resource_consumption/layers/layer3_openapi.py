@@ -9,6 +9,7 @@ Rules implemented:
   RC-010 — Pagination parameter without maximum constraint
   RC-011 — File upload endpoint without maxLength / maxItems
   RC-012 — "Expensive" endpoint without documented rate protection
+  RC-013 — Batch / Array payload without maxItems constraint
 
 Enrichment:
   If enrich_spec=True, each finding is also written into the spec dict
@@ -20,6 +21,7 @@ Entry point: analyze_openapi(spec, enrich_spec=False) -> list[ResourceConsumptio
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 from src.core.api4_resource_consumption.models import ResourceConsumptionFinding
@@ -54,28 +56,92 @@ HTTP_METHODS = {"get", "post", "put", "patch", "delete", "head", "options", "tra
 # Content types that imply file upload
 UPLOAD_CONTENT_TYPES = {"multipart/form-data", "application/octet-stream"}
 
-# Patterns that identify "expensive" endpoints
-EXPENSIVE_PATTERNS: list[tuple[str, str]] = [
-    ("sms", "SMS provider call"),
-    ("otp", "OTP / SMS provider call"),
-    ("verify-phone", "SMS verification"),
-    ("verify_phone", "SMS verification"),
-    ("email", "Email provider call"),
-    ("notify", "Notification provider call"),
-    ("notification", "Notification provider call"),
-    ("export", "CPU/bandwidth intensive export"),
-    ("download", "Bandwidth intensive download"),
-    ("report", "CPU/bandwidth intensive report"),
-    ("thumbnail", "CPU-intensive image processing"),
-    ("resize", "CPU-intensive image processing"),
-    ("transcode", "CPU-intensive media processing"),
-    ("charge", "Financial transaction"),
-    ("payment", "Financial transaction"),
-    ("invoice", "Financial transaction"),
-    ("ai", "AI inference (expensive)"),
-    ("ml", "ML inference (expensive)"),
-    ("predict", "ML inference (expensive)"),
+# Patterns that identify "expensive" endpoints. Each keyword has a kind:
+#   "action"   — names the costly work itself (export, transcode, predict...): the
+#                endpoint is expensive whatever the HTTP method.
+#   "resource" — names a resource whose *creation* is costly (a payment, an SMS,
+#                a report): only POST triggers the cost. Reading, updating or
+#                deleting an existing invoice or notification is plain CRUD.
+# Matching is on whole words (path segments, operationId, summary, description),
+# never on substrings, so "ai" does not match "email" or "detail".
+EXPENSIVE_PATTERNS: list[tuple[str, str, str]] = [
+    ("sms", "SMS provider call", "resource"),
+    ("otp", "OTP / SMS provider call", "resource"),
+    ("verify phone", "SMS verification", "action"),
+    ("email", "Email provider call", "resource"),
+    ("notify", "Notification provider call", "action"),
+    ("notification", "Notification provider call", "resource"),
+    ("export", "CPU/bandwidth intensive export", "action"),
+    ("download", "Bandwidth intensive download", "action"),
+    ("report", "CPU/bandwidth intensive report", "resource"),
+    ("thumbnail", "CPU-intensive image processing", "action"),
+    ("resize", "CPU-intensive image processing", "action"),
+    ("transcode", "CPU-intensive media processing", "action"),
+    ("charge", "Financial transaction", "resource"),
+    ("payment", "Financial transaction", "resource"),
+    ("invoice", "Financial transaction", "resource"),
+    ("ai", "AI inference (expensive)", "resource"),
+    ("ml", "ML inference (expensive)", "resource"),
+    ("predict", "ML inference (expensive)", "action"),
 ]
+
+# A "resource" keyword is costly only when the operation triggers work instead of
+# manipulating a stored item:
+#   - POST (creates the resource: issues the invoice, sends the SMS);
+#   - PUT/PATCH on a collection-level path (PUT /sms has no item to update);
+#   - any method whose path/operationId/summary carries a trigger verb
+#     (PUT /invoices/{id}/send, operationId "resendOtp").
+COST_TRIGGERING_METHODS = {"POST"}
+COLLECTION_TRIGGERING_METHODS = {"PUT", "PATCH"}
+TRIGGER_VERBS = {
+    "send",
+    "resend",
+    "generate",
+    "regenerate",
+    "issue",
+    "dispatch",
+    "deliver",
+    "process",
+    "run",
+    "execute",
+    "trigger",
+    "render",
+    "convert",
+}
+
+# Structural signals: they reveal a costly endpoint even when its name is neutral.
+# Request fields — each entry lists groups of field words; the signal fires when
+# at least one word of every group is present among the operation's input fields.
+REQUEST_FIELD_SIGNALS: list[tuple[tuple[frozenset[str], ...], str]] = [
+    (
+        (frozenset({"phone", "msisdn"}), frozenset({"message", "text", "body", "sms", "template"})),
+        "SMS provider call (phone + message fields)",
+    ),
+    (
+        (frozenset({"to", "recipient", "recipients"}), frozenset({"subject"})),
+        "Email provider call (recipient + subject fields)",
+    ),
+    ((frozenset({"amount"}), frozenset({"currency"})), "Financial transaction (amount + currency)"),
+    ((frozenset({"cvc", "cvv"}),), "Financial transaction (card fields)"),
+    ((frozenset({"prompt"}),), "AI inference (prompt field)"),
+    ((frozenset({"max tokens", "temperature"}),), "AI inference (generation parameters)"),
+]
+# Field words this short match only a whole field name ("to"), never a word of it
+# ("path_to_file").
+MIN_FIELD_WORD_LENGTH = 3
+
+# Responses — media types produced by generation or bulk transfer, and 202 Accepted
+# (work queued for asynchronous processing).
+GENERATED_MEDIA_TYPES: dict[str, str] = {
+    "application/pdf": "Generated PDF document",
+    "text/csv": "Generated CSV export",
+    "application/zip": "Generated archive",
+    "application/octet-stream": "Bandwidth intensive binary download",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "Generated spreadsheet",
+    "application/vnd.ms-excel": "Generated spreadsheet",
+    "video/": "Media delivery / processing",
+    "audio/": "Media delivery / processing",
+}
 
 # Keywords in description/summary that imply documented rate limiting
 THROTTLE_KEYWORDS = {
@@ -362,20 +428,110 @@ def _analyze_rc011(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
 # ---------------------------------------------------------------------------
 
 
-def _path_is_expensive(path_str: str, operation: dict) -> str | None:
+def _words(text: str) -> str:
+    """
+    Normalizes free text or a path into space-separated lowercase words:
+    splits camelCase, drops path parameters ({id}) and every non-alphanumeric
+    separator, so keywords can be matched as whole words.
+    """
+    text = re.sub(r"\{[^}]*\}", " ", text)
+    text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", text)
+    return " ".join(re.findall(r"[a-z0-9]+", text.lower()))
+
+
+def _triggers_cost(path_str: str, method: str, trigger_text: str) -> bool:
+    """
+    True when the operation starts work rather than reading, updating or
+    deleting a stored item (see COST_TRIGGERING_METHODS / TRIGGER_VERBS).
+    """
+    if method in COST_TRIGGERING_METHODS:
+        return True
+    last_segment = path_str.rstrip("/").rsplit("/", 1)[-1]
+    if method in COLLECTION_TRIGGERING_METHODS and not last_segment.startswith("{"):
+        return True
+    return any(word in TRIGGER_VERBS for word in trigger_text.split())
+
+
+def _path_is_expensive(path_str: str, operation: dict, method: str = "POST") -> str | None:
     """
     Returns the matched pattern name if the endpoint is considered expensive.
-    Checks path string + summary + description (all case-insensitive).
+    Checks path + operationId + summary + description as whole words (plural
+    forms included). A "resource" keyword counts only when the operation
+    triggers work: GET /invoices/{id} is a read, POST /invoices issues one.
     """
-    text_to_check = path_str.lower()
-    summary = str(operation.get("summary", "")).lower()
-    description = str(operation.get("description", "")).lower()
-    combined = f"{text_to_check} {summary} {description}"
+    naming = " ".join(
+        _words(str(part))
+        for part in (path_str, operation.get("operationId", ""), operation.get("summary", ""))
+    )
+    combined = f"{naming} {_words(str(operation.get('description', '')))}"
+    triggers_cost = _triggers_cost(path_str, method.upper(), naming)
 
-    for pattern, _ in EXPENSIVE_PATTERNS:
-        # Match as a word boundary within the combined string
-        if pattern in combined:
+    for pattern, _, kind in EXPENSIVE_PATTERNS:
+        if kind == "resource" and not triggers_cost:
+            continue
+        if re.search(rf"\b{re.escape(pattern)}(?:e?s)?\b", combined):
             return pattern
+    return None
+
+
+def _collect_schema_fields(schema: Any, spec: dict, fields: set[str], depth: int = 0) -> None:
+    """Adds the normalized property names of a schema (nested objects and array items)."""
+    schema = _resolve_schema(schema, spec)
+    if depth > 4 or not schema:
+        return
+    for prop_name, prop_schema in (schema.get("properties") or {}).items():
+        fields.add(_words(str(prop_name)))
+        _collect_schema_fields(prop_schema, spec, fields, depth + 1)
+    if "items" in schema:
+        _collect_schema_fields(schema["items"], spec, fields, depth + 1)
+    for combinator in ("allOf", "oneOf", "anyOf"):
+        for sub in schema.get(combinator) or []:
+            _collect_schema_fields(sub, spec, fields, depth + 1)
+
+
+def _input_fields(operation: dict, spec: dict) -> set[str]:
+    """Normalized names of every input the operation accepts (parameters + body)."""
+    fields: set[str] = set()
+    for param in operation.get("parameters") or []:
+        param = _resolve_schema(param, spec)
+        if param.get("name"):
+            fields.add(_words(str(param["name"])))
+        if param.get("in") == "body":  # Swagger 2.0 body parameter
+            _collect_schema_fields(param.get("schema"), spec, fields)
+    request_body = _resolve_schema(operation.get("requestBody") or {}, spec)
+    for media_type_obj in (request_body.get("content") or {}).values():
+        if isinstance(media_type_obj, dict):
+            _collect_schema_fields(media_type_obj.get("schema"), spec, fields)
+    return fields
+
+
+def _structural_cost_signal(operation: dict, spec: dict) -> tuple[str, str, float] | None:
+    """
+    Looks for evidence of cost in the contract structure rather than in names:
+    request fields that betray the provider call, 202 Accepted, generated media
+    types. Returns (reason, severity, confidence) or None.
+    """
+    fields = _input_fields(operation, spec)
+    field_words = fields | {
+        word for field in fields for word in field.split() if len(word) >= MIN_FIELD_WORD_LENGTH
+    }
+    for groups, reason in REQUEST_FIELD_SIGNALS:
+        if all(group & field_words for group in groups):
+            return reason, "HIGH", 0.8
+
+    responses = operation.get("responses") or {}
+    if "202" in {str(code) for code in responses}:
+        return "Asynchronous processing (202 Accepted)", "MEDIUM", 0.7
+    for code, response in responses.items():
+        if not str(code).startswith("2"):
+            continue
+        response = _resolve_schema(response, spec)
+        media_types = list((response.get("content") or {}).keys())
+        media_types += list(operation.get("produces") or [])  # Swagger 2.0
+        for media_type in media_types:
+            for prefix, reason in GENERATED_MEDIA_TYPES.items():
+                if media_type.lower().startswith(prefix):
+                    return f"{reason} ({media_type})", "MEDIUM", 0.7
     return None
 
 
@@ -412,9 +568,16 @@ def _analyze_rc012(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
     global_security = _get_global_security(spec)
 
     for path_str, method, operation in _iter_operations(paths):
-        matched_pattern = _path_is_expensive(path_str, operation)
-        if not matched_pattern:
-            continue
+        matched_pattern = _path_is_expensive(path_str, operation, method)
+        if matched_pattern:
+            reason = f"matches expensive pattern '{matched_pattern}'"
+            severity, confidence = "HIGH", 0.85
+        else:
+            signal = _structural_cost_signal(operation, spec)
+            if not signal:
+                continue
+            reason, severity, confidence = signal
+            reason = f"structural cost signal: {reason}"
 
         if _has_documented_protection(operation, global_security):
             continue
@@ -424,22 +587,92 @@ def _analyze_rc012(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
                 rule_id="RC-012",
                 cwe_id="CWE-770",
                 category="openapi_expensive_endpoint_unprotected",
-                severity="HIGH",
+                severity=severity,
                 file_path="openapi_spec",
                 line_number=None,
                 endpoint=f"{method} {path_str}",
                 parameter=None,
                 evidence=(
-                    f"{method} {path_str} — matches expensive pattern '{matched_pattern}' "
-                    f"without security or rate-limit documentation"
+                    f"{method} {path_str} — {reason} without security or rate-limit documentation"
                 ),
                 missing_guard=(
                     "Add security: [{scheme: []}] or x-rate-limit extension "
                     "or document throttling in description"
                 ),
-                confidence=0.85,
+                confidence=confidence,
             )
         )
+
+    return findings
+
+
+# ---------------------------------------------------------------------------
+# RC-013 — Batch / Array payload without maxItems constraint
+# ---------------------------------------------------------------------------
+
+
+def _analyze_rc013(paths: dict, spec: dict) -> list[ResourceConsumptionFinding]:
+    """
+    Detects endpoints accepting JSON payloads with unbounded arrays (batch requests,
+    bulk operations) without maxItems constraint, creating Unrestricted Resource
+    Consumption risks (DoS via massive array allocation).
+    """
+    findings: list[ResourceConsumptionFinding] = []
+
+    for path_str, method, operation in _iter_operations(paths):
+        request_body = operation.get("requestBody") or {}
+        content = request_body.get("content") or {}
+
+        for content_type, media_type_obj in content.items():
+            if "json" not in content_type.lower():
+                continue
+            if not isinstance(media_type_obj, dict):
+                continue
+
+            schema = _resolve_schema(media_type_obj.get("schema") or {}, spec)
+            is_batch_path = any(
+                kw in path_str.lower() for kw in ("batch", "bulk", "multi", "import", "items")
+            )
+            sev = "HIGH" if is_batch_path else "MEDIUM"
+
+            # 1. Top-level array: [ { ... }, { ... } ]
+            if schema.get("type") == "array" and "maxItems" not in schema:
+                findings.append(
+                    _make_finding(
+                        rule_id="RC-013",
+                        cwe_id="CWE-400",
+                        category="openapi_no_batch_limit",
+                        severity=sev,
+                        file_path="openapi_spec",
+                        line_number=None,
+                        endpoint=f"{method} {path_str}",
+                        parameter=None,
+                        evidence=f"{method} {path_str} — top-level JSON array payload has no maxItems constraint",
+                        missing_guard="Add maxItems: <int> to the top-level array schema to limit batch operations",
+                        confidence=0.85,
+                    )
+                )
+
+            # 2. Object properties with type: array
+            properties = schema.get("properties") or {}
+            for prop_name, prop_schema in properties.items():
+                prop_schema = _resolve_schema(prop_schema, spec)
+                if prop_schema.get("type") == "array" and "maxItems" not in prop_schema:
+                    findings.append(
+                        _make_finding(
+                            rule_id="RC-013",
+                            cwe_id="CWE-400",
+                            category="openapi_no_batch_limit",
+                            severity=sev,
+                            file_path="openapi_spec",
+                            line_number=None,
+                            endpoint=f"{method} {path_str}",
+                            parameter=prop_name,
+                            evidence=f"{method} {path_str} — JSON payload array field '{prop_name}' has no maxItems constraint",
+                            missing_guard="Add maxItems: <int> to the array property schema",
+                            confidence=0.8,
+                        )
+                    )
 
     return findings
 
@@ -557,6 +790,11 @@ def analyze_openapi(
         all_findings.extend(_analyze_rc012(paths, spec))
     except Exception as exc:
         logger.warning("RC-012 analysis failed: %s", exc)
+
+    try:
+        all_findings.extend(_analyze_rc013(paths, spec))
+    except Exception as exc:
+        logger.warning("RC-013 analysis failed: %s", exc)
 
     if enrich_spec:
         try:

@@ -2113,11 +2113,31 @@ class DynamicTester:
                 )
 
             triggered_limit = False
+            wrong_statuses: list[int] = []
             for i in range(10):
                 res_wrong = await client.post(target_mfa, json={"code": f"99999{i}"})
+                wrong_statuses.append(res_wrong.status_code)
                 if res_wrong.status_code == 429:
                     triggered_limit = True
                     break
+
+            # Se nessuna risposta mostra che il codice è stato valutato (errori del server,
+            # endpoint assente o formato non accettato), l'assenza di 429 non dice nulla sul
+            # rate limiting: il payload non ha raggiunto la verifica dell'OTP.
+            not_evaluated = {404, 405, 415}
+            if not triggered_limit and all(s >= 500 or s in not_evaluated for s in wrong_statuses):
+                return RisultatoTest(
+                    test_id="T21",
+                    nome="MFA Testing (Bypass e OTP Debole)",
+                    stato="INCONCLUSIVE",
+                    severita="INFO",
+                    dettagli=(
+                        "I codici OTP errati non sono stati valutati dall'endpoint MFA "
+                        f"(status {sorted(set(wrong_statuses))}): payload o endpoint non "
+                        "compatibili, impossibile verificare il rate limiting."
+                    ),
+                    category=VulnerabilityCategory.AUTHENTICATION,
+                )
 
             if triggered_limit:
                 return RisultatoTest(

@@ -1,0 +1,184 @@
+# ============================================================================
+# Catalogo degli idiomi di autorizzazione per framework (BOPLA, OWASP API3)
+# ----------------------------------------------------------------------------
+# La fase 2 dell'analisi BOPLA (property_inference.py) considera "protetta" una
+# proprietà letta dentro un contesto autorizzativo. Questo catalogo insegna al
+# modulo COME i framework dichiarano un controllo di autorizzazione (decoratori,
+# dipendenze, attributi di classe, middleware nella rotta, wrapper di handler);
+# non dice mai QUALI proprietà sono protette.
+#
+# AUTENTICAZIONE vs AUTORIZZAZIONE
+#   Un controllo di sola autenticazione (login_required, IsAuthenticated,
+#   requireAuth, jwt_required, ...) dice solo che la richiesta ha un'identità:
+#   qualunque utente autenticato vede le stesse proprietà, quindi non è un
+#   controllo sulle proprietà e va escluso. Conta come AUTORIZZAZIONE un nome
+#   che contiene un termine di `terms.authorization` (ruolo, permesso, scope,
+#   admin, staff, superuser, ...), confrontato parola per parola dopo aver
+#   spezzato snake_case e camelCase (IsAdminUser -> is/admin/user). I nomi in
+#   `authentication_names` sono esclusi anche se contenessero un termine.
+#
+# Tipi di idioma (`kind`):
+#   decorator                 nome sempre autorizzativo (@roles_required, @Roles)
+#   decorator_with_arguments  autorizzativo solo se fra gli argomenti compare un
+#                             identificatore di autorizzazione
+#                             (@user_passes_test(lambda u: u.is_superuser))
+#   decorator_name_terms      decoratore il cui nome contiene un termine
+#                             di autorizzazione (@admin_only, @require_permissions)
+#   dependency                FastAPI: Depends(<autorizzazione>), Security(..., scopes=[...])
+#                             nei parametri della funzione o in `dependencies=[...]`
+#                             del decoratore di rotta
+#   class_attribute           attributo di classe il cui valore contiene un
+#                             identificatore di autorizzazione (DRF permission_classes)
+#   class_attribute_any       attributo di classe autorizzativo per il solo nome
+#                             (Django PermissionRequiredMixin.permission_required)
+#   class_base                classe base che impone un ruolo o un permesso
+#   route_middleware          chiamata di rotta con percorso ('/x') fra i cui
+#                             argomenti compare un middleware di autorizzazione:
+#                             il contesto vale per l'handler della stessa chiamata
+#   middleware_chain          catena Go (chi) r.With(<autorizzazione>).Get("/x", h)
+#   handler_wrapper           wrapper il cui nome è autorizzativo e che avvolge un
+#                             handler: RequireRole("admin", handler)
+#
+# `enabled: false` disattiva un idioma senza toglierlo dal catalogo.
+# Se il file manca o è malformato, auth_idioms.py ricade sui soli decoratori
+# di ruolo storici (comportamento precedente al catalogo).
+# ============================================================================
+version: 1
+
+terms:
+  authorization:
+    - role
+    - roles
+    - admin
+    - admins
+    - administrator
+    - superadmin
+    - superuser
+    - staff
+    - permission
+    - permissions
+    - perm
+    - perms
+    - scope
+    - scopes
+    - privilege
+    - privileges
+    - rbac
+    - acl
+    - authorize
+    - entitlement
+    - entitlements
+  # Solo documentazione: questi termini, da soli, non rendono autorizzativo un nome
+  authentication:
+    - login
+    - logged
+    - auth
+    - authenticated
+    - authentication
+    - authenticate
+    - jwt
+    - token
+    - session
+
+authentication_names:
+  - login_required
+  - jwt_required
+  - jwt_auth_required
+  - token_required
+  - auth_required
+  - IsAuthenticated
+  - IsAuthenticatedOrReadOnly
+  - LoginRequiredMixin
+  - requireAuth
+  - requireLogin
+  - ensureAuthenticated
+  - isAuthenticated
+  - authenticate
+  - AuthGuard
+  - JwtAuthGuard
+  - get_current_user
+  - get_current_active_user
+
+idioms:
+  - id: role_decorator
+    kind: decorator
+    frameworks: [flask-security, flask-principal, spring, nestjs, casl, aspnet, generic]
+    languages: [python, javascript, typescript, java]
+    names:
+      - roles_required
+      - roles_accepted
+      - require_role
+      - permission_required
+      - staff_member_required
+      - superuser_required
+      - secured
+      - PreAuthorize
+      - PostAuthorize
+      - RolesAllowed
+      - HasRole
+      - Can
+      - CheckPolicies
+      - Authorize
+      - check_auth
+      - Roles
+
+  - id: predicate_decorator
+    kind: decorator_with_arguments
+    frameworks: [django, drf, nestjs]
+    languages: [python, javascript, typescript]
+    names:
+      - user_passes_test      # Django: @user_passes_test(lambda u: u.is_superuser)
+      - permission_classes    # DRF function view: @permission_classes([IsAdminUser])
+      - method_decorator      # Django CBV: @method_decorator(staff_member_required, ...)
+      - UseGuards             # NestJS: @UseGuards(RolesGuard), non @UseGuards(AuthGuard('jwt'))
+
+  - id: named_decorator
+    kind: decorator_name_terms
+    frameworks: [generic]
+    languages: [python, javascript, typescript]
+
+  - id: fastapi_dependency
+    kind: dependency
+    frameworks: [fastapi]
+    languages: [python]
+    names: [Depends, Security]
+    scope_keywords: [scopes]
+    route_keywords: [dependencies]
+
+  - id: drf_permission_classes
+    kind: class_attribute
+    frameworks: [drf]
+    languages: [python]
+    names: [permission_classes]
+
+  - id: django_permission_mixin_attribute
+    kind: class_attribute_any
+    frameworks: [django]
+    languages: [python]
+    names: [permission_required]
+
+  - id: django_permission_mixin
+    kind: class_base
+    frameworks: [django, django-braces]
+    languages: [python]
+    names:
+      - PermissionRequiredMixin
+      - StaffuserRequiredMixin
+      - SuperuserRequiredMixin
+
+  - id: route_middleware
+    kind: route_middleware
+    frameworks: [express, koa-router, gin, echo, chi, gorilla-mux]
+    languages: [javascript, typescript, go]
+    names: [get, post, put, patch, delete, all, options, head, handle, handlefunc, any]
+
+  - id: go_middleware_chain
+    kind: middleware_chain
+    frameworks: [chi]
+    languages: [go]
+    names: [With]
+
+  - id: handler_wrapper
+    kind: handler_wrapper
+    frameworks: [net/http, express]
+    languages: [go, javascript]

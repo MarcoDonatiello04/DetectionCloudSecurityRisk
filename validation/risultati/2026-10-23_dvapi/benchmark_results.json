@@ -1,0 +1,65 @@
+[
+  {
+    "name": "BOPLA (Broken Object Property Level Access)",
+    "dir": "src/core/api3_bopla",
+    "time": 1.639087200164795,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "BOLA (Broken Object Level Authorization)",
+    "dir": "src/core/api1_bola",
+    "time": 0.011623144149780273,
+    "status": "FAILED: Identita' non reali per ['victim', 'peer'] (provider 'traffic'): nessun test eseguito. Verificare Keycloak, le variabili dei token statici o il traffico di esercizio (servono due utenti distinti con JWT che riporti il claim 'sub').",
+    "findings": 0
+  },
+  {
+    "name": "BOLA statica (Broken Object Level Authorization)",
+    "dir": "src/core/api1_bola",
+    "time": 1.718367099761963,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "Broken Authentication",
+    "dir": "src/core/api2_broken_auth",
+    "time": 0.0032508373260498047,
+    "status": "FAILED: Nessun file manifest di dipendenze (es. package.json, requirements.txt, ecc.) rilevato nella root della repository: data/test_targets/external/dvapi",
+    "findings": 0
+  },
+  {
+    "name": "BFLA (Broken Function Level Authorization)",
+    "dir": "src/core/api5_bfla",
+    "time": 1.2724709510803223,
+    "status": "SUCCESS",
+    "findings": 1
+  },
+  {
+    "name": "Security Misconfiguration",
+    "dir": "src/core/api8_security_misconfig",
+    "time": 0.06921100616455078,
+    "status": "SUCCESS",
+    "findings": 3
+  },
+  {
+    "name": "SSRF (Server Side Request Forgery)",
+    "dir": "src/core/api7_ssrf",
+    "time": 0.8673150539398193,
+    "status": "SUCCESS",
+    "findings": 0
+  },
+  {
+    "name": "Unrestricted Resource Consumption",
+    "dir": "src/core/api4_resource_consumption",
+    "time": 3.169020891189575,
+    "status": "SUCCESS",
+    "findings": 3
+  },
+  {
+    "name": "Unsafe Consumption",
+    "dir": "src/core/api10_unsafe_consumption",
+    "time": 0.0030777454376220703,
+    "status": "SUCCESS",
+    "findings": 0
+  }
+]

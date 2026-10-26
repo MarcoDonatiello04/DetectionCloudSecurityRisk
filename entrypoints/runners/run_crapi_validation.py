@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import secrets
 import sys
 from datetime import datetime
 
@@ -18,6 +19,38 @@ from src.core.api2_broken_auth import (
 )
 
 
+async def ensure_test_user(base_url: str) -> tuple[str, str] | None:
+    """Credenziali di un utente crAPI per i test che richiedono un token di sessione.
+
+    Usa CRAPI_EMAIL/CRAPI_PASSWORD se impostate; altrimenti registra sull'istanza locale un
+    utente usa e getta (i test JWT T01/T07/T17 senza login restano INCONCLUSIVE).
+    """
+    email = os.environ.get("CRAPI_EMAIL")
+    password = os.environ.get("CRAPI_PASSWORD")
+    if email and password:
+        return email, password
+
+    suffix = secrets.token_hex(4)
+    email = f"scanner-{suffix}@example.com"
+    # Politica di crAPI: 8-16 caratteri con maiuscola, minuscola, cifra e simbolo.
+    password = f"Sc{secrets.token_hex(4)}!9"
+    payload = {
+        "name": f"scanner{suffix}",
+        "email": email,
+        "number": str(secrets.randbelow(9_000_000_000) + 1_000_000_000),
+        "password": password,
+    }
+    async with httpx.AsyncClient(base_url=base_url, timeout=15.0) as client:
+        res = await client.post("/identity/api/auth/signup", json=payload)
+    if res.status_code not in (200, 201):
+        print(
+            f"Registrazione utente di prova fallita (status {res.status_code}): test JWT senza token."
+        )
+        return None
+    print("Registrato un utente di prova usa e getta per ottenere il token di sessione.")
+    return email, password
+
+
 async def main():
     repo_path = "data/test_targets/crapi_repo"
     config = discovery.Config()
@@ -25,6 +58,10 @@ async def main():
     # Configure base target URL to crAPI ingress gateway
     config.target.base_url = "http://localhost:8888"
     config.scanner.timeout_http = 15.0
+
+    credentials = await ensure_test_user(config.target.base_url)
+    if credentials:
+        config.target.username, config.target.password = credentials
 
     print("\n=== [1] FASE 1: Stack Discovery ===")
     try:

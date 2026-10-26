@@ -44,6 +44,11 @@ def test_bopla_orchestrator_full_pipeline(mock_req, mock_config, mock_headers, t
 class User:
     id: int
     salary: float
+
+
+@roles_required("admin")
+def set_salary(user, amount):
+    user.salary = amount
 """,
         encoding="utf-8",
     )

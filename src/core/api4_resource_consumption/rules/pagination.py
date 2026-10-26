@@ -67,15 +67,21 @@ def _walk_collect(node: Node, node_type: str, acc: list[Node]) -> None:
 
 def _get_attribute_chain(node: Node) -> list[str]:
     """
-    For an attribute node `a.b.c`, return ['a', 'b', 'c'].
+    For an attribute/member_expression node `a.b.c`, return ['a', 'b', 'c'].
     For an identifier, return [name].
     """
-    if node.type == "identifier":
+    if node.type in ("identifier", "property_identifier", "shorthand_property_identifier"):
         return [_node_text(node)]
-    if node.type == "attribute":
+    if node.type in ("attribute", "member_expression"):
         parts: list[str] = []
         for child in node.children:
-            if child.type in ("identifier", "attribute"):
+            if child.type in (
+                "identifier",
+                "property_identifier",
+                "shorthand_property_identifier",
+                "attribute",
+                "member_expression",
+            ):
                 parts.extend(_get_attribute_chain(child))
             # skip '.'
         return parts
@@ -110,8 +116,10 @@ def _is_fastapi_query_with_le(param_node: Node) -> tuple[bool, bool]:
     For a FastAPI function parameter default that is Query(...), returns:
     (is_query_param, has_le_constraint).
     """
-    # parameter → default_value → call to Query(...)
+    # parameter → default_value (or value in tree-sitter 0.25) → call to Query(...)
     default = param_node.child_by_field_name("default_value")
+    if default is None:
+        default = param_node.child_by_field_name("value")
     if default is None:
         return False, False
     if default.type != "call":

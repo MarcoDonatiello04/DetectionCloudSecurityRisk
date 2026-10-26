@@ -1,0 +1,5178 @@
+[
+  {
+    "finding_id": "checkov-84b49a295dbe",
+    "source": "CHECKOV",
+    "category": "MISCONFIGURATION",
+    "title": "Ensure that a user for the container has been created",
+    "description": "Ensure that a user for the container has been created per la risorsa /Dockerfile.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "CKV_DOCKER_3",
+    "rule_name": "Ensure that a user for the container has been created",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": "/Dockerfile.",
+    "location": {
+      "file_path": "/Dockerfile",
+      "start_line": 1,
+      "end_line": 17,
+      "code_snippet": null
+    },
+    "api": null,
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "",
+    "related_findings": [
+      "checkov-1bd982e6e295"
+    ],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": "HARDENING",
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "check_id": "CKV_DOCKER_3",
+      "bc_check_id": null,
+      "check_name": "Ensure that a user for the container has been created",
+      "check_result": {
+        "result": "FAILED",
+        "results_configuration": null
+      },
+      "code_block": null,
+      "file_path": "/Dockerfile",
+      "file_abs_path": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/Dockerfile",
+      "repo_file_path": "/data/test_targets/external/vampi/Dockerfile",
+      "file_line_range": [
+        1,
+        17
+      ],
+      "resource": "/Dockerfile.",
+      "evaluations": null,
+      "check_class": "checkov.dockerfile.checks.UserExists",
+      "fixed_definition": null,
+      "entity_tags": null,
+      "caller_file_path": null,
+      "caller_file_line_range": null,
+      "resource_address": null,
+      "severity": null,
+      "bc_category": null,
+      "benchmarks": null,
+      "description": null,
+      "short_description": null,
+      "vulnerability_details": null,
+      "connected_node": null,
+      "guideline": null,
+      "details": [],
+      "check_len": null,
+      "definition_context_file_path": null,
+      "aggregated_checks": [
+        {
+          "finding_id": "checkov-1bd982e6e295",
+          "rule_id": "CKV_DOCKER_2",
+          "title": "Ensure that HEALTHCHECK instructions have been added to container images",
+          "severity": "LOW",
+          "nature": "HARDENING"
+        }
+      ],
+      "merged_checkov-1bd982e6e295": {
+        "check_id": "CKV_DOCKER_2",
+        "bc_check_id": null,
+        "check_name": "Ensure that HEALTHCHECK instructions have been added to container images",
+        "check_result": {
+          "result": "FAILED",
+          "results_configuration": null
+        },
+        "code_block": null,
+        "file_path": "/Dockerfile",
+        "file_abs_path": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/Dockerfile",
+        "repo_file_path": "/data/test_targets/external/vampi/Dockerfile",
+        "file_line_range": [
+          1,
+          17
+        ],
+        "resource": "/Dockerfile.",
+        "evaluations": null,
+        "check_class": "checkov.dockerfile.checks.HealthcheckExists",
+        "fixed_definition": null,
+        "entity_tags": null,
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": null,
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": null
+      },
+      "correlated_risk_score": 4.7
+    },
+    "detected_at": "2026-10-23T07:35:03.417497+00:00"
+  },
+  {
+    "finding_id": "checkov-55e867ff86e5",
+    "source": "CHECKOV",
+    "category": "MISCONFIGURATION",
+    "title": "JSON Web Token",
+    "description": "JSON Web Token per la risorsa a925480429e53a4c3917e7e8aff31d43d280ce53",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "CKV_SECRET_9",
+    "rule_name": "JSON Web Token",
+    "resource_type": null,
+    "resource_name": "a925480429e53a4c3917e7e8aff31d43d280ce53",
+    "resource_id": "a925480429e53a4c3917e7e8aff31d43d280ce53",
+    "location": {
+      "file_path": "/openapi_specs/openapi3.yml",
+      "start_line": 193,
+      "end_line": 194,
+      "code_snippet": null
+    },
+    "api": null,
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": false,
+      "sensitive_data_detected": true,
+      "public_resource": false,
+      "exploitable": null
+    },
+    "correlation_key": "a925480429e53a4c3917e7e8aff31d43d280ce53",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": "EXPOSURE",
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "check_id": "CKV_SECRET_9",
+      "bc_check_id": null,
+      "check_name": "JSON Web Token",
+      "check_result": {
+        "result": "FAILED"
+      },
+      "code_block": null,
+      "file_path": "/openapi_specs/openapi3.yml",
+      "file_abs_path": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "repo_file_path": "/data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "file_line_range": [
+        193,
+        194
+      ],
+      "resource": "a925480429e53a4c3917e7e8aff31d43d280ce53",
+      "evaluations": null,
+      "check_class": "",
+      "fixed_definition": null,
+      "entity_tags": null,
+      "caller_file_path": null,
+      "caller_file_line_range": null,
+      "resource_address": null,
+      "severity": null,
+      "bc_category": null,
+      "benchmarks": null,
+      "description": null,
+      "short_description": null,
+      "vulnerability_details": null,
+      "connected_node": null,
+      "guideline": null,
+      "details": [],
+      "check_len": null,
+      "definition_context_file_path": null,
+      "validation_status": "Unavailable",
+      "added_commit_hash": "",
+      "removed_commit_hash": "",
+      "added_by": "",
+      "removed_date": "",
+      "added_date": "",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-23T07:35:03.417512+00:00"
+  },
+  {
+    "finding_id": "checkov-c7a7b49873c5",
+    "source": "CHECKOV",
+    "category": "MISCONFIGURATION",
+    "title": "Ensure that security operations is not empty.",
+    "description": "Ensure that security operations is not empty. per la risorsa security",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "CKV_OPENAPI_5",
+    "rule_name": "Ensure that security operations is not empty.",
+    "resource_type": null,
+    "resource_name": "security",
+    "resource_id": "security",
+    "location": {
+      "file_path": "/openapi_specs/openapi3.yml",
+      "start_line": 1,
+      "end_line": 652,
+      "code_snippet": null
+    },
+    "api": null,
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "security",
+    "related_findings": [
+      "checkov-5c680ef63110"
+    ],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": "EXPOSURE",
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "check_id": "CKV_OPENAPI_5",
+      "bc_check_id": null,
+      "check_name": "Ensure that security operations is not empty.",
+      "check_result": {
+        "result": "FAILED",
+        "results_configuration": {
+          "openapi": "3.0.1",
+          "info": {
+            "title": "VAmPI",
+            "description": "OpenAPI v3 specs for VAmPI",
+            "version": "0.1",
+            "__startline__": 3,
+            "__endline__": 6
+          },
+          "servers": [
+            {
+              "url": "http://localhost:5000",
+              "__startline__": 7,
+              "__endline__": 8
+            }
+          ],
+          "components": {
+            "securitySchemes": {
+              "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "x-bearerInfoFunc": "models.user_model.User.decode_auth_token",
+                "__startline__": 11,
+                "__endline__": 15
+              },
+              "__startline__": 10,
+              "__endline__": 15
+            },
+            "__startline__": 9,
+            "__endline__": 15
+          },
+          "paths": {
+            "/createdb": {
+              "get": {
+                "tags": [
+                  "db-init"
+                ],
+                "summary": "Creates and populates the database with dummy data",
+                "description": "Creates and populates the database with dummy data",
+                "operationId": "api_views.main.populate_db",
+                "responses": {
+                  "200": {
+                    "description": "Creates and populates the database with dummy data",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "example": "Database populated.",
+                              "__startline__": 32,
+                              "__endline__": 34
+                            },
+                            "__startline__": 31,
+                            "__endline__": 34
+                          },
+                          "__startline__": 29,
+                          "__endline__": 34
+                        },
+                        "__startline__": 28,
+                        "__endline__": 34
+                      },
+                      "__startline__": 27,
+                      "__endline__": 34
+                    },
+                    "__startline__": 25,
+                    "__endline__": 34
+                  },
+                  "__startline__": 24,
+                  "__endline__": 34
+                },
+                "__startline__": 18,
+                "__endline__": 34
+              },
+              "__startline__": 17,
+              "__endline__": 34
+            },
+            "/": {
+              "get": {
+                "tags": [
+                  "home"
+                ],
+                "summary": "VAmPI home",
+                "description": "VAmPI is a vulnerable on purpose API. It was created in order to evaluate the efficiency of third party tools in identifying vulnerabilities in APIs but it can also be used in learning/teaching purposes.",
+                "operationId": "api_views.main.basic",
+                "responses": {
+                  "200": {
+                    "description": "Home - Help",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "example": "VAmPI the Vulnerable API",
+                              "__startline__": 54,
+                              "__endline__": 56
+                            },
+                            "help": {
+                              "type": "string",
+                              "example": "VAmPI is a vulnerable on purpose API. It was created in order to evaluate the efficiency of third party tools in identifying vulnerabilities in APIs but it can also be used in learning/teaching purposes.",
+                              "__startline__": 57,
+                              "__endline__": 59
+                            },
+                            "vulnerable": {
+                              "type": "number",
+                              "example": 1,
+                              "__startline__": 60,
+                              "__endline__": 62
+                            },
+                            "__startline__": 53,
+                            "__endline__": 62
+                          },
+                          "__startline__": 51,
+                          "__endline__": 62
+                        },
+                        "__startline__": 50,
+                        "__endline__": 62
+                      },
+                      "__startline__": 49,
+                      "__endline__": 62
+                    },
+                    "__startline__": 47,
+                    "__endline__": 62
+                  },
+                  "__startline__": 46,
+                  "__endline__": 62
+                },
+                "__startline__": 36,
+                "__endline__": 62
+              },
+              "__startline__": 35,
+              "__endline__": 62
+            },
+            "/users/v1": {
+              "get": {
+                "tags": [
+                  "users"
+                ],
+                "summary": "Retrieves all users",
+                "description": "Displays all users with basic information",
+                "operationId": "api_views.users.get_all_users",
+                "responses": {
+                  "200": {
+                    "description": "See basic info about all users",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "users": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "email": {
+                                    "type": "string",
+                                    "example": "mail1@mail.com",
+                                    "__startline__": 83,
+                                    "__endline__": 85
+                                  },
+                                  "username": {
+                                    "type": "string",
+                                    "example": "name1",
+                                    "__startline__": 86,
+                                    "__endline__": 88
+                                  },
+                                  "__startline__": 82,
+                                  "__endline__": 88
+                                },
+                                "__startline__": 80,
+                                "__endline__": 88
+                              },
+                              "__startline__": 78,
+                              "__endline__": 88
+                            },
+                            "__startline__": 77,
+                            "__endline__": 88
+                          },
+                          "__startline__": 75,
+                          "__endline__": 88
+                        },
+                        "__startline__": 74,
+                        "__endline__": 88
+                      },
+                      "__startline__": 73,
+                      "__endline__": 88
+                    },
+                    "__startline__": 71,
+                    "__endline__": 88
+                  },
+                  "__startline__": 70,
+                  "__endline__": 88
+                },
+                "__startline__": 64,
+                "__endline__": 88
+              },
+              "__startline__": 63,
+              "__endline__": 88
+            },
+            "/users/v1/_debug": {
+              "get": {
+                "tags": [
+                  "users"
+                ],
+                "summary": "Retrieves all details for all users",
+                "description": "Displays all details for all users",
+                "operationId": "api_views.users.debug",
+                "responses": {
+                  "200": {
+                    "description": "See all details of the users",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "users": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "admin": {
+                                    "type": "boolean",
+                                    "example": false,
+                                    "__startline__": 109,
+                                    "__endline__": 111
+                                  },
+                                  "email": {
+                                    "type": "string",
+                                    "example": "mail1@mail.com",
+                                    "__startline__": 112,
+                                    "__endline__": 114
+                                  },
+                                  "password": {
+                                    "type": "string",
+                                    "example": "pass1",
+                                    "__startline__": 115,
+                                    "__endline__": 117
+                                  },
+                                  "username": {
+                                    "type": "string",
+                                    "example": "name1",
+                                    "__startline__": 118,
+                                    "__endline__": 120
+                                  },
+                                  "__startline__": 108,
+                                  "__endline__": 120
+                                },
+                                "__startline__": 106,
+                                "__endline__": 120
+                              },
+                              "__startline__": 104,
+                              "__endline__": 120
+                            },
+                            "__startline__": 103,
+                            "__endline__": 120
+                          },
+                          "__startline__": 101,
+                          "__endline__": 120
+                        },
+                        "__startline__": 100,
+                        "__endline__": 120
+                      },
+                      "__startline__": 99,
+                      "__endline__": 120
+                    },
+                    "__startline__": 97,
+                    "__endline__": 120
+                  },
+                  "__startline__": 96,
+                  "__endline__": 120
+                },
+                "__startline__": 90,
+                "__endline__": 120
+              },
+              "__startline__": 89,
+              "__endline__": 120
+            },
+            "/users/v1/register": {
+              "post": {
+                "tags": [
+                  "users"
+                ],
+                "summary": "Register new user",
+                "description": "Register new user",
+                "operationId": "api_views.users.register_user",
+                "requestBody": {
+                  "description": "Username of the user",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "username": {
+                            "type": "string",
+                            "example": "name1",
+                            "__startline__": 135,
+                            "__endline__": 137
+                          },
+                          "password": {
+                            "type": "string",
+                            "example": "pass1",
+                            "__startline__": 138,
+                            "__endline__": 140
+                          },
+                          "email": {
+                            "type": "string",
+                            "example": "user@tempmail.com",
+                            "__startline__": 141,
+                            "__endline__": 143
+                          },
+                          "__startline__": 134,
+                          "__endline__": 143
+                        },
+                        "__startline__": 132,
+                        "__endline__": 143
+                      },
+                      "__startline__": 131,
+                      "__endline__": 143
+                    },
+                    "__startline__": 130,
+                    "__endline__": 143
+                  },
+                  "required": true,
+                  "__startline__": 128,
+                  "__endline__": 144
+                },
+                "responses": {
+                  "200": {
+                    "description": "Successfully created user",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "example": "Successfully registered. Login to receive an auth token.",
+                              "__startline__": 153,
+                              "__endline__": 155
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "success",
+                                "fail"
+                              ],
+                              "example": "success",
+                              "__startline__": 156,
+                              "__endline__": 159
+                            },
+                            "__startline__": 152,
+                            "__endline__": 159
+                          },
+                          "__startline__": 150,
+                          "__endline__": 159
+                        },
+                        "__startline__": 149,
+                        "__endline__": 159
+                      },
+                      "__startline__": 148,
+                      "__endline__": 159
+                    },
+                    "__startline__": 146,
+                    "__endline__": 159
+                  },
+                  "400": {
+                    "description": "Invalid request",
+                    "content": {
+                      "__startline__": 161,
+                      "__endline__": 161
+                    },
+                    "__startline__": 160,
+                    "__endline__": 162
+                  },
+                  "__startline__": 145,
+                  "__endline__": 162
+                },
+                "__startline__": 122,
+                "__endline__": 162
+              },
+              "__startline__": 121,
+              "__endline__": 162
+            },
+            "/users/v1/login": {
+              "post": {
+                "tags": [
+                  "users"
+                ],
+                "summary": "Login to VAmPI",
+                "description": "Login to VAmPI",
+                "operationId": "api_views.users.login_user",
+                "requestBody": {
+                  "description": "Username of the user",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "username": {
+                            "type": "string",
+                            "example": "name1",
+                            "__startline__": 177,
+                            "__endline__": 179
+                          },
+                          "password": {
+                            "type": "string",
+                            "example": "pass1",
+                            "__startline__": 180,
+                            "__endline__": 182
+                          },
+                          "__startline__": 176,
+                          "__endline__": 182
+                        },
+                        "__startline__": 174,
+                        "__endline__": 182
+                      },
+                      "__startline__": 173,
+                      "__endline__": 182
+                    },
+                    "__startline__": 172,
+                    "__endline__": 182
+                  },
+                  "required": true,
+                  "__startline__": 170,
+                  "__endline__": 183
+                },
+                "responses": {
+                  "200": {
+                    "description": "Sucessfully logged in user",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "auth_token": {
+                              "type": "string",
+                              "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NzAxNjA2MTcsImlhdCI6MTY3MDE2MDU1Nywic3ViIjoiSm9obi5Eb2UifQ.n17N4AxTbL4_z65-NR46meoytauPDjImUxrLiUMSTQw",
+                              "__startline__": 192,
+                              "__endline__": 194
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Successfully logged in.",
+                              "__startline__": 195,
+                              "__endline__": 197
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "success",
+                                "fail"
+                              ],
+                              "example": "success",
+                              "__startline__": 198,
+                              "__endline__": 201
+                            },
+                            "__startline__": 191,
+                            "__endline__": 201
+                          },
+                          "__startline__": 189,
+                          "__endline__": 201
+                        },
+                        "__startline__": 188,
+                        "__endline__": 201
+                      },
+                      "__startline__": 187,
+                      "__endline__": 201
+                    },
+                    "__startline__": 185,
+                    "__endline__": 201
+                  },
+                  "400": {
+                    "description": "Invalid request",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "fail"
+                              ],
+                              "example": "fail",
+                              "__startline__": 209,
+                              "__endline__": 212
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Password is not correct for the given username.",
+                              "__startline__": 213,
+                              "__endline__": 215
+                            },
+                            "__startline__": 208,
+                            "__endline__": 215
+                          },
+                          "__startline__": 206,
+                          "__endline__": 215
+                        },
+                        "__startline__": 205,
+                        "__endline__": 215
+                      },
+                      "__startline__": 204,
+                      "__endline__": 215
+                    },
+                    "__startline__": 202,
+                    "__endline__": 215
+                  },
+                  "__startline__": 184,
+                  "__endline__": 215
+                },
+                "__startline__": 164,
+                "__endline__": 215
+              },
+              "__startline__": 163,
+              "__endline__": 215
+            },
+            "/me": {
+              "get": {
+                "security": [
+                  {
+                    "bearerAuth": [],
+                    "__startline__": 218,
+                    "__endline__": 219
+                  }
+                ],
+                "tags": [
+                  "users"
+                ],
+                "summary": "Retrieves currently logged in user",
+                "description": "Displays information about the currently authenticated user",
+                "operationId": "api_views.users.me",
+                "responses": {
+                  "200": {
+                    "description": "Display current user info",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "data": {
+                              "type": "object",
+                              "properties": {
+                                "admin": {
+                                  "type": "boolean",
+                                  "example": false,
+                                  "__startline__": 236,
+                                  "__endline__": 238
+                                },
+                                "email": {
+                                  "type": "string",
+                                  "example": "mail1@mail.com",
+                                  "__startline__": 239,
+                                  "__endline__": 241
+                                },
+                                "username": {
+                                  "type": "string",
+                                  "example": "name1",
+                                  "__startline__": 242,
+                                  "__endline__": 244
+                                },
+                                "__startline__": 235,
+                                "__endline__": 244
+                              },
+                              "__startline__": 233,
+                              "__endline__": 244
+                            },
+                            "status": {
+                              "type": "string",
+                              "example": "success",
+                              "__startline__": 245,
+                              "__endline__": 247
+                            },
+                            "__startline__": 232,
+                            "__endline__": 247
+                          },
+                          "__startline__": 230,
+                          "__endline__": 247
+                        },
+                        "__startline__": 229,
+                        "__endline__": 247
+                      },
+                      "__startline__": 228,
+                      "__endline__": 247
+                    },
+                    "__startline__": 226,
+                    "__endline__": 247
+                  },
+                  "401": {
+                    "description": "Unauthorized access due to expired, invalid, or missing token",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "example": "fail",
+                              "__startline__": 255,
+                              "__endline__": 257
+                            },
+                            "message": {
+                              "type": "string",
+                              "enum": [
+                                "Signature expired. Please log in again.",
+                                "Invalid token. Please log in again."
+                              ],
+                              "__startline__": 258,
+                              "__endline__": 263
+                            },
+                            "__startline__": 254,
+                            "__endline__": 263
+                          },
+                          "__startline__": 252,
+                          "__endline__": 263
+                        },
+                        "__startline__": 251,
+                        "__endline__": 263
+                      },
+                      "__startline__": 250,
+                      "__endline__": 263
+                    },
+                    "__startline__": 248,
+                    "__endline__": 263
+                  },
+                  "__startline__": 225,
+                  "__endline__": 263
+                },
+                "__startline__": 217,
+                "__endline__": 263
+              },
+              "__startline__": 216,
+              "__endline__": 263
+            },
+            "/users/v1/{username}": {
+              "get": {
+                "tags": [
+                  "users"
+                ],
+                "summary": "Retrieves user by username",
+                "description": "Displays user by username",
+                "operationId": "api_views.users.get_by_username",
+                "parameters": [
+                  {
+                    "name": "username",
+                    "in": "path",
+                    "description": "retrieve username data",
+                    "required": true,
+                    "schema": {
+                      "type": "string",
+                      "example": "name1",
+                      "__startline__": 276,
+                      "__endline__": 278
+                    },
+                    "__startline__": 271,
+                    "__endline__": 278
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Successfully display user info",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "username": {
+                              "type": "string",
+                              "example": "name1",
+                              "__startline__": 287,
+                              "__endline__": 289
+                            },
+                            "email": {
+                              "type": "string",
+                              "example": "mail1@mail.com",
+                              "__startline__": 290,
+                              "__endline__": 292
+                            },
+                            "__startline__": 286,
+                            "__endline__": 292
+                          },
+                          "__startline__": 284,
+                          "__endline__": 292
+                        },
+                        "__startline__": 283,
+                        "__endline__": 292
+                      },
+                      "__startline__": 282,
+                      "__endline__": 292
+                    },
+                    "__startline__": 280,
+                    "__endline__": 292
+                  },
+                  "404": {
+                    "description": "User not found",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "fail"
+                              ],
+                              "example": "fail",
+                              "__startline__": 300,
+                              "__endline__": 303
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "User not found",
+                              "__startline__": 304,
+                              "__endline__": 307
+                            },
+                            "__startline__": 299,
+                            "__endline__": 307
+                          },
+                          "__startline__": 297,
+                          "__endline__": 307
+                        },
+                        "__startline__": 296,
+                        "__endline__": 307
+                      },
+                      "__startline__": 295,
+                      "__endline__": 307
+                    },
+                    "__startline__": 293,
+                    "__endline__": 307
+                  },
+                  "__startline__": 279,
+                  "__endline__": 307
+                },
+                "__startline__": 265,
+                "__endline__": 307
+              },
+              "delete": {
+                "security": [
+                  {
+                    "bearerAuth": [],
+                    "__startline__": 309,
+                    "__endline__": 310
+                  }
+                ],
+                "tags": [
+                  "users"
+                ],
+                "summary": "Deletes user by username (Only Admins)",
+                "description": "Deletes user by username (Only Admins)",
+                "operationId": "api_views.users.delete_user",
+                "parameters": [
+                  {
+                    "name": "username",
+                    "in": "path",
+                    "description": "Delete username",
+                    "required": true,
+                    "schema": {
+                      "type": "string",
+                      "example": "name1",
+                      "__startline__": 321,
+                      "__endline__": 323
+                    },
+                    "__startline__": 316,
+                    "__endline__": 323
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Successfully deleted user",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "example": "User deleted.",
+                              "__startline__": 332,
+                              "__endline__": 334
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "success",
+                                "fail"
+                              ],
+                              "example": "success",
+                              "__startline__": 335,
+                              "__endline__": 338
+                            },
+                            "__startline__": 331,
+                            "__endline__": 338
+                          },
+                          "__startline__": 329,
+                          "__endline__": 338
+                        },
+                        "__startline__": 328,
+                        "__endline__": 338
+                      },
+                      "__startline__": 327,
+                      "__endline__": 338
+                    },
+                    "__startline__": 325,
+                    "__endline__": 338
+                  },
+                  "401": {
+                    "description": "User not authorized",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "example": "fail",
+                              "enum": [
+                                "fail"
+                              ],
+                              "__startline__": 346,
+                              "__endline__": 349
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Only Admins may delete users!",
+                              "__startline__": 350,
+                              "__endline__": 352
+                            },
+                            "__startline__": 345,
+                            "__endline__": 352
+                          },
+                          "__startline__": 343,
+                          "__endline__": 352
+                        },
+                        "__startline__": 342,
+                        "__endline__": 352
+                      },
+                      "__startline__": 341,
+                      "__endline__": 352
+                    },
+                    "__startline__": 339,
+                    "__endline__": 352
+                  },
+                  "404": {
+                    "description": "User not found",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "example": "fail",
+                              "enum": [
+                                "fail"
+                              ],
+                              "__startline__": 360,
+                              "__endline__": 363
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "User not found!",
+                              "__startline__": 364,
+                              "__endline__": 366
+                            },
+                            "__startline__": 359,
+                            "__endline__": 366
+                          },
+                          "__startline__": 357,
+                          "__endline__": 366
+                        },
+                        "__startline__": 356,
+                        "__endline__": 366
+                      },
+                      "__startline__": 355,
+                      "__endline__": 366
+                    },
+                    "__startline__": 353,
+                    "__endline__": 366
+                  },
+                  "__startline__": 324,
+                  "__endline__": 366
+                },
+                "__startline__": 308,
+                "__endline__": 366
+              },
+              "__startline__": 264,
+              "__endline__": 366
+            },
+            "/users/v1/{username}/email": {
+              "put": {
+                "security": [
+                  {
+                    "bearerAuth": [],
+                    "__startline__": 369,
+                    "__endline__": 370
+                  }
+                ],
+                "tags": [
+                  "users"
+                ],
+                "summary": "Update users email",
+                "description": "Update a single users email",
+                "operationId": "api_views.users.update_email",
+                "parameters": [
+                  {
+                    "name": "username",
+                    "in": "path",
+                    "description": "username to update email",
+                    "required": true,
+                    "schema": {
+                      "type": "string",
+                      "example": "name1",
+                      "__startline__": 381,
+                      "__endline__": 383
+                    },
+                    "__startline__": 376,
+                    "__endline__": 383
+                  }
+                ],
+                "requestBody": {
+                  "description": "field to update",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "email": {
+                            "type": "string",
+                            "example": "mail3@mail.com",
+                            "__startline__": 391,
+                            "__endline__": 393
+                          },
+                          "__startline__": 390,
+                          "__endline__": 393
+                        },
+                        "__startline__": 388,
+                        "__endline__": 393
+                      },
+                      "__startline__": 387,
+                      "__endline__": 393
+                    },
+                    "__startline__": 386,
+                    "__endline__": 393
+                  },
+                  "required": true,
+                  "__startline__": 384,
+                  "__endline__": 394
+                },
+                "responses": {
+                  "204": {
+                    "description": "Successfully updated user email",
+                    "content": {
+                      "__startline__": 397,
+                      "__endline__": 397
+                    },
+                    "__startline__": 396,
+                    "__endline__": 398
+                  },
+                  "400": {
+                    "description": "Invalid request",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "fail"
+                              ],
+                              "example": "fail",
+                              "__startline__": 406,
+                              "__endline__": 409
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Please Provide a valid email address.",
+                              "__startline__": 410,
+                              "__endline__": 412
+                            },
+                            "__startline__": 405,
+                            "__endline__": 412
+                          },
+                          "__startline__": 403,
+                          "__endline__": 412
+                        },
+                        "__startline__": 402,
+                        "__endline__": 412
+                      },
+                      "__startline__": 401,
+                      "__endline__": 412
+                    },
+                    "__startline__": 399,
+                    "__endline__": 412
+                  },
+                  "401": {
+                    "description": "User not authorized",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "fail"
+                              ],
+                              "example": "fail",
+                              "__startline__": 420,
+                              "__endline__": 423
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Invalid token. Please log in again.",
+                              "__startline__": 424,
+                              "__endline__": 426
+                            },
+                            "__startline__": 419,
+                            "__endline__": 426
+                          },
+                          "__startline__": 417,
+                          "__endline__": 426
+                        },
+                        "__startline__": 416,
+                        "__endline__": 426
+                      },
+                      "__startline__": 415,
+                      "__endline__": 426
+                    },
+                    "__startline__": 413,
+                    "__endline__": 426
+                  },
+                  "__startline__": 395,
+                  "__endline__": 426
+                },
+                "__startline__": 368,
+                "__endline__": 426
+              },
+              "__startline__": 367,
+              "__endline__": 426
+            },
+            "/users/v1/{username}/password": {
+              "put": {
+                "security": [
+                  {
+                    "bearerAuth": [],
+                    "__startline__": 429,
+                    "__endline__": 430
+                  }
+                ],
+                "tags": [
+                  "users"
+                ],
+                "summary": "Update users password",
+                "description": "Update users password",
+                "operationId": "api_views.users.update_password",
+                "parameters": [
+                  {
+                    "name": "username",
+                    "in": "path",
+                    "description": "username to update password",
+                    "required": true,
+                    "schema": {
+                      "type": "string",
+                      "example": "name1",
+                      "__startline__": 441,
+                      "__endline__": 443
+                    },
+                    "__startline__": 436,
+                    "__endline__": 443
+                  }
+                ],
+                "requestBody": {
+                  "description": "field to update",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "password": {
+                            "type": "string",
+                            "example": "pass4",
+                            "__startline__": 451,
+                            "__endline__": 453
+                          },
+                          "__startline__": 450,
+                          "__endline__": 453
+                        },
+                        "__startline__": 448,
+                        "__endline__": 453
+                      },
+                      "__startline__": 447,
+                      "__endline__": 453
+                    },
+                    "__startline__": 446,
+                    "__endline__": 453
+                  },
+                  "required": true,
+                  "__startline__": 444,
+                  "__endline__": 454
+                },
+                "responses": {
+                  "204": {
+                    "description": "Successfully updated users password",
+                    "content": {
+                      "__startline__": 457,
+                      "__endline__": 457
+                    },
+                    "__startline__": 456,
+                    "__endline__": 458
+                  },
+                  "400": {
+                    "description": "Invalid request",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "fail"
+                              ],
+                              "example": "fail",
+                              "__startline__": 466,
+                              "__endline__": 469
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Malformed Data",
+                              "__startline__": 470,
+                              "__endline__": 472
+                            },
+                            "__startline__": 465,
+                            "__endline__": 472
+                          },
+                          "__startline__": 463,
+                          "__endline__": 472
+                        },
+                        "__startline__": 462,
+                        "__endline__": 472
+                      },
+                      "__startline__": 461,
+                      "__endline__": 472
+                    },
+                    "__startline__": 459,
+                    "__endline__": 472
+                  },
+                  "401": {
+                    "description": "User not authorized",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "fail"
+                              ],
+                              "example": "fail",
+                              "__startline__": 480,
+                              "__endline__": 483
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Invalid token. Please log in again.",
+                              "__startline__": 484,
+                              "__endline__": 486
+                            },
+                            "__startline__": 479,
+                            "__endline__": 486
+                          },
+                          "__startline__": 477,
+                          "__endline__": 486
+                        },
+                        "__startline__": 476,
+                        "__endline__": 486
+                      },
+                      "__startline__": 475,
+                      "__endline__": 486
+                    },
+                    "__startline__": 473,
+                    "__endline__": 486
+                  },
+                  "__startline__": 455,
+                  "__endline__": 486
+                },
+                "__startline__": 428,
+                "__endline__": 486
+              },
+              "__startline__": 427,
+              "__endline__": 486
+            },
+            "/books/v1": {
+              "get": {
+                "tags": [
+                  "books"
+                ],
+                "summary": "Retrieves all books",
+                "description": "Retrieves all books",
+                "operationId": "api_views.books.get_all_books",
+                "responses": {
+                  "200": {
+                    "description": "See all books",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "Books": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "book_title": {
+                                    "type": "string",
+                                    "__startline__": 507,
+                                    "__endline__": 508
+                                  },
+                                  "user": {
+                                    "type": "string",
+                                    "__startline__": 509,
+                                    "__endline__": 510
+                                  },
+                                  "__startline__": 506,
+                                  "__endline__": 510
+                                },
+                                "__startline__": 504,
+                                "__endline__": 510
+                              },
+                              "__startline__": 502,
+                              "__endline__": 510
+                            },
+                            "__startline__": 501,
+                            "__endline__": 510
+                          },
+                          "__startline__": 499,
+                          "__endline__": 510
+                        },
+                        "example": {
+                          "Books": [
+                            {
+                              "book_title": "bookTitle77",
+                              "user": "name1",
+                              "__startline__": 512,
+                              "__endline__": 514
+                            },
+                            {
+                              "book_title": "bookTitle85",
+                              "user": "name2",
+                              "__startline__": 514,
+                              "__endline__": 516
+                            },
+                            {
+                              "book_title": "bookTitle47",
+                              "user": "admin",
+                              "__startline__": 516,
+                              "__endline__": 518
+                            }
+                          ],
+                          "__startline__": 511,
+                          "__endline__": 518
+                        },
+                        "__startline__": 498,
+                        "__endline__": 518
+                      },
+                      "__startline__": 497,
+                      "__endline__": 518
+                    },
+                    "__startline__": 495,
+                    "__endline__": 518
+                  },
+                  "__startline__": 494,
+                  "__endline__": 518
+                },
+                "__startline__": 488,
+                "__endline__": 518
+              },
+              "post": {
+                "security": [
+                  {
+                    "bearerAuth": [],
+                    "__startline__": 520,
+                    "__endline__": 521
+                  }
+                ],
+                "tags": [
+                  "books"
+                ],
+                "summary": "Add new book",
+                "description": "Add new book",
+                "operationId": "api_views.books.add_new_book",
+                "requestBody": {
+                  "description": "Add new book with title and secret content only available to the user who added it.",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "book_title": {
+                            "type": "string",
+                            "example": "book99",
+                            "__startline__": 536,
+                            "__endline__": 538
+                          },
+                          "secret": {
+                            "type": "string",
+                            "example": "pass1secret",
+                            "__startline__": 539,
+                            "__endline__": 541
+                          },
+                          "__startline__": 535,
+                          "__endline__": 541
+                        },
+                        "__startline__": 533,
+                        "__endline__": 541
+                      },
+                      "__startline__": 532,
+                      "__endline__": 541
+                    },
+                    "__startline__": 531,
+                    "__endline__": 541
+                  },
+                  "required": true,
+                  "__startline__": 527,
+                  "__endline__": 542
+                },
+                "responses": {
+                  "200": {
+                    "description": "Successfully added a book",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "example": "Book has been added.",
+                              "__startline__": 551,
+                              "__endline__": 553
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "success",
+                                "fail"
+                              ],
+                              "example": "success",
+                              "__startline__": 554,
+                              "__endline__": 557
+                            },
+                            "__startline__": 550,
+                            "__endline__": 557
+                          },
+                          "__startline__": 548,
+                          "__endline__": 557
+                        },
+                        "__startline__": 547,
+                        "__endline__": 557
+                      },
+                      "__startline__": 546,
+                      "__endline__": 557
+                    },
+                    "__startline__": 544,
+                    "__endline__": 557
+                  },
+                  "400": {
+                    "description": "Invalid request",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "fail"
+                              ],
+                              "example": "fail",
+                              "__startline__": 565,
+                              "__endline__": 568
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Book Already exists!",
+                              "__startline__": 569,
+                              "__endline__": 571
+                            },
+                            "__startline__": 564,
+                            "__endline__": 571
+                          },
+                          "__startline__": 562,
+                          "__endline__": 571
+                        },
+                        "__startline__": 561,
+                        "__endline__": 571
+                      },
+                      "__startline__": 560,
+                      "__endline__": 571
+                    },
+                    "__startline__": 558,
+                    "__endline__": 571
+                  },
+                  "401": {
+                    "description": "User not authorized",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "fail"
+                              ],
+                              "example": "fail",
+                              "__startline__": 579,
+                              "__endline__": 582
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Invalid token. Please log in again.",
+                              "__startline__": 583,
+                              "__endline__": 585
+                            },
+                            "__startline__": 578,
+                            "__endline__": 585
+                          },
+                          "__startline__": 576,
+                          "__endline__": 585
+                        },
+                        "__startline__": 575,
+                        "__endline__": 585
+                      },
+                      "__startline__": 574,
+                      "__endline__": 585
+                    },
+                    "__startline__": 572,
+                    "__endline__": 585
+                  },
+                  "__startline__": 543,
+                  "__endline__": 585
+                },
+                "__startline__": 519,
+                "__endline__": 585
+              },
+              "__startline__": 487,
+              "__endline__": 585
+            },
+            "/books/v1/{book_title}": {
+              "get": {
+                "security": [
+                  {
+                    "bearerAuth": [],
+                    "__startline__": 588,
+                    "__endline__": 589
+                  }
+                ],
+                "tags": [
+                  "books"
+                ],
+                "summary": "Retrieves book by title along with secret",
+                "description": "Retrieves book by title along with secret. Only the owner may retrieve it",
+                "operationId": "api_views.books.get_by_title",
+                "parameters": [
+                  {
+                    "name": "book_title",
+                    "in": "path",
+                    "description": "retrieve book data",
+                    "required": true,
+                    "schema": {
+                      "type": "string",
+                      "example": "bookTitle77",
+                      "__startline__": 602,
+                      "__endline__": 604
+                    },
+                    "__startline__": 597,
+                    "__endline__": 604
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Successfully retrieve book info",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "book_title": {
+                                "type": "string",
+                                "example": "bookTitle77",
+                                "__startline__": 615,
+                                "__endline__": 617
+                              },
+                              "owner": {
+                                "type": "string",
+                                "example": "name1",
+                                "__startline__": 618,
+                                "__endline__": 620
+                              },
+                              "secret": {
+                                "type": "string",
+                                "example": "secret for bookTitle77",
+                                "__startline__": 621,
+                                "__endline__": 623
+                              },
+                              "__startline__": 614,
+                              "__endline__": 623
+                            },
+                            "__startline__": 612,
+                            "__endline__": 623
+                          },
+                          "__startline__": 610,
+                          "__endline__": 623
+                        },
+                        "__startline__": 609,
+                        "__endline__": 623
+                      },
+                      "__startline__": 608,
+                      "__endline__": 623
+                    },
+                    "__startline__": 606,
+                    "__endline__": 623
+                  },
+                  "401": {
+                    "description": "User not authorized",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "fail"
+                              ],
+                              "example": "fail",
+                              "__startline__": 631,
+                              "__endline__": 634
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Invalid token. Please log in again.",
+                              "__startline__": 635,
+                              "__endline__": 637
+                            },
+                            "__startline__": 630,
+                            "__endline__": 637
+                          },
+                          "__startline__": 628,
+                          "__endline__": 637
+                        },
+                        "__startline__": 627,
+                        "__endline__": 637
+                      },
+                      "__startline__": 626,
+                      "__endline__": 637
+                    },
+                    "__startline__": 624,
+                    "__endline__": 637
+                  },
+                  "404": {
+                    "description": "Book not found",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "fail"
+                              ],
+                              "example": "fail",
+                              "__startline__": 645,
+                              "__endline__": 648
+                            },
+                            "message": {
+                              "type": "string",
+                              "example": "Book not found!",
+                              "__startline__": 649,
+                              "__endline__": 651
+                            },
+                            "__startline__": 644,
+                            "__endline__": 651
+                          },
+                          "__startline__": 642,
+                          "__endline__": 651
+                        },
+                        "__startline__": 641,
+                        "__endline__": 651
+                      },
+                      "__startline__": 640,
+                      "__endline__": 651
+                    },
+                    "__startline__": 638,
+                    "__endline__": 651
+                  },
+                  "__startline__": 605,
+                  "__endline__": 651
+                },
+                "__startline__": 587,
+                "__endline__": 651
+              },
+              "__startline__": 586,
+              "__endline__": 651
+            },
+            "__startline__": 16,
+            "__endline__": 651
+          },
+          "__startline__": 1,
+          "__endline__": 651
+        }
+      },
+      "code_block": null,
+      "file_path": "/openapi_specs/openapi3.yml",
+      "file_abs_path": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "repo_file_path": "/data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "file_line_range": [
+        1,
+        652
+      ],
+      "resource": "security",
+      "evaluations": null,
+      "check_class": "checkov.openapi.checks.resource.generic.SecurityOperations",
+      "fixed_definition": null,
+      "entity_tags": null,
+      "caller_file_path": null,
+      "caller_file_line_range": null,
+      "resource_address": null,
+      "severity": null,
+      "bc_category": null,
+      "benchmarks": null,
+      "description": null,
+      "short_description": null,
+      "vulnerability_details": null,
+      "connected_node": null,
+      "guideline": null,
+      "details": [],
+      "check_len": null,
+      "definition_context_file_path": null,
+      "aggregated_checks": [
+        {
+          "finding_id": "checkov-5c680ef63110",
+          "rule_id": "CKV_OPENAPI_4",
+          "title": "Ensure that the global security field has rules defined",
+          "severity": "HIGH",
+          "nature": "EXPOSURE"
+        }
+      ],
+      "merged_checkov-5c680ef63110": {
+        "check_id": "CKV_OPENAPI_4",
+        "bc_check_id": null,
+        "check_name": "Ensure that the global security field has rules defined",
+        "check_result": {
+          "result": "FAILED",
+          "results_configuration": {
+            "openapi": "3.0.1",
+            "info": {
+              "title": "VAmPI",
+              "description": "OpenAPI v3 specs for VAmPI",
+              "version": "0.1",
+              "__startline__": 3,
+              "__endline__": 6
+            },
+            "servers": [
+              {
+                "url": "http://localhost:5000",
+                "__startline__": 7,
+                "__endline__": 8
+              }
+            ],
+            "components": {
+              "securitySchemes": {
+                "bearerAuth": {
+                  "type": "http",
+                  "scheme": "bearer",
+                  "bearerFormat": "JWT",
+                  "x-bearerInfoFunc": "models.user_model.User.decode_auth_token",
+                  "__startline__": 11,
+                  "__endline__": 15
+                },
+                "__startline__": 10,
+                "__endline__": 15
+              },
+              "__startline__": 9,
+              "__endline__": 15
+            },
+            "paths": {
+              "/createdb": {
+                "get": {
+                  "tags": [
+                    "db-init"
+                  ],
+                  "summary": "Creates and populates the database with dummy data",
+                  "description": "Creates and populates the database with dummy data",
+                  "operationId": "api_views.main.populate_db",
+                  "responses": {
+                    "200": {
+                      "description": "Creates and populates the database with dummy data",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "message": {
+                                "type": "string",
+                                "example": "Database populated.",
+                                "__startline__": 32,
+                                "__endline__": 34
+                              },
+                              "__startline__": 31,
+                              "__endline__": 34
+                            },
+                            "__startline__": 29,
+                            "__endline__": 34
+                          },
+                          "__startline__": 28,
+                          "__endline__": 34
+                        },
+                        "__startline__": 27,
+                        "__endline__": 34
+                      },
+                      "__startline__": 25,
+                      "__endline__": 34
+                    },
+                    "__startline__": 24,
+                    "__endline__": 34
+                  },
+                  "__startline__": 18,
+                  "__endline__": 34
+                },
+                "__startline__": 17,
+                "__endline__": 34
+              },
+              "/": {
+                "get": {
+                  "tags": [
+                    "home"
+                  ],
+                  "summary": "VAmPI home",
+                  "description": "VAmPI is a vulnerable on purpose API. It was created in order to evaluate the efficiency of third party tools in identifying vulnerabilities in APIs but it can also be used in learning/teaching purposes.",
+                  "operationId": "api_views.main.basic",
+                  "responses": {
+                    "200": {
+                      "description": "Home - Help",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "message": {
+                                "type": "string",
+                                "example": "VAmPI the Vulnerable API",
+                                "__startline__": 54,
+                                "__endline__": 56
+                              },
+                              "help": {
+                                "type": "string",
+                                "example": "VAmPI is a vulnerable on purpose API. It was created in order to evaluate the efficiency of third party tools in identifying vulnerabilities in APIs but it can also be used in learning/teaching purposes.",
+                                "__startline__": 57,
+                                "__endline__": 59
+                              },
+                              "vulnerable": {
+                                "type": "number",
+                                "example": 1,
+                                "__startline__": 60,
+                                "__endline__": 62
+                              },
+                              "__startline__": 53,
+                              "__endline__": 62
+                            },
+                            "__startline__": 51,
+                            "__endline__": 62
+                          },
+                          "__startline__": 50,
+                          "__endline__": 62
+                        },
+                        "__startline__": 49,
+                        "__endline__": 62
+                      },
+                      "__startline__": 47,
+                      "__endline__": 62
+                    },
+                    "__startline__": 46,
+                    "__endline__": 62
+                  },
+                  "__startline__": 36,
+                  "__endline__": 62
+                },
+                "__startline__": 35,
+                "__endline__": 62
+              },
+              "/users/v1": {
+                "get": {
+                  "tags": [
+                    "users"
+                  ],
+                  "summary": "Retrieves all users",
+                  "description": "Displays all users with basic information",
+                  "operationId": "api_views.users.get_all_users",
+                  "responses": {
+                    "200": {
+                      "description": "See basic info about all users",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "users": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "email": {
+                                      "type": "string",
+                                      "example": "mail1@mail.com",
+                                      "__startline__": 83,
+                                      "__endline__": 85
+                                    },
+                                    "username": {
+                                      "type": "string",
+                                      "example": "name1",
+                                      "__startline__": 86,
+                                      "__endline__": 88
+                                    },
+                                    "__startline__": 82,
+                                    "__endline__": 88
+                                  },
+                                  "__startline__": 80,
+                                  "__endline__": 88
+                                },
+                                "__startline__": 78,
+                                "__endline__": 88
+                              },
+                              "__startline__": 77,
+                              "__endline__": 88
+                            },
+                            "__startline__": 75,
+                            "__endline__": 88
+                          },
+                          "__startline__": 74,
+                          "__endline__": 88
+                        },
+                        "__startline__": 73,
+                        "__endline__": 88
+                      },
+                      "__startline__": 71,
+                      "__endline__": 88
+                    },
+                    "__startline__": 70,
+                    "__endline__": 88
+                  },
+                  "__startline__": 64,
+                  "__endline__": 88
+                },
+                "__startline__": 63,
+                "__endline__": 88
+              },
+              "/users/v1/_debug": {
+                "get": {
+                  "tags": [
+                    "users"
+                  ],
+                  "summary": "Retrieves all details for all users",
+                  "description": "Displays all details for all users",
+                  "operationId": "api_views.users.debug",
+                  "responses": {
+                    "200": {
+                      "description": "See all details of the users",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "users": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "admin": {
+                                      "type": "boolean",
+                                      "example": false,
+                                      "__startline__": 109,
+                                      "__endline__": 111
+                                    },
+                                    "email": {
+                                      "type": "string",
+                                      "example": "mail1@mail.com",
+                                      "__startline__": 112,
+                                      "__endline__": 114
+                                    },
+                                    "password": {
+                                      "type": "string",
+                                      "example": "pass1",
+                                      "__startline__": 115,
+                                      "__endline__": 117
+                                    },
+                                    "username": {
+                                      "type": "string",
+                                      "example": "name1",
+                                      "__startline__": 118,
+                                      "__endline__": 120
+                                    },
+                                    "__startline__": 108,
+                                    "__endline__": 120
+                                  },
+                                  "__startline__": 106,
+                                  "__endline__": 120
+                                },
+                                "__startline__": 104,
+                                "__endline__": 120
+                              },
+                              "__startline__": 103,
+                              "__endline__": 120
+                            },
+                            "__startline__": 101,
+                            "__endline__": 120
+                          },
+                          "__startline__": 100,
+                          "__endline__": 120
+                        },
+                        "__startline__": 99,
+                        "__endline__": 120
+                      },
+                      "__startline__": 97,
+                      "__endline__": 120
+                    },
+                    "__startline__": 96,
+                    "__endline__": 120
+                  },
+                  "__startline__": 90,
+                  "__endline__": 120
+                },
+                "__startline__": 89,
+                "__endline__": 120
+              },
+              "/users/v1/register": {
+                "post": {
+                  "tags": [
+                    "users"
+                  ],
+                  "summary": "Register new user",
+                  "description": "Register new user",
+                  "operationId": "api_views.users.register_user",
+                  "requestBody": {
+                    "description": "Username of the user",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "username": {
+                              "type": "string",
+                              "example": "name1",
+                              "__startline__": 135,
+                              "__endline__": 137
+                            },
+                            "password": {
+                              "type": "string",
+                              "example": "pass1",
+                              "__startline__": 138,
+                              "__endline__": 140
+                            },
+                            "email": {
+                              "type": "string",
+                              "example": "user@tempmail.com",
+                              "__startline__": 141,
+                              "__endline__": 143
+                            },
+                            "__startline__": 134,
+                            "__endline__": 143
+                          },
+                          "__startline__": 132,
+                          "__endline__": 143
+                        },
+                        "__startline__": 131,
+                        "__endline__": 143
+                      },
+                      "__startline__": 130,
+                      "__endline__": 143
+                    },
+                    "required": true,
+                    "__startline__": 128,
+                    "__endline__": 144
+                  },
+                  "responses": {
+                    "200": {
+                      "description": "Successfully created user",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "message": {
+                                "type": "string",
+                                "example": "Successfully registered. Login to receive an auth token.",
+                                "__startline__": 153,
+                                "__endline__": 155
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "success",
+                                  "fail"
+                                ],
+                                "example": "success",
+                                "__startline__": 156,
+                                "__endline__": 159
+                              },
+                              "__startline__": 152,
+                              "__endline__": 159
+                            },
+                            "__startline__": 150,
+                            "__endline__": 159
+                          },
+                          "__startline__": 149,
+                          "__endline__": 159
+                        },
+                        "__startline__": 148,
+                        "__endline__": 159
+                      },
+                      "__startline__": 146,
+                      "__endline__": 159
+                    },
+                    "400": {
+                      "description": "Invalid request",
+                      "content": {
+                        "__startline__": 161,
+                        "__endline__": 161
+                      },
+                      "__startline__": 160,
+                      "__endline__": 162
+                    },
+                    "__startline__": 145,
+                    "__endline__": 162
+                  },
+                  "__startline__": 122,
+                  "__endline__": 162
+                },
+                "__startline__": 121,
+                "__endline__": 162
+              },
+              "/users/v1/login": {
+                "post": {
+                  "tags": [
+                    "users"
+                  ],
+                  "summary": "Login to VAmPI",
+                  "description": "Login to VAmPI",
+                  "operationId": "api_views.users.login_user",
+                  "requestBody": {
+                    "description": "Username of the user",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "username": {
+                              "type": "string",
+                              "example": "name1",
+                              "__startline__": 177,
+                              "__endline__": 179
+                            },
+                            "password": {
+                              "type": "string",
+                              "example": "pass1",
+                              "__startline__": 180,
+                              "__endline__": 182
+                            },
+                            "__startline__": 176,
+                            "__endline__": 182
+                          },
+                          "__startline__": 174,
+                          "__endline__": 182
+                        },
+                        "__startline__": 173,
+                        "__endline__": 182
+                      },
+                      "__startline__": 172,
+                      "__endline__": 182
+                    },
+                    "required": true,
+                    "__startline__": 170,
+                    "__endline__": 183
+                  },
+                  "responses": {
+                    "200": {
+                      "description": "Sucessfully logged in user",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "auth_token": {
+                                "type": "string",
+                                "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2NzAxNjA2MTcsImlhdCI6MTY3MDE2MDU1Nywic3ViIjoiSm9obi5Eb2UifQ.n17N4AxTbL4_z65-NR46meoytauPDjImUxrLiUMSTQw",
+                                "__startline__": 192,
+                                "__endline__": 194
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Successfully logged in.",
+                                "__startline__": 195,
+                                "__endline__": 197
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "success",
+                                  "fail"
+                                ],
+                                "example": "success",
+                                "__startline__": 198,
+                                "__endline__": 201
+                              },
+                              "__startline__": 191,
+                              "__endline__": 201
+                            },
+                            "__startline__": 189,
+                            "__endline__": 201
+                          },
+                          "__startline__": 188,
+                          "__endline__": 201
+                        },
+                        "__startline__": 187,
+                        "__endline__": 201
+                      },
+                      "__startline__": 185,
+                      "__endline__": 201
+                    },
+                    "400": {
+                      "description": "Invalid request",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "example": "fail",
+                                "__startline__": 209,
+                                "__endline__": 212
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Password is not correct for the given username.",
+                                "__startline__": 213,
+                                "__endline__": 215
+                              },
+                              "__startline__": 208,
+                              "__endline__": 215
+                            },
+                            "__startline__": 206,
+                            "__endline__": 215
+                          },
+                          "__startline__": 205,
+                          "__endline__": 215
+                        },
+                        "__startline__": 204,
+                        "__endline__": 215
+                      },
+                      "__startline__": 202,
+                      "__endline__": 215
+                    },
+                    "__startline__": 184,
+                    "__endline__": 215
+                  },
+                  "__startline__": 164,
+                  "__endline__": 215
+                },
+                "__startline__": 163,
+                "__endline__": 215
+              },
+              "/me": {
+                "get": {
+                  "security": [
+                    {
+                      "bearerAuth": [],
+                      "__startline__": 218,
+                      "__endline__": 219
+                    }
+                  ],
+                  "tags": [
+                    "users"
+                  ],
+                  "summary": "Retrieves currently logged in user",
+                  "description": "Displays information about the currently authenticated user",
+                  "operationId": "api_views.users.me",
+                  "responses": {
+                    "200": {
+                      "description": "Display current user info",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "data": {
+                                "type": "object",
+                                "properties": {
+                                  "admin": {
+                                    "type": "boolean",
+                                    "example": false,
+                                    "__startline__": 236,
+                                    "__endline__": 238
+                                  },
+                                  "email": {
+                                    "type": "string",
+                                    "example": "mail1@mail.com",
+                                    "__startline__": 239,
+                                    "__endline__": 241
+                                  },
+                                  "username": {
+                                    "type": "string",
+                                    "example": "name1",
+                                    "__startline__": 242,
+                                    "__endline__": 244
+                                  },
+                                  "__startline__": 235,
+                                  "__endline__": 244
+                                },
+                                "__startline__": 233,
+                                "__endline__": 244
+                              },
+                              "status": {
+                                "type": "string",
+                                "example": "success",
+                                "__startline__": 245,
+                                "__endline__": 247
+                              },
+                              "__startline__": 232,
+                              "__endline__": 247
+                            },
+                            "__startline__": 230,
+                            "__endline__": 247
+                          },
+                          "__startline__": 229,
+                          "__endline__": 247
+                        },
+                        "__startline__": 228,
+                        "__endline__": 247
+                      },
+                      "__startline__": 226,
+                      "__endline__": 247
+                    },
+                    "401": {
+                      "description": "Unauthorized access due to expired, invalid, or missing token",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "example": "fail",
+                                "__startline__": 255,
+                                "__endline__": 257
+                              },
+                              "message": {
+                                "type": "string",
+                                "enum": [
+                                  "Signature expired. Please log in again.",
+                                  "Invalid token. Please log in again."
+                                ],
+                                "__startline__": 258,
+                                "__endline__": 263
+                              },
+                              "__startline__": 254,
+                              "__endline__": 263
+                            },
+                            "__startline__": 252,
+                            "__endline__": 263
+                          },
+                          "__startline__": 251,
+                          "__endline__": 263
+                        },
+                        "__startline__": 250,
+                        "__endline__": 263
+                      },
+                      "__startline__": 248,
+                      "__endline__": 263
+                    },
+                    "__startline__": 225,
+                    "__endline__": 263
+                  },
+                  "__startline__": 217,
+                  "__endline__": 263
+                },
+                "__startline__": 216,
+                "__endline__": 263
+              },
+              "/users/v1/{username}": {
+                "get": {
+                  "tags": [
+                    "users"
+                  ],
+                  "summary": "Retrieves user by username",
+                  "description": "Displays user by username",
+                  "operationId": "api_views.users.get_by_username",
+                  "parameters": [
+                    {
+                      "name": "username",
+                      "in": "path",
+                      "description": "retrieve username data",
+                      "required": true,
+                      "schema": {
+                        "type": "string",
+                        "example": "name1",
+                        "__startline__": 276,
+                        "__endline__": 278
+                      },
+                      "__startline__": 271,
+                      "__endline__": 278
+                    }
+                  ],
+                  "responses": {
+                    "200": {
+                      "description": "Successfully display user info",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "username": {
+                                "type": "string",
+                                "example": "name1",
+                                "__startline__": 287,
+                                "__endline__": 289
+                              },
+                              "email": {
+                                "type": "string",
+                                "example": "mail1@mail.com",
+                                "__startline__": 290,
+                                "__endline__": 292
+                              },
+                              "__startline__": 286,
+                              "__endline__": 292
+                            },
+                            "__startline__": 284,
+                            "__endline__": 292
+                          },
+                          "__startline__": 283,
+                          "__endline__": 292
+                        },
+                        "__startline__": 282,
+                        "__endline__": 292
+                      },
+                      "__startline__": 280,
+                      "__endline__": 292
+                    },
+                    "404": {
+                      "description": "User not found",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "example": "fail",
+                                "__startline__": 300,
+                                "__endline__": 303
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "User not found",
+                                "__startline__": 304,
+                                "__endline__": 307
+                              },
+                              "__startline__": 299,
+                              "__endline__": 307
+                            },
+                            "__startline__": 297,
+                            "__endline__": 307
+                          },
+                          "__startline__": 296,
+                          "__endline__": 307
+                        },
+                        "__startline__": 295,
+                        "__endline__": 307
+                      },
+                      "__startline__": 293,
+                      "__endline__": 307
+                    },
+                    "__startline__": 279,
+                    "__endline__": 307
+                  },
+                  "__startline__": 265,
+                  "__endline__": 307
+                },
+                "delete": {
+                  "security": [
+                    {
+                      "bearerAuth": [],
+                      "__startline__": 309,
+                      "__endline__": 310
+                    }
+                  ],
+                  "tags": [
+                    "users"
+                  ],
+                  "summary": "Deletes user by username (Only Admins)",
+                  "description": "Deletes user by username (Only Admins)",
+                  "operationId": "api_views.users.delete_user",
+                  "parameters": [
+                    {
+                      "name": "username",
+                      "in": "path",
+                      "description": "Delete username",
+                      "required": true,
+                      "schema": {
+                        "type": "string",
+                        "example": "name1",
+                        "__startline__": 321,
+                        "__endline__": 323
+                      },
+                      "__startline__": 316,
+                      "__endline__": 323
+                    }
+                  ],
+                  "responses": {
+                    "200": {
+                      "description": "Successfully deleted user",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "message": {
+                                "type": "string",
+                                "example": "User deleted.",
+                                "__startline__": 332,
+                                "__endline__": 334
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "success",
+                                  "fail"
+                                ],
+                                "example": "success",
+                                "__startline__": 335,
+                                "__endline__": 338
+                              },
+                              "__startline__": 331,
+                              "__endline__": 338
+                            },
+                            "__startline__": 329,
+                            "__endline__": 338
+                          },
+                          "__startline__": 328,
+                          "__endline__": 338
+                        },
+                        "__startline__": 327,
+                        "__endline__": 338
+                      },
+                      "__startline__": 325,
+                      "__endline__": 338
+                    },
+                    "401": {
+                      "description": "User not authorized",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "example": "fail",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "__startline__": 346,
+                                "__endline__": 349
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Only Admins may delete users!",
+                                "__startline__": 350,
+                                "__endline__": 352
+                              },
+                              "__startline__": 345,
+                              "__endline__": 352
+                            },
+                            "__startline__": 343,
+                            "__endline__": 352
+                          },
+                          "__startline__": 342,
+                          "__endline__": 352
+                        },
+                        "__startline__": 341,
+                        "__endline__": 352
+                      },
+                      "__startline__": 339,
+                      "__endline__": 352
+                    },
+                    "404": {
+                      "description": "User not found",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "example": "fail",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "__startline__": 360,
+                                "__endline__": 363
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "User not found!",
+                                "__startline__": 364,
+                                "__endline__": 366
+                              },
+                              "__startline__": 359,
+                              "__endline__": 366
+                            },
+                            "__startline__": 357,
+                            "__endline__": 366
+                          },
+                          "__startline__": 356,
+                          "__endline__": 366
+                        },
+                        "__startline__": 355,
+                        "__endline__": 366
+                      },
+                      "__startline__": 353,
+                      "__endline__": 366
+                    },
+                    "__startline__": 324,
+                    "__endline__": 366
+                  },
+                  "__startline__": 308,
+                  "__endline__": 366
+                },
+                "__startline__": 264,
+                "__endline__": 366
+              },
+              "/users/v1/{username}/email": {
+                "put": {
+                  "security": [
+                    {
+                      "bearerAuth": [],
+                      "__startline__": 369,
+                      "__endline__": 370
+                    }
+                  ],
+                  "tags": [
+                    "users"
+                  ],
+                  "summary": "Update users email",
+                  "description": "Update a single users email",
+                  "operationId": "api_views.users.update_email",
+                  "parameters": [
+                    {
+                      "name": "username",
+                      "in": "path",
+                      "description": "username to update email",
+                      "required": true,
+                      "schema": {
+                        "type": "string",
+                        "example": "name1",
+                        "__startline__": 381,
+                        "__endline__": 383
+                      },
+                      "__startline__": 376,
+                      "__endline__": 383
+                    }
+                  ],
+                  "requestBody": {
+                    "description": "field to update",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "email": {
+                              "type": "string",
+                              "example": "mail3@mail.com",
+                              "__startline__": 391,
+                              "__endline__": 393
+                            },
+                            "__startline__": 390,
+                            "__endline__": 393
+                          },
+                          "__startline__": 388,
+                          "__endline__": 393
+                        },
+                        "__startline__": 387,
+                        "__endline__": 393
+                      },
+                      "__startline__": 386,
+                      "__endline__": 393
+                    },
+                    "required": true,
+                    "__startline__": 384,
+                    "__endline__": 394
+                  },
+                  "responses": {
+                    "204": {
+                      "description": "Successfully updated user email",
+                      "content": {
+                        "__startline__": 397,
+                        "__endline__": 397
+                      },
+                      "__startline__": 396,
+                      "__endline__": 398
+                    },
+                    "400": {
+                      "description": "Invalid request",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "example": "fail",
+                                "__startline__": 406,
+                                "__endline__": 409
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Please Provide a valid email address.",
+                                "__startline__": 410,
+                                "__endline__": 412
+                              },
+                              "__startline__": 405,
+                              "__endline__": 412
+                            },
+                            "__startline__": 403,
+                            "__endline__": 412
+                          },
+                          "__startline__": 402,
+                          "__endline__": 412
+                        },
+                        "__startline__": 401,
+                        "__endline__": 412
+                      },
+                      "__startline__": 399,
+                      "__endline__": 412
+                    },
+                    "401": {
+                      "description": "User not authorized",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "example": "fail",
+                                "__startline__": 420,
+                                "__endline__": 423
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Invalid token. Please log in again.",
+                                "__startline__": 424,
+                                "__endline__": 426
+                              },
+                              "__startline__": 419,
+                              "__endline__": 426
+                            },
+                            "__startline__": 417,
+                            "__endline__": 426
+                          },
+                          "__startline__": 416,
+                          "__endline__": 426
+                        },
+                        "__startline__": 415,
+                        "__endline__": 426
+                      },
+                      "__startline__": 413,
+                      "__endline__": 426
+                    },
+                    "__startline__": 395,
+                    "__endline__": 426
+                  },
+                  "__startline__": 368,
+                  "__endline__": 426
+                },
+                "__startline__": 367,
+                "__endline__": 426
+              },
+              "/users/v1/{username}/password": {
+                "put": {
+                  "security": [
+                    {
+                      "bearerAuth": [],
+                      "__startline__": 429,
+                      "__endline__": 430
+                    }
+                  ],
+                  "tags": [
+                    "users"
+                  ],
+                  "summary": "Update users password",
+                  "description": "Update users password",
+                  "operationId": "api_views.users.update_password",
+                  "parameters": [
+                    {
+                      "name": "username",
+                      "in": "path",
+                      "description": "username to update password",
+                      "required": true,
+                      "schema": {
+                        "type": "string",
+                        "example": "name1",
+                        "__startline__": 441,
+                        "__endline__": 443
+                      },
+                      "__startline__": 436,
+                      "__endline__": 443
+                    }
+                  ],
+                  "requestBody": {
+                    "description": "field to update",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "password": {
+                              "type": "string",
+                              "example": "pass4",
+                              "__startline__": 451,
+                              "__endline__": 453
+                            },
+                            "__startline__": 450,
+                            "__endline__": 453
+                          },
+                          "__startline__": 448,
+                          "__endline__": 453
+                        },
+                        "__startline__": 447,
+                        "__endline__": 453
+                      },
+                      "__startline__": 446,
+                      "__endline__": 453
+                    },
+                    "required": true,
+                    "__startline__": 444,
+                    "__endline__": 454
+                  },
+                  "responses": {
+                    "204": {
+                      "description": "Successfully updated users password",
+                      "content": {
+                        "__startline__": 457,
+                        "__endline__": 457
+                      },
+                      "__startline__": 456,
+                      "__endline__": 458
+                    },
+                    "400": {
+                      "description": "Invalid request",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "example": "fail",
+                                "__startline__": 466,
+                                "__endline__": 469
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Malformed Data",
+                                "__startline__": 470,
+                                "__endline__": 472
+                              },
+                              "__startline__": 465,
+                              "__endline__": 472
+                            },
+                            "__startline__": 463,
+                            "__endline__": 472
+                          },
+                          "__startline__": 462,
+                          "__endline__": 472
+                        },
+                        "__startline__": 461,
+                        "__endline__": 472
+                      },
+                      "__startline__": 459,
+                      "__endline__": 472
+                    },
+                    "401": {
+                      "description": "User not authorized",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "example": "fail",
+                                "__startline__": 480,
+                                "__endline__": 483
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Invalid token. Please log in again.",
+                                "__startline__": 484,
+                                "__endline__": 486
+                              },
+                              "__startline__": 479,
+                              "__endline__": 486
+                            },
+                            "__startline__": 477,
+                            "__endline__": 486
+                          },
+                          "__startline__": 476,
+                          "__endline__": 486
+                        },
+                        "__startline__": 475,
+                        "__endline__": 486
+                      },
+                      "__startline__": 473,
+                      "__endline__": 486
+                    },
+                    "__startline__": 455,
+                    "__endline__": 486
+                  },
+                  "__startline__": 428,
+                  "__endline__": 486
+                },
+                "__startline__": 427,
+                "__endline__": 486
+              },
+              "/books/v1": {
+                "get": {
+                  "tags": [
+                    "books"
+                  ],
+                  "summary": "Retrieves all books",
+                  "description": "Retrieves all books",
+                  "operationId": "api_views.books.get_all_books",
+                  "responses": {
+                    "200": {
+                      "description": "See all books",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "Books": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "book_title": {
+                                      "type": "string",
+                                      "__startline__": 507,
+                                      "__endline__": 508
+                                    },
+                                    "user": {
+                                      "type": "string",
+                                      "__startline__": 509,
+                                      "__endline__": 510
+                                    },
+                                    "__startline__": 506,
+                                    "__endline__": 510
+                                  },
+                                  "__startline__": 504,
+                                  "__endline__": 510
+                                },
+                                "__startline__": 502,
+                                "__endline__": 510
+                              },
+                              "__startline__": 501,
+                              "__endline__": 510
+                            },
+                            "__startline__": 499,
+                            "__endline__": 510
+                          },
+                          "example": {
+                            "Books": [
+                              {
+                                "book_title": "bookTitle77",
+                                "user": "name1",
+                                "__startline__": 512,
+                                "__endline__": 514
+                              },
+                              {
+                                "book_title": "bookTitle85",
+                                "user": "name2",
+                                "__startline__": 514,
+                                "__endline__": 516
+                              },
+                              {
+                                "book_title": "bookTitle47",
+                                "user": "admin",
+                                "__startline__": 516,
+                                "__endline__": 518
+                              }
+                            ],
+                            "__startline__": 511,
+                            "__endline__": 518
+                          },
+                          "__startline__": 498,
+                          "__endline__": 518
+                        },
+                        "__startline__": 497,
+                        "__endline__": 518
+                      },
+                      "__startline__": 495,
+                      "__endline__": 518
+                    },
+                    "__startline__": 494,
+                    "__endline__": 518
+                  },
+                  "__startline__": 488,
+                  "__endline__": 518
+                },
+                "post": {
+                  "security": [
+                    {
+                      "bearerAuth": [],
+                      "__startline__": 520,
+                      "__endline__": 521
+                    }
+                  ],
+                  "tags": [
+                    "books"
+                  ],
+                  "summary": "Add new book",
+                  "description": "Add new book",
+                  "operationId": "api_views.books.add_new_book",
+                  "requestBody": {
+                    "description": "Add new book with title and secret content only available to the user who added it.",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "type": "object",
+                          "properties": {
+                            "book_title": {
+                              "type": "string",
+                              "example": "book99",
+                              "__startline__": 536,
+                              "__endline__": 538
+                            },
+                            "secret": {
+                              "type": "string",
+                              "example": "pass1secret",
+                              "__startline__": 539,
+                              "__endline__": 541
+                            },
+                            "__startline__": 535,
+                            "__endline__": 541
+                          },
+                          "__startline__": 533,
+                          "__endline__": 541
+                        },
+                        "__startline__": 532,
+                        "__endline__": 541
+                      },
+                      "__startline__": 531,
+                      "__endline__": 541
+                    },
+                    "required": true,
+                    "__startline__": 527,
+                    "__endline__": 542
+                  },
+                  "responses": {
+                    "200": {
+                      "description": "Successfully added a book",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "message": {
+                                "type": "string",
+                                "example": "Book has been added.",
+                                "__startline__": 551,
+                                "__endline__": 553
+                              },
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "success",
+                                  "fail"
+                                ],
+                                "example": "success",
+                                "__startline__": 554,
+                                "__endline__": 557
+                              },
+                              "__startline__": 550,
+                              "__endline__": 557
+                            },
+                            "__startline__": 548,
+                            "__endline__": 557
+                          },
+                          "__startline__": 547,
+                          "__endline__": 557
+                        },
+                        "__startline__": 546,
+                        "__endline__": 557
+                      },
+                      "__startline__": 544,
+                      "__endline__": 557
+                    },
+                    "400": {
+                      "description": "Invalid request",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "example": "fail",
+                                "__startline__": 565,
+                                "__endline__": 568
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Book Already exists!",
+                                "__startline__": 569,
+                                "__endline__": 571
+                              },
+                              "__startline__": 564,
+                              "__endline__": 571
+                            },
+                            "__startline__": 562,
+                            "__endline__": 571
+                          },
+                          "__startline__": 561,
+                          "__endline__": 571
+                        },
+                        "__startline__": 560,
+                        "__endline__": 571
+                      },
+                      "__startline__": 558,
+                      "__endline__": 571
+                    },
+                    "401": {
+                      "description": "User not authorized",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "example": "fail",
+                                "__startline__": 579,
+                                "__endline__": 582
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Invalid token. Please log in again.",
+                                "__startline__": 583,
+                                "__endline__": 585
+                              },
+                              "__startline__": 578,
+                              "__endline__": 585
+                            },
+                            "__startline__": 576,
+                            "__endline__": 585
+                          },
+                          "__startline__": 575,
+                          "__endline__": 585
+                        },
+                        "__startline__": 574,
+                        "__endline__": 585
+                      },
+                      "__startline__": 572,
+                      "__endline__": 585
+                    },
+                    "__startline__": 543,
+                    "__endline__": 585
+                  },
+                  "__startline__": 519,
+                  "__endline__": 585
+                },
+                "__startline__": 487,
+                "__endline__": 585
+              },
+              "/books/v1/{book_title}": {
+                "get": {
+                  "security": [
+                    {
+                      "bearerAuth": [],
+                      "__startline__": 588,
+                      "__endline__": 589
+                    }
+                  ],
+                  "tags": [
+                    "books"
+                  ],
+                  "summary": "Retrieves book by title along with secret",
+                  "description": "Retrieves book by title along with secret. Only the owner may retrieve it",
+                  "operationId": "api_views.books.get_by_title",
+                  "parameters": [
+                    {
+                      "name": "book_title",
+                      "in": "path",
+                      "description": "retrieve book data",
+                      "required": true,
+                      "schema": {
+                        "type": "string",
+                        "example": "bookTitle77",
+                        "__startline__": 602,
+                        "__endline__": 604
+                      },
+                      "__startline__": 597,
+                      "__endline__": 604
+                    }
+                  ],
+                  "responses": {
+                    "200": {
+                      "description": "Successfully retrieve book info",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "book_title": {
+                                  "type": "string",
+                                  "example": "bookTitle77",
+                                  "__startline__": 615,
+                                  "__endline__": 617
+                                },
+                                "owner": {
+                                  "type": "string",
+                                  "example": "name1",
+                                  "__startline__": 618,
+                                  "__endline__": 620
+                                },
+                                "secret": {
+                                  "type": "string",
+                                  "example": "secret for bookTitle77",
+                                  "__startline__": 621,
+                                  "__endline__": 623
+                                },
+                                "__startline__": 614,
+                                "__endline__": 623
+                              },
+                              "__startline__": 612,
+                              "__endline__": 623
+                            },
+                            "__startline__": 610,
+                            "__endline__": 623
+                          },
+                          "__startline__": 609,
+                          "__endline__": 623
+                        },
+                        "__startline__": 608,
+                        "__endline__": 623
+                      },
+                      "__startline__": 606,
+                      "__endline__": 623
+                    },
+                    "401": {
+                      "description": "User not authorized",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "example": "fail",
+                                "__startline__": 631,
+                                "__endline__": 634
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Invalid token. Please log in again.",
+                                "__startline__": 635,
+                                "__endline__": 637
+                              },
+                              "__startline__": 630,
+                              "__endline__": 637
+                            },
+                            "__startline__": 628,
+                            "__endline__": 637
+                          },
+                          "__startline__": 627,
+                          "__endline__": 637
+                        },
+                        "__startline__": 626,
+                        "__endline__": 637
+                      },
+                      "__startline__": 624,
+                      "__endline__": 637
+                    },
+                    "404": {
+                      "description": "Book not found",
+                      "content": {
+                        "application/json": {
+                          "schema": {
+                            "type": "object",
+                            "properties": {
+                              "status": {
+                                "type": "string",
+                                "enum": [
+                                  "fail"
+                                ],
+                                "example": "fail",
+                                "__startline__": 645,
+                                "__endline__": 648
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "Book not found!",
+                                "__startline__": 649,
+                                "__endline__": 651
+                              },
+                              "__startline__": 644,
+                              "__endline__": 651
+                            },
+                            "__startline__": 642,
+                            "__endline__": 651
+                          },
+                          "__startline__": 641,
+                          "__endline__": 651
+                        },
+                        "__startline__": 640,
+                        "__endline__": 651
+                      },
+                      "__startline__": 638,
+                      "__endline__": 651
+                    },
+                    "__startline__": 605,
+                    "__endline__": 651
+                  },
+                  "__startline__": 587,
+                  "__endline__": 651
+                },
+                "__startline__": 586,
+                "__endline__": 651
+              },
+              "__startline__": 16,
+              "__endline__": 651
+            },
+            "__startline__": 1,
+            "__endline__": 651
+          }
+        },
+        "code_block": null,
+        "file_path": "/openapi_specs/openapi3.yml",
+        "file_abs_path": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+        "repo_file_path": "/data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+        "file_line_range": [
+          1,
+          652
+        ],
+        "resource": "security",
+        "evaluations": null,
+        "check_class": "checkov.openapi.checks.resource.generic.GlobalSecurityFieldIsEmpty",
+        "fixed_definition": null,
+        "entity_tags": null,
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": null,
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": null
+      },
+      "correlated_risk_score": 6.8
+    },
+    "detected_at": "2026-10-23T07:35:03.417521+00:00"
+  },
+  {
+    "finding_id": "checkov-0c97b2b2d74e",
+    "source": "CHECKOV",
+    "category": "MISCONFIGURATION",
+    "title": "Ensure that arrays have a maximum number of items",
+    "description": "Ensure that arrays have a maximum number of items per la risorsa paths",
+    "severity": "LOW",
+    "confidence": 1.0,
+    "rule_id": "CKV_OPENAPI_21",
+    "rule_name": "Ensure that arrays have a maximum number of items",
+    "resource_type": null,
+    "resource_name": "paths",
+    "resource_id": "paths",
+    "location": {
+      "file_path": "/openapi_specs/openapi3.yml",
+      "start_line": 78,
+      "end_line": 89,
+      "code_snippet": null
+    },
+    "api": null,
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "paths",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": "HARDENING",
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "check_id": "CKV_OPENAPI_21",
+      "bc_check_id": null,
+      "check_name": "Ensure that arrays have a maximum number of items",
+      "check_result": {
+        "result": "FAILED",
+        "results_configuration": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "example": "mail1@mail.com",
+                "__startline__": 83,
+                "__endline__": 85
+              },
+              "username": {
+                "type": "string",
+                "example": "name1",
+                "__startline__": 86,
+                "__endline__": 88
+              },
+              "__startline__": 82,
+              "__endline__": 88
+            },
+            "__startline__": 80,
+            "__endline__": 88
+          },
+          "__startline__": 78,
+          "__endline__": 88
+        }
+      },
+      "code_block": null,
+      "file_path": "/openapi_specs/openapi3.yml",
+      "file_abs_path": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "repo_file_path": "/data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "file_line_range": [
+        78,
+        89
+      ],
+      "resource": "paths",
+      "evaluations": null,
+      "check_class": "checkov.openapi.checks.resource.generic.NoMaximumNumberItems",
+      "fixed_definition": null,
+      "entity_tags": null,
+      "caller_file_path": null,
+      "caller_file_line_range": null,
+      "resource_address": null,
+      "severity": null,
+      "bc_category": null,
+      "benchmarks": null,
+      "description": null,
+      "short_description": null,
+      "vulnerability_details": null,
+      "connected_node": null,
+      "guideline": null,
+      "details": [],
+      "check_len": null,
+      "definition_context_file_path": null,
+      "correlated_risk_score": 3.2
+    },
+    "detected_at": "2026-10-23T07:35:03.417537+00:00"
+  },
+  {
+    "finding_id": "spectral-f9cb8f9da074",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] info-contact",
+    "description": "Violazione su API già documentata: Info object must have \"contact\" object.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "info-contact",
+    "rule_name": "info-contact",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 7,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": null,
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "openapi:openapi3.yml:info-contact",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "info-contact",
+      "path": [
+        "info"
+      ],
+      "message": "Info object must have \"contact\" object.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 7,
+          "character": 5
+        },
+        "end": {
+          "line": 10,
+          "character": 16
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038746+00:00"
+  },
+  {
+    "finding_id": "spectral-01d9548fddce",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 14,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 14,
+          "character": 8
+        },
+        "end": {
+          "line": 41,
+          "character": 12
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-23T07:35:05.038793+00:00"
+  },
+  {
+    "finding_id": "spectral-caa10fcf7c51",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 41,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/:GET:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/",
+        "get",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 41,
+          "character": 8
+        },
+        "end": {
+          "line": 41,
+          "character": 12
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038804+00:00"
+  },
+  {
+    "finding_id": "spectral-4bb74581c23d",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 43,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/books/v1",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/books/v1:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/books/v1",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 43,
+          "character": 8
+        },
+        "end": {
+          "line": 73,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-23T07:35:05.038817+00:00"
+  },
+  {
+    "finding_id": "spectral-22567ddcf4fc",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 73,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/books/v1",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/books/v1:GET:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/books/v1",
+        "get",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 73,
+          "character": 8
+        },
+        "end": {
+          "line": 73,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038823+00:00"
+  },
+  {
+    "finding_id": "spectral-d727ef601b1e",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 143,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/books/v1",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/books/v1:POST:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/books/v1",
+        "post",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 143,
+          "character": 8
+        },
+        "end": {
+          "line": 143,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038829+00:00"
+  },
+  {
+    "finding_id": "spectral-76c6fdc9fd16",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 210,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/books/v1/{book_title}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/books/v1/{book_title}:GET:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/books/v1/{book_title}",
+        "get",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 210,
+          "character": 8
+        },
+        "end": {
+          "line": 210,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038836+00:00"
+  },
+  {
+    "finding_id": "spectral-4abbc23baa8b",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 212,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/createdb",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/createdb:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/createdb",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 212,
+          "character": 8
+        },
+        "end": {
+          "line": 228,
+          "character": 15
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-23T07:35:05.038841+00:00"
+  },
+  {
+    "finding_id": "spectral-29ae48e6e990",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 228,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/createdb",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/createdb:GET:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/createdb",
+        "get",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 228,
+          "character": 8
+        },
+        "end": {
+          "line": 228,
+          "character": 15
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038845+00:00"
+  },
+  {
+    "finding_id": "spectral-0f9616b4cf35",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 275,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/me",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/me:GET:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/me",
+        "get",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 275,
+          "character": 8
+        },
+        "end": {
+          "line": 275,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038850+00:00"
+  },
+  {
+    "finding_id": "spectral-0545a87fa233",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 277,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/users/v1:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/users/v1",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 277,
+          "character": 8
+        },
+        "end": {
+          "line": 301,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-23T07:35:05.038855+00:00"
+  },
+  {
+    "finding_id": "spectral-180b327699b2",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 301,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/users/v1:GET:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/users/v1",
+        "get",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 301,
+          "character": 8
+        },
+        "end": {
+          "line": 301,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038860+00:00"
+  },
+  {
+    "finding_id": "spectral-c91f629cff3d",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 303,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/_debug",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/users/v1/_debug:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/users/v1/_debug",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 303,
+          "character": 8
+        },
+        "end": {
+          "line": 333,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-23T07:35:05.038865+00:00"
+  },
+  {
+    "finding_id": "spectral-0388f7719c0a",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 333,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/_debug",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/users/v1/_debug:GET:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/users/v1/_debug",
+        "get",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 333,
+          "character": 8
+        },
+        "end": {
+          "line": 333,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038870+00:00"
+  },
+  {
+    "finding_id": "spectral-9e6a3c8b33a1",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 335,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/login",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/users/v1/login:POST:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/users/v1/login",
+        "post"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 335,
+          "character": 9
+        },
+        "end": {
+          "line": 389,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-23T07:35:05.038875+00:00"
+  },
+  {
+    "finding_id": "spectral-5df5eff9ce71",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 389,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/login",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/users/v1/login:POST:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/users/v1/login",
+        "post",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 389,
+          "character": 8
+        },
+        "end": {
+          "line": 389,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038880+00:00"
+  },
+  {
+    "finding_id": "spectral-7166b70ddcc9",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 391,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/register",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/users/v1/register:POST:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/users/v1/register",
+        "post"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 391,
+          "character": 9
+        },
+        "end": {
+          "line": 433,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-23T07:35:05.038886+00:00"
+  },
+  {
+    "finding_id": "spectral-0ce0bc7c93ff",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 433,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/register",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/users/v1/register:POST:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/users/v1/register",
+        "post",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 433,
+          "character": 8
+        },
+        "end": {
+          "line": 433,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038890+00:00"
+  },
+  {
+    "finding_id": "spectral-be6c5c05d374",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 497,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/{username}",
+      "method": "DELETE",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/users/v1/{username}:DELETE:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/users/v1/{username}",
+        "delete",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 497,
+          "character": 8
+        },
+        "end": {
+          "line": 497,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038895+00:00"
+  },
+  {
+    "finding_id": "spectral-c8ee59f02342",
+    "source": "SPECTRAL",
+    "category": "AUTHORIZATION",
+    "title": "[Documented API] owasp-api1-object-level-security",
+    "description": "Violazione su API già documentata: Le operazioni su singolo oggetto (path con parametro {id}) devono dichiarare un requisito di security: senza, l'oggetto è esposto a BOLA (OWASP API1).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api1-object-level-security",
+    "rule_name": "owasp-api1-object-level-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 498,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/{username}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "api:GET:/users/v1/{id}",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api1-object-level-security",
+      "path": [
+        "paths",
+        "/users/v1/{username}",
+        "get"
+      ],
+      "message": "Le operazioni su singolo oggetto (path con parametro {id}) devono dichiarare un requisito di security: senza, l'oggetto è esposto a BOLA (OWASP API1).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 498,
+          "character": 8
+        },
+        "end": {
+          "line": 540,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-23T07:35:05.038904+00:00"
+  },
+  {
+    "finding_id": "spectral-ebb9e2e8df25",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Documented API] owasp-api2-operation-security",
+    "description": "Violazione su API già documentata: Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 498,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/{username}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/users/v1/{username}:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/users/v1/{username}",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 498,
+          "character": 8
+        },
+        "end": {
+          "line": 540,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-23T07:35:05.038910+00:00"
+  },
+  {
+    "finding_id": "spectral-07308da2bc6c",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 540,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/{username}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/users/v1/{username}:GET:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/users/v1/{username}",
+        "get",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 540,
+          "character": 8
+        },
+        "end": {
+          "line": 540,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038914+00:00"
+  },
+  {
+    "finding_id": "spectral-09f08e9af568",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 602,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/{username}/email",
+      "method": "PUT",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/users/v1/{username}/email:PUT:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/users/v1/{username}/email",
+        "put",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 602,
+          "character": 8
+        },
+        "end": {
+          "line": 602,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038920+00:00"
+  },
+  {
+    "finding_id": "spectral-0b8995dfd54c",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] operation-tag-defined",
+    "description": "Violazione su API già documentata: Operation tags must be defined in global tags.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "operation-tag-defined",
+    "rule_name": "operation-tag-defined",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/vampi/openapi_specs/openapi3.yml",
+      "start_line": 664,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/users/v1/{username}/password",
+      "method": "PUT",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/users/v1/{username}/password:PUT:operation-tag-defined",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "operation-tag-defined",
+      "path": [
+        "paths",
+        "/users/v1/{username}/password",
+        "put",
+        "tags",
+        "0"
+      ],
+      "message": "Operation tags must be defined in global tags.",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 664,
+          "character": 8
+        },
+        "end": {
+          "line": 664,
+          "character": 13
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/vampi/openapi_specs/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-23T07:35:05.038926+00:00"
+  }
+]

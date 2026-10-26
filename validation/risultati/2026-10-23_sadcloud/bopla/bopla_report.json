@@ -1,0 +1,20 @@
+{
+    "timestamp": "2026-10-23T09:35:25.064545",
+    "target_url": "http://localhost:5000",
+    "repository": "sadcloud",
+    "score": 100,
+    "risk_level": "LOW",
+    "objects_discovered": 0,
+    "properties_discovered": 0,
+    "protected_properties": 0,
+    "dynamic_phase_executed": false,
+    "tests_executed": 0,
+    "vulnerabilities_detected": 0,
+    "findings": [],
+    "static_findings_count": 0,
+    "static_findings_confirmed": 0,
+    "static_findings": [],
+    "graph": {
+        "objects": {}
+    }
+}

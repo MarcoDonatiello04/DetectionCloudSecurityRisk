@@ -17,6 +17,8 @@ GROUND_TRUTH = {
             {"rule_id": "SC-003", "must_find": True},
             {"rule_id": "SC-004", "must_find": True},
             {"rule_id": "SC-005", "must_find": True},
+            {"rule_id": "SC-008", "must_find": True},
+            {"rule_id": "SC-009", "must_find": True},
         ]
     },
     "secure_app": {"expected_findings": []},

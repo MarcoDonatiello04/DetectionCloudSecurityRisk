@@ -28,6 +28,11 @@ class MockDB:
 
 db = MockDB()
 
+class Invite:
+    def __init__(self, email=None, role="user"):
+        self.email = email
+        self.role = role
+
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -51,6 +56,15 @@ def update_user_role(user_id: int):
     user.role = request.json['role']
     db.session.commit()
     return jsonify({"updated": user_id})
+
+# ── BF-007: privilege escalation via payload ─────────────────────────────────
+@app.post("/api/invites/new")
+@login_required   # autenticato, ma nessuna verifica che possa concedere quel ruolo
+def create_invite():
+    payload = request.get_json()
+    # VULNERABLE: {"role": "admin"} nel body crea un invito amministrativo
+    invite = Invite(email=payload["email"], role=payload.get("role", "user"))
+    return jsonify({"invited": invite.email})
 
 # ── BF-003: route senza methods restrizione ───────────────────────────────────
 @app.route("/admin/config")   # VULNERABLE: nessun methods=["GET"]

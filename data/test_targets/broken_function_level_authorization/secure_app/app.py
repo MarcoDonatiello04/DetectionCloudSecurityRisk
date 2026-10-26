@@ -28,6 +28,19 @@ class MockDB:
 
 db = MockDB()
 
+class Invite:
+    def __init__(self, email=None, role="user"):
+        self.email = email
+        self.role = role
+
+class CurrentUser:
+    is_admin = False
+
+current_user = CurrentUser()
+
+def abort(status):
+    raise PermissionError(status)
+
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -60,6 +73,25 @@ def update_user_role(user_id: int):
     user.role = request.json['role']
     db.session.commit()
     return jsonify({"updated": user_id})
+
+# ── BF-007 SECURE (privilegio del chiamante verificato sul ruolo richiesto) ──
+@app.post("/api/invites/new")
+@login_required
+def create_invite():
+    payload = request.get_json()
+    requested = payload.get("role", "user")
+    if requested != "user" and not current_user.is_admin:
+        abort(403)
+    invite = Invite(email=payload["email"], role=requested)
+    return jsonify({"invited": invite.email})
+
+# ── BF-007 SECURE (campo di privilegio usato solo come filtro di lettura) ────
+@app.post("/api/users/search")
+@login_required
+def search_users():
+    payload = request.get_json()
+    match = User.query.filter_by(role=payload["role"]).first()
+    return jsonify({"found": match is not None})
 
 # ── BF-003 SECURE ─────────────────────────────────────────────────────────────
 @app.route("/admin/config", methods=["GET"])

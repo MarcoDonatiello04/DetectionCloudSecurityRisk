@@ -18,15 +18,13 @@ __pycache__/
 *.log
 
 # Generated Reports & Output
-output/unified_security_report.json
-output/unified_api_inventory.json
-output/dashboard.html
-output/zap_report.json
+output/
 
 # Secrets / local env
 .env
 .target_env
 .vscode/
+.claude/
 
 # Tooling caches
 .ruff_cache/
@@ -34,28 +32,14 @@ output/zap_report.json
 .coverage
 coverage.xml
 htmlcov/
-output/raw_traffic.json
-output/findings_report.json
-output/bola_scan_results.json
-output/benchmark_results.json
-output/bopla/bopla_report.json
-output/bopla/bopla_report.md
 
 # Artefatti generati dalle esecuzioni (rigenerati da make iac-analysis / api-security / runner)
 config/environments/.target_env
-output/bola_scan_report.md
-output/bopla_dynamic_findings_example.json
-output/unified_run/
 validation_results/
 
 # Generato da terraform (data.archive_file in vulnerable_infra.tf)
 fixtures/api_vulnerabilities/generic_vulnerabilities.zip
 
-# Output generato dai runner della repo target
-output/repo_target/
-
-# Contratto OpenAPI unito, rigenerato da Spectral a ogni scansione
-output/openapi_merged.yaml
-
 # File temporaneo creato dallo Spectral adapter accanto a ogni openapi scansionato
 openapi_merged_temp.yaml
+

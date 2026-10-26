@@ -1,0 +1,4130 @@
+[
+  {
+    "finding_id": "checkov-f7399a654c95",
+    "source": "CHECKOV",
+    "category": "MISCONFIGURATION",
+    "title": "Ensure the base image uses a non latest version tag",
+    "description": "Ensure the base image uses a non latest version tag per la risorsa /Dockerfile.FROM",
+    "severity": "LOW",
+    "confidence": 0.8,
+    "rule_id": "CKV_DOCKER_7",
+    "rule_name": "Ensure the base image uses a non latest version tag",
+    "resource_type": null,
+    "resource_name": "FROM",
+    "resource_id": "/Dockerfile.FROM",
+    "location": {
+      "file_path": "/Dockerfile",
+      "start_line": 1,
+      "end_line": 1,
+      "code_snippet": null
+    },
+    "api": null,
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "FROM",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": "HARDENING",
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "check_id": "CKV_DOCKER_7",
+      "bc_check_id": null,
+      "check_name": "Ensure the base image uses a non latest version tag",
+      "check_result": {
+        "result": "FAILED",
+        "results_configuration": [
+          {
+            "instruction": "FROM",
+            "startline": 0,
+            "endline": 0,
+            "content": "FROM node:latest\n",
+            "value": "node:latest"
+          }
+        ]
+      },
+      "code_block": null,
+      "file_path": "/Dockerfile",
+      "file_abs_path": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/Dockerfile",
+      "repo_file_path": "/data/test_targets/external/dvapi/Dockerfile",
+      "file_line_range": [
+        1,
+        1
+      ],
+      "resource": "/Dockerfile.FROM",
+      "evaluations": null,
+      "check_class": "checkov.dockerfile.checks.ReferenceLatestTag",
+      "fixed_definition": null,
+      "entity_tags": null,
+      "caller_file_path": null,
+      "caller_file_line_range": null,
+      "resource_address": null,
+      "severity": null,
+      "bc_category": null,
+      "benchmarks": null,
+      "description": null,
+      "short_description": null,
+      "vulnerability_details": null,
+      "connected_node": null,
+      "guideline": null,
+      "details": [],
+      "check_len": null,
+      "definition_context_file_path": null,
+      "correlated_risk_score": 2.8
+    },
+    "detected_at": "2026-10-01T13:56:15.116409+00:00"
+  },
+  {
+    "finding_id": "checkov-84b49a295dbe",
+    "source": "CHECKOV",
+    "category": "MISCONFIGURATION",
+    "title": "Ensure that a user for the container has been created",
+    "description": "Ensure that a user for the container has been created per la risorsa /Dockerfile.",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "CKV_DOCKER_3",
+    "rule_name": "Ensure that a user for the container has been created",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": "/Dockerfile.",
+    "location": {
+      "file_path": "/Dockerfile",
+      "start_line": 1,
+      "end_line": 14,
+      "code_snippet": null
+    },
+    "api": null,
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "",
+    "related_findings": [
+      "checkov-1bd982e6e295"
+    ],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": "HARDENING",
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "check_id": "CKV_DOCKER_3",
+      "bc_check_id": null,
+      "check_name": "Ensure that a user for the container has been created",
+      "check_result": {
+        "result": "FAILED",
+        "results_configuration": null
+      },
+      "code_block": null,
+      "file_path": "/Dockerfile",
+      "file_abs_path": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/Dockerfile",
+      "repo_file_path": "/data/test_targets/external/dvapi/Dockerfile",
+      "file_line_range": [
+        1,
+        14
+      ],
+      "resource": "/Dockerfile.",
+      "evaluations": null,
+      "check_class": "checkov.dockerfile.checks.UserExists",
+      "fixed_definition": null,
+      "entity_tags": null,
+      "caller_file_path": null,
+      "caller_file_line_range": null,
+      "resource_address": null,
+      "severity": null,
+      "bc_category": null,
+      "benchmarks": null,
+      "description": null,
+      "short_description": null,
+      "vulnerability_details": null,
+      "connected_node": null,
+      "guideline": null,
+      "details": [],
+      "check_len": null,
+      "definition_context_file_path": null,
+      "aggregated_checks": [
+        {
+          "finding_id": "checkov-1bd982e6e295",
+          "rule_id": "CKV_DOCKER_2",
+          "title": "Ensure that HEALTHCHECK instructions have been added to container images",
+          "severity": "LOW",
+          "nature": "HARDENING"
+        }
+      ],
+      "merged_checkov-1bd982e6e295": {
+        "check_id": "CKV_DOCKER_2",
+        "bc_check_id": null,
+        "check_name": "Ensure that HEALTHCHECK instructions have been added to container images",
+        "check_result": {
+          "result": "FAILED",
+          "results_configuration": null
+        },
+        "code_block": null,
+        "file_path": "/Dockerfile",
+        "file_abs_path": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/Dockerfile",
+        "repo_file_path": "/data/test_targets/external/dvapi/Dockerfile",
+        "file_line_range": [
+          1,
+          14
+        ],
+        "resource": "/Dockerfile.",
+        "evaluations": null,
+        "check_class": "checkov.dockerfile.checks.HealthcheckExists",
+        "fixed_definition": null,
+        "entity_tags": null,
+        "caller_file_path": null,
+        "caller_file_line_range": null,
+        "resource_address": null,
+        "severity": null,
+        "bc_category": null,
+        "benchmarks": null,
+        "description": null,
+        "short_description": null,
+        "vulnerability_details": null,
+        "connected_node": null,
+        "guideline": null,
+        "details": [],
+        "check_len": null,
+        "definition_context_file_path": null
+      },
+      "correlated_risk_score": 4.7
+    },
+    "detected_at": "2026-10-01T13:56:15.116446+00:00"
+  },
+  {
+    "finding_id": "semgrep-a99258a7b3c6",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/login protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/login",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/login",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/login",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961160+00:00"
+  },
+  {
+    "finding_id": "semgrep-a465608a129a",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/register protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/register",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/register",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/register",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961188+00:00"
+  },
+  {
+    "finding_id": "semgrep-00409070547f",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /api/profile protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/profile",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/api/profile",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/api/profile",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961205+00:00"
+  },
+  {
+    "finding_id": "semgrep-ff288cd82a63",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/profile protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/profile",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/profile",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/profile",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961214+00:00"
+  },
+  {
+    "finding_id": "semgrep-23c34a5d50b5",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/addNote protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/addNote",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/addNote",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/addNote",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961221+00:00"
+  },
+  {
+    "finding_id": "semgrep-ff990b74ab87",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /api/getNote protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/getNote",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/api/getNote",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/api/getNote",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961228+00:00"
+  },
+  {
+    "finding_id": "semgrep-c9e581a1bf1e",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /api/scores protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/scores",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/api/scores",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/api/scores",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961234+00:00"
+  },
+  {
+    "finding_id": "semgrep-706f7d91ba53",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/admin/updateStatus protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/admin/updateStatus",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/admin/updateStatus",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/admin/updateStatus",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961242+00:00"
+  },
+  {
+    "finding_id": "semgrep-9b52875eb867",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/profile/upload protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/profile/upload",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/profile/upload",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/profile/upload",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961250+00:00"
+  },
+  {
+    "finding_id": "semgrep-a9f508f419fd",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/addNoteWithLink protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/addNoteWithLink",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/addNoteWithLink",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/addNoteWithLink",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961256+00:00"
+  },
+  {
+    "finding_id": "semgrep-589b2a31904d",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/allChallenges protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/allChallenges",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/allChallenges",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/allChallenges",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961263+00:00"
+  },
+  {
+    "finding_id": "semgrep-5c1a7c78d417",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /api/getSolves protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/getSolves",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/api/getSolves",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/api/getSolves",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961269+00:00"
+  },
+  {
+    "finding_id": "semgrep-5ef46965df13",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/flag/submit protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/flag/submit",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/flag/submit",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/flag/submit",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961276+00:00"
+  },
+  {
+    "finding_id": "semgrep-30400d16c6d4",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/addTicket protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/addTicket",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/addTicket",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/addTicket",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961282+00:00"
+  },
+  {
+    "finding_id": "semgrep-b1ecbf431acb",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /api/getTicket protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/getTicket",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/api/getTicket",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/api/getTicket",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961293+00:00"
+  },
+  {
+    "finding_id": "semgrep-5f21d1f58f27",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /api/user/{username} protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/user/{username}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/api/user/{id}",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/api/user/{username}",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961300+00:00"
+  },
+  {
+    "finding_id": "semgrep-199ee6b317dd",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: DELETE /api/user/{username} protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/user/{username}",
+      "method": "DELETE",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:DELETE:/api/user/{id}",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "DELETE",
+      "path": "/api/user/{username}",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961307+00:00"
+  },
+  {
+    "finding_id": "semgrep-dc8f126f88f2",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /certificate protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/certificate",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/certificate",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/certificate",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961313+00:00"
+  },
+  {
+    "finding_id": "semgrep-04bb2509f18e",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: POST /certificate protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/certificate",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:POST:/certificate",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "POST",
+      "path": "/certificate",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961318+00:00"
+  },
+  {
+    "finding_id": "semgrep-98108013a43e",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET / protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961326+00:00"
+  },
+  {
+    "finding_id": "semgrep-1ca93b0a7f4e",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /login protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/login",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/login",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/login",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961332+00:00"
+  },
+  {
+    "finding_id": "semgrep-4e5d03bd3810",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /register protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/register",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/register",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/register",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961340+00:00"
+  },
+  {
+    "finding_id": "semgrep-205bb0c21291",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /scoreboard protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/scoreboard",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/scoreboard",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/scoreboard",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961349+00:00"
+  },
+  {
+    "finding_id": "semgrep-6b9c619a0420",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /profile protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/profile",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/profile",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/profile",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961359+00:00"
+  },
+  {
+    "finding_id": "semgrep-9cf798a80505",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /challenges protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/challenges",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/challenges",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/challenges",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961364+00:00"
+  },
+  {
+    "finding_id": "semgrep-84e9ec22e2e1",
+    "source": "SEMGREP",
+    "category": "API_EXPOSURE",
+    "title": "API Endpoint Rilevato",
+    "description": "Identificato endpoint API [express]: GET /user/{username} protetto da autenticazione.",
+    "severity": "INFO",
+    "confidence": 0.95,
+    "rule_id": "api-route-discovery",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/user/{username}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": true
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "api:GET:/user/{id}",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/user/{username}",
+      "file": "src/routes/routes.js",
+      "auth_detected": true,
+      "framework": "express",
+      "correlated_risk_score": 2.5
+    },
+    "detected_at": "2026-10-01T13:56:15.961371+00:00"
+  },
+  {
+    "finding_id": "semgrep-21e9f54c13be",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [express]: GET /Cert-Generator-master/FileSaver.js non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.7,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Cert-Generator-master/FileSaver.js",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "api:GET:/Cert-Generator-master/FileSaver.js",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/Cert-Generator-master/FileSaver.js",
+      "file": "src/routes/routes.js",
+      "auth_detected": false,
+      "framework": "express",
+      "correlated_risk_score": 4.9
+    },
+    "detected_at": "2026-10-01T13:56:15.961385+00:00"
+  },
+  {
+    "finding_id": "semgrep-ac5bdb2c3e32",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [express]: GET /Cert-Generator-master/index.js non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.7,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Cert-Generator-master/index.js",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "api:GET:/Cert-Generator-master/index.js",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/Cert-Generator-master/index.js",
+      "file": "src/routes/routes.js",
+      "auth_detected": false,
+      "framework": "express",
+      "correlated_risk_score": 4.9
+    },
+    "detected_at": "2026-10-01T13:56:15.961393+00:00"
+  },
+  {
+    "finding_id": "semgrep-83e0cc772b9e",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [express]: GET /Cert-Generator-master/style.css non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.7,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Cert-Generator-master/style.css",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "api:GET:/Cert-Generator-master/style.css",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/Cert-Generator-master/style.css",
+      "file": "src/routes/routes.js",
+      "auth_detected": false,
+      "framework": "express",
+      "correlated_risk_score": 4.9
+    },
+    "detected_at": "2026-10-01T13:56:15.961400+00:00"
+  },
+  {
+    "finding_id": "semgrep-9c323e724512",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [express]: GET /Sanchez-Regular.ttf non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.7,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Sanchez-Regular.ttf",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "api:GET:/Sanchez-Regular.ttf",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/Sanchez-Regular.ttf",
+      "file": "src/routes/routes.js",
+      "auth_detected": false,
+      "framework": "express",
+      "correlated_risk_score": 4.9
+    },
+    "detected_at": "2026-10-01T13:56:15.961412+00:00"
+  },
+  {
+    "finding_id": "semgrep-7c2574be29b3",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [express]: GET /logout non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.7,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/logout",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "api:GET:/logout",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "/logout",
+      "file": "src/routes/routes.js",
+      "auth_detected": false,
+      "framework": "express",
+      "correlated_risk_score": 4.9
+    },
+    "detected_at": "2026-10-01T13:56:15.961419+00:00"
+  },
+  {
+    "finding_id": "semgrep-ab75a33368ca",
+    "source": "SEMGREP",
+    "category": "AUTHENTICATION",
+    "title": "Endpoint API non protetto rilevato (Statico)",
+    "description": "L'endpoint API [express]: GET * non sembra richiedere controlli di autenticazione a livello statico.",
+    "severity": "MEDIUM",
+    "confidence": 0.7,
+    "rule_id": "unauthenticated-api-route",
+    "rule_name": "API Route Detection",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "src/routes/routes.js",
+      "start_line": null,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "*",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": false
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "api:GET:/*",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "method": "GET",
+      "path": "*",
+      "file": "src/routes/routes.js",
+      "auth_detected": false,
+      "framework": "express",
+      "correlated_risk_score": 4.9
+    },
+    "detected_at": "2026-10-01T13:56:15.961426+00:00"
+  },
+  {
+    "finding_id": "spectral-0cb09a3fb137",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Documented API] unrecognized-format",
+    "description": "Violazione su API già documentata: The provided document does not match any of the registered formats [OpenAPI 2.0 (Swagger), OpenAPI 3.x, OpenAPI 3.0.x, OpenAPI 3.1.x]",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "unrecognized-format",
+    "rule_name": "unrecognized-format",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 0,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": null,
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "openapi:DVAPI.postman_collection.yaml:unrecognized-format",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "unrecognized-format",
+      "path": [],
+      "message": "The provided document does not match any of the registered formats [OpenAPI 2.0 (Swagger), OpenAPI 3.x, OpenAPI 3.0.x, OpenAPI 3.1.x]",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 241,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.484914+00:00"
+  },
+  {
+    "finding_id": "spectral-e696190eaa83",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Discovered API] owasp-api2-operation-security",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 2,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "*",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:*:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "*",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 8
+        },
+        "end": {
+          "line": 6,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-01T13:56:17.485021+00:00"
+  },
+  {
+    "finding_id": "spectral-c7a57a767f0d",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 2,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "*",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:*:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "*",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 8
+        },
+        "end": {
+          "line": 6,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485038+00:00"
+  },
+  {
+    "finding_id": "spectral-35091b9b4229",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 8,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 8,
+          "character": 8
+        },
+        "end": {
+          "line": 14,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485048+00:00"
+  },
+  {
+    "finding_id": "spectral-2379698a616a",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Discovered API] owasp-api2-operation-security",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 16,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Cert-Generator-master/FileSaver.js",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/Cert-Generator-master/FileSaver.js:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/Cert-Generator-master/FileSaver.js",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 8
+        },
+        "end": {
+          "line": 20,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-01T13:56:17.485061+00:00"
+  },
+  {
+    "finding_id": "spectral-125f5b9ac036",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 16,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Cert-Generator-master/FileSaver.js",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/Cert-Generator-master/FileSaver.js:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/Cert-Generator-master/FileSaver.js",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 16,
+          "character": 8
+        },
+        "end": {
+          "line": 20,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485071+00:00"
+  },
+  {
+    "finding_id": "spectral-478705790f94",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Discovered API] owasp-api2-operation-security",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 22,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Cert-Generator-master/index.js",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/Cert-Generator-master/index.js:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/Cert-Generator-master/index.js",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 22,
+          "character": 8
+        },
+        "end": {
+          "line": 26,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-01T13:56:17.485080+00:00"
+  },
+  {
+    "finding_id": "spectral-e88459ffaff3",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 22,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Cert-Generator-master/index.js",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/Cert-Generator-master/index.js:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/Cert-Generator-master/index.js",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 22,
+          "character": 8
+        },
+        "end": {
+          "line": 26,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485089+00:00"
+  },
+  {
+    "finding_id": "spectral-199c81df93db",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Discovered API] owasp-api2-operation-security",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 28,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Cert-Generator-master/style.css",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/Cert-Generator-master/style.css:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/Cert-Generator-master/style.css",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 28,
+          "character": 8
+        },
+        "end": {
+          "line": 32,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-01T13:56:17.485100+00:00"
+  },
+  {
+    "finding_id": "spectral-a52f8bfaaa6b",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 28,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Cert-Generator-master/style.css",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/Cert-Generator-master/style.css:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/Cert-Generator-master/style.css",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 28,
+          "character": 8
+        },
+        "end": {
+          "line": 32,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485109+00:00"
+  },
+  {
+    "finding_id": "spectral-5cac03f6f972",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Discovered API] owasp-api2-operation-security",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 34,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Sanchez-Regular.ttf",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/Sanchez-Regular.ttf:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/Sanchez-Regular.ttf",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 34,
+          "character": 8
+        },
+        "end": {
+          "line": 38,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-01T13:56:17.485117+00:00"
+  },
+  {
+    "finding_id": "spectral-3f3f8938af1d",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 34,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/Sanchez-Regular.ttf",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/Sanchez-Regular.ttf:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/Sanchez-Regular.ttf",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 34,
+          "character": 8
+        },
+        "end": {
+          "line": 38,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485125+00:00"
+  },
+  {
+    "finding_id": "spectral-445a22fb0c9d",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 40,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/addNote",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/addNote:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/addNote",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 40,
+          "character": 9
+        },
+        "end": {
+          "line": 46,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485135+00:00"
+  },
+  {
+    "finding_id": "spectral-e3fa9c59a043",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 48,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/addNoteWithLink",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/addNoteWithLink:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/addNoteWithLink",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 48,
+          "character": 9
+        },
+        "end": {
+          "line": 54,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485143+00:00"
+  },
+  {
+    "finding_id": "spectral-5eff9a3035b0",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 56,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/addTicket",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/addTicket:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/addTicket",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 56,
+          "character": 9
+        },
+        "end": {
+          "line": 62,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485152+00:00"
+  },
+  {
+    "finding_id": "spectral-5362d63c37db",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 64,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/admin/updateStatus",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/admin/updateStatus:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/admin/updateStatus",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 64,
+          "character": 9
+        },
+        "end": {
+          "line": 70,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485160+00:00"
+  },
+  {
+    "finding_id": "spectral-b1e342087baa",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 72,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/allChallenges",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/allChallenges:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/allChallenges",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 72,
+          "character": 9
+        },
+        "end": {
+          "line": 78,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485168+00:00"
+  },
+  {
+    "finding_id": "spectral-79051af764c7",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 80,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/flag/submit",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/flag/submit:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/flag/submit",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 80,
+          "character": 9
+        },
+        "end": {
+          "line": 86,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485177+00:00"
+  },
+  {
+    "finding_id": "spectral-1f60ac2828de",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 88,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/getNote",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/getNote:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/getNote",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 88,
+          "character": 8
+        },
+        "end": {
+          "line": 94,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485185+00:00"
+  },
+  {
+    "finding_id": "spectral-01bb2c0eb208",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 96,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/getSolves",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/getSolves:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/getSolves",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 96,
+          "character": 8
+        },
+        "end": {
+          "line": 102,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485193+00:00"
+  },
+  {
+    "finding_id": "spectral-68bb904d4394",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 104,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/getTicket",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/getTicket:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/getTicket",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 104,
+          "character": 9
+        },
+        "end": {
+          "line": 110,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485200+00:00"
+  },
+  {
+    "finding_id": "spectral-29cb32b7021d",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 112,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/login",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/login:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/login",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 112,
+          "character": 9
+        },
+        "end": {
+          "line": 118,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485208+00:00"
+  },
+  {
+    "finding_id": "spectral-a92a3bee946b",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 120,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/profile",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/profile:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/profile",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 120,
+          "character": 8
+        },
+        "end": {
+          "line": 126,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485217+00:00"
+  },
+  {
+    "finding_id": "spectral-b0b986983a94",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 127,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/profile",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/profile:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/profile",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 127,
+          "character": 9
+        },
+        "end": {
+          "line": 133,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485225+00:00"
+  },
+  {
+    "finding_id": "spectral-eea8f856cce0",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 135,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/profile/upload",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/profile/upload:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/profile/upload",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 135,
+          "character": 9
+        },
+        "end": {
+          "line": 141,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485233+00:00"
+  },
+  {
+    "finding_id": "spectral-ea4966dc358c",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 143,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/register",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/register:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/register",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 143,
+          "character": 9
+        },
+        "end": {
+          "line": 149,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485241+00:00"
+  },
+  {
+    "finding_id": "spectral-4dca28241bce",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 151,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/scores",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/scores:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/scores",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 151,
+          "character": 8
+        },
+        "end": {
+          "line": 157,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485249+00:00"
+  },
+  {
+    "finding_id": "spectral-aeccce777312",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 159,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/user/{username}",
+      "method": "DELETE",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/user/{username}:DELETE:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/user/{username}",
+        "delete"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 159,
+          "character": 11
+        },
+        "end": {
+          "line": 165,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485258+00:00"
+  },
+  {
+    "finding_id": "spectral-5244ea59fb4a",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 166,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/api/user/{username}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/api/user/{username}:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/api/user/{username}",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 166,
+          "character": 8
+        },
+        "end": {
+          "line": 172,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485266+00:00"
+  },
+  {
+    "finding_id": "spectral-084f25decffa",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 174,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/certificate",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/certificate:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/certificate",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 174,
+          "character": 8
+        },
+        "end": {
+          "line": 180,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485277+00:00"
+  },
+  {
+    "finding_id": "spectral-c7a6a92f33cb",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 181,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/certificate",
+      "method": "POST",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/certificate:POST:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/certificate",
+        "post"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 181,
+          "character": 9
+        },
+        "end": {
+          "line": 187,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485285+00:00"
+  },
+  {
+    "finding_id": "spectral-123ea6376486",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 189,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/challenges",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/challenges:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/challenges",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 189,
+          "character": 8
+        },
+        "end": {
+          "line": 195,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485292+00:00"
+  },
+  {
+    "finding_id": "spectral-7f179cd5d8e0",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 197,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/login",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/login:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/login",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 197,
+          "character": 8
+        },
+        "end": {
+          "line": 203,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485300+00:00"
+  },
+  {
+    "finding_id": "spectral-0f0dafb0550b",
+    "source": "SPECTRAL",
+    "category": "AUTHENTICATION",
+    "title": "[Discovered API] owasp-api2-operation-security",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+    "severity": "HIGH",
+    "confidence": 1.0,
+    "rule_id": "owasp-api2-operation-security",
+    "rule_name": "owasp-api2-operation-security",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 205,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/logout",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": {
+      "internet_exposed": true,
+      "sensitive_data_detected": null,
+      "public_resource": null,
+      "exploitable": null
+    },
+    "correlation_key": "spectral:/logout:GET:owasp-api2-operation-security",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api2-operation-security",
+      "path": [
+        "paths",
+        "/logout",
+        "get"
+      ],
+      "message": "Ogni endpoint documentato deve dichiarare un meccanismo di security (Auth).",
+      "severity": 0,
+      "range": {
+        "start": {
+          "line": 205,
+          "character": 8
+        },
+        "end": {
+          "line": 209,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 7.0
+    },
+    "detected_at": "2026-10-01T13:56:17.485308+00:00"
+  },
+  {
+    "finding_id": "spectral-e2c63a21c1f9",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 205,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/logout",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/logout:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/logout",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 205,
+          "character": 8
+        },
+        "end": {
+          "line": 209,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485315+00:00"
+  },
+  {
+    "finding_id": "spectral-97182ec00d82",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 211,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/profile",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/profile:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/profile",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 211,
+          "character": 8
+        },
+        "end": {
+          "line": 217,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485323+00:00"
+  },
+  {
+    "finding_id": "spectral-0bd107350461",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 219,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/register",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/register:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/register",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 219,
+          "character": 8
+        },
+        "end": {
+          "line": 225,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485331+00:00"
+  },
+  {
+    "finding_id": "spectral-f7e417ff393a",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 227,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/scoreboard",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/scoreboard:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/scoreboard",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 227,
+          "character": 8
+        },
+        "end": {
+          "line": 233,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485338+00:00"
+  },
+  {
+    "finding_id": "spectral-708f04bb288a",
+    "source": "SPECTRAL",
+    "category": "DATA_EXPOSURE",
+    "title": "[Discovered API] owasp-api9-documented-endpoint",
+    "description": "Violazione su API scoperta da Semgrep (non in OpenAPI): Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+    "severity": "MEDIUM",
+    "confidence": 1.0,
+    "rule_id": "owasp-api9-documented-endpoint",
+    "rule_name": "owasp-api9-documented-endpoint",
+    "resource_type": null,
+    "resource_name": null,
+    "resource_id": null,
+    "location": {
+      "file_path": "data/test_targets/external/dvapi/src/swagger/DVAPI.postman_collection.yaml",
+      "start_line": 235,
+      "end_line": null,
+      "code_snippet": null
+    },
+    "api": {
+      "endpoint": "/user/{username}",
+      "method": "GET",
+      "base_url": null,
+      "api_version": null,
+      "requires_authentication": null
+    },
+    "runtime_evidence": null,
+    "risk_context": null,
+    "correlation_key": "spectral:/user/{username}:GET:owasp-api9-documented-endpoint",
+    "related_findings": [],
+    "owasp_api_category": null,
+    "cwe_id": null,
+    "cve_id": null,
+    "remediation": null,
+    "nature": null,
+    "tags": [],
+    "references": [],
+    "raw_data": {
+      "code": "owasp-api9-documented-endpoint",
+      "path": [
+        "paths",
+        "/user/{username}",
+        "get"
+      ],
+      "message": "Ogni operazione API deve avere una property 'description' per favorire la documentazione (mitiga Shadow/Zombie API).",
+      "severity": 1,
+      "range": {
+        "start": {
+          "line": 235,
+          "character": 8
+        },
+        "end": {
+          "line": 241,
+          "character": 48
+        }
+      },
+      "source": "/Users/marcodonatiello/DetectionCloudSecurityRisk/data/test_targets/external/dvapi/src/swagger/openapi_merged_temp.yaml",
+      "correlated_risk_score": 5.3
+    },
+    "detected_at": "2026-10-01T13:56:17.485346+00:00"
+  }
+]

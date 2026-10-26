@@ -1,0 +1,19 @@
+# Decisioni manuali per le metriche di accuratezza di DVAPI (validation/PROTOCOLLO.md, §6).
+# Prese dopo l'esecuzione del 2026-10-01 dall'agente di sviluppo, su richiesta dell'autore:
+# vanno riviste, idealmente da un collega che non abbia scritto lo strumento.
+voci:
+  D01:
+    fuori_perimetro: "Identificativo nella query (?username=), non modellato dal livello statico della BOLA; il livello dinamico non è partito perché i token di DVAPI riportano userId e non sub (limite noto, protocollo §7)."
+  D02:
+    fuori_perimetro: "La Broken Authentication non è partita: cerca il manifest delle dipendenze nella radice del repository, DVAPI lo colloca in src/ (limite noto, protocollo §7)."
+  D04:
+    esito: FN
+    motivo: "Le candidate API4 sono il batching GraphQL (RC-004) e i limiti del container (RC-007); nessuna riguarda la dimensione del file caricato."
+  D05:
+    esito: FN
+    motivo: "BF-005 segnala l'assenza di un diniego predefinito per l'intera applicazione, senza indicare l'endpoint DELETE /api/user/{username}: non identifica lo stesso punto di esposizione."
+  D07:
+    esito: FN
+    motivo: "Il riferimento accetta una segnalazione API8 di gestione degli errori verbosa a livello di applicazione; le candidate riguardano intestazioni, CORS e dipendenze, nessuna gli errori (SC-003)."
+  D08:
+    fuori_perimetro: "Categoria principale API6, di logica di business e priva di modulo per costruzione; le candidate dell'alternativa API4 (RC-004, RC-007) non riguardano la frequenza delle richieste."

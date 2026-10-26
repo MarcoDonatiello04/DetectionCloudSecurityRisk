@@ -17,10 +17,10 @@
 
 | Rule ID | CWE | Categoria | Implementato | Fixture TP verificato | Fixture TN verificato | Effective Coverage |
 |---------|-----|-----------|:---:|:---:|:---:|:---:|
-| SS-001 | CWE-918 | direct_url_from_input (Python/requests) | ✅ | ✅ | ✅ | **YES** |
-| SS-002 | CWE-918 | direct_url_from_input (Python/urllib) | ✅ | ✅ | ✅ | **YES** |
-| SS-003 | CWE-918 | direct_url_from_input (JS/Express) | ✅ | ✅ | ✅ | **YES** |
-| SS-004 | CWE-918 | redirect_following | ✅ | ✅ | ✅ | **YES** |
+| SS-001 | CWE-918 | direct_url_from_input (Python/requests/httpx/aiohttp - Taint Mode) | ✅ | ✅ | ✅ | **YES** |
+| SS-002 | CWE-918 | direct_url_from_input (Python/urllib - Taint Mode) | ✅ | ✅ | ✅ | **YES** |
+| SS-003 | CWE-918 | direct_url_from_input (JS/Express - Taint Mode) | ✅ | ✅ | ✅ | **YES** |
+| SS-004 | CWE-918 | redirect_following (Taint Mode) | ✅ | ✅ | ✅ | **YES** |
 | SS-005 | CWE-918 | cloud_metadata_access | ✅ | ✅ | ✅ | **YES** |
 | SS-006 | CWE-918 | unvalidated_url_parameter (OpenAPI) | ✅ | ✅ | ✅ | **YES** |
 
@@ -38,7 +38,7 @@
 
 ```bash
 # Dal root del progetto:
-python3 src/core/server_side_request_forgery/tests/validate_ground_truth.py
+PYTHONPATH=. .venv/bin/python tests/unit/api7_ssrf/validate_ground_truth.py
 ```
 
 ---

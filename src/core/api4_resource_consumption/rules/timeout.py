@@ -83,12 +83,18 @@ def _walk(node: Node, node_type: str, acc: list[Node]) -> None:
 
 
 def _get_attribute_chain(node: Node) -> list[str]:
-    if node.type == "identifier":
+    if node.type in ("identifier", "property_identifier", "shorthand_property_identifier"):
         return [_node_text(node)]
-    if node.type == "attribute":
+    if node.type in ("attribute", "member_expression"):
         parts: list[str] = []
         for child in node.children:
-            if child.type in ("identifier", "attribute"):
+            if child.type in (
+                "identifier",
+                "property_identifier",
+                "shorthand_property_identifier",
+                "attribute",
+                "member_expression",
+            ):
                 parts.extend(_get_attribute_chain(child))
         return parts
     return []

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bersagli esterni — Control Center</title>
+    <meta name="description" content="Validazione dello strumento sui bersagli esterni dell'insieme di prova, secondo validation/PROTOCOLLO.md.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0c;
+            --bg-card: rgba(20, 20, 25, 0.6);
+            --card-border: rgba(255,255,255,0.08);
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent-blue: #00d2ff;
+            --accent-purple: #9d4edd;
+            --accent-green: #06d6a0;
+            --accent-red: #ef4444;
+            --accent-orange: #f97316;
+            --bg-safe: rgba(6,214,160,0.12);
+            --text-safe: #34d399;
+            --border-safe: rgba(6,214,160,0.3);
+            --bg-vuln: rgba(239,68,68,0.12);
+            --text-vuln: #f87171;
+            --border-vuln: rgba(239,68,68,0.3);
+            --bg-med: rgba(234,179,8,0.12);
+            --text-med: #facc15;
+            --border-med: rgba(234,179,8,0.25);
+        }
+        [data-theme="light"] {
+            --bg-primary: #f4f5f6;
+            --bg-card: rgba(255,255,255,0.85);
+            --card-border: rgba(0,0,0,0.08);
+            --text-primary: #18181b;
+            --text-secondary: #52525b;
+            --text-muted: #8e8e93;
+            --accent-blue: #007aff;
+            --accent-green: #10b981;
+            --accent-red: #dc2626;
+            --accent-orange: #ea580c;
+            --text-safe: #047857;
+            --text-vuln: #b91c1c;
+            --text-med: #a16207;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg-primary); color: var(--text-primary); font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        .glow-bg { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(140px); z-index: -1; opacity: 0.12; pointer-events: none; }
+        .glow-top-left { top: -200px; left: -200px; background: var(--accent-blue); }
+        .glow-bottom-right { bottom: -200px; right: -200px; background: var(--accent-purple); }
+        header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 40px; border-bottom: 1px solid var(--card-border); backdrop-filter: blur(12px); background: rgba(10,10,12,0.4); }
+        [data-theme="light"] header { background: rgba(244,245,246,0.4); }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #00d2ff, #9d4edd); display: flex; align-items: center; justify-content: center; }
+        .brand-logo svg { width: 20px; height: 20px; fill: #fff; }
+        .brand h1 { font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; }
+        .brand p { font-size: 0.78rem; color: var(--text-secondary); }
+        .header-actions { display: flex; gap: 10px; }
+        .ghost-btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text-secondary); font-size: 0.8rem; font-weight: 600; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--card-border); cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+        .ghost-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.08); }
+        main { flex: 1; padding: 32px 40px; max-width: 1200px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+        .card { background: var(--bg-card); border: 1px solid var(--card-border); border-radius: 16px; backdrop-filter: blur(20px); box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
+        .intro { padding: 24px 28px; display: flex; flex-direction: column; gap: 14px; }
+        .intro h2 { font-family: 'Outfit', sans-serif; font-size: 1.35rem; font-weight: 800; }
+        .intro p { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.55; max-width: 80ch; }
+        .intro code, .target-card code { font-family: ui-monospace, Menlo, monospace; font-size: 0.8rem; color: var(--text-primary); }
+        .steps { display: flex; flex-wrap: wrap; gap: 8px; }
+        .step { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--card-border); background: rgba(255,255,255,0.03); }
+        .step b { color: var(--accent-blue); margin-right: 4px; }
+        .warning { font-size: 0.82rem; padding: 10px 14px; border-radius: 10px; background: var(--bg-med); color: var(--text-med); border: 1px solid var(--border-med); max-width: 90ch; }
+        .services { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font-size: 0.8rem; color: var(--text-secondary); }
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 0.74rem; font-weight: 700; border: 1px solid var(--card-border); color: var(--text-secondary); }
+        .badge.on { background: var(--bg-safe); color: var(--text-safe); border-color: var(--border-safe); }
+        .badge.off { background: var(--bg-vuln); color: var(--text-vuln); border-color: var(--border-vuln); }
+        .badge.na { opacity: 0.7; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+        .targets { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+        .target-card { padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
+        .target-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+        .target-head h3 { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; }
+        .target-id { font-size: 0.72rem; color: var(--text-muted); font-family: ui-monospace, Menlo, monospace; }
+        .note { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45; }
+        .facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 0.78rem; }
+        .facts dt { color: var(--text-muted); }
+        .facts dd { overflow-wrap: anywhere; }
+        .status-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .act { padding: 9px 12px; border-radius: 10px; border: 1px solid var(--card-border); background: rgba(255,255,255,0.04); color: var(--text-primary); font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; text-align: left; transition: all 0.2s; }
+        .act:hover:not(:disabled) { background: rgba(0,210,255,0.08); border-color: rgba(0,210,255,0.35); }
+        .act:disabled { opacity: 0.4; cursor: not-allowed; }
+        .act .n { color: var(--accent-blue); font-weight: 800; margin-right: 6px; }
+        .act.secondary { color: var(--text-secondary); font-weight: 500; }
+        .act.primary { background: rgba(0,210,255,0.12); border-color: rgba(0,210,255,0.4); }
+        .main-act { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; text-decoration: none; border: 1px solid rgba(0,210,255,0.45); background: linear-gradient(135deg, rgba(0,210,255,0.18), rgba(157,78,221,0.18)); color: var(--text-primary); transition: all 0.2s; width: 100%; }
+        .main-act:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,210,255,0.18); }
+        .main-act:disabled { opacity: 0.5; cursor: progress; }
+        .main-act.open { border-color: var(--border-safe); background: var(--bg-safe); color: var(--text-safe); }
+        details.manual summary { cursor: pointer; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); list-style: none; }
+        details.manual summary::before { content: '▸ '; }
+        details.manual[open] summary::before { content: '▾ '; }
+        details.manual .actions { margin-top: 10px; }
+        .quickstart { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+        .quickstart .main-act { width: auto; padding: 11px 22px; }
+        .check { display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-secondary); cursor: pointer; }
+        .progress { font-size: 0.78rem; color: var(--accent-blue); display: flex; align-items: center; gap: 8px; }
+        .spinner { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(0,210,255,0.25); border-top-color: var(--accent-blue); animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .evidence { display: flex; flex-wrap: wrap; gap: 6px; }
+        .ev { font-size: 0.7rem; font-family: ui-monospace, Menlo, monospace; padding: 3px 8px; border-radius: 6px; border: 1px dashed var(--card-border); color: var(--text-muted); }
+        .ev.present { border-style: solid; color: var(--text-safe); border-color: var(--border-safe); background: var(--bg-safe); }
+        .section-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+        .jobs { padding: 22px 24px; display: flex; flex-direction: column; gap: 12px; }
+        .jobs h2 { font-family: 'Outfit', sans-serif; font-size: 1.05rem; font-weight: 700; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { text-align: left; color: var(--text-muted); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--card-border); }
+        td { padding: 8px 10px; border-bottom: 1px solid var(--card-border); vertical-align: top; }
+        .empty { color: var(--text-muted); font-size: 0.82rem; }
+        .console { background: #09090b; border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 14px 18px; font-family: ui-monospace, Menlo, monospace; font-size: 0.76rem; color: #d4d4d8; max-height: 320px; overflow: auto; white-space: pre-wrap; display: none; }
+        .toast { position: fixed; bottom: 24px; right: 24px; max-width: 420px; padding: 12px 16px; border-radius: 12px; font-size: 0.82rem; background: var(--bg-card); border: 1px solid var(--card-border); backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0,0,0,0.35); display: none; }
+        .toast.error { color: var(--text-vuln); border-color: var(--border-vuln); }
+        @media (max-width: 640px) {
+            header, main { padding-left: 16px; padding-right: 16px; }
+            .actions { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-bg glow-top-left"></div>
+    <div class="glow-bg glow-bottom-right"></div>
+
+    <header>
+        <div class="brand">
+            <div class="brand-logo">
+                <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 4a6 6 0 110 12 6 6 0 010-12zm0 3a3 3 0 100 6 3 3 0 000-6z"/></svg>
+            </div>
+            <div>
+                <h1>Bersagli esterni</h1>
+                <p>Validazione sull'insieme di prova</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a class="ghost-btn" href="/">&lsaquo; Dashboard</a>
+            <button class="ghost-btn" id="theme-toggle" type="button">Tema</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="card intro">
+            <h2>Test sui bersagli esterni</h2>
+            <p>
+                Ogni bersaglio gira in una <b>dashboard dedicata</b>, su una porta propria, con codice,
+                URL e cartella dei report fissati all'avvio, come i target <code>make dashboard-&lt;bersaglio&gt;</code>.
+                Questa pagina segue l'ordine di <code>validation/PROTOCOLLO.md</code>; i bersagli sono
+                definiti in <code id="registry-path">config/targets/registry.yaml</code>.
+            </p>
+            <p>
+                <b>Prepara e apri</b> fa tutto in un clic: avvia mitmproxy e ZAP se servono, avvia
+                l'applicazione e attende che risponda, genera il traffico di esercizio e apre la
+                dashboard dedicata. Nella dashboard dedicata si lancia prima la scansione statica,
+                poi quella completa; a fine lavoro si archiviano le evidenze.
+            </p>
+            <div class="quickstart">
+                <button class="main-act" id="prepare-all" type="button">▶ Prepara tutti i bersagli</button>
+                <label class="check"><input type="checkbox" id="with-traffic" checked> includi il traffico di esercizio</label>
+            </div>
+            <div class="warning">
+                Prima della prima esecuzione il protocollo chiede di congelare lo strumento: commit e tag
+                <code>v-validazione</code>. Ogni deviazione va annotata nel registro del protocollo.
+            </div>
+            <div class="services" id="services">Servizi della piattaforma: verifica in corso…</div>
+        </section>
+
+        <section class="targets" id="targets">
+            <p class="empty">Caricamento dei bersagli…</p>
+        </section>
+
+        <section class="card jobs">
+            <h2>Azioni lanciate da questa pagina</h2>
+            <div id="jobs"><p class="empty">Nessuna azione in questa sessione.</p></div>
+            <div class="console" id="console"></div>
+        </section>
+    </main>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+        const KIND = { 'app-start': 'Avvio app', 'app-stop': 'Arresto app', 'traffic': 'Traffico di esercizio', 'prepare': 'Preparazione guidata' };
+        let openLog = null;
+        let busy = new Set();
+        let lastRunning = 0;
+
+        function mainAction(t) {
+            if (busy.has(t.id) || busy.has('*')) {
+                return `<button class="main-act" disabled><span class="spinner"></span>Preparazione in corso…</button>`;
+            }
+            if (t.dashboard_running) {
+                return `<a class="main-act open" href="${esc(t.dashboard_url)}" target="_blank" rel="noopener">Apri la dashboard di ${esc(t.label)} ↗</a>`;
+            }
+            return `<button class="main-act" data-act="prepare" data-id="${esc(t.id)}">▶ Prepara e apri</button>`;
+        }
+
+        function toast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast' + (isError ? ' error' : '');
+            t.style.display = 'block';
+            clearTimeout(t._h);
+            t._h = setTimeout(() => { t.style.display = 'none'; }, 6000);
+        }
+
+        async function call(url, method = 'POST') {
+            const res = await fetch(url, { method });
+            const body = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(body.detail || `Errore ${res.status}`);
+            return body;
+        }
+
+        function badge(state, on, off, na) {
+            if (state === null) return `<span class="badge na">${esc(na)}</span>`;
+            return state
+                ? `<span class="badge on"><span class="dot"></span>${esc(on)}</span>`
+                : `<span class="badge off"><span class="dot"></span>${esc(off)}</span>`;
+        }
+
+        function renderTarget(t) {
+            const evidence = t.evidence.map((e) =>
+                `<span class="ev ${e.present ? 'present' : ''}" title="${esc(e.modified || 'assente')}">${esc(e.file)}</span>`).join('');
+            const anyEvidence = t.evidence.some((e) => e.present);
+            return `
+            <article class="card target-card">
+                <div class="target-head">
+                    <div><h3>${esc(t.label)}</h3><div class="target-id">${esc(t.id)}</div></div>
+                </div>
+                ${t.note ? `<p class="note">${esc(t.note)}</p>` : ''}
+                <dl class="facts">
+                    <dt>Codice</dt><dd><code>${esc(t.target_dir)}</code>${t.target_dir_exists ? '' : ' <span class="badge off">assente</span>'}</dd>
+                    <dt>App</dt><dd><code>${esc(t.has_app ? t.base_url : '—')}</code></dd>
+                    <dt>Dashboard</dt><dd><code>${esc(t.dashboard_url)}</code></dd>
+                    <dt>Report</dt><dd><code>${esc(t.output_dir)}</code></dd>
+                </dl>
+                <div class="status-row">
+                    ${badge(t.has_app ? t.app_reachable : null, 'app raggiungibile', 'app ferma', 'nessuna app')}
+                    ${badge(t.dashboard_running, 'dashboard attiva', 'dashboard ferma')}
+                </div>
+                ${mainAction(t)}
+                <details class="manual"><summary>Passi singoli</summary>
+                <div class="actions">
+                    <button class="act" data-act="app/start" data-id="${esc(t.id)}" ${t.has_app ? '' : 'disabled'}><span class="n">1</span>Avvia app</button>
+                    <button class="act secondary" data-act="app/stop" data-id="${esc(t.id)}" ${t.has_app ? '' : 'disabled'}>Ferma app</button>
+                    <button class="act" data-act="traffic" data-id="${esc(t.id)}" ${t.traffic && t.app_reachable ? '' : 'disabled'}><span class="n">2</span>Genera traffico</button>
+                    <span></span>
+                    <button class="act primary" data-act="dashboard/start" data-id="${esc(t.id)}"><span class="n">3</span>${t.dashboard_running ? 'Apri dashboard' : 'Avvia e apri dashboard'}</button>
+                    <button class="act secondary" data-act="dashboard/stop" data-id="${esc(t.id)}" ${t.dashboard_running ? '' : 'disabled'}>Ferma dashboard</button>
+                    <button class="act" data-act="archive" data-id="${esc(t.id)}" ${anyEvidence ? '' : 'disabled'}><span class="n">4</span>Archivia evidenze</button>
+                </div>
+                </details>
+                <div class="section-label">Evidenze</div>
+                <div class="evidence">${evidence}</div>
+                <div class="section-label">Accuratezza</div>
+                <div class="note" data-metrics="${esc(t.id)}">${anyEvidence ? 'calcolo…' : 'nessuna esecuzione da valutare'}</div>
+            </article>`;
+        }
+
+        const pct = (x) => (x === null || x === undefined) ? '–' : `${Math.round(100 * x)}%`;
+
+        async function loadMetrics() {
+            for (const el of document.querySelectorAll('[data-metrics]')) {
+                if (el.textContent.startsWith('nessuna')) continue;
+                try {
+                    const m = (await call(`/api/external-targets/${encodeURIComponent(el.dataset.metrics)}/metrics`, 'GET')).complessivo;
+                    el.innerHTML = `Recall <b>${pct(m.recall)}</b> (${m.vp} VP su ${m.voci} voci; nel perimetro ${pct(m.recall_nel_perimetro)})` +
+                        ` · precisione minima ${pct(m.precisione_minima)}` +
+                        (m.candidati ? ` · ${m.candidati} voci da decidere` : '') +
+                        (m.da_classificare ? ` · ${m.da_classificare} segnalazioni da classificare` : '');
+                } catch (e) {
+                    el.textContent = e.message;
+                }
+            }
+        }
+
+        async function refreshTargets() {
+            try {
+                const data = await call('/api/external-targets', 'GET');
+                document.getElementById('registry-path').textContent = data.registry;
+                const s = data.services;
+                document.getElementById('services').innerHTML = 'Servizi della piattaforma: ' +
+                    Object.entries(s).map(([name, up]) => badge(up, name, `${name} fermo`)).join(' ') +
+                    (Object.values(s).every(Boolean) ? '' : ' <span>Avviali con <code>docker compose up -d mitmproxy owasp-zap</code>.</span>');
+                const box = document.getElementById('targets');
+                box.innerHTML = data.targets.length
+                    ? data.targets.map(renderTarget).join('')
+                    : '<p class="empty">Nessun bersaglio nel registro.</p>';
+                loadMetrics();
+            } catch (e) {
+                toast(e.message, true);
+            }
+        }
+
+        async function refreshJobs() {
+            const { jobs } = await call('/api/external-targets/jobs', 'GET');
+            const box = document.getElementById('jobs');
+            if (!jobs.length) { busy = new Set(); box.innerHTML = '<p class="empty">Nessuna azione in questa sessione.</p>'; return jobs; }
+            busy = new Set(jobs.filter((j) => j.status === 'running').map((j) => j.target));
+            box.innerHTML = `<table><thead><tr><th>Bersaglio</th><th>Azione</th><th>Stato</th><th>Avvio</th><th></th></tr></thead><tbody>${
+                jobs.map((j) => `<tr>
+                    <td>${esc(j.target)}</td><td>${esc(KIND[j.kind] || j.kind)}</td>
+                    <td>${j.status === 'running' ? '<span class="badge">in corso</span>' : badge(j.status === 'ok', 'completata', `errore (${j.returncode})`)}</td>
+                    <td>${esc(j.started.replace('T', ' '))}</td>
+                    <td><button class="ghost-btn" data-log="${esc(j.id)}">Log</button></td>
+                </tr>`).join('')}</tbody></table>`;
+            return jobs;
+        }
+
+        async function showLog(jobId) {
+            openLog = jobId;
+            const { lines } = await call(`/api/external-targets/jobs/${jobId}/log`, 'GET');
+            const c = document.getElementById('console');
+            c.style.display = 'block';
+            c.textContent = lines.join('\n') || '(log vuoto)';
+            c.scrollTop = c.scrollHeight;
+        }
+
+        document.addEventListener('click', async (ev) => {
+            const logBtn = ev.target.closest('[data-log]');
+            if (logBtn) { showLog(logBtn.dataset.log).catch((e) => toast(e.message, true)); return; }
+            const btn = ev.target.closest('[data-act]');
+            if (!btn || btn.disabled) return;
+            const { act, id } = btn.dataset;
+            btn.disabled = true;
+            const traffic = document.getElementById('with-traffic').checked;
+            const url = act === 'prepare'
+                ? `/api/external-targets/${encodeURIComponent(id)}/prepare?traffic=${traffic}`
+                : `/api/external-targets/${encodeURIComponent(id)}/${act}`;
+            try {
+                const res = await call(url);
+                if (act === 'dashboard/start') {
+                    toast(res.status === 'started' ? 'Dashboard in avvio: si apre in una nuova scheda.' : 'Dashboard già attiva.');
+                    setTimeout(() => window.open(res.url, '_blank', 'noopener'), res.status === 'started' ? 2500 : 0);
+                } else if (act === 'archive') {
+                    toast(`Evidenze archiviate in ${res.path}`);
+                } else if (res.id) {
+                    toast(`${KIND[res.kind] || res.kind} avviata su ${res.target}.`);
+                    showLog(res.id);
+                } else {
+                    toast('Fatto.');
+                }
+            } catch (e) {
+                toast(e.message, true);
+            }
+            await refreshJobs();
+            setTimeout(refreshTargets, 1500);
+        });
+
+        document.getElementById('prepare-all').addEventListener('click', async (ev) => {
+            const traffic = document.getElementById('with-traffic').checked;
+            ev.currentTarget.disabled = true;
+            try {
+                const res = await call(`/api/external-targets/prepare-all?traffic=${traffic}`);
+                toast('Preparazione di tutti i bersagli avviata: segui il log qui sotto.');
+                showLog(res.id);
+            } catch (e) {
+                toast(e.message, true);
+            }
+            ev.currentTarget.disabled = false;
+            await refreshJobs();
+            refreshTargets();
+        });
+
+        async function tick() {
+            try {
+                const jobs = await refreshJobs();
+                if (openLog) await showLog(openLog);
+                const running = jobs.filter((j) => j.status === 'running').length;
+                if (running !== lastRunning) { lastRunning = running; refreshTargets(); }
+                if (jobs.some((j) => j.status === 'running')) { setTimeout(tick, 2000); return; }
+            } catch (e) { /* il prossimo giro riprova */ }
+            setTimeout(tick, 8000);
+        }
+
+        const root = document.documentElement;
+        const savedTheme = (() => { try { return localStorage.getItem('theme'); } catch (e) { return null; } })();
+        if (savedTheme === 'light') root.setAttribute('data-theme', 'light');
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            const light = root.getAttribute('data-theme') !== 'light';
+            if (light) root.setAttribute('data-theme', 'light'); else root.removeAttribute('data-theme');
+            try { localStorage.setItem('theme', light ? 'light' : 'dark'); } catch (e) { /* storage non disponibile */ }
+        });
+
+        refreshTargets();
+        setInterval(refreshTargets, 10000);
+        tick();
+    </script>
+</body>
+</html>

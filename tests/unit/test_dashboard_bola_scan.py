@@ -10,6 +10,9 @@ from src.presentation.api import server
 
 def test_bola_scan_forwards_captured_traffic(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
+    # Con il catalogo dei bersagli la cartella dei report dipende dal bersaglio corrente:
+    # il test la fissa, invece di dipendere dal default.
+    monkeypatch.setattr(server, "OUTPUT_DIR", "output")
     (tmp_path / "output").mkdir()
     traffic = [{"method": "GET", "path": "/api/projects/7", "status": 200, "headers": {}}]
     (tmp_path / "output" / "raw_traffic.json").write_text(json.dumps(traffic), encoding="utf-8")

@@ -1,0 +1,112 @@
+# =============================================================================
+# Riferimento di verità — VAmPI (erev0s/VAmPI)
+# -----------------------------------------------------------------------------
+# Scritto PRIMA di qualsiasi esecuzione dello strumento sul bersaglio, a partire
+# dalla sola documentazione dell'autore. Il codice del bersaglio non è stato letto
+# per costruire queste voci né per modificare regole o configurazione.
+#
+# Fonti:
+#   [README]  README.md del repository, sezioni "List of Vulnerabilities" e tabella
+#             delle azioni (metodo e percorso di ogni endpoint).
+#   [BLOG]    erev0s, "VAmPI the vulnerable API for security testing",
+#             https://erev0s.com/blog/vampi-vulnerable-api-security-testing/
+#             (indica per ogni vulnerabilità la funzione che la contiene; il metodo
+#             e il percorso sono ricavati incrociando con la tabella del README).
+#
+# Revisione del bersaglio: f16052dce83f05847133ec98f01c5193a41de7d8 (2026-04-07)
+#
+# Categoria OWASP: è quella dell'OWASP API Security Top 10 (2023) secondo la sua
+# definizione. L'autore non assegna categorie alle singole voci; dove la
+# classificazione è discutibile è indicata un'alternativa accettata, fissata qui
+# e non dopo aver visto i risultati.
+#
+# Regola di corrispondenza (Cap. 3, Disegno della valutazione): una segnalazione
+# corrisponde a una voce se ha la stessa categoria OWASP (o l'alternativa
+# accettata) e lo stesso punto di esposizione, identificato da metodo e percorso
+# normalizzato, qualunque sia il livello che l'ha prodotta. Le voci con
+# punto_esposizione "globale" corrispondono a una segnalazione della categoria
+# che descriva la stessa debolezza su un qualunque endpoint o a livello di
+# applicazione.
+#
+# Modalità: VAmPI ha un interruttore (variabile d'ambiente `vulnerable`) che rende
+# l'applicazione vulnerabile (1) o sicura (0) SENZA cambiare il codice. Ne segue:
+#   - livello statico: il codice è identico nelle due modalità, quindi la coppia
+#     vulnerabile/sicura non è una coppia gemella per l'analisi statica;
+#   - livello dinamico: l'autore dichiara la modalità 0 "non vulnerabile"; la
+#     documentazione non precisa quali voci l'interruttore copra. Lo scostamento
+#     fra le due modalità viene riportato, non corretto.
+# =============================================================================
+bersaglio: vampi
+revisione: f16052dce83f05847133ec98f01c5193a41de7d8
+stack: Python / Flask (connexion), specifica OpenAPI 3 in openapi_specs/openapi3.yml
+
+voci:
+  - id: V01
+    nome_autore: "SQLi Injection"
+    fonte: [README, BLOG]
+    punto_esposizione: {metodo: GET, percorso: "/users/v1/{username}"}
+    posizione_dichiarata: "models/user_model.py, get_user [BLOG]"
+    categoria_owasp_2023: FUORI_TOP10
+    nota: "L'iniezione non è una categoria della Top 10 API 2023. Riportata, non conteggiata nelle metriche per categoria."
+
+  - id: V02
+    nome_autore: "Unauthorized Password Change"
+    fonte: [README, BLOG]
+    punto_esposizione: {metodo: PUT, percorso: "/users/v1/{username}/password"}
+    posizione_dichiarata: "api_views/users.py, update_password [BLOG]"
+    categoria_owasp_2023: API1
+    alternativa_accettata: API2
+    nota: "Il controllo usa lo username del percorso invece dell'identità del token [BLOG]: azione su un oggetto altrui (API1). Alternativa API2 perché la risorsa è la credenziale."
+
+  - id: V03
+    nome_autore: "Broken Object Level Authorization"
+    fonte: [README, BLOG]
+    punto_esposizione: {metodo: GET, percorso: "/books/v1/{book}"}
+    posizione_dichiarata: "api_views/books.py, get_by_title [BLOG]"
+    categoria_owasp_2023: API1
+
+  - id: V04
+    nome_autore: "Mass Assignment"
+    fonte: [README, BLOG]
+    punto_esposizione: {metodo: POST, percorso: "/users/v1/register"}
+    posizione_dichiarata: "api_views/users.py, register_user [BLOG]"
+    categoria_owasp_2023: API3
+    nota: "Registrazione come amministratore tramite parametro non documentato. Nel 2023 il mass assignment confluisce in API3."
+
+  - id: V05
+    nome_autore: "Excessive Data Exposure through debug endpoint"
+    fonte: [README, BLOG]
+    punto_esposizione: {metodo: GET, percorso: "/users/v1/_debug"}
+    posizione_dichiarata: "api_views/users.py, debug [BLOG]"
+    categoria_owasp_2023: API3
+    alternativa_accettata: API8
+    nota: "Nel 2023 l'esposizione eccessiva confluisce in API3; alternativa API8 perché la causa è un endpoint di debug lasciato attivo."
+
+  - id: V06
+    nome_autore: "User and Password Enumeration"
+    fonte: [README, BLOG]
+    punto_esposizione: {metodo: POST, percorso: "/users/v1/login"}
+    posizione_dichiarata: "api_views/users.py, login_user [BLOG]"
+    categoria_owasp_2023: API2
+
+  - id: V07
+    nome_autore: "RegexDOS (Denial of Service)"
+    fonte: [README, BLOG]
+    punto_esposizione: {metodo: PUT, percorso: "/users/v1/{username}/email"}
+    posizione_dichiarata: "api_views/users.py, update_email [BLOG]"
+    categoria_owasp_2023: API4
+
+  - id: V08
+    nome_autore: "Lack of Resources & Rate Limiting"
+    fonte: [README, BLOG]
+    punto_esposizione: globale
+    categoria_owasp_2023: API4
+    nota: "Nessun endpoint specifico: nessun limite al numero di richieste per entità [BLOG]."
+
+  - id: V09
+    nome_autore: "JWT authentication bypass via weak signing key"
+    fonte: [README]
+    punto_esposizione: globale
+    endpoint_emissione_token: {metodo: POST, percorso: "/users/v1/login"}
+    categoria_owasp_2023: API2
+    nota: "Chiave di firma debole: riguarda tutti gli endpoint autenticati."

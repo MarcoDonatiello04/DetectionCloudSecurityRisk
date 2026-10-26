@@ -2,6 +2,8 @@ from src.core.api7_ssrf.normalizer import (
     _compute_confidence,
     _detect_allow_redirects,
     _detect_validation_type,
+    _extract_sink,
+    _extract_source,
     _map_severity,
     normalize_semgrep_output,
 )
@@ -79,3 +81,26 @@ def test_detect_allow_redirects():
         is True
     )
     assert _detect_allow_redirects({"check_id": "other-rule", "extra": {"lines": ""}}) is None
+    assert (
+        _detect_allow_redirects({"extra": {"lines": "httpx.get(url, follow_redirects=True)"}})
+        is True
+    )
+    assert (
+        _detect_allow_redirects({"extra": {"lines": "httpx.get(url, follow_redirects=False)"}})
+        is False
+    )
+
+
+def test_extract_source_and_sink_with_dataflow():
+    result = {
+        "extra": {
+            "dataflow_trace": {
+                "taint_source": ["CliLoc", [{}, "request.args.get('target')"]],
+                "taint_sink": ["CliLoc", [{}, "httpx.get(full_url)"]],
+            },
+            "lines": "return httpx.get(full_url)",
+        }
+    }
+    assert _extract_source(result) == "request.args.get('target')"
+    assert _extract_sink(result) == "httpx.get(full_url)"
+
